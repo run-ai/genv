@@ -1,10 +1,10 @@
 #!/bin/bash
 
 set -e
-[ -n "$RUNAI_DEBUG" ] && set -x
+[ -n "$RUNAIENV_DEBUG" ] && set -x
 
 if [[ $1 = "--description" ]] ; then
-    echo "List all available runai commands"
+    echo "List all available runaienv commands"
     exit 0
 fi
 
@@ -15,8 +15,8 @@ fi
 shopt -s nullglob
 
 {
-  for command_path in "$RUNAI_ROOT/libexec/runai-"*; do
-    command="${command_path##*runai-}"
+  for command_path in "$RUNAIENV_ROOT/libexec/runaienv-"*; do
+    command="${command_path##*runaienv-}"
     if [ "$sh" = "1" ]; then
       if [ "${command:0:3}" = "sh-" ]; then
         echo "${command##sh-}"

@@ -1,11 +1,11 @@
 #!/bin/bash
 
 set -e
-[ -n "$RUNAI_DEBUG" ] && set -x
+[ -n "$RUNAIENV_DEBUG" ] && set -x
 
 if [[ $1 = "--description" ]] ; then
     echo "Display the root directory where runaienv is installed"
     exit 0
 fi
 
-echo "$RUNAI_ROOT"
+echo "$RUNAIENV_ROOT"
