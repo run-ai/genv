@@ -1,0 +1,38 @@
+#!/bin/bash
+
+set -e
+[ -n "$RNENV_DEBUG" ] && set -x
+
+export RNENV_ROOT=${RNENV_ROOT:-"$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &> /dev/null && pwd)/.."}
+export PATH="$RNENV_ROOT/libexec:$PATH"
+
+command="$1"
+case "$command" in
+"" )
+  rnenv-help >&2
+  exit 1
+  ;;
+-h | --help )
+  exec rnenv-help
+  ;;
+* )
+  command_path="$(command -v "rnenv-$command" || true)"
+  if [ -z "$command_path" ]; then
+    if [ -n "$(command -v "rnenv-sh-$command" || true)" ]; then
+      {
+        echo "Your shell is not yet set up to use rnenv."
+        echo "Run this for instructions:"
+        echo
+        echo "    rnenv init"
+        echo
+      } >&2
+    else
+      echo "No such command '$command'" >&2
+    fi
+    exit 1
+  fi
+
+  shift 1
+  exec "$command_path" "$@"
+  ;;
+esac

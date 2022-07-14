@@ -1,0 +1,24 @@
+#!/bin/bash
+
+set -e
+[ -n "$RNENV_DEBUG" ] && set -x
+
+if [[ $1 = "--description" ]] ; then
+    echo "Deactivate managed environment"
+    exit 0
+fi
+
+if [ -z "$RNENV_ACTIVATED" ] ; then
+    echo "Not running in managed environment" 1>&2
+    exit 1
+fi
+
+cat <<EOS
+export LD_LIBRARY_PATH="\$RNENV_BACKUP_LD_LIBRARY_PATH"
+unset RNENV_BACKUP_LD_LIBRARY_PATH
+
+export PS1=\$RNENV_BACKUP_PS1
+unset RNENV_BACKUP_PS1
+
+unset RNENV_ACTIVATED
+EOS
