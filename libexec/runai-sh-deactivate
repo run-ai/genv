@@ -1,0 +1,24 @@
+#!/bin/bash
+
+set -e
+[ -n "$RUNAI_DEBUG" ] && set -x
+
+if [[ $1 = "--description" ]] ; then
+    echo "Deactivate managed environment"
+    exit 0
+fi
+
+if [ -z "$RUNAI_ACTIVATED" ] ; then
+    echo "Not running in managed environment" 1>&2
+    exit 1
+fi
+
+cat <<EOS
+export LD_LIBRARY_PATH="\$RUNAI_BACKUP_LD_LIBRARY_PATH"
+unset RUNAI_BACKUP_LD_LIBRARY_PATH
+
+export PS1=\$RUNAI_BACKUP_PS1
+unset RUNAI_BACKUP_PS1
+
+unset RUNAI_ACTIVATED
+EOS

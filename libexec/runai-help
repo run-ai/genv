@@ -1,0 +1,22 @@
+#!/bin/bash
+
+set -e
+[ -n "$RUNAI_DEBUG" ] && set -x
+
+if [[ $1 = "--description" ]] ; then
+    echo "Print this help message"
+    exit 0
+fi
+
+command_path() {
+  local command="$1"
+  command -v runai-"$command" || command -v runai-sh-"$command"
+}
+
+echo "Usage: runai <command>"
+echo
+echo "Available commands:"
+for command in $(exec runai-commands); do
+    printf "    %-9s    %s\n" "$command" "$(exec $(command_path $command) --description)"
+done
+echo

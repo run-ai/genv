@@ -1,0 +1,38 @@
+#!/bin/bash
+
+set -e
+[ -n "$RUNAI_DEBUG" ] && set -x
+
+if [[ $1 = "--description" ]] ; then
+    echo "Add runaienv support to your shell"
+    exit 0
+fi
+
+if [ "$1" = "-" ]; then
+  commands=(`runai-commands --sh`)
+  IFS="|"
+  cat <<EOS
+runai() {
+  local command
+  command="\${1:-}"
+  if [ "\$#" -gt 0 ]; then
+    shift
+  fi
+
+  case "\$command" in
+  ${commands[*]})
+    eval "\$(runai "sh-\$command" "\$@")"
+    ;;
+  *)
+    command runai "\$command" "\$@"
+    ;;
+  esac
+}
+EOS
+else
+  echo 'Run this for your shell to support runaienv.'
+  echo 'You should add it to your ~/.bashrc or any equivalent file.'
+  echo
+  echo 'eval "$(runai init -)"'
+  echo
+fi

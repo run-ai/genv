@@ -1,0 +1,38 @@
+#!/bin/bash
+
+set -e
+[ -n "$RUNAI_DEBUG" ] && set -x
+
+export RUNAI_ROOT=${RUNAI_ROOT:-"$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &> /dev/null && pwd)/.."}
+export PATH="$RUNAI_ROOT/libexec:$PATH"
+
+command="$1"
+case "$command" in
+"" )
+  runai-help >&2
+  exit 1
+  ;;
+-h | --help )
+  exec runai-help
+  ;;
+* )
+  command_path="$(command -v "runai-$command" || true)"
+  if [ -z "$command_path" ]; then
+    if [ -n "$(command -v "runai-sh-$command" || true)" ]; then
+      {
+        echo "Your shell is not yet set up to use runaienv."
+        echo "Run this for instructions:"
+        echo
+        echo "    runai init"
+        echo
+      } >&2
+    else
+      echo "No such command '$command'" >&2
+    fi
+    exit 1
+  fi
+
+  shift 1
+  exec "$command_path" "$@"
+  ;;
+esac
