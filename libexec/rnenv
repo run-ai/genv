@@ -4,7 +4,7 @@ set -e
 [ -n "$RNENV_DEBUG" ] && set -x
 
 export RNENV_ROOT=${RNENV_ROOT:-"$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &> /dev/null && pwd)/.."}
-export PATH="$RNENV_ROOT/libexec:$PATH"
+export PATH="$RNENV_ROOT/libexec:$RNENV_ROOT/bin:$PATH"
 
 command="$1"
 case "$command" in

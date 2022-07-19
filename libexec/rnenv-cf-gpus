@@ -68,6 +68,9 @@ else
   fi
 fi
 
+indices=$( exec rnenv coordinator )
+
 cat <<EOS
 export RNENV_CONFIG_GPUS=$count
+export CUDA_VISIBLE_DEVICES=$indices
 EOS

@@ -1,5 +1,6 @@
 {
     "files.associations": {
+        "rnenv-coordinator": "python",
         "rnenv*": "shellscript"
     }
 }

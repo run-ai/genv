@@ -13,12 +13,16 @@ if [ -n "$RNENV_ACTIVATED" ] ; then
   exit 1
 fi
 
+# TODO(raz): backup only existing environment variables
+
 cat <<EOS
 export RNENV_BACKUP_LD_LIBRARY_PATH="\$LD_LIBRARY_PATH"
 export LD_LIBRARY_PATH="$RNENV_ROOT/lib:\$LD_LIBRARY_PATH"
 
 export RNENV_BACKUP_PS1="\${PS1-}"
 export PS1="(rnenv) \${PS1-}"
+
+export RNENV_BACKUP_CUDA_VISIBLE_DEVICES="\$CUDA_VISIBLE_DEVICES"
 
 export RNENV_ACTIVATED=1;
 EOS
