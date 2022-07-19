@@ -1,0 +1,73 @@
+#!/bin/bash
+
+set -e
+[ -n "$RNENV_DEBUG" ] && set -x
+
+if [[ $1 = "--description" ]] ; then
+  echo "Amount of visible GPUs"
+  exit 0
+fi
+
+print_help()
+{
+  echo "Usage: rnenv config gpus <count> [--save] [-h|--help]"
+  echo
+  echo "Configure how many GPUs are accessible to this environment"
+  echo
+}
+
+print_help_and_fail()
+{
+  print_help >&2
+  exit 1
+}
+
+assert_empty()
+{
+  [[ -z "$1" ]] || print_help_and_fail
+}
+
+while [ $# -gt 0 ]
+do
+  case $1 in
+    -h|--help)
+      # we must fail here as the exit code of this
+      # script indicates whether or not the output
+      # should be 'eval'.
+      print_help_and_fail
+      ;;
+    --save|--load)
+      assert_empty $action
+      action=${1#--}
+      ;;
+    *)
+      assert_empty $count
+      count=$1
+      ;;
+  esac
+  shift
+done
+
+if [[ $action = "load" ]]; then
+  assert_empty $count
+  home="$(exec rnenv-home)"
+
+  if ! [[ -f "$home/gpus" ]]; then
+    echo "Cannot find saved configuration at $home" >&2
+    exit 1
+  fi
+
+  count=$(<"$home/gpus")
+else
+  re='^[0-9]+$'
+  [[ $count =~ $re && "$count" -ge 0 ]] || print_help_and_fail
+
+  if [[ $action = "save" ]]; then
+    home="$(exec rnenv-home)"
+    echo "$count" > "$home/gpus"
+  fi
+fi
+
+cat <<EOS
+export RNENV_CONFIG_GPUS=$count
+EOS
