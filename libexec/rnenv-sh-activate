@@ -4,13 +4,13 @@ set -e
 [ -n "$RNENV_DEBUG" ] && set -x
 
 if [[ $1 = "--description" ]] ; then
-    echo "Activate managed environment"
-    exit 0
+  echo "Activate managed environment"
+  exit 0
 fi
 
 if [ -n "$RNENV_ACTIVATED" ] ; then
-    echo "Already running in managed environment" 1>&2
-    exit 1
+  echo "Already running in managed environment" 1>&2
+  exit 1
 fi
 
 cat <<EOS
@@ -22,3 +22,11 @@ export PS1="(rnenv) \${PS1-}"
 
 export RNENV_ACTIVATED=1;
 EOS
+
+home="$(exec rnenv-home --quiet)"
+if [[ -n "$home" ]]; then
+  shopt -s nullglob
+  for file in "$home/"*; do
+    ( exec rnenv cf-${file##*/} --load )
+  done
+fi

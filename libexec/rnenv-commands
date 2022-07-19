@@ -10,6 +10,8 @@ fi
 
 if [ "$1" = "--sh" ]; then
   sh="1"
+elif [ "$1" = "--cf" ]; then
+  cf="1"
 fi
 
 shopt -s nullglob
@@ -17,12 +19,19 @@ shopt -s nullglob
 {
   for command_path in "$RNENV_ROOT/libexec/rnenv-"*; do
     command="${command_path##*rnenv-}"
-    if [ "$sh" = "1" ]; then
+
+    if [ "$cf" = "1" ]; then
+      if [ "${command:0:3}" = "cf-" ]; then
+        echo "${command##cf-}"
+      fi
+    elif [ "$sh" = "1" ]; then
       if [ "${command:0:3}" = "sh-" ]; then
         echo "${command##sh-}"
       fi
     else
-      echo "${command##sh-}"
+      if [ ! "${command:0:3}" = "cf-" ]; then
+        echo "${command##sh-}"
+      fi
     fi
   done
 } | sort | uniq

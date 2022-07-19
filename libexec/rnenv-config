@@ -1,0 +1,49 @@
+#!/bin/bash
+
+set -e
+[ -n "$RNENV_DEBUG" ] && set -x
+
+if [[ $1 = "--description" ]] ; then
+  echo "Configure this environment"
+  exit 0
+fi
+
+print_commands()
+{
+  echo "Available commands:"
+  for command in $(exec rnenv-commands --cf); do
+    printf "    %-5s    %s\n" "$command" "$(exec $(command -v "rnenv-cf-$command") --description)"
+  done
+}
+
+print_help()
+{
+  echo "Usage: rnenv config <command> [-h|--help]"
+  echo
+  print_commands
+  echo
+}
+
+command="$1"
+case "$command" in
+"")
+  print_help >&2
+  exit 1
+  ;;
+-h|--help)
+  print_help
+  ;;
+*)
+  {
+    if [ -n "$(command -v "rnenv-cf-$command" || true)" ]; then
+      ( exec rnenv init --warn )
+    else
+      echo "No such config command '$command'"
+      echo
+      print_commands
+      echo
+    fi
+  } >&2
+  exit 1
+  ;;
+esac

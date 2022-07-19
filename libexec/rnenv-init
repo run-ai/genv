@@ -9,7 +9,9 @@ if [[ $1 = "--description" ]] ; then
 fi
 
 if [ "$1" = "-" ]; then
-  commands=(`rnenv-commands --sh`)
+  sh_commands=(`rnenv-commands --sh`)
+  cf_commands=(`rnenv-commands --cf`)
+
   IFS="|"
   cat <<EOS
 rnenv() {
@@ -20,16 +22,37 @@ rnenv() {
   fi
 
   case "\$command" in
-  ${commands[*]})
+  ${sh_commands[*]})
     eval "\$(rnenv "sh-\$command" "\$@")"
+    ;;
+  config)
+    local subcommand
+    subcommand="\${1:-}"
+
+    case "\$subcommand" in
+    ${cf_commands[*]})
+      shift
+      eval "\$(rnenv "cf-\$subcommand" "\$@")"
+      ;;
+    *)
+      command rnenv "\$command" "\$@"
+      ;;
+    esac
     ;;
   *)
     command rnenv "\$command" "\$@"
     ;;
   esac
+
+  # TODO(raz): preserve the exit code of failed 'eval' commands
 }
 EOS
 else
+  if [ "$1" = "--warn" ]; then
+    echo "WARNING: Your shell is not yet set up to use rnenv."
+    echo
+  fi
+
   echo 'Run this for your shell to support rnenv.'
   echo 'You should add it to your ~/.bashrc or any equivalent file.'
   echo

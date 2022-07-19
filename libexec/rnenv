@@ -18,17 +18,13 @@ case "$command" in
 * )
   command_path="$(command -v "rnenv-$command" || true)"
   if [ -z "$command_path" ]; then
-    if [ -n "$(command -v "rnenv-sh-$command" || true)" ]; then
-      {
-        echo "Your shell is not yet set up to use rnenv."
-        echo "Run this for instructions:"
-        echo
-        echo "    rnenv init"
-        echo
-      } >&2
-    else
-      echo "No such command '$command'" >&2
-    fi
+    {
+      if [ -n "$(command -v "rnenv-sh-$command" || true)" ]; then
+        ( exec rnenv init --warn )
+      else
+        echo "No such command '$command'"
+      fi
+    } >&2
     exit 1
   fi
 

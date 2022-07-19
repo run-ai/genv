@@ -17,6 +17,6 @@ echo "Usage: rnenv <command>"
 echo
 echo "Available commands:"
 for command in $(exec rnenv-commands); do
-    printf "    %-9s    %s\n" "$command" "$(exec $(command_path $command) --description)"
+    printf "    %-10s    %s\n" "$command" "$(exec $(command_path $command) --description)"
 done
 echo
