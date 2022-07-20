@@ -71,6 +71,6 @@ fi
 indices=$( exec rnenv coordinator )
 
 cat <<EOS
-export RNENV_CONFIG_GPUS=$count
-export CUDA_VISIBLE_DEVICES=$indices
+_rnenv_set_env RNENV_CONFIG_GPUS $count
+_rnenv_replace_env CUDA_VISIBLE_DEVICES "$indices"
 EOS

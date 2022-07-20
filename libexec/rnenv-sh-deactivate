@@ -4,24 +4,49 @@ set -e
 [ -n "$RNENV_DEBUG" ] && set -x
 
 if [[ $1 = "--description" ]] ; then
-    echo "Deactivate managed environment"
-    exit 0
+  echo "Deactivate environment"
+  exit 0
 fi
 
-if [ -z "$RNENV_ACTIVATED" ] ; then
-    echo "Not running in managed environment" 1>&2
-    exit 1
+if [ -z "$RNENV_ACTIVE" ] ; then
+  echo "Not running in an active environment" 1>&2
+  exit 1
 fi
 
 cat <<EOS
-export LD_LIBRARY_PATH="\$RNENV_BACKUP_LD_LIBRARY_PATH"
-unset RNENV_BACKUP_LD_LIBRARY_PATH
+_rnenv_unset_envs()
+{
+  IFS=: read -a names <<< "\$RNENV_ENVS"
+  unset RNENV_ENVS
 
-export PS1=\$RNENV_BACKUP_PS1
-unset RNENV_BACKUP_PS1
+  for name in "\${names[@]}"
+  do
+    unset \$name
+  done
+}
 
-export CUDA_VISIBLE_DEVICES=\$RNENV_BACKUP_CUDA_VISIBLE_DEVICES
-unset RNENV_BACKUP_CUDA_VISIBLE_DEVICES
+_rnenv_restore_envs()
+{
+  IFS=: read -a names <<< "\$RNENV_BACKUP_ENVS"
+  unset RNENV_BACKUP_ENVS
 
-unset RNENV_ACTIVATED
+  for name in "\${names[@]}"
+  do
+    backup="RNENV_BACKUP_ENV_\$name"
+    export \$name="\${!backup}"
+    unset \$backup
+  done
+}
+
+_rnenv_unset_envs
+_rnenv_restore_envs
+
+unset -f _rnenv_restore_envs
+unset -f _rnenv_unset_envs
+
+# from rnenv-sh-activate
+unset -f _rnenv_replace_env
+unset -f _rnenv_set_env
+unset -f _rnenv_backup_env
+unset -f _rnenv_append_env
 EOS

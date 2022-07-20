@@ -4,29 +4,49 @@ set -e
 [ -n "$RNENV_DEBUG" ] && set -x
 
 if [[ $1 = "--description" ]] ; then
-  echo "Activate managed environment"
+  echo "Activate environment"
   exit 0
 fi
 
-if [ -n "$RNENV_ACTIVATED" ] ; then
-  echo "Already running in managed environment" 1>&2
+if [ -n "$RNENV_ACTIVE" ] ; then
+  echo "Already running in an active environment" 1>&2
   exit 1
 fi
 
-# TODO(raz): backup only existing environment variables
-
+# setup the environment
 cat <<EOS
-export RNENV_BACKUP_LD_LIBRARY_PATH="\$LD_LIBRARY_PATH"
-export LD_LIBRARY_PATH="$RNENV_ROOT/lib:\$LD_LIBRARY_PATH"
+_rnenv_append_env()
+{
+  # based on https://unix.stackexchange.com/a/415028
+  export \$1="\${!1:+\${!1}:}\$2"
+}
 
-export RNENV_BACKUP_PS1="\${PS1-}"
-export PS1="(rnenv) \${PS1-}"
+_rnenv_backup_env()
+{
+  if [ -n "\${!1}" ]; then
+    export RNENV_BACKUP_ENV_\$1="\${!1}"
+    _rnenv_append_env RNENV_BACKUP_ENVS \$1
+  fi
+}
 
-export RNENV_BACKUP_CUDA_VISIBLE_DEVICES="\$CUDA_VISIBLE_DEVICES"
+_rnenv_set_env()
+{
+  export \$1="\$2"
+  _rnenv_append_env RNENV_ENVS \$1
+}
 
-export RNENV_ACTIVATED=1;
+_rnenv_replace_env()
+{
+  _rnenv_backup_env \$1
+  _rnenv_set_env \$1 "\$2"
+}
+
+_rnenv_set_env RNENV_ACTIVE 1
+_rnenv_replace_env LD_LIBRARY_PATH "$RNENV_ROOT/lib:\$LD_LIBRARY_PATH"
+_rnenv_replace_env PS1 "(rnenv) \${PS1-}"
 EOS
 
+# load saved configuration
 home="$(exec rnenv-home --quiet)"
 if [[ -n "$home" ]]; then
   shopt -s nullglob
