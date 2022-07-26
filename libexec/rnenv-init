@@ -24,12 +24,16 @@ rnenv() {
   case "\$command" in
   ${sh_commands[*]})
     eval "\$(rnenv "sh-\$command" "\$@")"
+    [ "\$command" = "activate" ] && rnenv config load
     ;;
   config)
     local subcommand
     subcommand="\${1:-}"
 
     case "\$subcommand" in
+    load)
+      eval "\$(command rnenv config load)"
+      ;;
     ${cf_commands[*]})
       shift
       eval "\$(rnenv "cf-\$subcommand" "\$@")"

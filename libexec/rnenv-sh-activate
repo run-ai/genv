@@ -13,7 +13,6 @@ if [ -n "$RNENV_ACTIVE" ] ; then
   exit 1
 fi
 
-# setup the environment
 cat <<EOS
 _rnenv_append_env()
 {
@@ -45,12 +44,3 @@ _rnenv_set_env RNENV_ACTIVE 1
 _rnenv_replace_env LD_LIBRARY_PATH "$RNENV_ROOT/lib:\$LD_LIBRARY_PATH"
 _rnenv_replace_env PS1 "(rnenv) \${PS1-}"
 EOS
-
-# load saved configuration
-home="$(exec rnenv-home --quiet)"
-if [[ -n "$home" ]]; then
-  shopt -s nullglob
-  for file in "$home/"*; do
-    ( exec rnenv cf-${file##*/} --load )
-  done
-fi
