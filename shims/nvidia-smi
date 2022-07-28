@@ -1,0 +1,24 @@
+#!/bin/bash
+
+set -e
+[ -n "$RNENV_DEBUG" ] && set -x
+
+remove_shims_from_path()
+{
+  local IFS=:
+
+  paths=($PATH)
+  for i in ${!paths[@]}; do
+    if [ ${paths[i]} = "$(exec rnenv root)/shims" ]; then
+      unset 'paths[i]'
+    fi
+  done
+
+  echo "${paths[*]}"
+}
+
+if [ -n "$CUDA_VISIBLE_DEVICES" ]; then
+  set -- "--id=$CUDA_VISIBLE_DEVICES" "$@"
+fi
+
+PATH="$(remove_shims_from_path)" nvidia-smi "$@"

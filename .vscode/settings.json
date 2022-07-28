@@ -1,5 +1,6 @@
 {
     "files.associations": {
+        "nvidia-smi": "shellscript",
         "rnenv-coordinator": "python",
         "rnenv*": "shellscript"
     }
