@@ -8,7 +8,7 @@ if [[ $1 = "--description" ]] ; then
   exit 0
 fi
 
-if [ -z "$RNENV_ACTIVE" ] ; then
+if [ -z "$RNENV_ENVIRONMENT_ID" ] ; then
   echo "Not running in an active environment" 1>&2
   exit 1
 fi

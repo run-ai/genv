@@ -8,7 +8,7 @@ if [[ $1 = "--description" ]] ; then
   exit 0
 fi
 
-if [ -n "$RNENV_ACTIVE" ] ; then
+if [ -n "$RNENV_ENVIRONMENT_ID" ] ; then
   echo "Already running in an active environment" 1>&2
   exit 1
 fi
@@ -40,7 +40,6 @@ _rnenv_replace_env()
   _rnenv_set_env \$1 "\$2"
 }
 
-_rnenv_set_env RNENV_ACTIVE 1
 _rnenv_set_env RNENV_ENVIRONMENT_ID \$\$
 _rnenv_replace_env PATH "$RNENV_ROOT/shims:\$PATH"
 _rnenv_replace_env LD_LIBRARY_PATH "$RNENV_ROOT/lib:\$LD_LIBRARY_PATH"
