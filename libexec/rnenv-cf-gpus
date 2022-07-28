@@ -28,7 +28,7 @@ print_help_and_fail()
 
 configure()
 {
-  indices=$( exec rnenv coordinator )
+  indices=$( exec rnenv coordinator --state $RNENV_ROOT/var/rnenv-coordinator.json --pid $RNENV_ENVIRONMENT_ID --count $1 )
 
   cat <<EOS
 _rnenv_set_env RNENV_CONFIG_GPUS $1

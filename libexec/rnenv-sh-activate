@@ -41,6 +41,7 @@ _rnenv_replace_env()
 }
 
 _rnenv_set_env RNENV_ACTIVE 1
+_rnenv_set_env RNENV_ENVIRONMENT_ID \$\$
 _rnenv_replace_env LD_LIBRARY_PATH "$RNENV_ROOT/lib:\$LD_LIBRARY_PATH"
 _rnenv_replace_env PS1 "(rnenv) \${PS1-}"
 EOS
