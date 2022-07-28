@@ -13,62 +13,60 @@ print_command()
   printf "    %-5s    %s\n" "$1" "$2"
 }
 
-print_config_commands()
-{
-  print_command "load" "Load configuration from disk"
-}
-
-print_subcommands()
-{
-  for command in $(exec rnenv-commands --cf); do
-    print_command "$command" "$(exec $(command -v "rnenv-cf-$command") --description)"
-  done
-}
-
-print_commands()
-{
-  echo "Available commands:"
-  print_config_commands
-  print_subcommands
-}
-
 print_help()
 {
   echo "Usage: rnenv config <command> [-h|--help]"
   echo
-  print_commands
+  echo "Commands:"
+  print_command "load" "Load configuration from disk"
+  print_command "show" "Show current configuration"
   echo
+  echo "Subcommands:"
+  for command in $(exec rnenv-commands --cf); do
+    print_command "$command" "$(exec $(command -v "rnenv-cf-$command") --description)"
+  done
+  echo
+}
+
+print_help_and_fail()
+{
+  print_help >&2
+  exit 1
 }
 
 command="$1"
 case "$command" in
 "")
-  print_help >&2
-  exit 1
-  ;;
-load)
-  home="$(exec rnenv-home --quiet)"
-  if [[ -n "$home" ]]; then
-    shopt -s nullglob
-    for file in "$home/"*; do
-      ( exec rnenv cf-${file##*/} --load )
-    done
-  fi
+  print_help_and_fail
   ;;
 -h|--help)
   print_help
   ;;
+load)
+  for command in $(exec rnenv-commands --cf); do
+    ( exec rnenv-cf-$command load )
+  done
+  ;;
+show)
+  for command in $(exec rnenv-commands --cf); do
+    value=$(exec rnenv-cf-$command show)
+    [ -n "$value" ] && echo "$command: $value"
+  done
+  ;;
 *)
-  {
-    if [ -n "$(command -v "rnenv-cf-$command" || true)" ]; then
-      ( exec rnenv init --warn )
-    else
-      echo "No such config command '$command'"
+  if [ -n "$(command -v "rnenv-cf-$command" || true)" ]; then
+    # subcommands should have been caught by the injected
+    # script at 'rnenv-init'.
+    # if we reached here this means that the environment
+    # is not properly initialized.
+    ( exec rnenv init --warn ) >&2
+    exit 1
+  else
+    {
+      echo "No such command '$command'"
       echo
-      print_commands
-      echo
-    fi
-  } >&2
-  exit 1
+      print_help_and_fail
+    } >&2
+  fi
   ;;
 esac

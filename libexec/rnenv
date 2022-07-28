@@ -23,6 +23,8 @@ case "$command" in
         ( exec rnenv init --warn )
       else
         echo "No such command '$command'"
+        echo
+        rnenv-help
       fi
     } >&2
     exit 1

@@ -14,34 +14,62 @@ if [ "$1" = "-" ]; then
 
   IFS="|"
   cat <<EOS
-rnenv() {
-  local command
-  command="\${1:-}"
+_rnenv_config()
+{
+  local command="\${1:-}"
+
+  case "\$command" in
+  ${cf_commands[*]})
+    if [ "\$#" -gt 0 ]; then
+      shift
+    fi
+
+    local subcommand="\${1:-}"
+    case "\$subcommand" in
+    show)
+      command rnenv "cf-\$command" "\$@"
+      ;;
+    load|*)
+      eval "\$(command rnenv "cf-\$command" "\$@")"
+      ;;
+    esac
+    ;;
+  load)
+    eval "\$(command rnenv config "\$@")"
+    ;;
+  show|*)
+    command rnenv config "\$@"
+    ;;
+  esac
+}
+
+_rnenv_sh()
+{
+  local command="\${1:-}"
+  if [ "\$#" -gt 0 ]; then
+    shift
+  fi
+
+  eval "\$(command rnenv "sh-\$command" "\$@")"
+
+  if [ "\$command" = "activate" ]; then
+    rnenv config load
+  fi
+}
+
+rnenv()
+{
+  local command="\${1:-}"
   if [ "\$#" -gt 0 ]; then
     shift
   fi
 
   case "\$command" in
   ${sh_commands[*]})
-    eval "\$(rnenv "sh-\$command" "\$@")"
-    [ "\$command" = "activate" ] && rnenv config load
+    _rnenv_sh "\$command" "\$@"
     ;;
   config)
-    local subcommand
-    subcommand="\${1:-}"
-
-    case "\$subcommand" in
-    load)
-      eval "\$(command rnenv config load)"
-      ;;
-    ${cf_commands[*]})
-      shift
-      eval "\$(rnenv "cf-\$subcommand" "\$@")"
-      ;;
-    *)
-      command rnenv "\$command" "\$@"
-      ;;
-    esac
+    _rnenv_config "\$@"
     ;;
   *)
     command rnenv "\$command" "\$@"
