@@ -1,2 +1,3 @@
-dist
+/dist
+/var
 *.tar.gz

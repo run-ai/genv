@@ -3,10 +3,12 @@
 import argparse
 import json
 import os
+from pathlib import Path
 import subprocess
 import sys
 
 def save_state(path, state):
+    Path(path).parent.mkdir(parents=True, exist_ok=True)
     with open(path, 'w') as f:
         json.dump(state, f)
 
