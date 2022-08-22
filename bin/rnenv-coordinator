@@ -65,12 +65,12 @@ def find_free_devices(state, count):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=f'rnenv device coordinator')
-    parser.add_argument('--state', required=True, help='State file path')
     parser.add_argument('--pid', type=int, required=True, help='Identifier of the root process of the environment')
     parser.add_argument('--count', type=int, required=True, help='Amount of devices to reserve')
     args = parser.parse_args()
 
-    state = get_state(args.state)
+    path = os.path.join(os.environ.get('RNENV_TMPDIR', '/var/tmp/rnenv'), 'coordinator.json')
+    state = get_state(path)
 
     clear_pid(state, args.pid)
 
@@ -83,6 +83,6 @@ if __name__ == "__main__":
     for index in indices:
         state["devices"][index]["pid"] = args.pid
 
-    save_state(args.state, state)
+    save_state(path, state)
 
     print(','.join(str(index) for index in indices))
