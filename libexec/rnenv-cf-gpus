@@ -31,7 +31,7 @@ configure()
   indices=$( exec rnenv coordinator --pid $RNENV_ENVIRONMENT_ID --count $1 )
 
   cat <<EOS
-_rnenv_set_env RNENV_CONFIG_GPUS $1
+_rnenv_set_env RNENV_GPUS $1
 _rnenv_replace_env CUDA_VISIBLE_DEVICES "$indices"
 EOS
 }
@@ -51,7 +51,7 @@ case $1 in
     [[ -n "$home" && -f "$home/gpus" ]] && configure $(<"$home/gpus")
     ;;
   show)
-    [ -n "$RNENV_CONFIG_GPUS" ] && echo "$RNENV_CONFIG_GPUS"
+    [ -n "$RNENV_GPUS" ] && echo "$RNENV_GPUS"
     ;;
   *)
     re='^[0-9]+$'
