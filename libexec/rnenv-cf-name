@@ -1,0 +1,62 @@
+#!/bin/bash
+
+set -e
+[ -n "$RNENV_DEBUG" ] && set -x
+
+if [[ $1 = "--description" ]] ; then
+  echo "Environment name"
+  exit 0
+fi
+
+print_help()
+{
+  echo "Usage: rnenv config name [-h|--help] ..."
+  echo
+  echo "Set the environment name."
+  echo
+  echo "  rnenv config name <name> [--save]"
+  echo "  rnenv config name load"
+  echo "  rnenv config name show"
+  echo
+}
+
+print_help_and_fail()
+{
+  print_help >&2
+  exit 1
+}
+
+configure()
+{
+  cat <<EOS
+_rnenv_set_env RNENV_ENVIRONMENT_NAME $1
+_rnenv_set_env PS1 "(rnenv:$1) \${RNENV_BACKUP_ENV_PS1-}"
+EOS
+}
+
+case $1 in
+  "")
+    print_help_and_fail
+    ;;
+  -h|--help)
+    # we must fail here as the exit code of this
+    # script indicates whether or not the output
+    # should be 'eval'.
+    print_help_and_fail
+    ;;
+  load)
+    home="$(exec rnenv-home --quiet)"
+    [[ -n "$home" && -f "$home/name" ]] && configure $(<"$home/name")
+    ;;
+  show)
+    [ -n "$RNENV_ENVIRONMENT_NAME" ] && echo "$RNENV_ENVIRONMENT_NAME"
+    ;;
+  *)
+    configure $1
+
+    if [[ "$2" = "--save" ]]; then
+      home="$(exec rnenv-home)"
+      echo "$1" > "$home/name"
+    fi
+    ;;
+esac
