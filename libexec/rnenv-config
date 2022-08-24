@@ -44,12 +44,12 @@ case "$command" in
   ;;
 load)
   for command in $(exec rnenv-commands --cf); do
-    ( exec rnenv-cf-$command load )
+    ( exec rnenv-cf-$command load ) || true
   done
   ;;
 show)
   for command in $(exec rnenv-commands --cf); do
-    value=$(exec rnenv-cf-$command show)
+    value=$(exec rnenv-cf-$command show) || true
     [ -n "$value" ] && echo "$command: $value"
   done
   ;;
