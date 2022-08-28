@@ -1,7 +1,17 @@
 {
     "files.associations": {
-        "nvidia-smi": "shellscript",
+        // bin
+        "rnenv": "shellscript",
         "rnenv-coordinator": "python",
-        "rnenv*": "shellscript"
-    }
+
+        // libexec
+        "rnenv-*": "shellscript",
+
+        // shims
+        "nvidia-smi": "shellscript",
+    },
+    "terminal.integrated.defaultProfile.osx": "bash",
+    "python.analysis.extraPaths": [
+        "./py"
+    ],
 }

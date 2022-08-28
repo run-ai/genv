@@ -1,40 +1,27 @@
 #!/usr/bin/env python3
 
 import argparse
-import json
-import os
-from pathlib import Path
 import subprocess
 import sys
 
-def save_state(path, state):
-    Path(path).parent.mkdir(parents=True, exist_ok=True)
-    with open(path, 'w') as f:
-        json.dump(state, f)
+import rnenv
+
+JSON = 'coordinator.json'
 
 def create_state():
-    num_devices = int(os.environ.get("RNENV_DEVICES") or subprocess.check_output("nvidia-smi --id=0 --query-gpu=count --format=csv,noheader", shell=True))
+    num_devices = int(rnenv.env('DEVICES') or subprocess.check_output("nvidia-smi --id=0 --query-gpu=count --format=csv,noheader", shell=True))
 
     return dict(
         devices={ i: { "pid": -1 } for i in range(num_devices) }
     )
 
-def get_state(path):
-    if not os.path.exists(path):
+def get_state():
+    if not rnenv.exists(JSON):
         state = create_state()
     else:
-        with open(path) as f:
-            state = json.load(f)
+        state = rnenv.read(JSON)
 
     return state
-
-def check_pid(pid):
-    try:
-        os.kill(pid, 0)
-    except OSError:
-        return False
-    else:
-        return True
 
 def clear_pid(state, pid):
     for _, info in state["devices"].items():
@@ -47,7 +34,7 @@ def find_free_device(state, ignore=[]):
             continue
 
         pid = info["pid"]
-        if pid == -1 or not check_pid(pid):
+        if pid == -1 or not rnenv.poll(pid):
             return index
 
     raise RuntimeError("No available devices")
@@ -69,8 +56,7 @@ if __name__ == "__main__":
     parser.add_argument('--count', type=int, required=True, help='Amount of devices to reserve')
     args = parser.parse_args()
 
-    path = os.path.join(os.environ.get('RNENV_TMPDIR', '/var/tmp/rnenv'), 'coordinator.json')
-    state = get_state(path)
+    state = get_state()
 
     clear_pid(state, args.pid)
 
@@ -83,6 +69,6 @@ if __name__ == "__main__":
     for index in indices:
         state["devices"][index]["pid"] = args.pid
 
-    save_state(path, state)
+    rnenv.save(JSON, state)
 
     print(','.join(str(index) for index in indices))
