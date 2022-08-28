@@ -37,6 +37,7 @@ _rnenv_set_env()
 _rnenv_unset_env()
 {
   unset \$1
+  # TODO(raz): remove from 'RNENV_ENVS'
 }
 
 _rnenv_replace_env()
@@ -50,5 +51,9 @@ _rnenv_replace_env PATH "$RNENV_ROOT/shims:\$PATH"
 _rnenv_replace_env PYTHONPATH "$RNENV_ROOT/py:\$PYTHONPATH"
 _rnenv_replace_env PS1 "(rnenv) \${PS1-}"
 
+# register in envs.json
 ( exec rnenv exec envs activate --pid \$\$ --eid \$RNENV_ENVIRONMENT_ID )
+
+# load any saved configuration
+rnenv config load
 EOS

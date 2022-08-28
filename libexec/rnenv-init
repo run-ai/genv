@@ -51,10 +51,6 @@ _rnenv_sh()
   fi
 
   eval "\$(command rnenv "sh-\$command" "\$@")"
-
-  if [ "\$command" = "activate" ]; then
-    rnenv config load
-  fi
 }
 
 rnenv()
