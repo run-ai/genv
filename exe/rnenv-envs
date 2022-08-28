@@ -30,6 +30,16 @@ def activate(envs: Envs, eid: int, pid: int) -> None:
     if pid not in env["pids"]:
         env["pids"].append(pid)
 
+def deactivate(envs: Envs, eid: int, pid: int) -> None:
+    env: Env | None = envs.get(eid)
+
+    if env is not None:
+        while pid in env["pids"]:
+            env["pids"].remove(pid)
+
+        if len(env["pids"]) == 0:
+            del envs[eid]
+
 def rename(env: Env, name: str | None) -> None:
     if name is None:
         if "name" in env:
@@ -51,6 +61,10 @@ if __name__ == "__main__":
     parser_activate = subparsers.add_parser('activate', help='Activate a new process')
     parser_activate.add_argument('--pid', type=int, required=True, help='PID of the activated process')
     parser_activate.add_argument('--eid', type=int, help='Environment ID')
+
+    parser_deactivate = subparsers.add_parser('deactivate', help='Deactivate a process')
+    parser_deactivate.add_argument('--pid', type=int, required=True, help='PID of the deactivated process')
+    parser_deactivate.add_argument('--eid', type=int, help='Environment ID')
 
     parser_rename = subparsers.add_parser('rename', help='Rename an environment')
     parser_rename.add_argument('--eid', type=int, required=True, help='Environment ID')
@@ -83,6 +97,11 @@ if __name__ == "__main__":
         eid = args.eid or pid
 
         activate(envs, eid, pid)
+    elif args.command == 'deactivate':
+        pid = args.pid
+        eid = args.eid or pid
+
+        deactivate(envs, eid, pid)
     elif args.command == 'rename':
         env: Env = envs.get(args.eid)
 
