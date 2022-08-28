@@ -3,6 +3,7 @@
         // bin
         "rnenv": "shellscript",
         "rnenv-coordinator": "python",
+        "rnenv-envs": "python",
 
         // libexec
         "rnenv-*": "shellscript",

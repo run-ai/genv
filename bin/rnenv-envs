@@ -1,0 +1,68 @@
+#!/usr/bin/env python3
+
+import argparse
+from typing import Any
+
+import rnenv
+
+JSON = 'envs.json'
+
+Env = dict[Any, Any]
+Envs = dict[int, Env]
+
+def activate(envs: Envs, eid: int, pid: int) -> None:
+    if eid not in envs:
+        envs[eid] = dict(
+            pids=[],
+        )
+
+    env = envs.get(eid)
+
+    if pid not in env["pids"]:
+        env["pids"].append(pid)
+
+def cleanup(envs: Envs) -> None:
+    # cleanup terminated processes
+    for env in envs.values():
+        env["pids"] = [pid for pid in env["pids"] if rnenv.poll(pid)]
+
+    # cleanup terminated environments
+    for eid in [eid for eid, env in envs.items() if len(env["pids"]) == 0]:
+        del envs[eid]
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description=f'rnenv environment activator')
+    parser.add_argument('--no-cleanup', dest='cleanup', action='store_false', help='Do not perform clean up')
+    parser.add_argument('--reset', action='store_true', help='Reset previous state')
+
+    subparsers = parser.add_subparsers(dest='command', required=True)
+
+    parser_activate = subparsers.add_parser('activate', help='Activate a new process')
+    parser_activate.add_argument('--pid', type=int, required=True, help='PID of the activated process')
+    parser_activate.add_argument('--eid', type=int, help='Environment ID')
+
+    args = parser.parse_args()
+
+    if rnenv.exists(JSON) and not args.reset:
+        json = rnenv.read(JSON)
+
+        # we need to convert environment ids to integers. they are saved as
+        # strings because dictionary keys in json files must be strings.
+        json["envs"] = { int(eid): env for eid, env in json["envs"].items() }
+    else:
+        json = dict(
+           envs=Envs(),
+        )
+
+    envs: Envs = json["envs"]
+
+    if args.command == 'activate':
+        pid = args.pid
+        eid = args.eid or pid
+
+        activate(envs, eid, pid)
+
+    if args.cleanup:
+        cleanup(envs)
+
+    rnenv.save(JSON, json)
