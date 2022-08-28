@@ -34,6 +34,11 @@ _rnenv_set_env()
   _rnenv_append_env RNENV_ENVS \$1
 }
 
+_rnenv_unset_env()
+{
+  unset \$1
+}
+
 _rnenv_replace_env()
 {
   _rnenv_backup_env \$1

@@ -16,6 +16,7 @@ print_help()
   echo
   echo "  rnenv config name <name> [--save]"
   echo "  rnenv config name load"
+  echo "  rnenv config name reload"
   echo "  rnenv config name show"
   echo
 }
@@ -26,12 +27,27 @@ print_help_and_fail()
   exit 1
 }
 
-configure()
+set_envs()
 {
   cat <<EOS
 _rnenv_set_env RNENV_ENVIRONMENT_NAME $1
 _rnenv_set_env PS1 "(rnenv:$1) \${RNENV_BACKUP_ENV_PS1-}"
 EOS
+}
+
+unset_envs()
+{
+  cat <<EOS
+_rnenv_unset_env RNENV_ENVIRONMENT_NAME
+_rnenv_set_env PS1 "(rnenv) \${RNENV_BACKUP_ENV_PS1-}"
+EOS
+}
+
+configure()
+{
+  ( exec rnenv exec envs rename --eid $RNENV_ENVIRONMENT_ID --name $1 )
+
+  set_envs $1
 }
 
 case $1 in
@@ -47,6 +63,14 @@ case $1 in
   load)
     home="$(exec rnenv-home --quiet)"
     [[ -n "$home" && -f "$home/name" ]] && configure $(<"$home/name")
+    ;;
+  reload)
+    name=$( exec rnenv exec envs query --eid $RNENV_ENVIRONMENT_ID --name )
+    if [ -n "$name" ]; then
+      set_envs $name
+    else
+      unset_envs
+    fi
     ;;
   show)
     [ -n "$RNENV_ENVIRONMENT_NAME" ] && echo "$RNENV_ENVIRONMENT_NAME"

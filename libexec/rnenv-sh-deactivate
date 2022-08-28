@@ -17,24 +17,24 @@ cat <<EOS
 _rnenv_unset_envs()
 {
   IFS=: read -a names <<< "\$RNENV_ENVS"
-  unset RNENV_ENVS
+  _rnenv_unset_env RNENV_ENVS
 
   for name in "\${names[@]}"
   do
-    unset \$name
+    _rnenv_unset_env \$name
   done
 }
 
 _rnenv_restore_envs()
 {
   IFS=: read -a names <<< "\$RNENV_BACKUP_ENVS"
-  unset RNENV_BACKUP_ENVS
+  _rnenv_unset_env RNENV_BACKUP_ENVS
 
   for name in "\${names[@]}"
   do
     backup="RNENV_BACKUP_ENV_\$name"
     export \$name="\${!backup}"
-    unset \$backup
+    _rnenv_unset_env \$backup
   done
 }
 
@@ -46,6 +46,7 @@ unset -f _rnenv_unset_envs
 
 # from rnenv-sh-activate
 unset -f _rnenv_replace_env
+unset -f _rnenv_unset_env
 unset -f _rnenv_set_env
 unset -f _rnenv_backup_env
 unset -f _rnenv_append_env

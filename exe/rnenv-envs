@@ -10,17 +10,6 @@ JSON = 'envs.json'
 Env = dict[Any, Any]
 Envs = dict[int, Env]
 
-def activate(envs: Envs, eid: int, pid: int) -> None:
-    if eid not in envs:
-        envs[eid] = dict(
-            pids=[],
-        )
-
-    env = envs.get(eid)
-
-    if pid not in env["pids"]:
-        env["pids"].append(pid)
-
 def cleanup(envs: Envs) -> None:
     # cleanup terminated processes
     for env in envs.values():
@@ -29,6 +18,28 @@ def cleanup(envs: Envs) -> None:
     # cleanup terminated environments
     for eid in [eid for eid, env in envs.items() if len(env["pids"]) == 0]:
         del envs[eid]
+
+def activate(envs: Envs, eid: int, pid: int) -> None:
+    if eid not in envs:
+        envs[eid] = dict(
+            pids=[],
+        )
+
+    env: Env = envs[eid]
+
+    if pid not in env["pids"]:
+        env["pids"].append(pid)
+
+def rename(env: Env, name: str | None) -> None:
+    if name is None:
+        if "name" in env:
+            del env["name"]
+    else:
+        env["name"] = name
+
+def query(env: Env, name: bool) -> None:
+    if name and "name" in env:
+        print(env["name"])
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=f'rnenv environment activator')
@@ -40,6 +51,14 @@ if __name__ == "__main__":
     parser_activate = subparsers.add_parser('activate', help='Activate a new process')
     parser_activate.add_argument('--pid', type=int, required=True, help='PID of the activated process')
     parser_activate.add_argument('--eid', type=int, help='Environment ID')
+
+    parser_rename = subparsers.add_parser('rename', help='Rename an environment')
+    parser_rename.add_argument('--eid', type=int, required=True, help='Environment ID')
+    parser_rename.add_argument('--name', help='Environment name')
+
+    parser_query = subparsers.add_parser('query', help='Query an environment')
+    parser_query.add_argument('--eid', type=int, required=True, help='Environment ID')
+    parser_query.add_argument('--name', action='store_true', help='Query environment name')
 
     args = parser.parse_args()
 
@@ -56,13 +75,23 @@ if __name__ == "__main__":
 
     envs: Envs = json["envs"]
 
+    if args.cleanup:
+        cleanup(envs)
+
     if args.command == 'activate':
         pid = args.pid
         eid = args.eid or pid
 
         activate(envs, eid, pid)
+    elif args.command == 'rename':
+        env: Env = envs.get(args.eid)
 
-    if args.cleanup:
-        cleanup(envs)
+        if env is not None:
+            rename(env, args.name)
+    elif args.command == 'query':
+        env: Env = envs.get(args.eid)
+
+        if env is not None:
+            query(env, args.name)
 
     rnenv.save(JSON, json)
