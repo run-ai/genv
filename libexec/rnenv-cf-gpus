@@ -10,13 +10,16 @@ fi
 
 print_help()
 {
-  echo "Usage: rnenv config gpus [-h|--help] ..."
+  echo "Usage: rnenv config gpus <gpus> [--save] [-h|--help]"
   echo
   echo "Control the amount of GPUs to be provisioned for this environment."
   echo
-  echo "  rnenv config gpus <count> [--save]"
-  echo "  rnenv config gpus load"
-  echo "  rnenv config gpus show"
+  echo "    --save       Save to disk at \$(rnenv home)"
+  echo "    -h --help    Print this help message and exit"
+  echo
+  echo "Other commands:"
+  echo "    load      Load GPU count from disk"
+  echo "    show      Print GPU count"
   echo
 }
 
@@ -31,8 +34,13 @@ configure()
   indices=$( exec rnenv exec coordinator --pid $RNENV_ENVIRONMENT_ID --count $1 )
 
   cat <<EOS
+# backup 'CUDA_VISIBLE_DEVICES' only if it existed before
+if [ -z "\$RNENV_GPUS" ]; then
+  _rnenv_backup_env CUDA_VISIBLE_DEVICES
+fi
+
 _rnenv_set_env RNENV_GPUS $1
-_rnenv_replace_env CUDA_VISIBLE_DEVICES "$indices"
+_rnenv_set_env CUDA_VISIBLE_DEVICES "$indices"
 EOS
 }
 
