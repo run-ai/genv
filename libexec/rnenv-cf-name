@@ -10,14 +10,18 @@ fi
 
 print_help()
 {
-  echo "Usage: rnenv config name [-h|--help] ..."
+  echo "Usage: rnenv config name <name> [--save] [-h|--help]"
   echo
   echo "Set the environment name."
   echo
-  echo "  rnenv config name <name> [--save]"
-  echo "  rnenv config name load"
-  echo "  rnenv config name reload"
-  echo "  rnenv config name show"
+  echo "    --save       Save to disk at \$(rnenv home)"
+  echo "    -h --help    Print this help message and exit"
+  echo
+  echo "Other commands:"
+  echo "    clear     Unset environment name"
+  echo "    load      Load environment name from disk"
+  echo "    reload    Reload environment name; e.g. if changed by another terminal"
+  echo "    show      Print environment name"
   echo
 }
 
@@ -59,6 +63,16 @@ case $1 in
     # script indicates whether or not the output
     # should be 'eval'.
     print_help_and_fail
+    ;;
+  clear)
+    ( exec rnenv exec envs rename --eid $RNENV_ENVIRONMENT_ID )
+
+    unset_envs
+
+    if [[ "$2" = "--save" ]]; then
+      home="$(exec rnenv-home --quiet)"
+      [[ -n "$home" && -f "$home/name" ]] && rm "$home/name"
+    fi
     ;;
   load)
     home="$(exec rnenv-home --quiet)"
