@@ -1,7 +1,7 @@
 #!/bin/bash
 
 set -e
-[ -n "$RNENV_DEBUG" ] && set -x
+[ -n "$GENV_DEBUG" ] && set -x
 
 if [[ $1 = "--description" ]] ; then
   echo "Amount of visible GPUs"
@@ -10,11 +10,11 @@ fi
 
 print_help()
 {
-  echo "Usage: rnenv config gpus <gpus> [--save] [-h|--help]"
+  echo "Usage: genv config gpus <gpus> [--save] [-h|--help]"
   echo
   echo "Control the amount of GPUs to be provisioned for this environment."
   echo
-  echo "    --save       Save to disk at \$(rnenv home)"
+  echo "    --save       Save to disk at \$(genv home)"
   echo "    -h --help    Print this help message and exit"
   echo
   echo "Other commands:"
@@ -31,16 +31,16 @@ print_help_and_fail()
 
 configure()
 {
-  indices=$( exec rnenv exec coordinator --pid $RNENV_ENVIRONMENT_ID --count $1 )
+  indices=$( exec genv exec coordinator --pid $GENV_ENVIRONMENT_ID --count $1 )
 
   cat <<EOS
 # backup 'CUDA_VISIBLE_DEVICES' only if it existed before
-if [ -z "\$RNENV_GPUS" ]; then
-  _rnenv_backup_env CUDA_VISIBLE_DEVICES
+if [ -z "\$GENV_GPUS" ]; then
+  _genv_backup_env CUDA_VISIBLE_DEVICES
 fi
 
-_rnenv_set_env RNENV_GPUS $1
-_rnenv_set_env CUDA_VISIBLE_DEVICES "$indices"
+_genv_set_env GENV_GPUS $1
+_genv_set_env CUDA_VISIBLE_DEVICES "$indices"
 EOS
 }
 
@@ -55,11 +55,11 @@ case $1 in
     print_help_and_fail
     ;;
   load)
-    home="$(exec rnenv-home --quiet)"
+    home="$(exec genv-home --quiet)"
     [[ -n "$home" && -f "$home/gpus" ]] && configure $(<"$home/gpus")
     ;;
   show)
-    [ -n "$RNENV_GPUS" ] && echo "$RNENV_GPUS"
+    [ -n "$GENV_GPUS" ] && echo "$GENV_GPUS"
     ;;
   *)
     re='^[0-9]+$'
@@ -68,7 +68,7 @@ case $1 in
     configure $1
 
     if [[ "$2" = "--save" ]]; then
-      home="$(exec rnenv-home)"
+      home="$(exec genv-home)"
       echo "$1" > "$home/gpus"
     fi
     ;;

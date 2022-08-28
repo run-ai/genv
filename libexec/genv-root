@@ -1,0 +1,11 @@
+#!/bin/bash
+
+set -e
+[ -n "$GENV_DEBUG" ] && set -x
+
+if [[ $1 = "--description" ]] ; then
+    echo "Display the root directory where genv is installed"
+    exit 0
+fi
+
+echo "$GENV_ROOT"

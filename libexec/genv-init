@@ -1,20 +1,20 @@
 #!/bin/bash
 
 set -e
-[ -n "$RNENV_DEBUG" ] && set -x
+[ -n "$GENV_DEBUG" ] && set -x
 
 if [[ $1 = "--description" ]] ; then
-    echo "Add rnenv support to your shell"
+    echo "Add genv support to your shell"
     exit 0
 fi
 
 if [ "$1" = "-" ]; then
-  sh_commands=(`rnenv-commands --sh`)
-  cf_commands=(`rnenv-commands --cf`)
+  sh_commands=(`genv-commands --sh`)
+  cf_commands=(`genv-commands --cf`)
 
   IFS="|"
   cat <<EOS
-_rnenv_config()
+_genv_config()
 {
   local command="\${1:-}"
 
@@ -27,33 +27,33 @@ _rnenv_config()
     local subcommand="\${1:-}"
     case "\$subcommand" in
     show)
-      command rnenv "cf-\$command" "\$@"
+      command genv "cf-\$command" "\$@"
       ;;
     load|*)
-      eval "\$(command rnenv "cf-\$command" "\$@")"
+      eval "\$(command genv "cf-\$command" "\$@")"
       ;;
     esac
     ;;
   load)
-    eval "\$(command rnenv config "\$@")"
+    eval "\$(command genv config "\$@")"
     ;;
   show|*)
-    command rnenv config "\$@"
+    command genv config "\$@"
     ;;
   esac
 }
 
-_rnenv_sh()
+_genv_sh()
 {
   local command="\${1:-}"
   if [ "\$#" -gt 0 ]; then
     shift
   fi
 
-  eval "\$(command rnenv "sh-\$command" "\$@")"
+  eval "\$(command genv "sh-\$command" "\$@")"
 }
 
-rnenv()
+genv()
 {
   local command="\${1:-}"
   if [ "\$#" -gt 0 ]; then
@@ -62,13 +62,13 @@ rnenv()
 
   case "\$command" in
   ${sh_commands[*]})
-    _rnenv_sh "\$command" "\$@"
+    _genv_sh "\$command" "\$@"
     ;;
   config)
-    _rnenv_config "\$@"
+    _genv_config "\$@"
     ;;
   *)
-    command rnenv "\$command" "\$@"
+    command genv "\$command" "\$@"
     ;;
   esac
 
@@ -77,13 +77,13 @@ rnenv()
 EOS
 else
   if [ "$1" = "--warn" ]; then
-    echo "WARNING: Your shell is not yet set up to use rnenv."
+    echo "WARNING: Your shell is not yet set up to use genv."
     echo
   fi
 
-  echo 'Run this for your shell to support rnenv.'
+  echo 'Run this for your shell to support genv.'
   echo 'You should add it to your ~/.bashrc or any equivalent file.'
   echo
-  echo '    eval "$(rnenv init -)"'
+  echo '    eval "$(genv init -)"'
   echo
 fi

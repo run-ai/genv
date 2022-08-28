@@ -1,7 +1,7 @@
 #!/bin/bash
 
 set -e
-[ -n "$RNENV_DEBUG" ] && set -x
+[ -n "$GENV_DEBUG" ] && set -x
 
 if [[ $1 = "--description" ]] ; then
   echo "Configure this environment"
@@ -15,15 +15,15 @@ print_command()
 
 print_help()
 {
-  echo "Usage: rnenv config <command> [-h|--help]"
+  echo "Usage: genv config <command> [-h|--help]"
   echo
   echo "Commands:"
   print_command "load" "Load configuration from disk"
   print_command "show" "Show current configuration"
   echo
   echo "Subcommands:"
-  for command in $(exec rnenv-commands --cf); do
-    print_command "$command" "$(exec $(command -v "rnenv-cf-$command") --description)"
+  for command in $(exec genv-commands --cf); do
+    print_command "$command" "$(exec $(command -v "genv-cf-$command") --description)"
   done
   echo
 }
@@ -43,23 +43,23 @@ case "$command" in
   print_help
   ;;
 load)
-  for command in $(exec rnenv-commands --cf); do
-    ( exec rnenv-cf-$command load ) || true
+  for command in $(exec genv-commands --cf); do
+    ( exec genv-cf-$command load ) || true
   done
   ;;
 show)
-  for command in $(exec rnenv-commands --cf); do
-    value=$(exec rnenv-cf-$command show) || true
+  for command in $(exec genv-commands --cf); do
+    value=$(exec genv-cf-$command show) || true
     [ -n "$value" ] && echo "$command: $value"
   done
   ;;
 *)
-  if [ -n "$(command -v "rnenv-cf-$command" || true)" ]; then
+  if [ -n "$(command -v "genv-cf-$command" || true)" ]; then
     # subcommands should have been caught by the injected
-    # script at 'rnenv-init'.
+    # script at 'genv-init'.
     # if we reached here this means that the environment
     # is not properly initialized.
-    ( exec rnenv init --warn ) >&2
+    ( exec genv init --warn ) >&2
     exit 1
   else
     {

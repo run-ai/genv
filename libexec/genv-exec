@@ -1,10 +1,10 @@
 #!/bin/bash
 
 set -e
-[ -n "$RNENV_DEBUG" ] && set -x
+[ -n "$GENV_DEBUG" ] && set -x
 
 if [[ $1 = "--description" ]] ; then
-    echo "Run a rnenv executable"
+    echo "Run a genv executable"
     exit 0
 fi
 
@@ -13,15 +13,15 @@ print_executables()
   shopt -s nullglob
 
   {
-    for executable_path in "$RNENV_ROOT/exe/rnenv-"*; do
-      echo "    ${executable_path##*rnenv-}"
+    for executable_path in "$GENV_ROOT/exe/genv-"*; do
+      echo "    ${executable_path##*genv-}"
     done
   } | sort | uniq
 }
 
 print_help()
 {
-  echo "Usage: rnenv exec <executable> [-h|--help]"
+  echo "Usage: genv exec <executable> [-h|--help]"
   echo
   echo "Executables:"
   print_executables
@@ -46,7 +46,7 @@ case "$command" in
   executable=$command
   shift
 
-  path="$RNENV_ROOT/exe/rnenv-$executable"
+  path="$GENV_ROOT/exe/genv-$executable"
 
   if [ ! -f "$path" ]; then
     {

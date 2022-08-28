@@ -1,7 +1,7 @@
 #!/bin/bash
 
 set -e
-[ -n "$RNENV_DEBUG" ] && set -x
+[ -n "$GENV_DEBUG" ] && set -x
 
 if [[ $1 = "--description" ]] ; then
     echo "Print this help message"
@@ -10,13 +10,13 @@ fi
 
 command_path() {
   local command="$1"
-  command -v rnenv-"$command" || command -v rnenv-sh-"$command"
+  command -v genv-"$command" || command -v genv-sh-"$command"
 }
 
-echo "Usage: rnenv <command>"
+echo "Usage: genv <command>"
 echo
 echo "Available commands:"
-for command in $(exec rnenv-commands); do
+for command in $(exec genv-commands); do
     printf "    %-10s    %s\n" "$command" "$(exec $(command_path $command) --description)"
 done
 echo

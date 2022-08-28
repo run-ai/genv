@@ -3,7 +3,7 @@
 import argparse
 from typing import Any
 
-import rnenv
+import genv
 
 JSON = 'envs.json'
 
@@ -13,7 +13,7 @@ Envs = dict[int, Env]
 def cleanup(envs: Envs) -> None:
     # cleanup terminated processes
     for env in envs.values():
-        env["pids"] = [pid for pid in env["pids"] if rnenv.poll(pid)]
+        env["pids"] = [pid for pid in env["pids"] if genv.poll(pid)]
 
     # cleanup terminated environments
     for eid in [eid for eid, env in envs.items() if len(env["pids"]) == 0]:
@@ -52,7 +52,7 @@ def query(env: Env, name: bool) -> None:
         print(env["name"])
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description=f'rnenv environment activator')
+    parser = argparse.ArgumentParser(description=f'genv environment activator')
     parser.add_argument('--no-cleanup', dest='cleanup', action='store_false', help='Do not perform clean up')
     parser.add_argument('--reset', action='store_true', help='Reset previous state')
 
@@ -76,8 +76,8 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    if rnenv.exists(JSON) and not args.reset:
-        json = rnenv.read(JSON)
+    if genv.exists(JSON) and not args.reset:
+        json = genv.read(JSON)
 
         # we need to convert environment ids to integers. they are saved as
         # strings because dictionary keys in json files must be strings.
@@ -113,4 +113,4 @@ if __name__ == "__main__":
         if env is not None:
             query(env, args.name)
 
-    rnenv.save(JSON, json)
+    genv.save(JSON, json)

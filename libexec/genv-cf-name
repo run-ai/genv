@@ -1,7 +1,7 @@
 #!/bin/bash
 
 set -e
-[ -n "$RNENV_DEBUG" ] && set -x
+[ -n "$GENV_DEBUG" ] && set -x
 
 if [[ $1 = "--description" ]] ; then
   echo "Environment name"
@@ -10,11 +10,11 @@ fi
 
 print_help()
 {
-  echo "Usage: rnenv config name <name> [--save] [-h|--help]"
+  echo "Usage: genv config name <name> [--save] [-h|--help]"
   echo
   echo "Set the environment name."
   echo
-  echo "    --save       Save to disk at \$(rnenv home)"
+  echo "    --save       Save to disk at \$(genv home)"
   echo "    -h --help    Print this help message and exit"
   echo
   echo "Other commands:"
@@ -34,22 +34,22 @@ print_help_and_fail()
 set_envs()
 {
   cat <<EOS
-_rnenv_set_env RNENV_ENVIRONMENT_NAME $1
-_rnenv_set_env PS1 "(rnenv:$1) \${RNENV_BACKUP_ENV_PS1-}"
+_genv_set_env GENV_ENVIRONMENT_NAME $1
+_genv_set_env PS1 "(genv:$1) \${GENV_BACKUP_ENV_PS1-}"
 EOS
 }
 
 unset_envs()
 {
   cat <<EOS
-_rnenv_unset_env RNENV_ENVIRONMENT_NAME
-_rnenv_set_env PS1 "(rnenv) \${RNENV_BACKUP_ENV_PS1-}"
+_genv_unset_env GENV_ENVIRONMENT_NAME
+_genv_set_env PS1 "(genv) \${GENV_BACKUP_ENV_PS1-}"
 EOS
 }
 
 configure()
 {
-  ( exec rnenv exec envs rename --eid $RNENV_ENVIRONMENT_ID --name $1 )
+  ( exec genv exec envs rename --eid $GENV_ENVIRONMENT_ID --name $1 )
 
   set_envs $1
 }
@@ -65,21 +65,21 @@ case $1 in
     print_help_and_fail
     ;;
   clear)
-    ( exec rnenv exec envs rename --eid $RNENV_ENVIRONMENT_ID )
+    ( exec genv exec envs rename --eid $GENV_ENVIRONMENT_ID )
 
     unset_envs
 
     if [[ "$2" = "--save" ]]; then
-      home="$(exec rnenv-home --quiet)"
+      home="$(exec genv-home --quiet)"
       [[ -n "$home" && -f "$home/name" ]] && rm "$home/name"
     fi
     ;;
   load)
-    home="$(exec rnenv-home --quiet)"
+    home="$(exec genv-home --quiet)"
     [[ -n "$home" && -f "$home/name" ]] && configure $(<"$home/name")
     ;;
   reload)
-    name=$( exec rnenv exec envs query --eid $RNENV_ENVIRONMENT_ID --name )
+    name=$( exec genv exec envs query --eid $GENV_ENVIRONMENT_ID --name )
     if [ -n "$name" ]; then
       set_envs $name
     else
@@ -87,13 +87,13 @@ case $1 in
     fi
     ;;
   show)
-    [ -n "$RNENV_ENVIRONMENT_NAME" ] && echo "$RNENV_ENVIRONMENT_NAME"
+    [ -n "$GENV_ENVIRONMENT_NAME" ] && echo "$GENV_ENVIRONMENT_NAME"
     ;;
   *)
     configure $1
 
     if [[ "$2" = "--save" ]]; then
-      home="$(exec rnenv-home)"
+      home="$(exec genv-home)"
       echo "$1" > "$home/name"
     fi
     ;;

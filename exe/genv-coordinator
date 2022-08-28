@@ -4,22 +4,22 @@ import argparse
 import subprocess
 import sys
 
-import rnenv
+import genv
 
 JSON = 'coordinator.json'
 
 def create_state():
-    num_devices = int(rnenv.env('DEVICES') or subprocess.check_output("nvidia-smi --id=0 --query-gpu=count --format=csv,noheader", shell=True))
+    num_devices = int(genv.env('DEVICES') or subprocess.check_output("nvidia-smi --id=0 --query-gpu=count --format=csv,noheader", shell=True))
 
     return dict(
         devices={ i: { "pid": -1 } for i in range(num_devices) }
     )
 
 def get_state():
-    if not rnenv.exists(JSON):
+    if not genv.exists(JSON):
         state = create_state()
     else:
-        state = rnenv.read(JSON)
+        state = genv.read(JSON)
 
     return state
 
@@ -34,7 +34,7 @@ def find_free_device(state, ignore=[]):
             continue
 
         pid = info["pid"]
-        if pid == -1 or not rnenv.poll(pid):
+        if pid == -1 or not genv.poll(pid):
             return index
 
     raise RuntimeError("No available devices")
@@ -51,7 +51,7 @@ def find_free_devices(state, count):
     return indices
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description=f'rnenv device coordinator')
+    parser = argparse.ArgumentParser(description=f'genv device coordinator')
     parser.add_argument('--pid', type=int, required=True, help='Identifier of the root process of the environment')
     parser.add_argument('--count', type=int, required=True, help='Amount of devices to reserve')
     args = parser.parse_args()
@@ -69,6 +69,6 @@ if __name__ == "__main__":
     for index in indices:
         state["devices"][index]["pid"] = args.pid
 
-    rnenv.save(JSON, state)
+    genv.save(JSON, state)
 
     print(','.join(str(index) for index in indices))

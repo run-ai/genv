@@ -1,16 +1,16 @@
 #!/bin/bash
 
 set -e
-[ -n "$RNENV_DEBUG" ] && set -x
+[ -n "$GENV_DEBUG" ] && set -x
 
 if [[ $1 = "--description" ]] ; then
     echo "Display the directory containing the configuration of this environment"
     exit 0
 fi
 
-options=($PWD $HOME $RNENV_ROOT)
+options=($PWD $HOME $GENV_ROOT)
 for parent in ${options[@]}; do
-  dir="$parent/.rnenv"
+  dir="$parent/.genv"
   if [ -d $dir ]; then
     echo $dir
     exit 0
@@ -22,12 +22,12 @@ if [[ "$1" = "--quiet" ]]; then
 fi
 
 {
-  echo "Could not find any rnenv configuration directory."
+  echo "Could not find any genv configuration directory."
   echo
-  echo "Create a directory named '.rnenv' under one of the following directories:"
+  echo "Create a directory named '.genv' under one of the following directories:"
   echo "  1) Current working directory (i.e. \$PWD)"
   echo "  2) Home directory (i.e. \$HOME)"
-  echo "  2) Installation directory of rnenv (i.e. \`rnenv root\`)"
+  echo "  2) Installation directory of genv (i.e. \`genv root\`)"
   echo
 } >&2
 

@@ -3,13 +3,13 @@ import os
 from pathlib import Path
 
 def env(name: str, default: str=None) -> str | None:
-    return os.environ.get(f'RNENV_{name}', default)
+    return os.environ.get(f'GENV_{name}', default)
 
 def exists(filename: str) -> bool:
     return os.path.exists(path(filename))
 
 def path(filename: str) -> str:
-    return os.path.join(env('TMPDIR', '/var/tmp/rnenv'), filename)
+    return os.path.join(env('TMPDIR', '/var/tmp/genv'), filename)
 
 def poll(pid: int) -> bool:
     try:

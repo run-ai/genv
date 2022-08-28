@@ -1,7 +1,7 @@
 #!/bin/bash
 
 set -e
-[ -n "$RNENV_DEBUG" ] && set -x
+[ -n "$GENV_DEBUG" ] && set -x
 
 remove_shims_from_path()
 {
@@ -9,7 +9,7 @@ remove_shims_from_path()
 
   paths=($PATH)
   for i in ${!paths[@]}; do
-    if [ ${paths[i]} = "$(exec rnenv root)/shims" ]; then
+    if [ ${paths[i]} = "$(exec genv root)/shims" ]; then
       unset 'paths[i]'
     fi
   done

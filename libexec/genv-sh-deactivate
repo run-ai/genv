@@ -1,0 +1,55 @@
+#!/bin/bash
+
+set -e
+[ -n "$GENV_DEBUG" ] && set -x
+
+if [[ $1 = "--description" ]] ; then
+  echo "Deactivate environment"
+  exit 0
+fi
+
+if [ -z "$GENV_ENVIRONMENT_ID" ] ; then
+  echo "Not running in an active environment" 1>&2
+  exit 1
+fi
+
+cat <<EOS
+( exec genv exec envs deactivate --pid \$\$ --eid \$GENV_ENVIRONMENT_ID )
+
+_genv_unset_envs()
+{
+  IFS=: read -a names <<< "\$GENV_ENVS"
+  _genv_unset_env GENV_ENVS
+
+  for name in "\${names[@]}"
+  do
+    _genv_unset_env \$name
+  done
+}
+
+_genv_restore_envs()
+{
+  IFS=: read -a names <<< "\$GENV_BACKUP_ENVS"
+  _genv_unset_env GENV_BACKUP_ENVS
+
+  for name in "\${names[@]}"
+  do
+    backup="GENV_BACKUP_ENV_\$name"
+    export \$name="\${!backup}"
+    _genv_unset_env \$backup
+  done
+}
+
+_genv_unset_envs
+_genv_restore_envs
+
+unset -f _genv_restore_envs
+unset -f _genv_unset_envs
+
+# from genv-sh-activate
+unset -f _genv_replace_env
+unset -f _genv_unset_env
+unset -f _genv_set_env
+unset -f _genv_backup_env
+unset -f _genv_append_env
+EOS

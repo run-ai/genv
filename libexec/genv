@@ -1,0 +1,36 @@
+#!/bin/bash
+
+set -e
+[ -n "$GENV_DEBUG" ] && set -x
+
+export GENV_ROOT=${GENV_ROOT:-"$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &> /dev/null && pwd)/.."}
+export PATH="$GENV_ROOT/libexec:$GENV_ROOT/bin:$PATH"
+
+command="$1"
+case "$command" in
+"" )
+  genv-help >&2
+  exit 1
+  ;;
+-h | --help )
+  exec genv-help
+  ;;
+* )
+  command_path="$(command -v "genv-$command" || true)"
+  if [ -z "$command_path" ]; then
+    {
+      if [ -n "$(command -v "genv-sh-$command" || true)" ]; then
+        ( exec genv init --warn )
+      else
+        echo "No such command '$command'"
+        echo
+        genv-help
+      fi
+    } >&2
+    exit 1
+  fi
+
+  shift 1
+  exec "$command_path" "$@"
+  ;;
+esac

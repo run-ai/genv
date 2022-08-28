@@ -1,14 +1,14 @@
 {
     "files.associations": {
         // bin
-        "rnenv": "shellscript",
+        "genv": "shellscript",
 
         // exe
-        "rnenv-coordinator": "python",
-        "rnenv-envs": "python",
+        "genv-coordinator": "python",
+        "genv-envs": "python",
 
         // libexec
-        "rnenv-*": "shellscript",
+        "genv-*": "shellscript",
 
         // shims
         "nvidia-smi": "shellscript",
