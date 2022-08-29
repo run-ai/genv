@@ -1,14 +1,19 @@
 #!/usr/bin/env python3
 
 import argparse
-from typing import Any
+from typing import Any, Dict, List
 
 import genv
 
 JSON = 'envs.json'
 
-Env = dict[Any, Any]
-Envs = dict[int, Env]
+Env = Dict[Any, Any]
+Envs = Dict[int, Env]
+
+QUERIES = {
+    'eid': lambda env: env["eid"],
+    'name': lambda env: env["name"] if "name" in env else None,
+}
 
 def cleanup(envs: Envs) -> None:
     # cleanup terminated processes
@@ -22,6 +27,7 @@ def cleanup(envs: Envs) -> None:
 def activate(envs: Envs, eid: int, pid: int) -> None:
     if eid not in envs:
         envs[eid] = dict(
+            eid=eid,
             pids=[],
         )
 
@@ -47,12 +53,21 @@ def rename(env: Env, name: str | None) -> None:
     else:
         env["name"] = name
 
-def query(env: Env, name: bool) -> None:
-    if name and "name" in env:
-        print(env["name"])
+def do_query(envs: Envs, eid: int | None, queries: List[str]) -> None:
+    eids = [eid] if eid is not None else list(envs.keys())
+
+    for eid in eids:
+        env = envs.get(eid)
+
+        if env is None:
+            continue
+
+        query = lambda name: str(QUERIES[name](env) or '')
+
+        print(','.join(query(name) for name in queries))
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description=f'genv environment activator')
+    parser = argparse.ArgumentParser(description=f'genv environment manager')
     parser.add_argument('--no-cleanup', dest='cleanup', action='store_false', help='Do not perform clean up')
     parser.add_argument('--reset', action='store_true', help='Reset previous state')
 
@@ -70,9 +85,9 @@ if __name__ == "__main__":
     parser_rename.add_argument('--eid', type=int, required=True, help='Environment ID')
     parser_rename.add_argument('--name', help='Environment name')
 
-    parser_query = subparsers.add_parser('query', help='Query an environment')
-    parser_query.add_argument('--eid', type=int, required=True, help='Environment ID')
-    parser_query.add_argument('--name', action='store_true', help='Query environment name')
+    parser_query = subparsers.add_parser('query', help='Query environments')
+    parser_query.add_argument('--eid', type=int, help='Environment ID')
+    parser_query.add_argument('--query', '--queries', dest='queries', nargs='+', choices=QUERIES.keys(), required=True)
 
     args = parser.parse_args()
 
@@ -84,7 +99,7 @@ if __name__ == "__main__":
         json["envs"] = { int(eid): env for eid, env in json["envs"].items() }
     else:
         json = dict(
-           envs=Envs(),
+           envs=dict(),
         )
 
     envs: Envs = json["envs"]
@@ -108,9 +123,6 @@ if __name__ == "__main__":
         if env is not None:
             rename(env, args.name)
     elif args.command == 'query':
-        env: Env = envs.get(args.eid)
-
-        if env is not None:
-            query(env, args.name)
+        do_query(envs, args.eid, args.queries)
 
     genv.save(JSON, json)
