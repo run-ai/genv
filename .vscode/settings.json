@@ -1,17 +1,9 @@
 {
     "files.associations": {
-        // bin
-        "genv": "shellscript",
-
-        // exe
-        "genv-devices": "python",
-        "genv-envs": "python",
-
-        // libexec
-        "genv-*": "shellscript",
-
-        // shims
-        "nvidia-smi": "shellscript",
+        "**/bin/genv": "shellscript",
+        "**/exe/genv-*": "python",
+        "**/libexec/genv-*": "shellscript",
+        "**/shims/nvidia-smi": "shellscript",
     },
     "terminal.integrated.defaultProfile.osx": "bash",
     "python.analysis.extraPaths": [
