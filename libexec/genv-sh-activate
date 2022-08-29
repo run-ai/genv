@@ -52,7 +52,7 @@ _genv_replace_env PYTHONPATH "$GENV_ROOT/py:\$PYTHONPATH"
 _genv_replace_env PS1 "(genv) \${PS1-}"
 
 # register in envs.json
-( exec genv exec envs activate --pid \$\$ --eid \$GENV_ENVIRONMENT_ID )
+( exec genv exec envs activate --pid \$\$ --eid \$GENV_ENVIRONMENT_ID --uid \$(id -u) --username \$(id -un) )
 
 # load any saved configuration
 genv config load
