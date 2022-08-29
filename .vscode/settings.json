@@ -4,7 +4,7 @@
         "genv": "shellscript",
 
         // exe
-        "genv-coordinator": "python",
+        "genv-devices": "python",
         "genv-envs": "python",
 
         // libexec

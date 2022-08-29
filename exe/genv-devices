@@ -1,0 +1,118 @@
+#!/usr/bin/env python3
+
+import argparse
+import subprocess
+import sys
+from typing import Any, Dict, List
+
+import genv
+
+JSON = 'devices.json'
+
+Device = Dict[Any, Any]
+Devices = Dict[int, Device]
+
+def cleanup(devices: Devices) -> None:
+    eids = [int(line) for line in subprocess.check_output("genv exec envs query --query eid", shell=True).splitlines()]
+
+    for device in devices.values():
+        if device["eid"] == -1:
+            continue
+
+        if device["eid"] not in eids:
+            device["eid"] = -1
+
+def find_available_device(devices: Devices, ignore: List[int]=[]) -> int:
+    for index, device in devices.items():
+        if index in ignore:
+            continue
+
+        if device["eid"] == -1:
+            return index
+
+    raise RuntimeError("No available devices")
+
+def find_available_devices(devices: Devices, count: int) -> List[int]:
+    available = len(devices)
+    if count > available:
+        raise RuntimeError(f"Requested more devices ({count}) than available ({available})")
+
+    indices = []
+    for _ in range(count):
+        indices.append(find_available_device(devices, ignore=indices))
+
+    return indices
+
+def clear(devices: Devices, eid: int) -> None:
+    for device in devices.values():
+        if device["eid"] == eid:
+            device["eid"] = -1
+
+def query(devices: Devices, eid: int) -> List[int]:
+    return [index for index, device in devices.items() if device["eid"] == eid]
+
+def do_clear(devices: Devices, eid: int) -> None:
+    clear(devices, eid)
+
+def do_query(devices: Devices, eid: int) -> None:
+    print(','.join(str(index) for index in query(devices, eid)))
+
+def do_request(devices: Devices, eid: int, count: int) -> None:
+    clear(devices, eid)
+
+    try:
+        indices = find_available_devices(devices, count)
+    except RuntimeError as e:
+        print(e, file=sys.stderr)
+        exit(1)
+
+    for index in indices:
+        devices[index]["eid"] = eid
+
+    print(','.join(str(index) for index in indices))
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description=f'genv device manager')
+    parser.add_argument('--no-cleanup', dest='cleanup', action='store_false', help='Do not perform clean up')
+    parser.add_argument('--reset', action='store_true', help='Reset previous state')
+
+    subparsers = parser.add_subparsers(dest='command', required=True)
+
+    parser_clear = subparsers.add_parser('clear', help='Clear devices of an environment')
+    parser_clear.add_argument('--eid', type=int, required=True, help='Environment identifier')
+
+    parser_query = subparsers.add_parser('query', help='Query devices of an environment')
+    parser_query.add_argument('--eid', type=int, required=True, help='Environment identifier')
+
+    parser_request = subparsers.add_parser('request', help='Request devices for an environment')
+    parser_request.add_argument('--eid', type=int, required=True, help='Environment identifier')
+    parser_request.add_argument('--count', type=int, required=True, help='Amount of devices to reserve')
+
+    args = parser.parse_args()
+
+    if genv.exists(JSON) and not args.reset:
+        json = genv.read(JSON)
+
+        # we need to convert device indices to integers. they are saved as
+        # strings because dictionary keys in json files must be strings.
+        json["devices"] = { int(index): device for index, device in json["devices"].items() }
+    else:
+        count = int(genv.env('DEVICES') or subprocess.check_output("nvidia-smi --id=0 --query-gpu=count --format=csv,noheader", shell=True))
+
+        json = dict(
+            devices={ index: { "eid": -1 } for index in range(count) }
+        )
+
+    devices: Devices = json["devices"]
+
+    if args.cleanup:
+        cleanup(devices)
+
+    if args.command == 'clear':
+        do_clear(devices, args.eid)
+    elif args.command == 'query':
+        do_query(devices, args.eid)
+    elif args.command == 'request':
+        do_request(devices, args.eid, args.count)
+
+    genv.save(JSON, json)
