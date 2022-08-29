@@ -1,3 +1,4 @@
+from datetime import datetime
 import json
 import os
 from pathlib import Path
@@ -28,3 +29,24 @@ def save(filename: str, o: dict) -> None:
     Path(path_).parent.mkdir(parents=True, exist_ok=True)
     with open(path_, 'w') as f:
         json.dump(o, f)
+
+def time_since(dt: datetime) -> str:
+    value = int((datetime.now() - dt).total_seconds())
+    unit = 'second'
+
+    for amount, next in [
+        (60, 'minute'),
+        (60, 'hour'),
+        (24, 'day'),
+        (7, 'week'),
+    ]:
+        if value < amount:
+            break
+
+        value, _ = divmod(value, amount)
+        unit = next
+
+    if value > 1:
+        unit = f'{unit}s'
+
+    return f'{value} {unit} ago'

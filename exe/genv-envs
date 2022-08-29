@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
 
 import argparse
+from datetime import datetime
 from typing import Any, Dict, List
 
 import genv
 
 JSON = 'envs.json'
+DATETIME_FMT = '%d/%m/%Y %H:%M:%S'
 
 Env = Dict[Any, Any]
 Envs = Dict[int, Env]
@@ -13,6 +15,7 @@ Envs = Dict[int, Env]
 QUERIES = {
     'eid': lambda env: env["eid"],
     'name': lambda env: env["name"] if "name" in env else None,
+    'creation': lambda env: env["created"],
 }
 
 def cleanup(envs: Envs) -> None:
@@ -30,6 +33,7 @@ def do_activate(envs: Envs, pid: int, eid: int, uid: int, username: str) -> None
             eid=eid,
             uid=uid,
             username=username,
+            created=datetime.now().strftime(DATETIME_FMT),
             pids=[],
         )
 
@@ -54,6 +58,19 @@ def rename(env: Env, name: str | None) -> None:
             del env["name"]
     else:
         env["name"] = name
+
+def do_ps(envs: Envs, header: bool=True) -> None:
+    if header:
+        print('ID      USER            NAME            CREATED              PID(S)')
+
+    for env in envs.values():
+        eid = env["eid"]
+        user = f'{env["username"]}({env["uid"]})'
+        name = env.get("name", '')
+        created = genv.time_since(datetime.strptime(env["created"], DATETIME_FMT))
+        pids = ','.join(str(pid) for pid in env["pids"])
+
+        print(f'{eid:<8}{user:<16}{name:<16}{created:<21}{pids}')
 
 def do_query(envs: Envs, eid: int | None, queries: List[str]) -> None:
     eids = [eid] if eid is not None else list(envs.keys())
@@ -89,6 +106,9 @@ if __name__ == "__main__":
     parser_rename.add_argument('--eid', type=int, required=True, help='Environment ID')
     parser_rename.add_argument('--name', help='Environment name')
 
+    parser_ps = subparsers.add_parser('ps', help='Print information about active environments')
+    parser_ps.add_argument('--no-header', dest='header', action='store_false', help='Do not print column headers')
+
     parser_query = subparsers.add_parser('query', help='Query environments')
     parser_query.add_argument('--eid', type=int, help='Environment ID')
     parser_query.add_argument('--query', '--queries', dest='queries', nargs='+', choices=QUERIES.keys(), required=True)
@@ -123,6 +143,8 @@ if __name__ == "__main__":
 
         if env is not None:
             rename(env, args.name)
+    elif args.command == 'ps':
+        do_ps(envs, args.header)
     elif args.command == 'query':
         do_query(envs, args.eid, args.queries)
 
