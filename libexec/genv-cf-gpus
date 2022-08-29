@@ -18,7 +18,9 @@ print_help()
   echo "    -h --help    Print this help message and exit"
   echo
   echo "Other commands:"
+  echo "    clear     Unset configuration; de-facto restores access to all GPUs"
   echo "    load      Load GPU count from disk"
+  echo "    reload    Reload GPU count; e.g. if changed by another terminal"
   echo "    show      Print GPU count"
   echo
 }
@@ -29,9 +31,18 @@ print_help_and_fail()
   exit 1
 }
 
-configure()
+unset_envs()
 {
-  indices=$( exec genv exec devices request --eid $GENV_ENVIRONMENT_ID --count $1 )
+  cat <<EOS
+_genv_unset_env CUDA_VISIBLE_DEVICES # TODO(raz): restore backed up value if exists
+_genv_unset_env GENV_GPUS
+EOS
+}
+
+set_envs()
+{
+  count=$1
+  indices=$2
 
   cat <<EOS
 # backup 'CUDA_VISIBLE_DEVICES' only if it existed before
@@ -39,9 +50,45 @@ if [ -z "\$GENV_GPUS" ]; then
   _genv_backup_env CUDA_VISIBLE_DEVICES
 fi
 
-_genv_set_env GENV_GPUS $1
+_genv_set_env GENV_GPUS $count
 _genv_set_env CUDA_VISIBLE_DEVICES "$indices"
 EOS
+}
+
+configure()
+{
+  count=$1
+  indices=$2
+
+  if [ "$count" -eq 0 ]; then
+    unset_envs
+  else
+    if [ -z "$indices" ]; then
+      indices=$( exec genv exec devices request --eid $GENV_ENVIRONMENT_ID --count $count )
+    fi
+
+    set_envs $count "$indices"
+  fi
+}
+
+do_clear()
+{
+  ( exec genv exec devices clear --eid $GENV_ENVIRONMENT_ID )
+
+  unset_envs
+
+  if [[ "$1" = "--save" ]]; then
+    home="$(exec genv-home --quiet)"
+    [[ -n "$home" && -f "$home/gpus" ]] && rm "$home/gpus"
+  fi
+}
+
+do_reload()
+{
+  indices=$( exec genv exec devices query --eid $GENV_ENVIRONMENT_ID )
+  count=$(awk -F',' '{print NF}' <<< $indices)
+
+  configure $count "$indices"
 }
 
 case $1 in
@@ -54,9 +101,16 @@ case $1 in
     # should be 'eval'.
     print_help_and_fail
     ;;
+  clear)
+    shift
+    do_clear "$@"
+    ;;
   load)
     home="$(exec genv-home --quiet)"
     [[ -n "$home" && -f "$home/gpus" ]] && configure $(<"$home/gpus")
+    ;;
+  reload)
+    do_reload
     ;;
   show)
     [ -n "$GENV_GPUS" ] && echo "$GENV_GPUS"
