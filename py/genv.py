@@ -41,7 +41,7 @@ def save(filename: str, o: dict) -> None:
         Path(path_).parent.mkdir(parents=True, exist_ok=True, mode=0o777)
 
         with open(path_, 'w', opener=lambda path, flags: os.open(path, flags, 0o666)) as f:
-            json.dump(o, f)
+            json.dump(o, f, indent=4)
     finally:
         os.umask(umask)
 
