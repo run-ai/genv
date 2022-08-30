@@ -1,4 +1,5 @@
 from datetime import datetime
+import errno
 import json
 import os
 from pathlib import Path
@@ -18,8 +19,13 @@ def path(filename: str) -> str:
 def poll(pid: int) -> bool:
     try:
         os.kill(pid, 0)
-    except OSError:
-        return False
+    except OSError as e:
+        if e.errno == errno.ESRCH:
+            return False
+        elif e.errno == errno.EPERM:
+            return True
+        else:
+            raise
     else:
         return True
 
