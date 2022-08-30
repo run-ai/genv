@@ -3,6 +3,8 @@ import json
 import os
 from pathlib import Path
 
+DATETIME_FMT = '%d/%m/%Y %H:%M:%S'
+
 def env(name: str, default: str=None) -> str | None:
     return os.environ.get(f'GENV_{name}', default)
 

@@ -7,7 +7,6 @@ from typing import Any, Dict, List
 import genv
 
 JSON = 'envs.json'
-DATETIME_FMT = '%d/%m/%Y %H:%M:%S'
 
 Env = Dict[Any, Any]
 Envs = Dict[int, Env]
@@ -33,7 +32,7 @@ def do_activate(envs: Envs, pid: int, eid: int, uid: int, username: str) -> None
             eid=eid,
             uid=uid,
             username=username,
-            created=datetime.now().strftime(DATETIME_FMT),
+            created=datetime.now().strftime(genv.DATETIME_FMT),
             pids=[],
         )
 
@@ -67,7 +66,7 @@ def do_ps(envs: Envs, header: bool=True) -> None:
         eid = env["eid"]
         user = f'{env["username"]}({env["uid"]})'
         name = env.get("name", '')
-        created = genv.time_since(datetime.strptime(env["created"], DATETIME_FMT))
+        created = genv.time_since(datetime.strptime(env["created"], genv.DATETIME_FMT))
         pids = ','.join(str(pid) for pid in env["pids"])
 
         print(f'{eid:<8}{user:<16}{name:<16}{created:<21}{pids}')

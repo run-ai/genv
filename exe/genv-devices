@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import argparse
+from datetime import datetime
 import subprocess
 import sys
 from typing import Any, Dict, List
@@ -54,6 +55,27 @@ def query(devices: Devices, eid: int) -> List[int]:
 def do_clear(devices: Devices, eid: int) -> None:
     clear(devices, eid)
 
+def do_ps(devices: Devices, header: bool=True) -> None:
+    envs = {}
+    for line in subprocess.check_output("genv exec envs query --query eid name", shell=True).decode('utf-8').splitlines():
+        eid, name = line.split(',')
+        envs[int(eid)] = name
+
+    if header:
+        print('ID      ENV ID      ENV NAME        ATTACHED')
+
+    for index, device in devices.items():
+        eid = ''
+        name = ''
+        attached = ''
+
+        if device["eid"] != -1:
+            eid = device["eid"]
+            name = envs.get(eid, '')
+            attached = genv.time_since(datetime.strptime(device["attached"], genv.DATETIME_FMT))
+
+        print(f'{index:<8}{eid:<12}{name:<16}{attached}')
+
 def do_query(devices: Devices, eid: int) -> None:
     print(','.join(str(index) for index in query(devices, eid)))
 
@@ -66,8 +88,11 @@ def do_request(devices: Devices, eid: int, count: int) -> None:
         print(e, file=sys.stderr)
         exit(1)
 
+    now = datetime.now().strftime(genv.DATETIME_FMT)
+
     for index in indices:
         devices[index]["eid"] = eid
+        devices[index]["attached"] = now
 
     print(','.join(str(index) for index in indices))
 
@@ -80,6 +105,9 @@ if __name__ == "__main__":
 
     parser_clear = subparsers.add_parser('clear', help='Clear devices of an environment')
     parser_clear.add_argument('--eid', type=int, required=True, help='Environment identifier')
+
+    parser_ps = subparsers.add_parser('ps', help='Print information about devices')
+    parser_ps.add_argument('--no-header', dest='header', action='store_false', help='Do not print column headers')
 
     parser_query = subparsers.add_parser('query', help='Query devices of an environment')
     parser_query.add_argument('--eid', type=int, required=True, help='Environment identifier')
@@ -110,6 +138,8 @@ if __name__ == "__main__":
 
     if args.command == 'clear':
         do_clear(devices, args.eid)
+    elif args.command == 'ps':
+        do_ps(devices, args.header)
     elif args.command == 'query':
         do_query(devices, args.eid)
     elif args.command == 'request':
