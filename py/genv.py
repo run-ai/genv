@@ -2,10 +2,11 @@ from datetime import datetime
 import json
 import os
 from pathlib import Path
+from typing import Optional
 
 DATETIME_FMT = '%d/%m/%Y %H:%M:%S'
 
-def env(name: str, default: str=None) -> str | None:
+def env(name: str, default: str=None) -> Optional[str]:
     return os.environ.get(f'GENV_{name}', default)
 
 def exists(filename: str) -> bool:

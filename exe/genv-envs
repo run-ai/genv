@@ -2,7 +2,7 @@
 
 import argparse
 from datetime import datetime
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 import genv
 
@@ -42,7 +42,7 @@ def do_activate(envs: Envs, pid: int, eid: int, uid: int, username: str) -> None
         env["pids"].append(pid)
 
 def deactivate(envs: Envs, eid: int, pid: int) -> None:
-    env: Env | None = envs.get(eid)
+    env: Optional[Env] = envs.get(eid)
 
     if env is not None:
         while pid in env["pids"]:
@@ -51,7 +51,7 @@ def deactivate(envs: Envs, eid: int, pid: int) -> None:
         if len(env["pids"]) == 0:
             del envs[eid]
 
-def rename(env: Env, name: str | None) -> None:
+def rename(env: Env, name: Optional[str]) -> None:
     if name is None:
         if "name" in env:
             del env["name"]
@@ -71,7 +71,7 @@ def do_ps(envs: Envs, header: bool=True) -> None:
 
         print(f'{eid:<8}{user:<16}{name:<16}{created:<21}{pids}')
 
-def do_query(envs: Envs, eid: int | None, queries: List[str]) -> None:
+def do_query(envs: Envs, eid: Optional[int], queries: List[str]) -> None:
     eids = [eid] if eid is not None else list(envs.keys())
 
     for eid in eids:
