@@ -29,9 +29,15 @@ def read(filename: str) -> dict:
 
 def save(filename: str, o: dict) -> None:
     path_ = path(filename)
-    Path(path_).parent.mkdir(parents=True, exist_ok=True)
-    with open(path_, 'w') as f:
-        json.dump(o, f)
+
+    umask = os.umask(0)
+    try:
+        Path(path_).parent.mkdir(parents=True, exist_ok=True, mode=0o777)
+
+        with open(path_, 'w', opener=lambda path, flags: os.open(path, flags, 0o666)) as f:
+            json.dump(o, f)
+    finally:
+        os.umask(umask)
 
 def time_since(dt: datetime) -> str:
     value = int((datetime.now() - dt).total_seconds())
