@@ -2,7 +2,7 @@
     "files.associations": {
         "**/bin/genv": "shellscript",
         "**/exe/genv-*": "python",
-        "**/libexec/genv-*": "shellscript",
+        "**/libexec/genv*": "shellscript",
         "**/shims/nvidia-smi": "shellscript",
     },
     "terminal.integrated.defaultProfile.osx": "bash",
