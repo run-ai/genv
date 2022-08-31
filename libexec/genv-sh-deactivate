@@ -19,24 +19,22 @@ cat <<EOS
 _genv_unset_envs()
 {
   IFS=: read -a names <<< "\$GENV_ENVS"
-  _genv_unset_env GENV_ENVS
+  unset GENV_ENVS
 
   for name in "\${names[@]}"
   do
-    _genv_unset_env \$name
+    unset \$name
   done
 }
 
 _genv_restore_envs()
 {
   IFS=: read -a names <<< "\$GENV_BACKUP_ENVS"
-  _genv_unset_env GENV_BACKUP_ENVS
+  unset GENV_BACKUP_ENVS
 
   for name in "\${names[@]}"
   do
-    backup="GENV_BACKUP_ENV_\$name"
-    export \$name="\${!backup}"
-    _genv_unset_env \$backup
+    _genv_restore_env \$name
   done
 }
 
@@ -48,8 +46,9 @@ unset -f _genv_unset_envs
 
 # from genv-sh-activate
 unset -f _genv_replace_env
+unset -f _genv_restore_env
+unset -f _genv_backup_env
 unset -f _genv_unset_env
 unset -f _genv_set_env
-unset -f _genv_backup_env
-unset -f _genv_append_env
+unset -f _genv_append_to_env
 EOS

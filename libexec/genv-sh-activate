@@ -58,25 +58,19 @@ case "$1" in
   ;;
 esac
 
-cat <<EOS
-_genv_append_env()
+function functions()
+{
+  cat <<EOS
+_genv_append_to_env()
 {
   # based on https://unix.stackexchange.com/a/415028
   export \$1="\${!1:+\${!1}:}\$2"
 }
 
-_genv_backup_env()
-{
-  if [ -n "\${!1}" ]; then
-    export GENV_BACKUP_ENV_\$1="\${!1}"
-    _genv_append_env GENV_BACKUP_ENVS \$1
-  fi
-}
-
 _genv_set_env()
 {
   export \$1="\$2"
-  _genv_append_env GENV_ENVS \$1
+  _genv_append_to_env GENV_ENVS \$1
 }
 
 _genv_unset_env()
@@ -85,20 +79,56 @@ _genv_unset_env()
   # TODO(raz): remove from 'GENV_ENVS'
 }
 
+_genv_backup_env()
+{
+  if [ -n "\${!1}" ]; then
+    export GENV_BACKUP_ENV_\$1="\${!1}"
+    _genv_append_to_env GENV_BACKUP_ENVS \$1
+  fi
+}
+
+_genv_restore_env()
+{
+  backup="GENV_BACKUP_ENV_\$1"
+  if [ -n "\${!backup}" ]; then
+    export \$1="\${!backup}"
+  fi
+  unset \$backup
+}
+
 _genv_replace_env()
 {
   _genv_backup_env \$1
   _genv_set_env \$1 "\$2"
 }
+EOS
+}
 
+function variables()
+{
+  cat <<EOS
 _genv_set_env GENV_ENVIRONMENT_ID $eid
 _genv_replace_env PATH "$GENV_ROOT/shims:\$PATH"
 _genv_replace_env PYTHONPATH "$GENV_ROOT/py:\$PYTHONPATH"
 _genv_replace_env PS1 "(genv) \${PS1-}"
+EOS
+}
 
-# register in envs.json
+function activate()
+{
+  cat <<EOS
 ( exec genv exec envs activate --pid \$\$ --eid \$GENV_ENVIRONMENT_ID --uid \$(id -u) --username \$(id -un) )
+EOS
+}
 
-# load any saved configuration
+function configure()
+{
+  cat <<EOS
 genv config load
 EOS
+}
+
+functions
+variables
+activate
+configure
