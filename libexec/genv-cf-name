@@ -79,7 +79,7 @@ case $1 in
     [[ -n "$home" && -f "$home/name" ]] && configure $(<"$home/name")
     ;;
   reload)
-    name=$( exec genv exec envs query --eid $GENV_ENVIRONMENT_ID --query name )
+    name=$( exec genv exec envs query --eid $GENV_ENVIRONMENT_ID --query config.name )
     if [ -n "$name" ]; then
       set_envs $name
     else

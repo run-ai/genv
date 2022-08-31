@@ -1,0 +1,45 @@
+#!/bin/bash
+
+set -e
+[ -n "$GENV_DEBUG" ] && set -x
+
+if [[ $1 = "--description" ]] ; then
+  echo "Attach devices to this environment"
+  exit 0
+fi
+
+function recho()
+{
+  echo "echo \"$1\""
+}
+
+print_help()
+{
+  recho "Usage: genv attach [-h|--help]"
+  recho
+  recho "Attach devices to this environment."
+  recho
+  recho "    -h --help    Print this help message and exit"
+  recho
+}
+
+case "$1" in
+-h|--help) print_help; exit 0 ;;
+esac
+
+if [ -z "$GENV_GPUS" ]; then
+  {
+    echo "Device count was not configured for this environment."
+    echo "Run the following command:"
+    echo
+    echo "    genv config gpus --help"
+    echo
+    exit 1
+  } >&2
+fi
+
+indices=$( exec genv exec devices attach --eid $GENV_ENVIRONMENT_ID --count $GENV_GPUS )
+
+cat <<EOS
+_genv_set_env CUDA_VISIBLE_DEVICES "$indices"
+EOS

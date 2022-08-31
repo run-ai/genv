@@ -1,0 +1,34 @@
+#!/bin/bash
+
+set -e
+[ -n "$GENV_DEBUG" ] && set -x
+
+if [[ $1 = "--description" ]] ; then
+  echo "Detach devices from this environment"
+  exit 0
+fi
+
+function recho()
+{
+  echo "echo \"$1\""
+}
+
+print_help()
+{
+  recho "Usage: genv detach [-h|--help]"
+  recho
+  recho "Detach devices from this environment."
+  recho
+  recho "    -h --help    Print this help message and exit"
+  recho
+}
+
+case "$1" in
+-h|--help) print_help; exit 0 ;;
+esac
+
+( exec genv exec devices detach --eid $GENV_ENVIRONMENT_ID )
+
+cat <<EOS
+_genv_set_env CUDA_VISIBLE_DEVICES "-1"
+EOS

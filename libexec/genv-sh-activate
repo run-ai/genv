@@ -13,23 +13,17 @@ if [ -n "$GENV_ENVIRONMENT_ID" ] ; then
   exit 1
 fi
 
-# this is an 'sh' command and therefore the output is going to be 'eval'-ed.
-# so if we want someething to be printed we need to wrap it with an 'echo' command.
-function reprint()
+function recho()
 {
-  while read line; do
-    echo "echo \"${line}\""
-  done;
+  echo "echo \"$1\""
 }
 
 print_help()
 {
-  {
-    echo "Usage: genv activate [id] [-h|--help]"
-    echo
-    echo "Activate this environment."
-    echo
-  } | reprint
+  recho "Usage: genv activate [id] [-h|--help]"
+  recho
+  recho "Activate this environment."
+  recho
 }
 
 eid=""
@@ -45,13 +39,10 @@ case "$1" in
 *)
   re='^[0-9]+$'
   if ! [[ $1 =~ $re && "$1" -gt 0 ]]; then
-      {
-        echo "Invalid environment identifier ($1); must be an integer"
-        echo
-      } | reprint
-
-      print_help
-      exit 1
+    recho "Invalid environment identifier ($1); must be an integer"
+    recho
+    print_help
+    exit 1
   fi
 
   eid="$1"
@@ -111,6 +102,7 @@ _genv_set_env GENV_ENVIRONMENT_ID $eid
 _genv_replace_env PATH "$GENV_ROOT/shims:\$PATH"
 _genv_replace_env PYTHONPATH "$GENV_ROOT/py:\$PYTHONPATH"
 _genv_replace_env PS1 "(genv) \${PS1-}"
+_genv_replace_env CUDA_VISIBLE_DEVICES "-1"
 EOS
 }
 

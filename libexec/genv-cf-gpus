@@ -34,46 +34,27 @@ print_help_and_fail()
 unset_envs()
 {
   cat <<EOS
-_genv_unset_env CUDA_VISIBLE_DEVICES # TODO(raz): restore backed up value if exists
 _genv_unset_env GENV_GPUS
 EOS
 }
 
 set_envs()
 {
-  count=$1
-  indices=$2
-
   cat <<EOS
-# backup 'CUDA_VISIBLE_DEVICES' only if it existed before
-if [ -z "\$GENV_GPUS" ]; then
-  _genv_backup_env CUDA_VISIBLE_DEVICES
-fi
-
-_genv_set_env GENV_GPUS $count
-_genv_set_env CUDA_VISIBLE_DEVICES "$indices"
+_genv_set_env GENV_GPUS $1
 EOS
 }
 
 configure()
 {
-  count=$1
-  indices=$2
+  ( exec genv exec envs config --eid $GENV_ENVIRONMENT_ID gpus --count $1 )
 
-  if [ "$count" -eq 0 ]; then
-    unset_envs
-  else
-    if [ -z "$indices" ]; then
-      indices=$( exec genv exec devices request --eid $GENV_ENVIRONMENT_ID --count $count )
-    fi
-
-    set_envs $count "$indices"
-  fi
+  set_envs $1
 }
 
 do_clear()
 {
-  ( exec genv exec devices clear --eid $GENV_ENVIRONMENT_ID )
+  ( exec genv exec envs config --eid $GENV_ENVIRONMENT_ID gpus --clear )
 
   unset_envs
 
@@ -85,10 +66,12 @@ do_clear()
 
 do_reload()
 {
-  indices=$( exec genv exec devices query --eid $GENV_ENVIRONMENT_ID )
-  count=$(awk -F',' '{print NF}' <<< $indices)
-
-  configure $count "$indices"
+  gpus=$( exec genv exec envs query --eid $GENV_ENVIRONMENT_ID --query config.gpus )
+  if [ -n "$gpus" ]; then
+    set_envs $gpus
+  else
+    unset_envs
+  fi
 }
 
 case $1 in

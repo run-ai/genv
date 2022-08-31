@@ -13,8 +13,9 @@ Envs = Dict[int, Env]
 
 QUERIES = {
     'eid': lambda env: env["eid"],
-    'name': lambda env: env["config"].get("name"),
     'creation': lambda env: env["creation"],
+    'config.name': lambda env: env["config"].get("name"),
+    'config.gpus': lambda env: env["config"].get("gpus"),
 }
 
 def cleanup(envs: Envs, poll: Callable[[int], bool]=genv.poll) -> None:
@@ -46,6 +47,13 @@ def do_config(envs: Envs, eid: int, command: str, args: argparse.Namespace) -> N
     if env is None:
         return
 
+    def gpus(count: Optional[int], clear: bool) -> None:
+        if count is not None:
+            env["config"]["gpus"] = count
+
+        if clear and "gpus" in env["config"]:
+            del env["config"]["gpus"]
+
     def name(name: Optional[str], clear: bool) -> None:
         if name is not None:
             env["config"]["name"] = name
@@ -53,7 +61,9 @@ def do_config(envs: Envs, eid: int, command: str, args: argparse.Namespace) -> N
         if clear and "name" in env["config"]:
             del env["config"]["name"]
 
-    if command == 'name':
+    if command == 'gpus':
+        gpus(args.count, args.clear)
+    elif command == 'name':
         name(args.name, args.clear)
 
 def do_deactivate(envs: Envs, pid: int) -> None:
@@ -93,16 +103,22 @@ def parse_args() -> argparse.Namespace:
         parser.add_argument('--username', required=True, help='User name')
 
     def config(parser):
+        def gpus(parser):
+            group = parser.add_mutually_exclusive_group(required=True)
+            group.add_argument('--count', type=int, help='Device count')
+            group.add_argument('--clear', action='store_true', help='Clear device count')
+
         def name(parser):
             group = parser.add_mutually_exclusive_group(required=True)
             group.add_argument('--name', help='Environment name')
-            group.add_argument('--clear', action='store_true', help='Clearn environment name')
+            group.add_argument('--clear', action='store_true', help='Clear environment name')
 
         parser.add_argument('--eid', type=int, required=True, help='Environment ID')
 
         subparsers = parser.add_subparsers(dest='config', required=True)
 
         for command, help in [
+            (gpus, 'Configure device count for environment'),
             (name, 'Configure environment name'),
         ]:
             command(subparsers.add_parser(command.__name__, help=help))
