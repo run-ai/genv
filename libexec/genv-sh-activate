@@ -13,6 +13,51 @@ if [ -n "$GENV_ENVIRONMENT_ID" ] ; then
   exit 1
 fi
 
+# this is an 'sh' command and therefore the output is going to be 'eval'-ed.
+# so if we want someething to be printed we need to wrap it with an 'echo' command.
+function reprint()
+{
+  while read line; do
+    echo "echo \"${line}\""
+  done;
+}
+
+print_help()
+{
+  {
+    echo "Usage: genv activate [id] [-h|--help]"
+    echo
+    echo "Activate this environment."
+    echo
+  } | reprint
+}
+
+eid=""
+
+case "$1" in
+-h|--help)
+  print_help
+  exit 0
+  ;;
+"")
+  eid="\$\$"
+  ;;
+*)
+  re='^[0-9]+$'
+  if ! [[ $1 =~ $re && "$1" -gt 0 ]]; then
+      {
+        echo "Invalid environment identifier ($1); must be an integer"
+        echo
+      } | reprint
+
+      print_help
+      exit 1
+  fi
+
+  eid="$1"
+  ;;
+esac
+
 cat <<EOS
 _genv_append_env()
 {
@@ -46,7 +91,7 @@ _genv_replace_env()
   _genv_set_env \$1 "\$2"
 }
 
-_genv_set_env GENV_ENVIRONMENT_ID \$\$
+_genv_set_env GENV_ENVIRONMENT_ID $eid
 _genv_replace_env PATH "$GENV_ROOT/shims:\$PATH"
 _genv_replace_env PYTHONPATH "$GENV_ROOT/py:\$PYTHONPATH"
 _genv_replace_env PS1 "(genv) \${PS1-}"
