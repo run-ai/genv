@@ -2,7 +2,7 @@
 
 import argparse
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any, Callable, Dict, List, Optional
 
 import genv
 
@@ -13,16 +13,17 @@ Envs = Dict[int, Env]
 
 QUERIES = {
     'eid': lambda env: env["eid"],
-    'name': lambda env: env["name"] if "name" in env else None,
-    'creation': lambda env: env["created"],
+    'name': lambda env: env["config"].get("name"),
+    'creation': lambda env: env["creation"],
 }
 
-def cleanup(envs: Envs) -> None:
-    # cleanup terminated processes
+def cleanup(envs: Envs, poll: Callable[[int], bool]=genv.poll) -> None:
+    """
+    Clean up processes and environments.
+    """
     for env in envs.values():
-        env["pids"] = [pid for pid in env["pids"] if genv.poll(pid)]
+        env["pids"] = [pid for pid in env["pids"] if poll(pid)]
 
-    # cleanup terminated environments
     for eid in [eid for eid, env in envs.items() if len(env["pids"]) == 0]:
         del envs[eid]
 
@@ -32,31 +33,31 @@ def do_activate(envs: Envs, pid: int, eid: int, uid: int, username: str) -> None
             eid=eid,
             uid=uid,
             username=username,
-            created=datetime.now().strftime(genv.DATETIME_FMT),
+            creation=datetime.now().strftime(genv.DATETIME_FMT),
             pids=[],
+            config={},
         )
 
-    env: Env = envs[eid]
+    envs[eid]["pids"].append(pid)
 
-    if pid not in env["pids"]:
-        env["pids"].append(pid)
+def do_config(envs: Envs, eid: int, command: str, args: argparse.Namespace) -> None:
+    env: Env = envs.get(eid)
 
-def deactivate(envs: Envs, eid: int, pid: int) -> None:
-    env: Optional[Env] = envs.get(eid)
+    if env is None:
+        return
 
-    if env is not None:
-        while pid in env["pids"]:
-            env["pids"].remove(pid)
+    def name(name: Optional[str], clear: bool) -> None:
+        if name is not None:
+            env["config"]["name"] = name
 
-        if len(env["pids"]) == 0:
-            del envs[eid]
+        if clear and "name" in env["config"]:
+            del env["config"]["name"]
 
-def rename(env: Env, name: Optional[str]) -> None:
-    if name is None:
-        if "name" in env:
-            del env["name"]
-    else:
-        env["name"] = name
+    if command == 'name':
+        name(args.name, args.clear)
+
+def do_deactivate(envs: Envs, pid: int) -> None:
+    cleanup(envs, poll=lambda pid_: pid_ != pid)
 
 def do_ps(envs: Envs, header: bool=True) -> None:
     if header:
@@ -65,8 +66,8 @@ def do_ps(envs: Envs, header: bool=True) -> None:
     for env in envs.values():
         eid = env["eid"]
         user = f'{env["username"]}({env["uid"]})'
-        name = env.get("name", '')
-        created = genv.time_since(datetime.strptime(env["created"], genv.DATETIME_FMT))
+        name = env["config"].get("name", '')
+        created = genv.time_since(env["creation"])
         pids = ','.join(str(pid) for pid in env["pids"])
 
         print(f'{eid:<8}{user:<16}{name:<16}{created:<21}{pids}')
@@ -84,35 +85,57 @@ def do_query(envs: Envs, eid: Optional[int], queries: List[str]) -> None:
 
         print(','.join(query(name) for name in queries))
 
-if __name__ == "__main__":
+def parse_args() -> argparse.Namespace:
+    def activate(parser):
+        parser.add_argument('--pid', type=int, required=True, help='Process identifier')
+        parser.add_argument('--eid', type=int, required=True, help='Environment identifier')
+        parser.add_argument('--uid', type=int, required=True, help='User identifier')
+        parser.add_argument('--username', required=True, help='User name')
+
+    def config(parser):
+        def name(parser):
+            group = parser.add_mutually_exclusive_group(required=True)
+            group.add_argument('--name', help='Environment name')
+            group.add_argument('--clear', action='store_true', help='Clearn environment name')
+
+        parser.add_argument('--eid', type=int, required=True, help='Environment ID')
+
+        subparsers = parser.add_subparsers(dest='config', required=True)
+
+        for command, help in [
+            (name, 'Configure environment name'),
+        ]:
+            command(subparsers.add_parser(command.__name__, help=help))
+
+    def deactivate(parser):
+        parser.add_argument('--pid', type=int, required=True, help='Process identifier')
+
+    def ps(parser):
+        parser.add_argument('--no-header', dest='header', action='store_false', help='Do not print column headers')
+
+    def query(parser):
+        parser.add_argument('--eid', type=int, help='Environment identifier')
+        parser.add_argument('--query', '--queries', dest='queries', nargs='+', choices=QUERIES.keys(), required=True)
+
     parser = argparse.ArgumentParser(description=f'genv environment manager')
     parser.add_argument('--no-cleanup', dest='cleanup', action='store_false', help='Do not perform clean up')
     parser.add_argument('--reset', action='store_true', help='Reset previous state')
 
     subparsers = parser.add_subparsers(dest='command', required=True)
 
-    parser_activate = subparsers.add_parser('activate', help='Activate a new process')
-    parser_activate.add_argument('--pid', type=int, required=True, help='PID')
-    parser_activate.add_argument('--eid', type=int, required=True, help='Environment ID')
-    parser_activate.add_argument('--uid', type=int, required=True, help='User ID')
-    parser_activate.add_argument('--username', required=True, help='User name')
+    for command, help in [
+        (activate, 'Activate a process'),
+        (config, 'Configure an environment'),
+        (deactivate, 'Deactivate a process'),
+        (ps, 'Print information about active environments'),
+        (query, 'Query environments or a specific one'),
+    ]:
+        command(subparsers.add_parser(command.__name__, help=help))
 
-    parser_deactivate = subparsers.add_parser('deactivate', help='Deactivate a process')
-    parser_deactivate.add_argument('--pid', type=int, required=True, help='PID of the deactivated process')
-    parser_deactivate.add_argument('--eid', type=int, help='Environment ID')
+    return parser.parse_args()
 
-    parser_rename = subparsers.add_parser('rename', help='Rename an environment')
-    parser_rename.add_argument('--eid', type=int, required=True, help='Environment ID')
-    parser_rename.add_argument('--name', help='Environment name')
-
-    parser_ps = subparsers.add_parser('ps', help='Print information about active environments')
-    parser_ps.add_argument('--no-header', dest='header', action='store_false', help='Do not print column headers')
-
-    parser_query = subparsers.add_parser('query', help='Query environments')
-    parser_query.add_argument('--eid', type=int, help='Environment ID')
-    parser_query.add_argument('--query', '--queries', dest='queries', nargs='+', choices=QUERIES.keys(), required=True)
-
-    args = parser.parse_args()
+if __name__ == "__main__":
+    args = parse_args()
 
     if genv.exists(JSON) and not args.reset:
         json = genv.read(JSON)
@@ -122,7 +145,7 @@ if __name__ == "__main__":
         json["envs"] = { int(eid): env for eid, env in json["envs"].items() }
     else:
         json = dict(
-           envs=dict(),
+           envs={},
         )
 
     envs: Envs = json["envs"]
@@ -132,16 +155,10 @@ if __name__ == "__main__":
 
     if args.command == 'activate':
         do_activate(envs, args.pid, args.eid, args.uid, args.username)
+    elif args.command == 'config':
+        do_config(envs, args.eid, command=args.config, args=args)
     elif args.command == 'deactivate':
-        pid = args.pid
-        eid = args.eid or pid
-
-        deactivate(envs, eid, pid)
-    elif args.command == 'rename':
-        env: Env = envs.get(args.eid)
-
-        if env is not None:
-            rename(env, args.name)
+        do_deactivate(envs, args.pid)
     elif args.command == 'ps':
         do_ps(envs, args.header)
     elif args.command == 'query':

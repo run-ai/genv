@@ -14,7 +14,7 @@ if [ -z "$GENV_ENVIRONMENT_ID" ] ; then
 fi
 
 cat <<EOS
-( exec genv exec envs deactivate --pid \$\$ --eid \$GENV_ENVIRONMENT_ID )
+( exec genv exec envs deactivate --pid \$\$ )
 
 _genv_unset_envs()
 {

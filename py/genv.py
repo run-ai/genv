@@ -3,7 +3,7 @@ import errno
 import json
 import os
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Union
 
 DATETIME_FMT = '%d/%m/%Y %H:%M:%S'
 
@@ -45,7 +45,10 @@ def save(filename: str, o: dict) -> None:
     finally:
         os.umask(umask)
 
-def time_since(dt: datetime) -> str:
+def time_since(dt: Union[str, datetime]) -> str:
+    if isinstance(dt, str):
+        dt = datetime.strptime(dt, DATETIME_FMT)
+
     value = int((datetime.now() - dt).total_seconds())
     unit = 'second'
 

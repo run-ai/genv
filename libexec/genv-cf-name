@@ -49,7 +49,7 @@ EOS
 
 configure()
 {
-  ( exec genv exec envs rename --eid $GENV_ENVIRONMENT_ID --name $1 )
+  ( exec genv exec envs config --eid $GENV_ENVIRONMENT_ID name --name $1 )
 
   set_envs $1
 }
@@ -65,7 +65,7 @@ case $1 in
     print_help_and_fail
     ;;
   clear)
-    ( exec genv exec envs rename --eid $GENV_ENVIRONMENT_ID )
+    ( exec genv exec envs config --eid $GENV_ENVIRONMENT_ID name --clear )
 
     unset_envs
 
