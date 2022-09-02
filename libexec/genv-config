@@ -105,7 +105,7 @@ if [[ "$load" = "1" && -n "$home" ]]; then
   done
 fi
 
-if ! [[ ("$load" = "1" || "$save" = "1") && -z "$action" ]]; then # don't print if only loading and/or saving
+if ! [[ ("$load" = "1" || "$save" = "1") && (-z "$action" && -z "${args[@]}") ]]; then # don't print if only loading and/or saving
   for field in ${fields[@]}; do
     ( GENV_CONFIG_PRINT_PREFIX="$all" exec genv-cf-$field $action "${args[@]}" )
   done
@@ -113,6 +113,10 @@ fi
 
 if [ "$save" = "1" ]; then
   for field in ${fields[@]}; do
-    ( GENV_CONFIG_PRINT_TARGET="$home/$field" exec genv-cf-$field )
+    if [ "$action" = "--clear" ]; then
+      rm -f "$home/$field"
+    else
+      ( GENV_CONFIG_PRINT_TARGET="$home/$field" exec genv-cf-$field )
+    fi
   done
 fi
