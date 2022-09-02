@@ -103,7 +103,7 @@ if __name__ == "__main__":
     parser.add_argument('--no-cleanup', dest='cleanup', action='store_false', help='Do not perform clean up')
     parser.add_argument('--reset', action='store_true', help='Reset previous state')
 
-    subparsers = parser.add_subparsers(dest='command', required=True)
+    subparsers = parser.add_subparsers(dest='command')
 
     parser_attach = subparsers.add_parser('attach', help='Attach devices to an environment')
     parser_attach.add_argument('--eid', type=int, required=True, help='Environment identifier')

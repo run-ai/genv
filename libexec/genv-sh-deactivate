@@ -13,9 +13,21 @@ if [ -z "$GENV_ENVIRONMENT_ID" ] ; then
   exit 1
 fi
 
-cat <<EOS
+function deactivation()
+{
+  cat <<EOS
 ( exec genv exec envs deactivate --pid \$\$ )
 
+# clean up devices.json in case this environment
+# had attached devices and this is the last terminal
+# from the environment
+( exec genv exec devices )
+EOS
+}
+
+function functions()
+{
+  cat <<EOS
 _genv_unset_envs()
 {
   IFS=: read -a names <<< "\$GENV_ENVS"
@@ -37,14 +49,22 @@ _genv_restore_envs()
     _genv_restore_env \$name
   done
 }
+EOS
+}
 
+function restore()
+{
+  cat <<EOS
 _genv_unset_envs
 _genv_restore_envs
+EOS
+}
 
+function cleanup()
+{
+  cat <<EOS
 unset -f _genv_restore_envs
 unset -f _genv_unset_envs
-
-# from genv-sh-activate
 unset -f _genv_replace_env
 unset -f _genv_restore_env
 unset -f _genv_backup_env
@@ -52,3 +72,9 @@ unset -f _genv_unset_env
 unset -f _genv_set_env
 unset -f _genv_append_to_env
 EOS
+}
+
+deactivation
+functions
+restore
+cleanup
