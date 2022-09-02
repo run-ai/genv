@@ -8,38 +8,90 @@ if [[ $1 = "--description" ]] ; then
   exit 0
 fi
 
-function recho()
+function reprint()
 {
-  echo "echo \"$1\""
+  while IFS= read -r line; do
+    echo "echo \"${line//\$/\\\$}\""
+  done;
 }
 
 print_help()
 {
-  recho "Usage: genv attach [-h|--help]"
-  recho
-  recho "Attach devices to this environment."
-  recho
-  recho "    -h --help    Print this help message and exit"
-  recho
+  echo "Usage: genv attach ... [-h|--help]"
+  echo
+  echo "Attach devices to this environment."
+  echo
+  echo "Actions:"
+  echo "    --attach     Attach this environment devices (default)"
+  echo "    --refresh    Only refresh this terminal if environment is already attached to devices"
+  echo
+  echo "Options:"
+  echo "    --quiet    Don't fail if device count it not configured"
+  echo
 }
 
-case "$1" in
--h|--help) print_help; exit 0 ;;
-esac
+action=""
+quiet=""
 
-if [ -z "$GENV_GPUS" ]; then
-  {
-    echo "Device count was not configured for this environment."
-    echo "More information at:"
-    echo
-    echo "    genv config --help"
-    echo
-    exit 1
-  } >&2
-fi
+while [[ $# -gt 0 ]] ; do
+  arg=$1
+  shift
 
-indices=$( exec genv exec devices attach --eid $GENV_ENVIRONMENT_ID --count $GENV_GPUS )
+  case $arg in
+    -h|--help)
+      print_help | reprint
+      exit
+    ;;
+    --attach|--refresh)
+      if [ -n "$action" ]; then
+        {
+          echo "Can't use '$arg' together with '$action'"
+          echo
+          print_help
+        } >&2
+        exit 1
+      fi
+      action="${arg#--}"
+    ;;
+    --quiet)
+      quiet="1"
+    ;;
+    *)
+      {
+        echo "Invalid argument '$arg'"
+        echo
+        print_help
+      } >&2
+      exit 1
+    ;;
+  esac
+done
 
-cat <<EOS
-_genv_set_env CUDA_VISIBLE_DEVICES "$indices"
+config_env()
+{
+  cat <<EOS
+_genv_set_env CUDA_VISIBLE_DEVICES "${1:--1}"
 EOS
+}
+
+case $action in
+  ''|attach)
+    if [ -z "$GENV_GPUS" ]; then
+      if ! [[ "$quiet" -eq 1 ]]; then
+        {
+          echo "Device count was not configured for this environment."
+          echo "More information at:"
+          echo
+          echo "    genv config --help"
+          echo
+        } >&2
+        exit 1
+      fi
+    else
+      config_env $( exec genv exec devices attach --eid $GENV_ENVIRONMENT_ID --count $GENV_GPUS )
+    fi
+  ;;
+  refresh)
+    config_env $( exec genv exec devices query --eid $GENV_ENVIRONMENT_ID )
+  ;;
+esac

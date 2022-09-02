@@ -22,17 +22,22 @@ function reprint()
 
 print_help()
 {
-  echo "Usage: genv activate [--id id] [--no-load] [-h|--help]"
+  echo "Usage: genv activate ... [-h|--help]"
   echo
   echo "Activate this environment."
   echo
+  echo "Arguments:"
   echo "    --id         Environment identifier"
+  echo
+  echo "Options:"
   echo "    --no-load    Don't load configuration from disk at \$(genv home)"
+  echo "    --no-attach  Don't attach to devices"
   echo
 }
 
 eid="\$\$"
 load="1"
+attach="1"
 
 while [[ $# -gt 0 ]] ; do
   arg=$1
@@ -68,6 +73,9 @@ while [[ $# -gt 0 ]] ; do
     ;;
     --no-load)
       load="0"
+    ;;
+    --no-attach)
+      attach="0"
     ;;
     *)
       {
@@ -126,25 +134,24 @@ _genv_replace_env()
 EOS
 }
 
-function variables()
+function setup()
 {
   cat <<EOS
-_genv_set_env GENV_ENVIRONMENT_ID $eid
 _genv_replace_env PATH "$GENV_ROOT/shims:\$PATH"
 _genv_replace_env PYTHONPATH "$GENV_ROOT/py:\$PYTHONPATH"
 _genv_replace_env PS1 "(genv) \${PS1-}"
-_genv_replace_env CUDA_VISIBLE_DEVICES "-1"
 EOS
 }
 
-function activate()
+function activation()
 {
   cat <<EOS
+_genv_set_env GENV_ENVIRONMENT_ID $eid
 ( exec genv exec envs activate --pid \$\$ --eid \$GENV_ENVIRONMENT_ID --uid \$(id -u) --username \$(id -un) )
 EOS
 }
 
-function configure()
+function configuration()
 {
   cat <<EOS
 genv config --refresh
@@ -157,7 +164,21 @@ EOS
   fi
 }
 
+function devices()
+{
+  cat <<EOS
+genv attach --refresh
+EOS
+
+  if [ "$attach" -eq 1 ]; then
+    cat <<EOS
+genv attach --attach --quiet
+EOS
+  fi
+}
+
 functions
-variables
-activate
-configure
+setup
+activation
+configuration
+devices
