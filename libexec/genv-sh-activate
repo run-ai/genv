@@ -13,41 +13,72 @@ if [ -n "$GENV_ENVIRONMENT_ID" ] ; then
   exit 1
 fi
 
-function recho()
+function reprint()
 {
-  echo "echo \"$1\""
+  while IFS= read -r line; do
+    echo "echo \"${line//\$/\\\$}\""
+  done;
 }
 
 print_help()
 {
-  recho "Usage: genv activate [id] [-h|--help]"
-  recho
-  recho "Activate this environment."
-  recho
+  echo "Usage: genv activate [--id id] [--no-load] [-h|--help]"
+  echo
+  echo "Activate this environment."
+  echo
+  echo "    --id         Environment identifier"
+  echo "    --no-load    Don't load configuration from disk at \$(genv home)"
+  echo
 }
 
-eid=""
+eid="\$\$"
+load="1"
 
-case "$1" in
--h|--help)
-  print_help
-  exit 0
-  ;;
-"")
-  eid="\$\$"
-  ;;
-*)
-  re='^[0-9]+$'
-  if ! [[ $1 =~ $re && "$1" -gt 0 ]]; then
-    recho "Invalid environment identifier ($1); must be an integer"
-    recho
-    print_help
-    exit 1
-  fi
+while [[ $# -gt 0 ]] ; do
+  arg=$1
+  shift
 
-  eid="$1"
-  ;;
-esac
+  case $arg in
+    -h|--help)
+      print_help | reprint
+      exit
+    ;;
+    --id)
+      eid="$1"
+      [ "$#" -gt 0 ] && shift
+
+      if [ -z "$eid" ]; then
+        {
+          echo "Missing value for '--id'"
+          echo
+          print_help
+        } | reprint
+        exit 1
+      fi
+
+      re='^[0-9]+$'
+      if ! [[ $eid =~ $re && "$eid" -gt 0 ]]; then
+        {
+          echo "Invalid environment identifier ($eid); must be an integer"
+          echo
+          print_help
+        } | reprint
+        exit 1
+      fi
+    ;;
+    --no-load)
+      load="0"
+    ;;
+    *)
+      {
+        echo "Invalid argument '$arg'"
+        echo
+        print_help
+      } | reprint
+      exit 1
+    ;;
+  esac
+done
 
 function functions()
 {
@@ -116,8 +147,14 @@ EOS
 function configure()
 {
   cat <<EOS
+genv config --refresh
+EOS
+
+  if [ "$load" -eq 1 ]; then
+    cat <<EOS
 genv config --load
 EOS
+  fi
 }
 
 functions
