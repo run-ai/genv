@@ -8,93 +8,60 @@ if [[ $1 = "--description" ]] ; then
   exit 0
 fi
 
-print_help()
+config_env()
 {
-  echo "Usage: genv config name <name> [--save] [-h|--help]"
-  echo
-  echo "Set the environment name."
-  echo
-  echo "    --save       Save to disk at \$(genv home)"
-  echo "    -h --help    Print this help message and exit"
-  echo
-  echo "Other commands:"
-  echo "    clear     Unset environment name"
-  echo "    load      Load environment name from disk"
-  echo "    reload    Reload environment name; e.g. if changed by another terminal"
-  echo "    show      Print environment name"
-  echo
-}
-
-print_help_and_fail()
-{
-  print_help >&2
-  exit 1
-}
-
-set_envs()
-{
-  cat <<EOS
-_genv_set_env GENV_ENVIRONMENT_NAME $1
+  if [ -n "$1" ]; then
+    cat <<EOS
+_genv_set_env GENV_ENVIRONMENT_NAME "$1"
 _genv_set_env PS1 "(genv:$1) \${GENV_BACKUP_ENV_PS1-}"
 EOS
-}
-
-unset_envs()
-{
-  cat <<EOS
+  else
+    cat <<EOS
 _genv_unset_env GENV_ENVIRONMENT_NAME
 _genv_set_env PS1 "(genv) \${GENV_BACKUP_ENV_PS1-}"
 EOS
+  fi
 }
 
-configure()
+do_print()
 {
-  ( exec genv exec envs config --eid $GENV_ENVIRONMENT_ID name --name $1 )
+  prefix=${GENV_CONFIG_PRINT_PREFIX:+name\: }
+  target=${GENV_CONFIG_PRINT_TARGET:-\&\1}
 
-  set_envs $1
+  cat <<EOS
+if [ -n "\$GENV_ENVIRONMENT_NAME" ]; then
+  echo "$prefix\$GENV_ENVIRONMENT_NAME" >$target
+fi
+EOS
+}
+
+do_clear()
+{
+  ( exec genv exec envs config --eid $GENV_ENVIRONMENT_ID name --clear )
+
+  config_env
+}
+
+do_refresh()
+{
+  name=$( exec genv exec envs query --eid $GENV_ENVIRONMENT_ID --query config.name )
+
+  config_env "$name"
+}
+
+do_config()
+{
+  ( exec genv exec envs config --eid $GENV_ENVIRONMENT_ID name --name "$1" )
+
+  config_env "$1"
 }
 
 case $1 in
-  "")
-    print_help_and_fail
-    ;;
-  -h|--help)
-    # we must fail here as the exit code of this
-    # script indicates whether or not the output
-    # should be 'eval'.
-    print_help_and_fail
-    ;;
-  clear)
-    ( exec genv exec envs config --eid $GENV_ENVIRONMENT_ID name --clear )
-
-    unset_envs
-
-    if [[ "$2" = "--save" ]]; then
-      home="$(exec genv-home --quiet)"
-      [[ -n "$home" && -f "$home/name" ]] && rm "$home/name"
-    fi
-    ;;
-  load)
-    home="$(exec genv-home --quiet)"
-    [[ -n "$home" && -f "$home/name" ]] && configure $(<"$home/name")
-    ;;
-  reload)
-    name=$( exec genv exec envs query --eid $GENV_ENVIRONMENT_ID --query config.name )
-    if [ -n "$name" ]; then
-      set_envs $name
-    else
-      unset_envs
-    fi
-    ;;
-  show)
-    [ -n "$GENV_ENVIRONMENT_NAME" ] && echo "$GENV_ENVIRONMENT_NAME"
-    ;;
-  *)
-    configure $1
-
-    if [[ "$2" = "--save" ]]; then
-      home="$(exec genv-home)"
-      echo "$1" > "$home/name"
-    fi
-    ;;
+  ''|--print)
+    do_refresh
+    do_print
+  ;;
+  --clear)    do_clear       ;;
+  --refresh)  do_refresh     ;;
+  *)          do_config "$1" ;;
 esac

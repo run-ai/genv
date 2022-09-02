@@ -30,9 +30,9 @@ esac
 if [ -z "$GENV_GPUS" ]; then
   {
     echo "Device count was not configured for this environment."
-    echo "Run the following command:"
+    echo "More information at:"
     echo
-    echo "    genv config gpus --help"
+    echo "    genv config --help"
     echo
     exit 1
   } >&2

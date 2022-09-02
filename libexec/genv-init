@@ -14,45 +14,6 @@ if [ "$1" = "-" ]; then
 
   IFS="|"
   cat <<EOS
-_genv_config()
-{
-  local command="\${1:-}"
-
-  case "\$command" in
-  ${cf_commands[*]})
-    if [ "\$#" -gt 0 ]; then
-      shift
-    fi
-
-    local subcommand="\${1:-}"
-    case "\$subcommand" in
-    show)
-      command genv "cf-\$command" "\$@"
-      ;;
-    load|*)
-      eval "\$(command genv "cf-\$command" "\$@")"
-      ;;
-    esac
-    ;;
-  load)
-    eval "\$(command genv config "\$@")"
-    ;;
-  show|*)
-    command genv config "\$@"
-    ;;
-  esac
-}
-
-_genv_sh()
-{
-  local command="\${1:-}"
-  if [ "\$#" -gt 0 ]; then
-    shift
-  fi
-
-  eval "\$(command genv "sh-\$command" "\$@")"
-}
-
 genv()
 {
   local command="\${1:-}"
@@ -62,10 +23,10 @@ genv()
 
   case "\$command" in
   ${sh_commands[*]})
-    _genv_sh "\$command" "\$@"
+    eval "\$(command genv "sh-\$command" "\$@")"
     ;;
   config)
-    _genv_config "\$@"
+    eval "\$(command genv config "\$@")"
     ;;
   *)
     command genv "\$command" "\$@"

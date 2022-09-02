@@ -8,65 +8,111 @@ if [[ $1 = "--description" ]] ; then
   exit 0
 fi
 
-print_command()
+function reprint()
 {
-  printf "    %-5s    %s\n" "$1" "$2"
+  while IFS= read -r line; do
+    echo "echo \"${line//\$/\\\$}\""
+  done;
 }
 
 print_help()
 {
-  echo "Usage: genv config <command> [-h|--help]"
+  echo "Usage: genv config ... [-h|--help]"
   echo
-  echo "Commands:"
-  print_command "load" "Load configuration from disk"
-  print_command "show" "Show current configuration"
+  echo "Configure this environment or print the current configuration."
   echo
-  echo "Subcommands:"
-  for command in $(exec genv-commands --cf); do
-    print_command "$command" "$(exec $(command -v "genv-cf-$command") --description)"
+  echo "Actions:"
+  echo "    --print     Print configuration (default)"
+  echo "    --clear     Clear configuration"
+  echo "    --refresh   Only refresh without printing"
+  echo
+  echo "Options:"
+  echo "    --load    Load from disk at \$(genv home) first"
+  echo "    --save    Save to disk at \$(genv home) finally"
+  echo
+  echo "Fields:"
+  for field in $(exec genv-commands --cf); do
+    printf "    %-5s    %s\n" "$field" "$(exec $(command -v "genv-cf-$field") --description)"
   done
+  echo
+  echo "The terminal gets refreshed with the most recent environment configuration on any command."
+  echo "This is useful when another terminal of the same environment updated the configuration for example."
   echo
 }
 
-print_help_and_fail()
-{
-  print_help >&2
-  exit 1
-}
+action=""
+field=""
+args=()
+for arg do
+  shift
+  case $arg in
+    -h|--help)
+      print_help | reprint
+      exit
+    ;;
+    --print|--clear|--refresh)
+      if [ -n "$action" ]; then
+        {
+          echo "Can't use '$arg' together with '$action'"
+          echo
+          print_help
+        } | reprint
+        exit 1
+      fi
+      action="$arg"
+    ;;
+    --load)
+      load="1"
+      home="$(exec genv-home --quiet)"
+    ;;
+    --save)
+      save="1"
+      home="$(exec genv-home)"
+    ;;
+    *)
+      if [ -z "$field" ]; then
+        field=$arg
+      else
+        args+=("$arg")
+      fi
+    ;;
+  esac
+done
 
-command="$1"
-case "$command" in
-"")
-  print_help_and_fail
-  ;;
--h|--help)
-  print_help
-  ;;
-load)
-  for command in $(exec genv-commands --cf); do
-    ( exec genv-cf-$command load ) || true
-  done
-  ;;
-show)
-  for command in $(exec genv-commands --cf); do
-    value=$(exec genv-cf-$command show) || true
-    [ -n "$value" ] && echo "$command: $value"
-  done
-  ;;
-*)
-  if [ -n "$(command -v "genv-cf-$command" || true)" ]; then
-    # subcommands should have been caught by the injected
-    # script at 'genv-init'.
-    # if we reached here this means that the environment
-    # is not properly initialized.
-    ( exec genv init --warn ) >&2
-    exit 1
-  else
+all=""
+if [ -n "$field" ]; then
+  fields=($field)
+
+  if [ -z "$(command -v "genv-cf-$field" || true)" ]; then
     {
-      echo "No such command '$command'"
+      echo "No such configuration field '$field'"
       echo
-      print_help_and_fail
-    } >&2
+      print_help
+    } | reprint
+    exit 1
   fi
-  ;;
-esac
+else
+  fields=(`genv-commands --cf`)
+  all="1"
+fi
+
+if [[ "$load" = "1" && -n "$home" ]]; then
+  for field in ${fields[@]}; do
+    if [ -f "$home/$field" ]; then
+      value=$(<"$home/$field")
+      ( exec genv-cf-$field "$value" )
+    fi
+  done
+fi
+
+if ! [[ ("$load" = "1" || "$save" = "1") && -z "$action" ]]; then # don't print if only loading and/or saving
+  for field in ${fields[@]}; do
+    ( GENV_CONFIG_PRINT_PREFIX="$all" exec genv-cf-$field $action "${args[@]}" )
+  done
+fi
+
+if [ "$save" = "1" ]; then
+  for field in ${fields[@]}; do
+    ( GENV_CONFIG_PRINT_TARGET="$home/$field" exec genv-cf-$field )
+  done
+fi

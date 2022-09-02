@@ -116,7 +116,7 @@ EOS
 function configure()
 {
   cat <<EOS
-genv config load
+genv config --load
 EOS
 }
 

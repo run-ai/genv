@@ -4,109 +4,62 @@ set -e
 [ -n "$GENV_DEBUG" ] && set -x
 
 if [[ $1 = "--description" ]] ; then
-  echo "Amount of visible GPUs"
+  echo "Device count"
   exit 0
 fi
 
-print_help()
+config_env()
 {
-  echo "Usage: genv config gpus <gpus> [--save] [-h|--help]"
-  echo
-  echo "Control the amount of GPUs to be provisioned for this environment."
-  echo
-  echo "    --save       Save to disk at \$(genv home)"
-  echo "    -h --help    Print this help message and exit"
-  echo
-  echo "Other commands:"
-  echo "    clear     Unset configuration; de-facto restores access to all GPUs"
-  echo "    load      Load GPU count from disk"
-  echo "    reload    Reload GPU count; e.g. if changed by another terminal"
-  echo "    show      Print GPU count"
-  echo
-}
-
-print_help_and_fail()
-{
-  print_help >&2
-  exit 1
-}
-
-unset_envs()
-{
-  cat <<EOS
-_genv_unset_env GENV_GPUS
-EOS
-}
-
-set_envs()
-{
-  cat <<EOS
+  if [ -n "$1" ]; then
+    cat <<EOS
 _genv_set_env GENV_GPUS $1
 EOS
+  else
+    cat <<EOS
+_genv_unset_env GENV_GPUS
+EOS
+  fi
 }
 
-configure()
+do_print()
 {
-  ( exec genv exec envs config --eid $GENV_ENVIRONMENT_ID gpus --count $1 )
+  prefix=${GENV_CONFIG_PRINT_PREFIX:+gpus\: }
+  target=${GENV_CONFIG_PRINT_TARGET:-\&\1}
 
-  set_envs $1
+  cat <<EOS
+if [ -n "\$GENV_GPUS" ]; then
+  echo "$prefix\$GENV_GPUS" >$target
+fi
+EOS
 }
 
 do_clear()
 {
   ( exec genv exec envs config --eid $GENV_ENVIRONMENT_ID gpus --clear )
 
-  unset_envs
-
-  if [[ "$1" = "--save" ]]; then
-    home="$(exec genv-home --quiet)"
-    [[ -n "$home" && -f "$home/gpus" ]] && rm "$home/gpus"
-  fi
+  config_env
 }
 
-do_reload()
+do_refresh()
 {
   gpus=$( exec genv exec envs query --eid $GENV_ENVIRONMENT_ID --query config.gpus )
-  if [ -n "$gpus" ]; then
-    set_envs $gpus
-  else
-    unset_envs
-  fi
+
+  config_env $gpus
+}
+
+do_config()
+{
+  ( exec genv exec envs config --eid $GENV_ENVIRONMENT_ID gpus --count $1 )
+
+  config_env $1
 }
 
 case $1 in
-  "")
-    print_help_and_fail
-    ;;
-  -h|--help)
-    # we must fail here as the exit code of this
-    # script indicates whether or not the output
-    # should be 'eval'.
-    print_help_and_fail
-    ;;
-  clear)
-    shift
-    do_clear "$@"
-    ;;
-  load)
-    home="$(exec genv-home --quiet)"
-    [[ -n "$home" && -f "$home/gpus" ]] && configure $(<"$home/gpus")
-    ;;
-  reload)
-    do_reload
-    ;;
-  show)
-    [ -n "$GENV_GPUS" ] && echo "$GENV_GPUS"
-    ;;
-  *)
-    re='^[0-9]+$'
-    [[ $1 =~ $re && "$1" -ge 0 ]] || print_help_and_fail
-
-    configure $1
-
-    if [[ "$2" = "--save" ]]; then
-      home="$(exec genv-home)"
-      echo "$1" > "$home/gpus"
-    fi
-    ;;
+  ''|--print)
+    do_refresh
+    do_print
+  ;;
+  --clear)    do_clear     ;;
+  --refresh)  do_refresh   ;;
+  *)          do_config $1 ;;
 esac
