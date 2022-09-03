@@ -172,7 +172,9 @@ EOS
 
   if [ "$attach" -eq 1 ]; then
     cat <<EOS
-genv attach --attach --quiet
+if [ "\$CUDA_VISIBLE_DEVICES" -eq "-1" ]; then
+  genv attach --attach --quiet
+fi
 EOS
   fi
 }
