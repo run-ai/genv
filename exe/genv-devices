@@ -98,27 +98,38 @@ def do_ps(devices: Devices, header: bool=True) -> None:
 def do_query(devices: Devices, eid: int) -> None:
     print(','.join(str(index) for index in query(devices, eid)))
 
-if __name__ == "__main__":
+def parse_args() -> argparse.Namespace:
+    def attach(parser):
+        parser.add_argument('--eid', type=int, required=True, help='Environment identifier')
+        parser.add_argument('--count', type=int, required=True, help='Devices count')
+
+    def detach(parser):
+        parser.add_argument('--eid', type=int, required=True, help='Environment identifier')
+
+    def ps(parser):
+        parser.add_argument('--no-header', dest='header', action='store_false', help='Do not print column headers')
+
+    def query(parser):
+        parser.add_argument('--eid', type=int, required=True, help='Environment identifier')
+
     parser = argparse.ArgumentParser(description=f'genv device manager')
     parser.add_argument('--no-cleanup', dest='cleanup', action='store_false', help='Do not perform clean up')
     parser.add_argument('--reset', action='store_true', help='Reset previous state')
 
     subparsers = parser.add_subparsers(dest='command')
 
-    parser_attach = subparsers.add_parser('attach', help='Attach devices to an environment')
-    parser_attach.add_argument('--eid', type=int, required=True, help='Environment identifier')
-    parser_attach.add_argument('--count', type=int, required=True, help='Devices count')
+    for command, help in [
+        (attach, 'Attach devices to an environment'),
+        (detach, 'Detach devices from an environment'),
+        (ps, 'Print information about devices'),
+        (query, 'Query devices of an environment'),
+    ]:
+        command(subparsers.add_parser(command.__name__, help=help))
 
-    parser_detach = subparsers.add_parser('detach', help='Detach devices from an environment')
-    parser_detach.add_argument('--eid', type=int, required=True, help='Environment identifier')
+    return parser.parse_args()
 
-    parser_ps = subparsers.add_parser('ps', help='Print information about devices')
-    parser_ps.add_argument('--no-header', dest='header', action='store_false', help='Do not print column headers')
-
-    parser_query = subparsers.add_parser('query', help='Query devices of an environment')
-    parser_query.add_argument('--eid', type=int, required=True, help='Environment identifier')
-
-    args = parser.parse_args()
+if __name__ == "__main__":
+    args = parse_args()
 
     if genv.exists(JSON) and not args.reset:
         json = genv.read(JSON)
