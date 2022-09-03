@@ -138,7 +138,6 @@ function setup()
 {
   cat <<EOS
 _genv_replace_env PATH "$GENV_ROOT/shims:\$PATH"
-_genv_replace_env PYTHONPATH "$GENV_ROOT/py:\$PYTHONPATH"
 _genv_replace_env PS1 "(genv) \${PS1-}"
 EOS
 }
