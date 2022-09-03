@@ -74,14 +74,17 @@ def do_attach(devices: Devices, eid: int, count: int) -> None:
 def do_detach(devices: Devices, eid: int) -> None:
     cleanup(devices, eid)
 
-def do_ps(devices: Devices, header: bool=True) -> None:
+def do_ps(devices: Devices, format: str, header: bool=True) -> None:
     envs = {}
     for line in subprocess.check_output("genv exec envs query --query eid config.name", shell=True).decode('utf-8').splitlines():
         eid, name = line.split(',')
         envs[int(eid)] = name
 
     if header:
-        print('ID      ENV ID      ENV NAME        ATTACHED')
+        if format == 'csv':
+            print('ID,ENV ID,ENV NAME,ATTACHED')
+        elif format == 'tui':
+            print('ID      ENV ID      ENV NAME        ATTACHED')
 
     for index, device in devices.items():
         eid = ''
@@ -93,7 +96,10 @@ def do_ps(devices: Devices, header: bool=True) -> None:
             name = envs.get(eid, '')
             attached = genv.time_since(device["attached"])
 
-        print(f'{index:<8}{eid:<12}{name:<16}{attached}')
+        if format == 'csv':
+            print(f'{index},{eid},{name},{attached}')
+        elif format == 'tui':
+            print(f'{index:<8}{eid:<12}{name:<16}{attached}')
 
 def do_query(devices: Devices, eid: int) -> None:
     print(','.join(str(index) for index in query(devices, eid)))
@@ -108,6 +114,7 @@ def parse_args() -> argparse.Namespace:
 
     def ps(parser):
         parser.add_argument('--no-header', dest='header', action='store_false', help='Do not print column headers')
+        parser.add_argument('--format', choices=['csv', 'tui'], help='Output format; CSV or TUI (Text-based user interface)', default='tui')
 
     def query(parser):
         parser.add_argument('--eid', type=int, required=True, help='Environment identifier')
@@ -154,7 +161,7 @@ if __name__ == "__main__":
     elif args.command == 'detach':
         do_detach(devices, args.eid)
     elif args.command == 'ps':
-        do_ps(devices, args.header)
+        do_ps(devices, args.format, args.header)
     elif args.command == 'query':
         do_query(devices, args.eid)
 
