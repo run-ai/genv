@@ -40,6 +40,7 @@ Plus, it's 100% free and gets installed before you can say Jack Robinson.
 * [Development](#development)
     * [Setup](#setup)
     * [Reference](#reference)
+    * [License](#license)
 
 ## Installation
 ### Getting _genv_
@@ -335,3 +336,9 @@ It is configurable by passing the argument `--id` and specifying GPU indices.
 It is also good to note that `nvidia-smi` ignores the environment variable `CUDA_VISIBLE_DEVICES` as it uses NVML and not CUDA.
 
 This shim passes this argument to `nvidia-smi` and specifies the attached device indices.
+
+### License
+The genv software is Copyright 2022 [Run.ai Labs, Ltd.].
+The software is licensed by Run.ai under the AGPLv3 license.
+Please note that Run.ai’s intention in licensing the software are that the obligations of licensee pursuant to the AGPLv3 license should be interpreted broadly.
+For example, Run.ai’s intention is that the terms “work based on the Program” in Section 0 of the AGPLv3 license, and “Corresponding Source” in Section 1 of the AGPLv3 license, should be interpreted as broadly as possible to the extent permitted under applicable law.
