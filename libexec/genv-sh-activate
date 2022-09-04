@@ -8,11 +8,6 @@ if [[ $1 = "--description" ]] ; then
   exit 0
 fi
 
-if [ -n "$GENV_ENVIRONMENT_ID" ] ; then
-  echo "Already running in an active environment" 1>&2
-  exit 1
-fi
-
 function reprint()
 {
   while IFS= read -r line; do
@@ -32,12 +27,14 @@ print_help()
   echo "Options:"
   echo "    --no-load    Don't load configuration from disk at \$(genv home)"
   echo "    --no-attach  Don't attach to devices"
+  echo "    --quiet      Don't fail if already activated"
   echo
 }
 
 eid="\$\$"
 load="1"
 attach="1"
+quiet="0"
 
 while [[ $# -gt 0 ]] ; do
   arg=$1
@@ -76,6 +73,9 @@ while [[ $# -gt 0 ]] ; do
     ;;
     --no-attach)
       attach="0"
+    ;;
+    --quiet)
+      quiet="1"
     ;;
     *)
       {
@@ -177,6 +177,15 @@ fi
 EOS
   fi
 }
+
+if [ -n "$GENV_ENVIRONMENT_ID" ] ; then
+  if [ "$quiet" -eq 0 ]; then
+    echo "Already running in an active environment" >&2
+    exit 1
+  fi
+
+  exit 0
+fi
 
 functions
 setup
