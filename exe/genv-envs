@@ -69,7 +69,7 @@ def do_config(envs: Envs, eid: int, command: str, args: argparse.Namespace) -> N
 def do_deactivate(envs: Envs, pid: int) -> None:
     cleanup(envs, poll=lambda pid_: pid_ != pid)
 
-def do_ps(envs: Envs, format: str, header: bool=True) -> None:
+def do_ps(envs: Envs, format: str, header: bool, timestamp: bool) -> None:
     if header:
         if format == 'csv':
             print('ID,USER,NAME,CREATED,PID(S)')
@@ -80,7 +80,7 @@ def do_ps(envs: Envs, format: str, header: bool=True) -> None:
         eid = env["eid"]
         user = f'{env["username"]}({env["uid"]})'
         name = env["config"].get("name", '')
-        created = genv.time_since(env["creation"])
+        created = env["creation"] if timestamp else genv.time_since(env["creation"])
         pids = ' '.join(str(pid) for pid in env["pids"])
 
         if format == 'csv':
@@ -134,6 +134,7 @@ def parse_args() -> argparse.Namespace:
 
     def ps(parser):
         parser.add_argument('--no-header', dest='header', action='store_false', help='Do not print column headers')
+        parser.add_argument('--timestamp', action='store_true', help='Print a non-prettified timestamp')
         parser.add_argument('--format', choices=['csv', 'tui'], help='Output format; CSV or TUI (Text-based user interface)', default='tui')
 
     def query(parser):
@@ -144,7 +145,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument('--no-cleanup', dest='cleanup', action='store_false', help='Do not perform clean up')
     parser.add_argument('--reset', action='store_true', help='Reset previous state')
 
-    subparsers = parser.add_subparsers(dest='command', required=True)
+    subparsers = parser.add_subparsers(dest='command')
 
     for command, help in [
         (activate, 'Activate a process'),
@@ -183,7 +184,7 @@ if __name__ == "__main__":
     elif args.command == 'deactivate':
         do_deactivate(envs, args.pid)
     elif args.command == 'ps':
-        do_ps(envs, args.format, args.header)
+        do_ps(envs, args.format, args.header, args.timestamp)
     elif args.command == 'query':
         do_query(envs, args.eid, args.queries)
 

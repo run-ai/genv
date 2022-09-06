@@ -74,7 +74,7 @@ def do_attach(devices: Devices, eid: int, count: int) -> None:
 def do_detach(devices: Devices, eid: int) -> None:
     cleanup(devices, eid)
 
-def do_ps(devices: Devices, format: str, header: bool=True) -> None:
+def do_ps(devices: Devices, format: str, header: bool, timestamp: bool) -> None:
     envs = {}
     for line in subprocess.check_output("genv exec envs query --query eid config.name", shell=True).decode('utf-8').splitlines():
         eid, name = line.split(',')
@@ -94,7 +94,7 @@ def do_ps(devices: Devices, format: str, header: bool=True) -> None:
         if device["eid"] != -1:
             eid = device["eid"]
             name = envs.get(eid, '')
-            attached = genv.time_since(device["attached"])
+            attached = device["attached"] if timestamp else genv.time_since(device["attached"])
 
         if format == 'csv':
             print(f'{index},{eid},{name},{attached}')
@@ -114,6 +114,7 @@ def parse_args() -> argparse.Namespace:
 
     def ps(parser):
         parser.add_argument('--no-header', dest='header', action='store_false', help='Do not print column headers')
+        parser.add_argument('--timestamp', action='store_true', help='Print a non-prettified timestamp')
         parser.add_argument('--format', choices=['csv', 'tui'], help='Output format; CSV or TUI (Text-based user interface)', default='tui')
 
     def query(parser):
@@ -161,7 +162,7 @@ if __name__ == "__main__":
     elif args.command == 'detach':
         do_detach(devices, args.eid)
     elif args.command == 'ps':
-        do_ps(devices, args.format, args.header)
+        do_ps(devices, args.format, args.header, args.timestamp)
     elif args.command == 'query':
         do_query(devices, args.eid)
 
