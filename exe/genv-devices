@@ -2,16 +2,22 @@
 
 import argparse
 from datetime import datetime
+import os
 import subprocess
 import sys
 from typing import Any, Callable, Dict, List, Optional
 
 import genv
 
-JSON = 'devices.json'
-
 Device = Dict[Any, Any]
 Devices = Dict[int, Device]
+
+def factory() -> Dict:
+    count = int(os.environ.get('GENV_DEVICES') or subprocess.check_output("nvidia-smi --id=0 --query-gpu=count --format=csv,noheader", shell=True))
+
+    return dict(
+        devices={ index: { "eid": -1 } for index in range(count) }
+    )
 
 def cleanup(devices: Devices, eid: Optional[int]=None) -> None:
     pred: Callable[[int], bool] = None
@@ -139,31 +145,21 @@ def parse_args() -> argparse.Namespace:
 if __name__ == "__main__":
     args = parse_args()
 
-    if genv.exists(JSON) and not args.reset:
-        json = genv.read(JSON)
-
+    with genv.access_json('devices.json', factory, args.reset) as json:
         # we need to convert device indices to integers. they are saved as
         # strings because dictionary keys in json files must be strings.
         json["devices"] = { int(index): device for index, device in json["devices"].items() }
-    else:
-        count = int(genv.env('DEVICES') or subprocess.check_output("nvidia-smi --id=0 --query-gpu=count --format=csv,noheader", shell=True))
 
-        json = dict(
-            devices={ index: { "eid": -1 } for index in range(count) }
-        )
+        devices: Devices = json["devices"]
 
-    devices: Devices = json["devices"]
+        if args.cleanup:
+            cleanup(devices)
 
-    if args.cleanup:
-        cleanup(devices)
-
-    if args.command == 'attach':
-        do_attach(devices, args.eid, args.count)
-    elif args.command == 'detach':
-        do_detach(devices, args.eid)
-    elif args.command == 'ps':
-        do_ps(devices, args.format, args.header, args.timestamp)
-    elif args.command == 'query':
-        do_query(devices, args.eid)
-
-    genv.save(JSON, json)
+        if args.command == 'attach':
+            do_attach(devices, args.eid, args.count)
+        elif args.command == 'detach':
+            do_detach(devices, args.eid)
+        elif args.command == 'ps':
+            do_ps(devices, args.format, args.header, args.timestamp)
+        elif args.command == 'query':
+            do_query(devices, args.eid)
