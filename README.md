@@ -21,6 +21,7 @@ Plus, it's 100% free and gets installed before you can say Jack Robinson.
 ## Table of Contents
 * [Installation](#installation)
 * [Usage](#usage)
+    * [Environment Status](#environment-status)
     * [Activating an Environment](#activating-an-environment)
     * [Configuring an Environment](#configuring-an-environment)
         * [Device Count](#configure-the-device-count)
@@ -83,6 +84,33 @@ rm -rf $(genv root)
 You will also need to remove the commands you added to your `~/.bashrc` or any other equivalent file.
 
 ## Usage
+### Environment Status
+When using _genv_, you will be running inside environments.
+
+You can see the status of your environment using the command:
+```
+genv status
+```
+
+When not running in an active environment, you will see the following message:
+```
+$ genv status
+Environment is not active
+```
+
+When running in an [active](#activating-an-environment) environment, you will see more information about your environment, like its identifier, attached GPUs and configuration.
+
+Here's an example:
+```
+$ genv status
+Environment is active (22716)
+Attached to GPUs at indices 0,1
+
+Configuration
+    Name: my-environment
+    Device count: 2
+```
+
 ### Activating an Environment
 In order to use _genv_, you need to activate the environment using the command:
 ```
