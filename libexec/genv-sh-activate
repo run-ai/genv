@@ -23,6 +23,7 @@ print_help()
   echo
   echo "Arguments:"
   echo "    --id         Environment identifier"
+  echo "    --name       Environment name"
   echo
   echo "Options:"
   echo "    --no-load    Don't load configuration from disk at \$(genv home)"
@@ -33,6 +34,7 @@ print_help()
 }
 
 eid="\$\$"
+name=""
 load="1"
 attach="1"
 prompt="1"
@@ -64,6 +66,19 @@ while [[ $# -gt 0 ]] ; do
       if ! [[ $eid =~ $re && "$eid" -gt 0 ]]; then
         {
           echo "Invalid environment identifier ($eid); must be an integer"
+          echo
+          print_help
+        } >&2
+        exit 1
+      fi
+    ;;
+    --name)
+      name="$1"
+      [ "$#" -gt 0 ] && shift
+
+      if [ -z "$name" ]; then
+        {
+          echo "Missing value for '--name'"
           echo
           print_help
         } >&2
@@ -170,6 +185,12 @@ EOS
   if [ "$load" -eq 1 ]; then
     cat <<EOS
 genv config --load
+EOS
+  fi
+
+  if [ -n "$name" ]; then
+    cat <<EOS
+genv config name "$name"
 EOS
   fi
 }
