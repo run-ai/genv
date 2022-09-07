@@ -13,12 +13,18 @@ config_env()
   if [ -n "$1" ]; then
     cat <<EOS
 _genv_set_env GENV_ENVIRONMENT_NAME "$1"
-_genv_set_env PS1 "(genv:$1) \${GENV_BACKUP_ENV_PS1-}"
+
+if [ "\$GENV_PROMPT" = "1" ]; then
+  _genv_set_env PS1 "(genv:$1) \${GENV_BACKUP_ENV_PS1-}"
+fi
 EOS
   else
     cat <<EOS
 _genv_unset_env GENV_ENVIRONMENT_NAME
-_genv_set_env PS1 "(genv) \${GENV_BACKUP_ENV_PS1-}"
+
+if [ "\$GENV_PROMPT" = "1" ]; then
+  _genv_set_env PS1 "(genv) \${GENV_BACKUP_ENV_PS1-}"
+fi
 EOS
   fi
 }
