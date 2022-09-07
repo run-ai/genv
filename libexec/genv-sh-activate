@@ -24,6 +24,7 @@ print_help()
   echo "Arguments:"
   echo "    --id         Environment identifier"
   echo "    --name       Environment name"
+  echo "    --gpus       Environment device count"
   echo
   echo "Options:"
   echo "    --no-load    Don't load configuration from disk at \$(genv home)"
@@ -35,6 +36,7 @@ print_help()
 
 eid="\$\$"
 name=""
+gpus=""
 load="1"
 attach="1"
 prompt="1"
@@ -79,6 +81,29 @@ while [[ $# -gt 0 ]] ; do
       if [ -z "$name" ]; then
         {
           echo "Missing value for '--name'"
+          echo
+          print_help
+        } >&2
+        exit 1
+      fi
+    ;;
+    --gpus)
+      gpus="$1"
+      [ "$#" -gt 0 ] && shift
+
+      if [ -z "$gpus" ]; then
+        {
+          echo "Missing value for '--gpus'"
+          echo
+          print_help
+        } >&2
+        exit 1
+      fi
+
+      re='^[0-9]+$'
+      if ! [[ "$gpus" =~ $re && "$gpus" -gt 0 ]]; then
+        {
+          echo "Invalid device count ($gpus)"
           echo
           print_help
         } >&2
@@ -191,6 +216,12 @@ EOS
   if [ -n "$name" ]; then
     cat <<EOS
 genv config name "$name"
+EOS
+  fi
+
+  if [ -n "$gpus" ]; then
+    cat <<EOS
+genv config gpus $gpus
 EOS
   fi
 }
