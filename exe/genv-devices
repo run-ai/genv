@@ -5,7 +5,7 @@ from datetime import datetime
 import os
 import subprocess
 import sys
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any, Callable, Dict, List, Optional, Union
 
 import genv
 
@@ -19,7 +19,7 @@ def factory() -> Dict:
         devices={ index: { "eid": -1 } for index in range(count) }
     )
 
-def cleanup(devices: Devices, eid: Optional[int]=None) -> None:
+def cleanup(devices: Devices, eid: Optional[int]=None, count: Optional[int]=None) -> None:
     pred: Callable[[int], bool] = None
 
     if eid is not None:
@@ -28,15 +28,46 @@ def cleanup(devices: Devices, eid: Optional[int]=None) -> None:
         eids = [int(line) for line in subprocess.check_output("genv exec envs query --query eid", shell=True).splitlines()]
         pred = lambda eid: eid not in eids
 
-    for device in devices.values():
+    for index in sorted(devices.keys(), reverse=True):
+        if count == 0:
+            break
+
+        device = devices[index]
+
         if device["eid"] == -1:
             continue
 
-        if pred(device["eid"]):
-            device["eid"] = -1
-            del device["attached"]
+        if not pred(device["eid"]):
+            continue
+
+        device["eid"] = -1
+        del device["attached"]
+
+        if count is not None:
+            count -= 1
+
+def attach_devices(devices: Devices, eid: int, indices: Union[List[int], int]) -> None:
+    """
+    Attaches a device or a set of devices to an environment.
+
+    Raises 'RuntimeError' if any of the devices is not available.
+    """
+    if isinstance(indices, int):
+        indices = [indices]
+
+    now = datetime.now().strftime(genv.DATETIME_FMT)
+
+    for index in indices:
+        if devices[index]["eid"] != -1:
+            raise RuntimeError(f'Device {index} is not available')
+
+        devices[index]["eid"] = eid
+        devices[index]["attached"] = now
 
 def find_available_device(devices: Devices, ignore: List[int]=[]) -> int:
+    """
+    Finds an available device.
+    """
     for index, device in devices.items():
         if index in ignore:
             continue
@@ -47,10 +78,9 @@ def find_available_device(devices: Devices, ignore: List[int]=[]) -> int:
     raise RuntimeError("No available devices")
 
 def find_available_devices(devices: Devices, count: int) -> List[int]:
-    available = len(devices)
-    if count > available:
-        raise RuntimeError(f"Requested more devices ({count}) than available ({available})")
-
+    """
+    Finds a number of available devices.
+    """
     indices = []
     for _ in range(count):
         indices.append(find_available_device(devices, ignore=indices))
@@ -60,22 +90,42 @@ def find_available_devices(devices: Devices, count: int) -> List[int]:
 def query(devices: Devices, eid: int) -> List[int]:
     return [index for index, device in devices.items() if device["eid"] == eid]
 
-def do_attach(devices: Devices, eid: int, count: int) -> None:
-    cleanup(devices, eid)
+def do_attach(devices: Devices, eid: int, count: Optional[int], index: Optional[int]) -> None:
+    """
+    Attaches devices to an environment and prints the device indices.
 
+    Either ensures that a specified count is attached to the environment, or explicitly tries to attach a device with a given index.
+    """
+    attached = query(devices, eid)
+
+    def ensure_count():
+        current = len(attached)
+
+        if current < count:
+            if count > len(devices):
+                raise RuntimeError(f"Requested more devices ({count}) than total available ({len(devices)})")
+
+            indices = find_available_devices(devices, count - current)
+
+            attach_devices(devices, eid, indices)
+        elif current > count:
+            cleanup(devices, eid, current - count)
+
+    def attach_by_index():
+        if index not in attached:
+            attach_devices(devices, eid, index)
+
+    # TODO(raz): should this try/except be moved to main()?
     try:
-        indices = find_available_devices(devices, count)
+        if count is not None:
+            ensure_count()
+        elif index is not None:
+            attach_by_index()
     except RuntimeError as e:
         print(e, file=sys.stderr)
         exit(1)
 
-    now = datetime.now().strftime(genv.DATETIME_FMT)
-
-    for index in indices:
-        devices[index]["eid"] = eid
-        devices[index]["attached"] = now
-
-    print(','.join(str(index) for index in indices))
+    do_query(devices, eid) # print the up-to-date device indices
 
 def do_detach(devices: Devices, eid: int) -> None:
     cleanup(devices, eid)
@@ -113,7 +163,9 @@ def do_query(devices: Devices, eid: int) -> None:
 def parse_args() -> argparse.Namespace:
     def attach(parser):
         parser.add_argument('--eid', type=int, required=True, help='Environment identifier')
-        parser.add_argument('--count', type=int, required=True, help='Devices count')
+        group = parser.add_mutually_exclusive_group(required=True)
+        group.add_argument('--count', type=int, help='Total devices count to be attached')
+        group.add_argument('--index', type=int, help='Device index to attach specifically')
 
     def detach(parser):
         parser.add_argument('--eid', type=int, required=True, help='Environment identifier')
@@ -156,7 +208,7 @@ if __name__ == "__main__":
             cleanup(devices)
 
         if args.command == 'attach':
-            do_attach(devices, args.eid, args.count)
+            do_attach(devices, args.eid, args.count, args.index)
         elif args.command == 'detach':
             do_detach(devices, args.eid)
         elif args.command == 'ps':
