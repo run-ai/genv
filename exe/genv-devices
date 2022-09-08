@@ -40,11 +40,17 @@ def cleanup(devices: Devices, eid: Optional[int]=None, count: Optional[int]=None
         if not pred(device["eid"]):
             continue
 
-        device["eid"] = -1
-        del device["attached"]
+        detach_device(device)
 
         if count is not None:
             count -= 1
+
+def detach_device(device: Device) -> None:
+    """
+    Detaches a device from any environment.
+    """
+    device["eid"] = -1
+    del device["attached"]
 
 def attach_devices(devices: Devices, eid: int, indices: Union[List[int], int]) -> None:
     """
@@ -127,8 +133,17 @@ def do_attach(devices: Devices, eid: int, count: Optional[int], index: Optional[
 
     do_query(devices, eid) # print the up-to-date device indices
 
-def do_detach(devices: Devices, eid: int) -> None:
-    cleanup(devices, eid)
+def do_detach(devices: Devices, eid: int, index: Optional[int]) -> None:
+    if index is not None:
+        if index in devices:
+            device = devices[index]
+
+            if device["eid"] == eid:
+                detach_device(device)
+    else:
+        cleanup(devices, eid)
+
+    do_query(devices, eid) # print the up-to-date device indices
 
 def do_ps(devices: Devices, format: str, header: bool, timestamp: bool) -> None:
     envs = {}
@@ -169,6 +184,7 @@ def parse_args() -> argparse.Namespace:
 
     def detach(parser):
         parser.add_argument('--eid', type=int, required=True, help='Environment identifier')
+        parser.add_argument('--index', type=int, help='Device index to dettach')
 
     def ps(parser):
         parser.add_argument('--no-header', dest='header', action='store_false', help='Do not print column headers')
@@ -210,7 +226,7 @@ if __name__ == "__main__":
         if args.command == 'attach':
             do_attach(devices, args.eid, args.count, args.index)
         elif args.command == 'detach':
-            do_detach(devices, args.eid)
+            do_detach(devices, args.eid, args.index)
         elif args.command == 'ps':
             do_ps(devices, args.format, args.header, args.timestamp)
         elif args.command == 'query':

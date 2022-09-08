@@ -8,27 +8,78 @@ if [[ $1 = "--description" ]] ; then
   exit 0
 fi
 
-function recho()
+function reprint()
 {
-  echo "echo \"$1\""
+  while IFS= read -r line; do
+    echo "echo \"${line//\$/\\\$}\""
+  done;
 }
 
 print_help()
 {
-  recho "Usage: genv detach [-h|--help]"
-  recho
-  recho "Detach devices from this environment."
-  recho
-  recho "    -h --help    Print this help message and exit"
-  recho
+  echo "Usage: genv detach ... [-h|--help]"
+  echo
+  echo "Detach devices from this environment."
+  echo
+  echo "Arguments:"
+  echo "    --index  Detach from a specific device"
+  echo
 }
 
-case "$1" in
--h|--help) print_help; exit 0 ;;
-esac
+index=""
 
-( exec genv exec devices detach --eid $GENV_ENVIRONMENT_ID )
+while [[ $# -gt 0 ]] ; do
+  arg=$1
+  shift
 
-cat <<EOS
-_genv_set_env CUDA_VISIBLE_DEVICES "-1"
+  case $arg in
+  -h|--help)
+    print_help | reprint
+    exit
+  ;;
+  --index)
+    index="$1"
+    [ "$#" -gt 0 ] && shift
+
+    if [ -z "$index" ]; then
+      {
+        echo "Missing value for '$arg'"
+        echo
+        print_help
+      } >&2
+      exit 1
+    fi
+
+    re='^[0-9]+$'
+    if ! [[ $index =~ $re ]]; then
+      {
+        echo "Invalid value for '$arg' ($index); must be an integer"
+        echo
+        print_help
+      } >&2
+      exit 1
+    fi
+  ;;
+  *)
+    {
+      echo "Invalid argument '$arg'"
+      echo
+      print_help
+    } >&2
+    exit 1
+  ;;
+  esac
+done
+
+config_env()
+{
+  cat <<EOS
+_genv_set_env CUDA_VISIBLE_DEVICES "${1:--1}"
 EOS
+}
+
+if [ -n "$index" ]; then
+  config_env $( exec genv exec devices detach --eid $GENV_ENVIRONMENT_ID --index $index )
+else
+  config_env $( exec genv exec devices detach --eid $GENV_ENVIRONMENT_ID )
+fi
