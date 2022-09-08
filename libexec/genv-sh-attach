@@ -25,13 +25,26 @@ print_help()
   echo "    --attach     Attach this environment devices (default)"
   echo "    --refresh    Only refresh this terminal if environment is already attached to devices"
   echo
+  echo "Modes:"
+  echo "    --count    Total number of devices to be attached (default)"
+  echo "    --index    Attach to the device with the given index"
+  echo
   echo "Options:"
   echo "    --quiet    Don't fail if device count it not configured"
+  echo
+  echo "You can attach devices by a specifying a total amount or by index (see modes above)."
+  echo
+  echo "If the environment has already more attached devices than the"
+  echo "specified total amount, some would get detached."
+  echo
+  echo "By default, the configured device count is used."
   echo
 }
 
 action=""
 quiet=""
+mode=""
+mode_value=""
 
 while [[ $# -gt 0 ]] ; do
   arg=$1
@@ -52,6 +65,39 @@ while [[ $# -gt 0 ]] ; do
         exit 1
       fi
       action="${arg#--}"
+    ;;
+    --count|--index)
+      if [ -n "$mode" ]; then
+        {
+          echo "Can't use '$arg' together with '$mode'"
+          echo
+          print_help
+        } >&2
+        exit 1
+      fi
+      mode="${arg#--}"
+
+      mode_value="$1"
+      [ "$#" -gt 0 ] && shift
+
+      if [ -z "$mode_value" ]; then
+        {
+          echo "Missing value for '$arg'"
+          echo
+          print_help
+        } >&2
+        exit 1
+      fi
+
+      re='^[0-9]+$'
+      if ! [[ $mode_value =~ $re ]]; then
+        {
+          echo "Invalid value for '$arg' ($mode_value); must be an integer"
+          echo
+          print_help
+        } >&2
+        exit 1
+      fi
     ;;
     --quiet)
       quiet="1"
@@ -76,20 +122,30 @@ EOS
 
 case $action in
   ''|attach)
-    if [ -z "$GENV_GPUS" ]; then
-      if ! [[ "$quiet" -eq 1 ]]; then
-        {
-          echo "Device count was not configured for this environment."
-          echo "More information at:"
-          echo
-          echo "    genv config --help"
-          echo
-        } >&2
-        exit 1
-      fi
-    else
-      config_env $( exec genv exec devices attach --eid $GENV_ENVIRONMENT_ID --count $GENV_GPUS )
-    fi
+    case $mode in
+      '')
+        if [ -z "$GENV_GPUS" ]; then
+          if ! [[ "$quiet" -eq 1 ]]; then
+            {
+              echo "Device count was not configured for this environment."
+              echo "More information at:"
+              echo
+              echo "    genv config --help"
+              echo
+            } >&2
+            exit 1
+          fi
+        else
+          config_env $( exec genv exec devices attach --eid $GENV_ENVIRONMENT_ID --count $GENV_GPUS )
+        fi
+      ;;
+      count)
+        config_env $( exec genv exec devices attach --eid $GENV_ENVIRONMENT_ID --count $mode_value )
+      ;;
+      index)
+        config_env $( exec genv exec devices attach --eid $GENV_ENVIRONMENT_ID --index $mode_value )
+      ;;
+    esac
   ;;
   refresh)
     config_env $( exec genv exec devices query --eid $GENV_ENVIRONMENT_ID )
