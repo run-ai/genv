@@ -16,10 +16,29 @@ def factory() -> Dict:
     count = int(os.environ.get('GENV_DEVICES') or subprocess.check_output("nvidia-smi --id=0 --query-gpu=count --format=csv,noheader", shell=True))
 
     return dict(
-        devices={ index: { "eid": -1 } for index in range(count) }
+        devices={ index: { "eids": {} } for index in range(count) }
     )
 
+def convert(json: Dict) -> Dict:
+    """
+    Converts the loaded json file.
+
+    This is needed because some numbers are saved as strings because dictionary keys in json files must be strings.
+    """
+    json["devices"] = { int(index): device for index, device in json["devices"].items() }
+
+    for device in json["devices"].values():
+        device["eids"] = { int(eid): info for eid, info in device["eids"].items() }
+
 def cleanup(devices: Devices, eid: Optional[int]=None, count: Optional[int]=None) -> None:
+    """
+    Clean up devices.
+
+    When 'eid' is passed, only this environment is cleaned.
+    When 'eid' is not passed, all deactivated environments are cleaned.
+
+    When 'count' is passed, cleaning stops when this amount of devices are cleaned.
+    """
     pred: Callable[[int], bool] = None
 
     if eid is not None:
@@ -34,23 +53,24 @@ def cleanup(devices: Devices, eid: Optional[int]=None, count: Optional[int]=None
 
         device = devices[index]
 
-        if device["eid"] == -1:
+        if len(device["eids"]) == 0:
             continue
 
-        if not pred(device["eid"]):
-            continue
+        for candidate in list(device["eids"].keys()):
+            if not pred(candidate):
+                continue
 
-        detach_device(device)
+            detach_device(device, candidate)
 
         if count is not None:
-            count -= 1
+            if len(device["eids"]) == 0:
+                count -= 1
 
-def detach_device(device: Device) -> None:
+def detach_device(device: Device, eid: int) -> None:
     """
-    Detaches a device from any environment.
+    Detaches a device from an environment.
     """
-    device["eid"] = -1
-    del device["attached"]
+    del device["eids"][eid]
 
 def attach_devices(devices: Devices, eid: int, indices: Union[List[int], int]) -> None:
     """
@@ -64,11 +84,15 @@ def attach_devices(devices: Devices, eid: int, indices: Union[List[int], int]) -
     now = datetime.now().strftime(genv.DATETIME_FMT)
 
     for index in indices:
-        if devices[index]["eid"] != -1:
+        # NOTE(raz): we don't yet support attaching multiple environments to the same device.
+        #            we will though, and we'll have to change this to be a memory-based check.
+        if len(devices[index]["eids"]) > 0:
             raise RuntimeError(f'Device {index} is not available')
 
-        devices[index]["eid"] = eid
-        devices[index]["attached"] = now
+        devices[index]["eids"][eid] = dict(
+            eid=eid,
+            attached=now,
+        )
 
 def find_available_device(devices: Devices, ignore: List[int]=[]) -> int:
     """
@@ -78,7 +102,7 @@ def find_available_device(devices: Devices, ignore: List[int]=[]) -> int:
         if index in ignore:
             continue
 
-        if device["eid"] == -1:
+        if len(device["eids"]) == 0:
             return index
 
     raise RuntimeError("No available devices")
@@ -94,7 +118,7 @@ def find_available_devices(devices: Devices, count: int) -> List[int]:
     return indices
 
 def query(devices: Devices, eid: int) -> List[int]:
-    return [index for index, device in devices.items() if device["eid"] == eid]
+    return [index for index, device in devices.items() if eid in device["eids"]]
 
 def do_attach(devices: Devices, eid: int, count: Optional[int], index: Optional[int]) -> None:
     """
@@ -138,8 +162,8 @@ def do_detach(devices: Devices, eid: int, index: Optional[int]) -> None:
         if index in devices:
             device = devices[index]
 
-            if device["eid"] == eid:
-                detach_device(device)
+            if eid in device["eids"]:
+                detach_device(device, eid)
     else:
         cleanup(devices, eid)
 
@@ -157,20 +181,21 @@ def do_ps(devices: Devices, format: str, header: bool, timestamp: bool) -> None:
         elif format == 'tui':
             print('ID      ENV ID      ENV NAME        ATTACHED')
 
-    for index, device in devices.items():
-        eid = ''
-        name = ''
-        attached = ''
-
-        if device["eid"] != -1:
-            eid = device["eid"]
-            name = envs.get(eid, '')
-            attached = device["attached"] if timestamp else genv.time_since(device["attached"])
-
+    def print_line(index, eid, name, attached):
         if format == 'csv':
             print(f'{index},{eid},{name},{attached}')
         elif format == 'tui':
             print(f'{index:<8}{eid:<12}{name:<16}{attached}')
+
+    for index, device in devices.items():
+        if len(device["eids"]) == 0:
+            print_line(index, '', '', '')
+        else:
+            for eid, info in device["eids"].items():
+                name = envs.get(eid, '')
+                attached = info["attached"] if timestamp else genv.time_since(info["attached"])
+
+                print_line(index, eid, name, attached)
 
 def do_query(devices: Devices, eid: int) -> None:
     print(','.join(str(index) for index in query(devices, eid)))
@@ -213,11 +238,7 @@ def parse_args() -> argparse.Namespace:
 if __name__ == "__main__":
     args = parse_args()
 
-    with genv.access_json('devices.json', factory, args.reset) as json:
-        # we need to convert device indices to integers. they are saved as
-        # strings because dictionary keys in json files must be strings.
-        json["devices"] = { int(index): device for index, device in json["devices"].items() }
-
+    with genv.access_json('devices.json', factory, convert, args.reset) as json:
         devices: Devices = json["devices"]
 
         if args.cleanup:

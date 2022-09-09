@@ -21,6 +21,14 @@ def factory() -> Dict:
         envs={}
     )
 
+def convert(json: Dict) -> Dict:
+    """
+    Converts the loaded json file.
+
+    This is needed because some numbers are saved as strings because dictionary keys in json files must be strings.
+    """
+    json["envs"] = { int(eid): env for eid, env in json["envs"].items() }
+
 def cleanup(envs: Envs, poll: Callable[[int], bool]=genv.poll) -> None:
     """
     Clean up processes and environments.
@@ -164,11 +172,7 @@ def parse_args() -> argparse.Namespace:
 if __name__ == "__main__":
     args = parse_args()
 
-    with genv.access_json('envs.json', factory, args.reset) as json:
-        # we need to convert environment ids to integers. they are saved as
-        # strings because dictionary keys in json files must be strings.
-        json["envs"] = { int(eid): env for eid, env in json["envs"].items() }
-
+    with genv.access_json('envs.json', factory, convert, args.reset) as json:
         envs: Envs = json["envs"]
 
         if args.cleanup:

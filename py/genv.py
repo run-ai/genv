@@ -75,7 +75,7 @@ class Flock:
             os.close(self._fd)
 
 @contextmanager
-def access_json(filename: str, factory: Callable[[], Dict], reset: bool=False):
+def access_json(filename: str, factory: Callable[[], Dict], convert: Callable[[Dict], None], reset: bool=False):
     path = os.path.join(os.environ.get('GENV_TMPDIR', '/var/tmp/genv'), filename)
 
     with Umask(0):
@@ -85,6 +85,7 @@ def access_json(filename: str, factory: Callable[[], Dict], reset: bool=False):
             if os.path.exists(path) and not reset:
                 with open(path) as f:
                     o = json.load(f)
+                    convert(o)
             else:
                 o = factory()
 
