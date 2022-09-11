@@ -1,5 +1,7 @@
 # GPU Environment Management
 
+[![Join the chat at https://gitter.im/run-ai-genv/community](https://badges.gitter.im/run-ai-genv/community.svg)](https://gitter.im/run-ai-genv/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 _genv_ lets you easily control, configure and monitor the GPU resources that you are using.
 
 It is intendend to improve the life of individual GPU users as well as teams that share multi-GPU machines.
