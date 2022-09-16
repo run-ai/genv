@@ -5,7 +5,7 @@ import fcntl
 import json
 import os
 from pathlib import Path
-from typing import Callable, Dict, Union
+from typing import Callable, Dict, Optional, Union
 
 DATETIME_FMT = '%d/%m/%Y %H:%M:%S'
 
@@ -75,7 +75,7 @@ class Flock:
             os.close(self._fd)
 
 @contextmanager
-def access_json(filename: str, factory: Callable[[], Dict], convert: Callable[[Dict], None], reset: bool=False):
+def access_json(filename: str, factory: Callable[[], Dict], *, convert: Optional[Callable[[Dict], None]]=None, reset: bool=False):
     path = os.path.join(os.environ.get('GENV_TMPDIR', '/var/tmp/genv'), filename)
 
     with Umask(0):
@@ -85,7 +85,9 @@ def access_json(filename: str, factory: Callable[[], Dict], convert: Callable[[D
             if os.path.exists(path) and not reset:
                 with open(path) as f:
                     o = json.load(f)
-                    convert(o)
+
+                    if convert:
+                        convert(o)
             else:
                 o = factory()
 

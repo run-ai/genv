@@ -21,14 +21,6 @@ def factory() -> Dict:
         envs={}
     )
 
-def convert(json: Dict) -> Dict:
-    """
-    Converts the loaded json file.
-
-    This is needed because some numbers are saved as strings because dictionary keys in json files must be strings.
-    """
-    json["envs"] = { int(eid): env for eid, env in json["envs"].items() }
-
 def cleanup(envs: Envs, poll: Callable[[int], bool]=genv.poll) -> None:
     """
     Clean up processes and environments.
@@ -39,7 +31,7 @@ def cleanup(envs: Envs, poll: Callable[[int], bool]=genv.poll) -> None:
     for eid in [eid for eid, env in envs.items() if len(env["pids"]) == 0]:
         del envs[eid]
 
-def do_activate(envs: Envs, pid: int, eid: int, uid: int, username: str) -> None:
+def do_activate(envs: Envs, pid: int, eid: str, uid: int, username: str) -> None:
     if eid not in envs:
         envs[eid] = dict(
             eid=eid,
@@ -52,7 +44,7 @@ def do_activate(envs: Envs, pid: int, eid: int, uid: int, username: str) -> None
 
     envs[eid]["pids"].append(pid)
 
-def do_config(envs: Envs, eid: int, command: str, args: argparse.Namespace) -> None:
+def do_config(envs: Envs, eid: str, command: str, args: argparse.Namespace) -> None:
     env: Env = envs.get(eid)
 
     if env is None:
@@ -99,7 +91,7 @@ def do_ps(envs: Envs, format: str, header: bool, timestamp: bool) -> None:
         elif format == 'tui':
             print(f'{eid:<8}{user:<16}{name:<16}{created:<21}{pids}')
 
-def do_query(envs: Envs, eid: Optional[int], queries: List[str]) -> None:
+def do_query(envs: Envs, eid: Optional[str], queries: List[str]) -> None:
     eids = [eid] if eid is not None else list(envs.keys())
 
     for eid in eids:
@@ -115,7 +107,7 @@ def do_query(envs: Envs, eid: Optional[int], queries: List[str]) -> None:
 def parse_args() -> argparse.Namespace:
     def activate(parser):
         parser.add_argument('--pid', type=int, required=True, help='Process identifier')
-        parser.add_argument('--eid', type=int, required=True, help='Environment identifier')
+        parser.add_argument('--eid', required=True, help='Environment identifier')
         parser.add_argument('--uid', type=int, required=True, help='User identifier')
         parser.add_argument('--username', required=True, help='User name')
 
@@ -130,7 +122,7 @@ def parse_args() -> argparse.Namespace:
             group.add_argument('--name', help='Environment name')
             group.add_argument('--clear', action='store_true', help='Clear environment name')
 
-        parser.add_argument('--eid', type=int, required=True, help='Environment ID')
+        parser.add_argument('--eid', required=True, help='Environment identifier')
 
         subparsers = parser.add_subparsers(dest='config', required=True)
 
@@ -149,7 +141,7 @@ def parse_args() -> argparse.Namespace:
         parser.add_argument('--format', choices=['csv', 'tui'], help='Output format; CSV or TUI (Text-based user interface)', default='tui')
 
     def query(parser):
-        parser.add_argument('--eid', type=int, help='Environment identifier')
+        parser.add_argument('--eid', help='Environment identifier')
         parser.add_argument('--query', '--queries', dest='queries', nargs='+', choices=QUERIES.keys(), required=True)
 
     parser = argparse.ArgumentParser(description=f'genv environment manager')
@@ -172,7 +164,7 @@ def parse_args() -> argparse.Namespace:
 if __name__ == "__main__":
     args = parse_args()
 
-    with genv.access_json('envs.json', factory, convert, args.reset) as json:
+    with genv.access_json('envs.json', factory, reset=args.reset) as json:
         envs: Envs = json["envs"]
 
         if args.cleanup:

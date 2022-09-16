@@ -27,10 +27,7 @@ def convert(json: Dict) -> Dict:
     """
     json["devices"] = { int(index): device for index, device in json["devices"].items() }
 
-    for device in json["devices"].values():
-        device["eids"] = { int(eid): info for eid, info in device["eids"].items() }
-
-def cleanup(devices: Devices, eid: Optional[int]=None, count: Optional[int]=None) -> None:
+def cleanup(devices: Devices, eid: Optional[str]=None, count: Optional[int]=None) -> None:
     """
     Clean up devices.
 
@@ -39,12 +36,12 @@ def cleanup(devices: Devices, eid: Optional[int]=None, count: Optional[int]=None
 
     When 'count' is passed, cleaning stops when this amount of devices are cleaned.
     """
-    pred: Callable[[int], bool] = None
+    pred: Callable[[str], bool] = None
 
     if eid is not None:
         pred = lambda _: _ == eid
     else:
-        eids = [int(line) for line in subprocess.check_output("genv exec envs query --query eid", shell=True).splitlines()]
+        eids = subprocess.check_output("genv exec envs query --query eid", shell=True).decode('utf-8').splitlines()
         pred = lambda eid: eid not in eids
 
     for index in sorted(devices.keys(), reverse=True):
@@ -66,13 +63,13 @@ def cleanup(devices: Devices, eid: Optional[int]=None, count: Optional[int]=None
             if len(device["eids"]) == 0:
                 count -= 1
 
-def detach_device(device: Device, eid: int) -> None:
+def detach_device(device: Device, eid: str) -> None:
     """
     Detaches a device from an environment.
     """
     del device["eids"][eid]
 
-def attach_devices(devices: Devices, eid: int, indices: Union[List[int], int]) -> None:
+def attach_devices(devices: Devices, eid: str, indices: Union[List[int], int]) -> None:
     """
     Attaches a device or a set of devices to an environment.
 
@@ -117,10 +114,10 @@ def find_available_devices(devices: Devices, count: int) -> List[int]:
 
     return indices
 
-def query(devices: Devices, eid: int) -> List[int]:
+def query(devices: Devices, eid: str) -> List[int]:
     return [index for index, device in devices.items() if eid in device["eids"]]
 
-def do_attach(devices: Devices, eid: int, count: Optional[int], index: Optional[int]) -> None:
+def do_attach(devices: Devices, eid: str, count: Optional[int], index: Optional[int]) -> None:
     """
     Attaches devices to an environment and prints the device indices.
 
@@ -157,7 +154,7 @@ def do_attach(devices: Devices, eid: int, count: Optional[int], index: Optional[
 
     do_query(devices, eid) # print the up-to-date device indices
 
-def do_detach(devices: Devices, eid: int, index: Optional[int]) -> None:
+def do_detach(devices: Devices, eid: str, index: Optional[int]) -> None:
     if index is not None:
         if index in devices:
             device = devices[index]
@@ -173,7 +170,7 @@ def do_ps(devices: Devices, format: str, header: bool, timestamp: bool) -> None:
     envs = {}
     for line in subprocess.check_output("genv exec envs query --query eid config.name", shell=True).decode('utf-8').splitlines():
         eid, name = line.split(',')
-        envs[int(eid)] = name
+        envs[eid] = name
 
     if header:
         if format == 'csv':
@@ -197,18 +194,18 @@ def do_ps(devices: Devices, format: str, header: bool, timestamp: bool) -> None:
 
                 print_line(index, eid, name, attached)
 
-def do_query(devices: Devices, eid: int) -> None:
+def do_query(devices: Devices, eid: str) -> None:
     print(','.join(str(index) for index in query(devices, eid)))
 
 def parse_args() -> argparse.Namespace:
     def attach(parser):
-        parser.add_argument('--eid', type=int, required=True, help='Environment identifier')
+        parser.add_argument('--eid', required=True, help='Environment identifier')
         group = parser.add_mutually_exclusive_group(required=True)
         group.add_argument('--count', type=int, help='Total devices count to be attached')
         group.add_argument('--index', type=int, help='Device index to attach specifically')
 
     def detach(parser):
-        parser.add_argument('--eid', type=int, required=True, help='Environment identifier')
+        parser.add_argument('--eid', required=True, help='Environment identifier')
         parser.add_argument('--index', type=int, help='Device index to dettach')
 
     def ps(parser):
@@ -217,7 +214,7 @@ def parse_args() -> argparse.Namespace:
         parser.add_argument('--format', choices=['csv', 'tui'], help='Output format; CSV or TUI (Text-based user interface)', default='tui')
 
     def query(parser):
-        parser.add_argument('--eid', type=int, required=True, help='Environment identifier')
+        parser.add_argument('--eid', required=True, help='Environment identifier')
 
     parser = argparse.ArgumentParser(description=f'genv device manager')
     parser.add_argument('--no-cleanup', dest='cleanup', action='store_false', help='Do not perform clean up')
@@ -238,7 +235,7 @@ def parse_args() -> argparse.Namespace:
 if __name__ == "__main__":
     args = parse_args()
 
-    with genv.access_json('devices.json', factory, convert, args.reset) as json:
+    with genv.access_json('devices.json', factory, convert=convert, reset=args.reset) as json:
         devices: Devices = json["devices"]
 
         if args.cleanup:

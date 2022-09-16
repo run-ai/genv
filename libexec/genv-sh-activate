@@ -63,16 +63,6 @@ while [[ $# -gt 0 ]] ; do
         } >&2
         exit 1
       fi
-
-      re='^[0-9]+$'
-      if ! [[ $eid =~ $re && "$eid" -gt 0 ]]; then
-        {
-          echo "Invalid environment identifier ($eid); must be an integer"
-          echo
-          print_help
-        } >&2
-        exit 1
-      fi
     ;;
     --name)
       name="$1"
