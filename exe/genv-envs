@@ -2,7 +2,7 @@
 
 import argparse
 from datetime import datetime
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any, Callable, Dict, List, Optional, Union
 
 import genv
 
@@ -45,6 +45,23 @@ def cleanup(
     for eid in [eid for eid, env in envs.items() if _should_cleanup_env(env)]:
         del envs[eid]
 
+def find(envs: Envs, pid: Optional[int], kernel_id: Optional[str]) -> Union[str, None]:
+    for query, field in [
+        (pid, "pids"),
+        (kernel_id, "kernel_ids"),
+    ]:
+        for eid, env in envs.items():
+            if query is None:
+                continue
+
+            if field not in env:
+                continue
+
+            if query not in env[field]:
+                continue
+
+            return eid
+
 def do_activate(envs: Envs, eid: str, uid: int, username: Optional[str], pid: Optional[int], kernel_id: Optional[str]) -> None:
     if eid not in envs:
         envs[eid] = dict(
@@ -69,6 +86,12 @@ def do_activate(envs: Envs, eid: str, uid: int, username: Optional[str], pid: Op
             env["kernel_ids"] = []
 
         env["kernel_ids"].append(kernel_id)
+
+def do_find(envs: Envs, pid: Optional[int], kernel_id: Optional[str]) -> None:
+    eid = find(envs, pid, kernel_id)
+
+    if eid is not None:
+        print(eid)
 
 def do_config(envs: Envs, eid: str, command: str, args: argparse.Namespace) -> None:
     env: Env = envs.get(eid)
@@ -166,6 +189,12 @@ def parse_args() -> argparse.Namespace:
     def deactivate(parser):
         parser.add_argument('--pid', type=int, required=True, help='Process identifier')
 
+    def find(parser):
+        group = parser.add_mutually_exclusive_group(required=True)
+
+        group.add_argument('--pid', type=int, help='Process identifier')
+        group.add_argument('--kernel-id', help='Jupyter kernel identifier')
+
     def ps(parser):
         parser.add_argument('--no-header', dest='header', action='store_false', help='Do not print column headers')
         parser.add_argument('--timestamp', action='store_true', help='Print a non-prettified timestamp')
@@ -185,6 +214,7 @@ def parse_args() -> argparse.Namespace:
         (activate, 'Activate a process or a Jupyter kernel'),
         (config, 'Configure an environment'),
         (deactivate, 'Deactivate a process or a Jupyter kernel'),
+        (find, 'Find the environment of a process or a Jupyter kernel'),
         (ps, 'Print information about active environments'),
         (query, 'Query environments or a specific one'),
     ]:
@@ -207,6 +237,8 @@ if __name__ == "__main__":
             do_config(envs, args.eid, command=args.config, args=args)
         elif args.command == 'deactivate':
             do_deactivate(envs, args.pid)
+        elif args.command == 'find':
+            do_find(envs, args.pid, args.kernel_id)
         elif args.command == 'ps':
             do_ps(envs, args.format, args.header, args.timestamp)
         elif args.command == 'query':
