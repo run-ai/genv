@@ -21,28 +21,52 @@ def factory() -> Dict:
         envs={}
     )
 
-def cleanup(envs: Envs, poll: Callable[[int], bool]=genv.poll) -> None:
+def cleanup(
+        envs: Envs,
+        poll_pid: Callable[[int], bool]=genv.poll_pid,
+        poll_kernel: Callable[[str], bool]=genv.poll_kernel) -> None:
     """
-    Clean up processes and environments.
+    Clean up processes, kernels and environments.
     """
     for env in envs.values():
-        env["pids"] = [pid for pid in env["pids"] if poll(pid)]
+        if "pids" in env:
+            env["pids"] = [pid for pid in env["pids"] if poll_pid(pid)]
 
-    for eid in [eid for eid, env in envs.items() if len(env["pids"]) == 0]:
+        if "kernel_ids" in env:
+            env["kernel_ids"] = [kernel_id for kernel_id in env["kernel_ids"] if poll_kernel(kernel_id)]
+
+    def _should_cleanup_env(env):
+        for key in ["pids", "kernel_ids"]:
+            if key in env and len(env[key]) > 0:
+                return False
+
+        return True
+
+    for eid in [eid for eid, env in envs.items() if _should_cleanup_env(env)]:
         del envs[eid]
 
-def do_activate(envs: Envs, pid: int, eid: str, uid: int, username: str) -> None:
+def do_activate(envs: Envs, eid: str, uid: int, username: str, pid: Optional[int], kernel_id: Optional[str]) -> None:
     if eid not in envs:
         envs[eid] = dict(
             eid=eid,
             uid=uid,
             username=username,
             creation=datetime.now().strftime(genv.DATETIME_FMT),
-            pids=[],
             config={},
         )
 
-    envs[eid]["pids"].append(pid)
+    env = envs[eid]
+
+    if pid is not None:
+        if "pids" not in env:
+            env["pids"] = []
+
+        env["pids"].append(pid)
+    elif kernel_id is not None:
+        if "kernel_ids" not in env:
+            env["kernel_ids"] = []
+
+        env["kernel_ids"].append(kernel_id)
 
 def do_config(envs: Envs, eid: str, command: str, args: argparse.Namespace) -> None:
     env: Env = envs.get(eid)
@@ -70,7 +94,7 @@ def do_config(envs: Envs, eid: str, command: str, args: argparse.Namespace) -> N
         name(args.name, args.clear)
 
 def do_deactivate(envs: Envs, pid: int) -> None:
-    cleanup(envs, poll=lambda pid_: pid_ != pid)
+    cleanup(envs, poll_pid=lambda pid_: pid_ != pid)
 
 def do_ps(envs: Envs, format: str, header: bool, timestamp: bool) -> None:
     if header:
@@ -84,7 +108,8 @@ def do_ps(envs: Envs, format: str, header: bool, timestamp: bool) -> None:
         user = f'{env["username"]}({env["uid"]})'
         name = env["config"].get("name", '')
         created = env["creation"] if timestamp else genv.time_since(env["creation"])
-        pids = ' '.join(str(pid) for pid in env["pids"])
+        pids = ' '.join(str(pid) for pid in env.get("pids", []))
+        # TODO(raz): print kernel ids
 
         if format == 'csv':
             print(f'{eid},{user},{name},{created},{pids}')
@@ -106,10 +131,14 @@ def do_query(envs: Envs, eid: Optional[str], queries: List[str]) -> None:
 
 def parse_args() -> argparse.Namespace:
     def activate(parser):
-        parser.add_argument('--pid', type=int, required=True, help='Process identifier')
         parser.add_argument('--eid', required=True, help='Environment identifier')
         parser.add_argument('--uid', type=int, required=True, help='User identifier')
         parser.add_argument('--username', required=True, help='User name')
+
+        group = parser.add_mutually_exclusive_group(required=True)
+
+        group.add_argument('--pid', type=int, help='Process identifier')
+        group.add_argument('--kernel-id', help='Jupyter kernel identifier')
 
     def config(parser):
         def gpus(parser):
@@ -151,9 +180,9 @@ def parse_args() -> argparse.Namespace:
     subparsers = parser.add_subparsers(dest='command')
 
     for command, help in [
-        (activate, 'Activate a process'),
+        (activate, 'Activate a process or a Jupyter kernel'),
         (config, 'Configure an environment'),
-        (deactivate, 'Deactivate a process'),
+        (deactivate, 'Deactivate a process or a Jupyter kernel'),
         (ps, 'Print information about active environments'),
         (query, 'Query environments or a specific one'),
     ]:
@@ -171,7 +200,7 @@ if __name__ == "__main__":
             cleanup(envs)
 
         if args.command == 'activate':
-            do_activate(envs, args.pid, args.eid, args.uid, args.username)
+            do_activate(envs, args.eid, args.uid, args.username, args.pid, args.kernel_id)
         elif args.command == 'config':
             do_config(envs, args.eid, command=args.config, args=args)
         elif args.command == 'deactivate':

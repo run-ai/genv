@@ -5,11 +5,12 @@ import fcntl
 import json
 import os
 from pathlib import Path
+import subprocess
 from typing import Callable, Dict, Optional, Union
 
 DATETIME_FMT = '%d/%m/%Y %H:%M:%S'
 
-def poll(pid: int) -> bool:
+def poll_pid(pid: int) -> bool:
     try:
         os.kill(pid, 0)
     except OSError as e:
@@ -21,6 +22,21 @@ def poll(pid: int) -> bool:
             raise
     else:
         return True
+
+def poll_kernel(kernel_id: str) -> bool:
+    # TODO(raz): what about the case when 'jupyter' is not available in the
+    #            environment that we are currently running in?
+    #
+    # should we ignore such cases and _not_ cleanup kernels if we don't have the 'jupyter' command?
+    # should we look for kernel processes similarly to 'ps -ef | grep kernel-'?
+    # should we document the kernel json path when activating a kernel, so that the path will
+    # be known in other environments as well? what if we don't have read permissions?
+
+    result = subprocess.run(
+        ['sh', '-c', f'ls $(jupyter --runtime-dir)/kernel-{kernel_id}.json'],
+        stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+
+    return result.returncode == 0
 
 def time_since(dt: Union[str, datetime]) -> str:
     if isinstance(dt, str):
