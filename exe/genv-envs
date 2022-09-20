@@ -45,17 +45,19 @@ def cleanup(
     for eid in [eid for eid, env in envs.items() if _should_cleanup_env(env)]:
         del envs[eid]
 
-def do_activate(envs: Envs, eid: str, uid: int, username: str, pid: Optional[int], kernel_id: Optional[str]) -> None:
+def do_activate(envs: Envs, eid: str, uid: int, username: Optional[str], pid: Optional[int], kernel_id: Optional[str]) -> None:
     if eid not in envs:
         envs[eid] = dict(
             eid=eid,
             uid=uid,
-            username=username,
             creation=datetime.now().strftime(genv.DATETIME_FMT),
             config={},
         )
 
     env = envs[eid]
+
+    if username is not None:
+        envs[eid]["username"] = username
 
     if pid is not None:
         if "pids" not in env:
@@ -105,7 +107,7 @@ def do_ps(envs: Envs, format: str, header: bool, timestamp: bool) -> None:
 
     for env in envs.values():
         eid = env["eid"]
-        user = f'{env["username"]}({env["uid"]})'
+        user = f'{env["username"]}({env["uid"]})' if "username" in env else env["uid"]
         name = env["config"].get("name", '')
         created = env["creation"] if timestamp else genv.time_since(env["creation"])
         pids = ' '.join(str(pid) for pid in env.get("pids", []))
@@ -133,7 +135,7 @@ def parse_args() -> argparse.Namespace:
     def activate(parser):
         parser.add_argument('--eid', required=True, help='Environment identifier')
         parser.add_argument('--uid', type=int, required=True, help='User identifier')
-        parser.add_argument('--username', required=True, help='User name')
+        parser.add_argument('--username', help='User name')
 
         group = parser.add_mutually_exclusive_group(required=True)
 
