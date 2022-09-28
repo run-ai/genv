@@ -22,6 +22,8 @@ Plus, it's 100% free and gets installed before you can say Jack Robinson.
 
 ## Table of Contents
 * [Installation](#installation)
+    * [Common IDEs](#common-ides)
+    * [From Source](#from-source)
 * [Usage](#usage)
     * [Environment Status](#environment-status)
     * [Activating an Environment](#activating-an-environment)
@@ -46,14 +48,22 @@ Plus, it's 100% free and gets installed before you can say Jack Robinson.
     * [License](#license)
 
 ## Installation
-### Getting _genv_
+### Common IDEs
+While _genv_ is a terminal-based tool, we created extensions for common IDEs to allow users to use _genv_ natively in their development environments.
+
+Currently, we have extensions for [Visual Studio Code](https://github.com/run-ai/vscode-genv) and [JupyterLab](https://github.com/run-ai/jupyterlab_genv).
+We are also working on creating a plugin for PyCharm as well.
+
+You should check them out and see how you can integrate them as part of your development process.
+
+### From Source
 It's super easy to get _genv_ as everything you need is to clone this Git repository into somewhere on your machine.
 Your home directory is a great place to keep it:
 ```
 git clone https://github.com/run-ai/genv.git ~/genv
 ```
 
-### Setting Up Your Shell
+#### Setting Up Your Shell
 In order to use _genv_ you need to set up your shell environment with the following commands:
 ```
 export PATH=$HOME/genv/bin:$PATH
@@ -74,10 +84,10 @@ genv
 
 You should be able to see all the available `genv` commands.
 
-### Dependencies
+#### Dependencies
 _genv_ uses Python 3 so make sure you have it also installed.
 
-### Uninstalling
+#### Uninstalling
 To uninstall _genv_ simply remove the _genv_ directory:
 ```
 rm -rf $(genv root)
