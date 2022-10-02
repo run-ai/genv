@@ -351,6 +351,19 @@ genv
 
 > NOTE: If you are on a CPU machine, mock the amount of GPUs by setting the environment variable `GENV_DEVICES`
 
+#### Docker
+You can also use a container for the development.
+This is useful if you are using macOS as _genv_ is developed for Linux systems and some things are not available in macOS (e.g. `/proc` filesystem).
+
+Use the following command:
+```
+docker run -it --rm --name genv \
+    -v $PWD:/genv \
+    -v /var/tmp:/var/tmp \
+    python \
+    bash --rcfile /genv/.bashrc
+```
+
 ### Reference
 #### Environment Variables
 ---
