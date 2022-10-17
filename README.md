@@ -54,7 +54,7 @@ Join our Slack channel ([here](https://join.slack.com/t/genvcommunity/shared_inv
 
 Looking forward to seeing you as a part of the community!
 
-## Table of Contents
+## 📂 Table of Contents
 * [Installation](#installation)
     * [Installation Guide for VSCode](https://github.com/run-ai/vscode-genv)
     * [Installation Guide for VSCode](https://github.com/run-ai/vscode-genv)
@@ -82,7 +82,7 @@ Looking forward to seeing you as a part of the community!
     * [Setup](https://github.com/run-ai/genv/blob/feature/readme/DEVELOPMENT.md#setup)
     * [Reference](https://github.com/run-ai/genv/blob/feature/readme/DEVELOPMENT.md#reference)
 
-## Installation Guide for Terminal Usage
+## 💫 Installation Guide for Terminal Usage
 
 ### From Source
 It's super easy to get _genv_ as everything you need is to clone this Git repository into somewhere on your machine.
@@ -127,7 +127,7 @@ You will also need to remove the commands you added to your `~/.bashrc` or any o
 
 - You could be mentioned here! Submit a feature request to be featured here 💥
 
-## License
+## ©️ License
 The genv software is Copyright 2022 [Run.ai Labs, Ltd.].
 The software is licensed by Run.ai under the AGPLv3 license.
 Please note that Run.ai’s intention in licensing the software are that the obligations of licensee pursuant to the AGPLv3 license should be interpreted broadly.
