@@ -1,24 +1,33 @@
+![Logo](/genv_logo.png)
+
 # GPU Environment Management
 
 [![Join the chat at https://gitter.im/run-ai-genv/community](https://badges.gitter.im/run-ai-genv/community.svg)](https://gitter.im/run-ai-genv/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-_genv_ lets you easily control, configure and monitor the GPU resources that you are using.
+*genv* lets you easily control, configure and monitor the GPU resources that you are using.
 
-It is intendend to improve the life of individual GPU users as well as teams that share multi-GPU machines.
+It is intendend to ease up the process of GPU allocation for data scientists without code changes 💪🏻
 
 This project was highly inspired by [pyenv](https://github.com/pyenv/pyenv) and other version, package and environment management software like [Conda](https://docs.conda.io/projects/conda/en/latest/), [nvm](https://github.com/nvm-sh/nvm), [rbenv](https://github.com/rbenv/rbenv).
 
 ![Example](/example.png)
 
-### Why You Want _genv_
-Because with _genv_, you will:
-* See information only about GPUs that you are using
-* See process and memory information only about your applications
-* Manage GPU resources as infrastructure-as-code and per project
-* Reserve GPU resources for as long as you use them with no one else hijacking them
-* Use GPU resources that no one else is using at the moment
+### Why You Should use *genv***
+
+Because with *genv*, you will:
+
+- Easily share GPUs with your teammates
+- Find available GPUs for you to use - on-prem or on cloud via remote access
+- Switch between GPUs without code changes
+- Reserve GPU resources for as long as you use them with no one else hijacking them
+- Reproduce your experiment environment easily
+- Save time while collaborating
 
 Plus, it's 100% free and gets installed before you can say Jack Robinson.
+
+### Use it with your fav IDE
+
+
 
 ## Table of Contents
 * [Installation](#installation)
