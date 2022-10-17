@@ -1,6 +1,6 @@
 <p align="center">
-  <img src="https://github.com/run-ai/genv/blob/feature/readme/genv blade landscape black@4x.png#gh-light-mode-only" width="600" alt="genv"/>
-  <img src="https://github.com/run-ai/genv/blob/feature/readme/genv blade landscape white@4x.png#gh-dark-mode-only" width="600" alt="genv"/>
+  <img src="images/genv blade landscape black@4x.png#gh-light-mode-only" width="600" alt="genv"/>
+  <img src="images/genv blade landscape white@4x.png#gh-dark-mode-only" width="600" alt="genv"/>
 </p>
 
 # genv (GPU Environment Management) [![Join the community at https://join.slack.com/t/genvcommunity/shared_invite/zt-1i70tphdc-DmFgK5yr3HFI8Txx1yFXBw](https://img.shields.io/badge/Slack-genv-ff007f?logo=slack)](https://join.slack.com/t/genvcommunity/shared_invite/zt-1i70tphdc-DmFgK5yr3HFI8Txx1yFXBw) [![Join the chat at https://gitter.im/run-ai-genv/community](https://badges.gitter.im/run-ai-genv/community.svg)](https://gitter.im/run-ai-genv/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
@@ -12,7 +12,7 @@ It is intendend to ease up the process of GPU allocation for data scientists wit
 
 This project was highly inspired by [pyenv](https://github.com/pyenv/pyenv) and other version, package and environment management software like [Conda](https://docs.conda.io/projects/conda/en/latest/), [nvm](https://github.com/nvm-sh/nvm), [rbenv](https://github.com/rbenv/rbenv).
 
-![Example](/example.png)
+![Example](images/example.png)
 
 ## 🔥 Why You Should use *genv*
 
@@ -32,13 +32,13 @@ Plus, it's 100% free and gets installed before you can say Jack Robinson.
 
 Integration with VSCode [(Take me to the installation guide!)](https://github.com/run-ai/vscode-genv) | 
 :-------------------------:|
-<img src="overview.gif" width="800" alt="genv vscode"/> |  
+<img src="images/overview.gif" width="800" alt="genv vscode"/> |  
 
 <br />
 
 Integration with JupyterLab [(Take me to the installation guide!)](https://github.com/run-ai/jupyterlab_genv) |
 :-------------------------:|
-<img src="overview_jupyterlab.gif" width="800" alt="genv jupyterlab"/> |
+<img src="images/overview_jupyterlab.gif" width="800" alt="genv jupyterlab"/> |
 
 
 
