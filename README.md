@@ -27,43 +27,41 @@ Plus, it's 100% free and gets installed before you can say Jack Robinson.
 
 ### Use it with your fav IDE
 
+[Installation Guide for VSCode](https://github.com/run-ai/vscode-genv) | [Installation Guide for JupyterLab](https://github.com/run-ai/jupyterlab_genv)
+:-------------------------:|:-------------------------:
+<img src="overview.gif" width="500"/>  |  <img src="overview_jupyterlab.gif" width="450"/>
 
+A PyCharm integration is also in our roadmap so stay tuned!
 
 ## Table of Contents
 * [Installation](#installation)
-    * [Common IDEs](#common-ides)
-    * [From Source](#from-source)
-* [Usage](#usage)
-    * [Environment Status](#environment-status)
-    * [Activating an Environment](#activating-an-environment)
-    * [Configuring an Environment](#configuring-an-environment)
-        * [Device Count](#configure-the-device-count)
-        * [Name](#configure-the-name)
-        * [Printing the Configuration](#printing-the-current-configuration)
-        * [Clearing the Configuration](#clearing-the-current-configuration)
-        * [Configuration as Infrastructure-as-Code](#managing-configuration-as-infrastructure-as-code)
-            * [Saving](#saving-configuration)
-            * [Loading](#loading-configuration)
-    * [Attach an Environment to Devices](#attach-an-environment-to-devices)
-        * [Detaching](#detaching-an-environment)
-        * [Reattaching](#reattaching-an-environment)
-    * [List Environments](#list-environments)
-    * [List Devices](#list-devices)
-* [Advanced Usage](#advanced-usage)
-    * [Multiple Terminals](#multiple-terminals)
-* [Development](#development)
-    * [Setup](#setup)
-    * [Reference](#reference)
+    * [Installation Guide for VSCode](https://github.com/run-ai/vscode-genv)
+    * [Installation Guide for VSCode](https://github.com/run-ai/vscode-genv)
+    * [Installation Guide for Terminal Usage](#from-source)
     * [License](#license)
+* [Features](#/FEATURES.md/features)
+    * [Environment Status](https://github.com/run-ai/genv/edit/feature/readme/FEATURES.md#environment-status)
+    * [Activating an Environment](https://github.com/run-ai/genv/edit/feature/readme/FEATURES.md#activating-an-environment)
+    * [Configuring an Environment](https://github.com/run-ai/genv/edit/feature/readme/FEATURES.md#configuring-an-environment)
+        * [Device Count](https://github.com/run-ai/genv/edit/feature/readme/FEATURES.md#configure-the-device-count)
+        * [Name](https://github.com/run-ai/genv/edit/feature/readme/FEATURES.md#configure-the-name)
+        * [Printing the Configuration](https://github.com/run-ai/genv/edit/feature/readme/FEATURES.md#printing-the-current-configuration)
+        * [Clearing the Configuration](https://github.com/run-ai/genv/edit/feature/readme/FEATURES.md#clearing-the-current-configuration)
+        * [Configuration as Infrastructure-as-Code](https://github.com/run-ai/genv/edit/feature/readme/FEATURES.md#managing-configuration-as-infrastructure-as-code)
+            * [Saving](https://github.com/run-ai/genv/edit/feature/readme/FEATURES.md#saving-configuration)
+            * [Loading](https://github.com/run-ai/genv/edit/feature/readme/FEATURES.md#loading-configuration)
+    * [Attach an Environment to Devices](https://github.com/run-ai/genv/edit/feature/readme/FEATURES.md#attach-an-environment-to-devices)
+        * [Detaching](https://github.com/run-ai/genv/edit/feature/readme/FEATURES.md#detaching-an-environment)
+        * [Reattaching](https://github.com/run-ai/genv/edit/feature/readme/FEATURES.md#reattaching-an-environment)
+    * [List Environments](https://github.com/run-ai/genv/edit/feature/readme/FEATURES.md#list-environments)
+    * [List Devices](https://github.com/run-ai/genv/edit/feature/readme/FEATURES.md#list-devices)
+* [Advanced Features](https://github.com/run-ai/genv/edit/feature/readme/FEATURES.md#advanced-features)
+    * [Multiple Terminals](https://github.com/run-ai/genv/edit/feature/readme/FEATURES.md#multiple-terminals)
+* [Development](https://github.com/run-ai/genv/edit/feature/readme/DEVELOPMENT.md#development)
+    * [Setup](https://github.com/run-ai/genv/edit/feature/readme/DEVELOPMENT.md#setup)
+    * [Reference](https://github.com/run-ai/genv/edit/feature/readme/DEVELOPMENT.md#reference)
 
-## Installation
-### Common IDEs
-While _genv_ is a terminal-based tool, we created extensions for common IDEs to allow users to use _genv_ natively in their development environments.
-
-Currently, we have extensions for [Visual Studio Code](https://github.com/run-ai/vscode-genv) and [JupyterLab](https://github.com/run-ai/jupyterlab_genv).
-We are also working on creating a plugin for PyCharm as well.
-
-You should check them out and see how you can integrate them as part of your development process.
+## Installation Guide for Terminal Usage
 
 ### From Source
 It's super easy to get _genv_ as everything you need is to clone this Git repository into somewhere on your machine.
@@ -104,300 +102,7 @@ rm -rf $(genv root)
 
 You will also need to remove the commands you added to your `~/.bashrc` or any other equivalent file.
 
-## Usage
-### Environment Status
-When using _genv_, you will be running inside environments.
 
-You can see the status of your environment using the command:
-```
-genv status
-```
-
-When not running in an active environment, you will see the following message:
-```
-$ genv status
-Environment is not active
-```
-
-When running in an [active](#activating-an-environment) environment, you will see more information about your environment, like its identifier, attached GPUs and configuration.
-
-Here's an example:
-```
-$ genv status
-Environment is active (22716)
-Attached to GPUs at indices 0,1
-
-Configuration
-    Name: my-environment
-    Device count: 2
-```
-
-### Activating an Environment
-In order to use _genv_, you need to activate the environment using the command:
-```
-genv activate
-```
-
-When activating an environment, it first gets detached from all GPUs on the machine.
-
-You could see this by running `nvidia-smi` and seeing the following output:
-```
-$ nvidia-smi
-No devices were found
-```
-
-You will later [configure](#configuring-an-environment) the environment device count and [attach](#attach-an-environment-to-devices) devices to it.
-
-> To see all available options run `genv activate --help` from a non-activated terminal
-
-To deactivate an environment use the following command:
-```
-genv deactivate
-```
-
-### Configuring an Environment
-After [activating](#activating-an-environment) your environment, you need to configure it.
-
-> To see all available options and configuration fields run `genv config --help`
-
-#### Configure the Device Count
-Configuring the environment device count determines how many GPUs should be accessible to it when attaching devices.
-
-This is done with the following command:
-```
-genv config gpus <count>
-```
-
-#### Configure the Name
-Configuring the environment name is not mandatory, but it helps a lot when querying the active environments and devices, and is considered a good practice.
-
-This is done with the following command:
-```
-genv config name <name>
-```
-
-#### Printing the Current Configuration
-You can print the current configuration of any field by running the same command as if you want to configure it, just without specifying any value.
-
-For example, the following command would print you the environment name:
-```
-genv config name
-```
-
-You can also print the entire configuration by not specifying any field name:
-```
-genv config
-```
-
-#### Clearing the Current Configuration
-You can clear the configuration by passing the argument `--clear` to the configuration command.
-
-This works both for field-specific configuration and for the entire configuration.
-
-For example, the next command would clear the environment name:
-```
-genv config name --clear
-```
-
-While the following command would clear the entire configuration:
-```
-genv config --clear
-```
-
-#### Managing Configuration as Infrastructure-as-Code
-_genv_ lets you manage the GPU resources as infrastructure-as-code by letting you save and load environment configurations to and from the disk.
-
-In your project root, create a directory named `.genv` using the command:
-```
-mkdir -p .genv
-```
-> The `-p` argument just causes the command to not fail in case the directory already exists
-
-You can verify _genv_ recognizes the directory by running:
-```
-genv home
-```
-
-##### Saving Configuration
-You can save the configuration to the disk by running:
-```
-genv config --save
-```
-
-You can also keep your saved configuration up to date by adding the argument `--save` whenever you reconfigure the environment or clear the configuration.
-
-##### Loading Configuration
-You can load the configuration from the disk by running:
-```
-genv config --load
-```
-
-Note that _genv_ will automatically load the saved configuration when you activate an environment from your project root directory (as long as you don't pass `--no-load` to `genv activate`).
-
-### Attach an Environment to Devices
-After [activating](#activating-an-environment) an environment and [configuring](#configuring-an-environment) its device count, you need to attach GPUs to it.
-
-This is done using the command:
-```
-genv attach
-```
-
-_genv_ will look for available GPUs for your environment.
-
-If there are not enough GPUs available, or the configured device count is greater than the number of devices in the machine, an error message will be printed to the screen and your environment will be detached.
-
-If there are enough GPUs available, _genv_ will attach them to the environment and make them unavailable for other environments.
-
-You can verify that the environment is attached to GPUs by running `nvidia-smi`.
-It will show information only about the GPUs that are attached to your environment.
-
-Note that in case your environment configuration gets [loaded](#loading-configuration) upon activation, _genv_ will also automatically try to attach devices to your environment (as long as you don't pass `--no-attach` to `genv activate`).
-
-#### Detaching an Environment
-As long as your environment is active and attached to devices, no one else can use them.
-
-In case you want to stop using the attached devices, and release them for someone else to use, you need to detach your environment from them using the following command:
-```
-genv detach
-```
-
-You can verify that your environment is detached by running `nvidia-smi` and seeing the following output:
-```
-$ nvidia-smi
-No devices were found
-```
-
-#### Reattaching an Environment
-In case you [reconfigure](#configure-the-device-count) the device count of your environment, you need to reattach your environment by rerunning the `genv attach` command.
-
-### List Environments
-To see information about all active environments use the following command:
-```
-genv envs
-```
-
-> To see all available options run `genv envs --help`
-
-The information includes:
-* Environment identifier
-* Linux username and user identifier
-* Environment name (if configured)
-* Creation time
-* Process identifiers of all [terminals](#multiple-terminals) in this environment
-
-Here's a sample output:
-```
-$ genv envs
-ID      USER            NAME            CREATED              PID(S)
-1573    paul(1004)      Yesterday       27 minutes ago       1573
-12167   john(1005)      Norwegian Wood  7 hours ago          12167
-```
-
-### List Devices
-To see information about all devices use the following command:
-```
-genv devices
-```
-
-> To see all available options run `genv devices --help`
-
-The information includes:
-* Device index
-* Environment identifier of the attached environment
-* Environment name of the attached environment (if configured)
-* Attachment time
-
-Here's a sample output:
-```
-$ genv devices
-ID      ENV ID      ENV NAME        ATTACHED
-0       1573        Yesterday       25 minutes ago
-1       12167       Norwegian Wood  7 hours ago
-```
-
-## Advanced Usage
-### Multiple Terminals
-When you activate an environment by running `genv activate` in your terminal, a new environment gets created and registered.
-
-Every activated terminal runs within an environment.
-
-_genv_ supports running multiple terminals within the same environment.
-This could be useful in many ways.
-For example, when running an application in one terminal, and monitoring its GPU resources using `nvidia-smi` in another terminal.
-
-If you have an activated terminal and you want to open another terminal in the same environment, you need to first query the environment identifier using the command:
-```
-echo $GENV_ENVIRONMENT_ID
-```
-
-Then, open another terminal and pass the argument `--id` to your `genv activate` command.
-For example:
-```
-genv activate --id 1667
-```
-
-Your terminal should now be activated in the same environment.
-You could verify it by running `nvidia-smi` and seeing information about the GPUs of your environment.
-
-_genv_ automatically configures the terminal with the environment configuration and attaches the terminal to the devices that are attached to the environment.
-
-## Development
-### Setup
-Open a terminal in the project directory.
-
-> We support `bash` terminals only at the moment. Query your shell using `echo $SHELL` and run `bash` if it is not your shell.
-
-Then run the following commands to configure your terminal:
-```
-export PATH=$PWD/bin:$PATH
-eval "$(genv init -)"
-```
-
-You can test it by running:
-```
-genv
-```
-
-> NOTE: If you are on a CPU machine, mock the amount of GPUs by setting the environment variable `GENV_DEVICES`
-
-#### Docker
-You can also use a container for the development.
-This is useful if you are using macOS as _genv_ is developed for Linux systems and some things are not available in macOS (e.g. `/proc` filesystem).
-
-Use the following command:
-```
-docker run -it --rm --name genv \
-    -v $PWD:/genv \
-    -v /var/tmp:/var/tmp \
-    python \
-    bash --rcfile /genv/.bashrc
-```
-
-### Reference
-#### Environment Variables
----
-`GENV_DEVICES`
-
-Amount of GPUs that are managed by _genv_.
-By default, it is queried using `nvidia-smi`.
-This is mainly for development environments on CPU machines where `nvidia-smi` is not available.
-
----
-`GENV_TMPDIR`
-
-Path of the temp directory where all state JSON files are stored.
-Default is `/var/tmp/genv`.
-
-#### Shims
----
-`nvidia-smi`
-
-By default, `nvidia-smi` shows information about all GPUs.
-
-It is configurable by passing the argument `--id` and specifying GPU indices.
-It is also good to note that `nvidia-smi` ignores the environment variable `CUDA_VISIBLE_DEVICES` as it uses NVML and not CUDA.
-
-This shim passes this argument to `nvidia-smi` and specifies the attached device indices.
 
 ### License
 The genv software is Copyright 2022 [Run.ai Labs, Ltd.].
