@@ -1,5 +1,6 @@
 <p align="center">
-  <img src="https://github.com/run-ai/genv/blob/feature/readme/genv_logo.png" width="600" alt="genv"/>
+  <img src="https://github.com/run-ai/genv/blob/feature/readme/genv blade landscape black@4x.png#gh-light-mode-only" width="600" alt="genv"/>
+  <img src="https://github.com/run-ai/genv/blob/feature/readme/genv blade landscape white@4x.png#gh-dark-mode-only" width="600" alt="genv"/>
 </p>
 
 # genv (GPU Environment Management) [![Join the community at https://join.slack.com/t/genvcommunity/shared_invite/zt-1i70tphdc-DmFgK5yr3HFI8Txx1yFXBw](https://img.shields.io/badge/slack-genv-ff007f)](https://join.slack.com/t/genvcommunity/shared_invite/zt-1i70tphdc-DmFgK5yr3HFI8Txx1yFXBw) [![Join the chat at https://gitter.im/run-ai-genv/community](https://badges.gitter.im/run-ai-genv/community.svg)](https://gitter.im/run-ai-genv/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
