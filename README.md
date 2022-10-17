@@ -61,7 +61,6 @@ Looking forward to seeing you as a part of the community!
     * [Installation Guide for VSCode](https://github.com/run-ai/vscode-genv)
     * [Installation Guide for VSCode](https://github.com/run-ai/vscode-genv)
     * [Installation Guide for Terminal Usage](#from-source)
-    * [License](#license)
 * [Features](FEATURES.md#features)
     * [Environment Status](FEATURES.md#environment-status)
     * [Activating an Environment](FEATURES.md#activating-an-environment)
@@ -83,6 +82,7 @@ Looking forward to seeing you as a part of the community!
 * [Development](DEVELOPMENT.md#development)
     * [Setup](DEVELOPMENT.md#setup)
     * [Reference](DEVELOPMENT.md#reference)
+* [License](#license)
 
 ## 💫 Installation Guide for Terminal Usage
 
