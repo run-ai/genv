@@ -40,7 +40,7 @@ A PyCharm integration is also in our roadmap so stay tuned!
     * [Installation Guide for Terminal Usage](#from-source)
     * [License](#license)
 * [Features](#/FEATURES.md/features)
-    * [Environment Status](https://github.com/run-ai/genv/edit/feature/readme/FEATURES.md#environment-status)
+    * [Environment Status](https://github.com/run-ai/genv/blob/feature/readme/FEATURES.md#environment-status)
     * [Activating an Environment](https://github.com/run-ai/genv/edit/feature/readme/FEATURES.md#activating-an-environment)
     * [Configuring an Environment](https://github.com/run-ai/genv/edit/feature/readme/FEATURES.md#configuring-an-environment)
         * [Device Count](https://github.com/run-ai/genv/edit/feature/readme/FEATURES.md#configure-the-device-count)
