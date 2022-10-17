@@ -32,6 +32,13 @@ Plus, it's 100% free and gets installed before you can say Jack Robinson.
 :-------------------------:|:-------------------------:
 <img src="overview.gif" width="500"/>  |  <img src="overview_jupyterlab.gif" width="450"/>
 
+
+[Installation Guide for JupyterLab](https://github.com/run-ai/jupyterlab_genv) |
+:-------------------------:|
+<img src="overview_jupyterlab.gif" alt="genv jupyterlab"/> |
+
+
+
 A PyCharm integration is also in our roadmap so stay tuned!
 
 ## 🏃🏻 Why you should be part of the Early Runners?
