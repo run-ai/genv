@@ -1,5 +1,5 @@
 ## Table of Contents
-* [Usage](#usage)
+* [Features](#usage)
     * [Environment Status](#environment-status)
     * [Activating an Environment](#activating-an-environment)
     * [Configuring an Environment](#configuring-an-environment)
@@ -15,10 +15,10 @@
         * [Reattaching](#reattaching-an-environment)
     * [List Environments](#list-environments)
     * [List Devices](#list-devices)
-* [Advanced Usage](#advanced-usage)
+* [Advanced Features](#advanced-features)
     * [Multiple Terminals](#multiple-terminals)
 
-## Usage
+## Features
 ### Environment Status
 When using _genv_, you will be running inside environments.
 
