@@ -1,5 +1,5 @@
 ## Table of Contents
-* [Features](#usage)
+* [Features](#features)
     * [Environment Status](#environment-status)
     * [Activating an Environment](#activating-an-environment)
     * [Configuring an Environment](#configuring-an-environment)
