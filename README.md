@@ -104,7 +104,7 @@ You will also need to remove the commands you added to your `~/.bashrc` or any o
 
 
 
-### License
+## License
 The genv software is Copyright 2022 [Run.ai Labs, Ltd.].
 The software is licensed by Run.ai under the AGPLv3 license.
 Please note that Run.ai’s intention in licensing the software are that the obligations of licensee pursuant to the AGPLv3 license should be interpreted broadly.
