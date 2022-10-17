@@ -1,8 +1,12 @@
-![Logo](/genv_logo.png)
+<p align="center">
+  <img src="https://github.com/run-ai/genv/blob/feature/readme/genv_logo.png" width="600" alt="genv"/>
+</p>
 
-# GPU Environment Management
-
+# genv (GPU Environment Management) 
 [![Join the chat at https://gitter.im/run-ai-genv/community](https://badges.gitter.im/run-ai-genv/community.svg)](https://gitter.im/run-ai-genv/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![Join the community at https://join.slack.com/t/genvcommunity/shared_invite/zt-1i70tphdc-DmFgK5yr3HFI8Txx1yFXBw](https://img.shields.io/badge/slack-genv-ff007f)](https://join.slack.com/t/genvcommunity/shared_invite/zt-1i70tphdc-DmFgK5yr3HFI8Txx1yFXBw)
+
+
 
 *genv* lets you easily control, configure and monitor the GPU resources that you are using.
 
