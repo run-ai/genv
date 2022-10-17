@@ -12,7 +12,7 @@ This project was highly inspired by [pyenv](https://github.com/pyenv/pyenv) and 
 
 ![Example](/example.png)
 
-## 🔥 Why You Should use *genv**
+## 🔥 Why You Should use *genv*
 
 Because with *genv*, you will:
 
@@ -32,6 +32,16 @@ Plus, it's 100% free and gets installed before you can say Jack Robinson.
 <img src="overview.gif" width="500"/>  |  <img src="overview_jupyterlab.gif" width="450"/>
 
 A PyCharm integration is also in our roadmap so stay tuned!
+
+## 🏃🏻 Why you should be part of the Early Runners?
+
+Join our Slack channel ([here](https://join.slack.com/t/genvcommunity/shared_invite/zt-1i70tphdc-DmFgK5yr3HFI8Txx1yFXBw)) with the creators of *genv* and start building your models faster!
+
+- Installation and setup support as well as best practice tips and tricks directly for your use-case
+- Discuss possible features
+- Monthly coffee breaks to get to know the rest of the community
+
+Looking forward to seeing you as a part of the community!
 
 ## Table of Contents
 * [Installation](#installation)
@@ -102,7 +112,9 @@ rm -rf $(genv root)
 
 You will also need to remove the commands you added to your `~/.bashrc` or any other equivalent file.
 
+## 🏆 Special Thanks for Runners
 
+- You could be mentioned here! Submit a feature request to be featured here 💥
 
 ## License
 The genv software is Copyright 2022 [Run.ai Labs, Ltd.].
