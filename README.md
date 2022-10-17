@@ -12,7 +12,7 @@ This project was highly inspired by [pyenv](https://github.com/pyenv/pyenv) and 
 
 ![Example](/example.png)
 
-### 🔥 Why You Should use *genv**
+## 🔥 Why You Should use *genv**
 
 Because with *genv*, you will:
 
@@ -25,7 +25,7 @@ Because with *genv*, you will:
 
 Plus, it's 100% free and gets installed before you can say Jack Robinson.
 
-### 🎉 Simple integration with your fav IDE
+## 🎉 Simple integration with your fav IDE
 
 [Installation Guide for VSCode](https://github.com/run-ai/vscode-genv) | [Installation Guide for JupyterLab](https://github.com/run-ai/jupyterlab_genv)
 :-------------------------:|:-------------------------:
