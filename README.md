@@ -26,16 +26,18 @@ Because with *genv*, you will:
 
 Plus, it's 100% free and gets installed before you can say Jack Robinson.
 
-## 🎉 Simple integration with your fav IDE
-
-[Installation Guide for VSCode](https://github.com/run-ai/vscode-genv) | [Installation Guide for JupyterLab](https://github.com/run-ai/jupyterlab_genv)
-:-------------------------:|:-------------------------:
-<img src="overview.gif" width="500"/>  |  <img src="overview_jupyterlab.gif" width="450"/>
+## 🎉 Simple Integration & Usage with your fav IDE
 
 
-[Installation Guide for JupyterLab](https://github.com/run-ai/jupyterlab_genv) |
+Integration with VSCode [(Take me to the installation guide!)](https://github.com/run-ai/vscode-genv) | 
 :-------------------------:|
-<img src="overview_jupyterlab.gif" alt="genv jupyterlab"/> |
+<img src="overview.gif" width="800" alt="genv vscode"/> |  
+
+<br />
+
+Integration with JupyterLab [(Take me to the installation guide!)](https://github.com/run-ai/jupyterlab_genv) |
+:-------------------------:|
+<img src="overview_jupyterlab.gif" width="800" alt="genv jupyterlab"/> |
 
 
 
