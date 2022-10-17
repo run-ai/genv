@@ -62,27 +62,27 @@ Looking forward to seeing you as a part of the community!
     * [Installation Guide for VSCode](https://github.com/run-ai/vscode-genv)
     * [Installation Guide for Terminal Usage](#from-source)
     * [License](#license)
-* [Features](#/FEATURES.md/features)
-    * [Environment Status](https://github.com/run-ai/genv/blob/feature/readme/FEATURES.md#environment-status)
-    * [Activating an Environment](https://github.com/run-ai/genv/blob/feature/readme/FEATURES.md#activating-an-environment)
-    * [Configuring an Environment](https://github.com/run-ai/genv/blob/feature/readme/FEATURES.md#configuring-an-environment)
-        * [Device Count](https://github.com/run-ai/genv/blob/feature/readme/FEATURES.md#configure-the-device-count)
-        * [Name](https://github.com/run-ai/genv/blob/feature/readme/FEATURES.md#configure-the-name)
-        * [Printing the Configuration](https://github.com/run-ai/genv/blob/feature/readme/FEATURES.md#printing-the-current-configuration)
-        * [Clearing the Configuration](https://github.com/run-ai/genv/blob/feature/readme/FEATURES.md#clearing-the-current-configuration)
-        * [Configuration as Infrastructure-as-Code](https://github.com/run-ai/genv/blob/feature/readme/FEATURES.md#managing-configuration-as-infrastructure-as-code)
-            * [Saving](https://github.com/run-ai/genv/blob/feature/readme/FEATURES.md#saving-configuration)
-            * [Loading](https://github.com/run-ai/genv/blob/feature/readme/FEATURES.md#loading-configuration)
-    * [Attach an Environment to Devices](https://github.com/run-ai/genv/blob/feature/readme/FEATURES.md#attach-an-environment-to-devices)
-        * [Detaching](https://github.com/run-ai/genv/blob/feature/readme/FEATURES.md#detaching-an-environment)
-        * [Reattaching](https://github.com/run-ai/genv/blob/feature/readme/FEATURES.md#reattaching-an-environment)
-    * [List Environments](https://github.com/run-ai/genv/blob/feature/readme/FEATURES.md#list-environments)
-    * [List Devices](https://github.com/run-ai/genv/blob/feature/readme/FEATURES.md#list-devices)
-* [Advanced Features](https://github.com/run-ai/genv/blob/feature/readme/FEATURES.md#advanced-features)
-    * [Multiple Terminals](https://github.com/run-ai/genv/blob/feature/readme/FEATURES.md#multiple-terminals)
-* [Development](https://github.com/run-ai/genv/blob/feature/readme/DEVELOPMENT.md#development)
-    * [Setup](https://github.com/run-ai/genv/blob/feature/readme/DEVELOPMENT.md#setup)
-    * [Reference](https://github.com/run-ai/genv/blob/feature/readme/DEVELOPMENT.md#reference)
+* [Features](FEATURES.md#features)
+    * [Environment Status](FEATURES.md#environment-status)
+    * [Activating an Environment](FEATURES.md#activating-an-environment)
+    * [Configuring an Environment](FEATURES.md#configuring-an-environment)
+        * [Device Count](FEATURES.md#configure-the-device-count)
+        * [Name](FEATURES.md#configure-the-name)
+        * [Printing the Configuration](FEATURES.md#printing-the-current-configuration)
+        * [Clearing the Configuration](FEATURES.md#clearing-the-current-configuration)
+        * [Configuration as Infrastructure-as-Code](FEATURES.md#managing-configuration-as-infrastructure-as-code)
+            * [Saving](FEATURES.md#saving-configuration)
+            * [Loading](FEATURES.md#loading-configuration)
+    * [Attach an Environment to Devices](FEATURES.md#attach-an-environment-to-devices)
+        * [Detaching](FEATURES.md#detaching-an-environment)
+        * [Reattaching](FEATURES.md#reattaching-an-environment)
+    * [List Environments](FEATURES.md#list-environments)
+    * [List Devices](FEATURES.md#list-devices)
+* [Advanced Features](FEATURES.md#advanced-features)
+    * [Multiple Terminals](FEATURES.md#multiple-terminals)
+* [Development](DEVELOPMENT.md#development)
+    * [Setup](DEVELOPMENT.md#setup)
+    * [Reference](DEVELOPMENT.md#reference)
 
 ## 💫 Installation Guide for Terminal Usage
 
@@ -129,7 +129,7 @@ You will also need to remove the commands you added to your `~/.bashrc` or any o
 
 - You could be mentioned here! Submit a feature request to be featured here 💥
 
-## ©️ License
+## License 
 The genv software is Copyright 2022 [Run.ai Labs, Ltd.].
 The software is licensed by Run.ai under the AGPLv3 license.
 Please note that Run.ai’s intention in licensing the software are that the obligations of licensee pursuant to the AGPLv3 license should be interpreted broadly.
