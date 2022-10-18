@@ -1,9 +1,10 @@
-## Table of Contents
-* [Development](#development)
-    * [Setup](#setup)
-    * [Reference](#reference)
+# Development
 
-## Development
+## Table of Contents
+* [Setup](#setup)
+* [Reference](#reference)
+
+
 ### Setup
 Open a terminal in the project directory.
 
