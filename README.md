@@ -57,7 +57,7 @@ Join our Slack channel with the creators of *genv* and start building your model
 Looking forward to seeing you as a part of the community!
 
 ## 📂 Table of Contents
-* [Installation](#installation)
+* [Installation](INSTALLATION.md#installation)
     * [Installation Guide for VSCode](https://github.com/run-ai/vscode-genv)
     * [Installation Guide for JupyterLab](https://github.com/run-ai/jupyterlab_genv)
     * [Installation Guide for Terminal Usage](INSTALLATION.md#from-source)
