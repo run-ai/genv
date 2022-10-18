@@ -231,7 +231,7 @@ ID      ENV ID      ENV NAME        ATTACHED
 1       12167       Norwegian Wood  7 hours ago
 ```
 
-## Advanced Usage
+## Advanced Features
 ### Multiple Terminals
 When you activate an environment by running `genv activate` in your terminal, a new environment gets created and registered.
 
