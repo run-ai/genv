@@ -1,24 +1,26 @@
+# Features
+
 ## Table of Contents
-* [Features](#features)
-    * [Environment Status](#environment-status)
-    * [Activating an Environment](#activating-an-environment)
-    * [Configuring an Environment](#configuring-an-environment)
-        * [Device Count](#configure-the-device-count)
-        * [Name](#configure-the-name)
-        * [Printing the Configuration](#printing-the-current-configuration)
-        * [Clearing the Configuration](#clearing-the-current-configuration)
-        * [Configuration as Infrastructure-as-Code](#managing-configuration-as-infrastructure-as-code)
-            * [Saving](#saving-configuration)
-            * [Loading](#loading-configuration)
-    * [Attach an Environment to Devices](#attach-an-environment-to-devices)
-        * [Detaching](#detaching-an-environment)
-        * [Reattaching](#reattaching-an-environment)
-    * [List Environments](#list-environments)
-    * [List Devices](#list-devices)
+
+* [Environment Status](#environment-status)
+* [Activating an Environment](#activating-an-environment)
+* [Configuring an Environment](#configuring-an-environment)
+    * [Device Count](#configure-the-device-count)
+    * [Name](#configure-the-name)
+    * [Printing the Configuration](#printing-the-current-configuration)
+    * [Clearing the Configuration](#clearing-the-current-configuration)
+    * [Configuration as Infrastructure-as-Code](#managing-configuration-as-infrastructure-as-code)
+        * [Saving](#saving-configuration)
+        * [Loading](#loading-configuration)
+* [Attach an Environment to Devices](#attach-an-environment-to-devices)
+    * [Detaching](#detaching-an-environment)
+    * [Reattaching](#reattaching-an-environment)
+* [List Environments](#list-environments)
+* [List Devices](#list-devices)
 * [Advanced Features](#advanced-features)
     * [Multiple Terminals](#multiple-terminals)
 
-## Features
+
 ### Environment Status
 When using _genv_, you will be running inside environments.
 
