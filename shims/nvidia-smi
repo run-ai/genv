@@ -1,24 +1,39 @@
-#!/bin/bash
+#!/usr/bin/env python3
 
-set -e
-[ -n "$GENV_DEBUG" ] && set -x
+import os
+import shutil
+import subprocess
+import sys
+from typing import Iterable, Optional
 
-remove_shims_from_path()
-{
-  local IFS=:
+# TODO(raz): move this function to a common library
+def which(cmd: str) -> Optional[str]:
+    """
+    Find the original path of a genv shim.
+    """
+    shims = os.path.realpath(os.path.dirname(__file__))
+    path = os.pathsep.join(dir for dir in os.environ.get('PATH').split(os.pathsep) if os.path.realpath(dir) != shims)
 
-  paths=($PATH)
-  for i in ${!paths[@]}; do
-    if [ ${paths[i]} = "$(exec genv root)/shims" ]; then
-      unset 'paths[i]'
-    fi
-  done
+    return shutil.which(cmd, path=path)
 
-  echo "${paths[*]}"
-}
+def proxy(process: subprocess.Popen) -> None:
+    """
+    Manipulate the output of a running nvidia-smi process.
+    """
+    while process.poll() is None:
+        line = process.stdout.readline()
+        print(line, end='')
 
-if [ -n "$CUDA_VISIBLE_DEVICES" ]; then
-  set -- "--id=$CUDA_VISIBLE_DEVICES" "$@"
-fi
+def run(args: Iterable[str]) -> int:
+    """
+    Run the original nvidia-smi and manipulate its output.
+    Returns the process exit code.
+    """
+    with subprocess.Popen([which('nvidia-smi')] + args, stdout=subprocess.PIPE, text=True) as process:
+        proxy(process)
+        return process.returncode
 
-PATH="$(remove_shims_from_path)" nvidia-smi "$@"
+# TODO(raz): handle modes of nvidia-smi where '--id' is not supported like 'pmon'
+args = [f'--id={os.environ.get("CUDA_VISIBLE_DEVICES")}'] + sys.argv[1:]
+
+sys.exit(run(args))
