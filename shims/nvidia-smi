@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -20,8 +21,20 @@ def proxy(process: subprocess.Popen) -> None:
     """
     Manipulate the output of a running nvidia-smi process.
     """
+    DEVICE = re.compile(r'^(.*)\| \s*(\d+)MiB / \s*(\d+)MiB \|(.*)$')
+
     while process.poll() is None:
         line = process.stdout.readline()
+
+        match = DEVICE.match(line)
+        if match:
+            used = int(match.group(2))
+            total = int(match.group(3))
+
+            # TODO(raz): change memory information
+
+            line = DEVICE.sub(f'\\1| {str(used).rjust(6)}MiB / {str(total).rjust(5)}MiB |\\4', line)
+
         print(line, end='')
 
 def run(args: Iterable[str]) -> int:
