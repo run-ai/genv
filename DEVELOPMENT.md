@@ -44,6 +44,11 @@ docker exec -it genv bash --rcfile /genv/.bashrc
 ### Reference
 #### Environment Variables
 ---
+`GENV_BYPASS`
+
+Bypass shim behaviors and use similar behavior to the original applications.
+
+---
 `GENV_DEVICES`
 
 Amount of GPUs that are managed by _genv_.
@@ -60,9 +65,11 @@ Default is `/var/tmp/genv`.
 ---
 `nvidia-smi`
 
-By default, `nvidia-smi` shows information about all GPUs.
+By default, `nvidia-smi` shows information about all GPUs and processes.
 
-It is configurable by passing the argument `--id` and specifying GPU indices.
+It supports showing information about some of the devices by passing the argument `--id` and specifying GPU indices.
 It is also good to note that `nvidia-smi` ignores the environment variable `CUDA_VISIBLE_DEVICES` as it uses NVML and not CUDA.
 
-This shim passes this argument to `nvidia-smi` and specifies the attached device indices.
+This shim passes the argument `--id` to `nvidia-smi` and specifies the device indices that are attached to this environment.
+
+It also filters out processes that are not from the current environment, and shows GPU memory information that is relevant only for this environment, by summing the used GPU memory of all processes in this environment.
