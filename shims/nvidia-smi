@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+from collections import defaultdict
+from enum import Enum
 import os
 import re
 import shutil
@@ -19,19 +21,62 @@ def which(cmd: str) -> Optional[str]:
 
 def proxy(process: subprocess.Popen) -> None:
     """
-    Manipulate the output of a running nvidia-smi process.
+    Reprint the output of a running nvidia-smi process while manipulating it.
     """
-    DEVICE = re.compile(r'^(.*)\| \s*(\d+)MiB / \s*(\d+)MiB \|(.*)$')
+    DEVICE = re.compile(r'(^\|.*)\| \s*(\d+)MiB / \s*(\d+)MiB \|(.*\|$)')
+    PROCESS = [
+        re.compile(r'^\|\s*(\d+)\s+(\d+).*?(\d+)MiB \|$'), # < 11.1
+        re.compile(r'^\|\s*(\d+)\s+N/A\s+N/A\s+(\d+).*?(\d+)MiB \|$'), # TODO(raz): support MIG (i.e. non N/A values)
+    ]
+
+    class Action(Enum):
+        Print = 0
+        Buffer = 1
+
+    action = Action.Print
+
+    previous = None
+    buffered = []
+    processes = defaultdict(list)
 
     while process.poll() is None:
         line = process.stdout.readline()
 
+        if action == Action.Print and DEVICE.match(line):
+            action = Action.Buffer
+
+        if action == Action.Print:
+            print(line, end='')
+        elif action == Action.Buffer:
+            skip = False
+
+            for pattern in PROCESS:
+                match = pattern.match(line)
+                if match:
+                    index = int(match.group(1))
+                    pid = int(match.group(2))
+                    mib = int(match.group(3))
+
+                    if True: # TODO(raz): filter processes by environment identifier
+                        processes[index].append(mib)
+                    else:
+                        skip = True
+
+                    break
+
+            if not skip:
+                buffered.append((line, previous))
+
+        previous = line
+
+    for line, previous in buffered:
         match = DEVICE.match(line)
         if match:
             used = int(match.group(2))
             total = int(match.group(3))
 
-            # TODO(raz): change memory information
+            index = int(re.match(r'^\|\s*(\d+)\s*.*\|$', previous).group(1))
+            used = sum(processes[index])
 
             line = DEVICE.sub(f'\\1| {str(used).rjust(6)}MiB / {str(total).rjust(5)}MiB |\\4', line)
 
