@@ -36,6 +36,11 @@ docker run -it --rm --name genv \
     bash --rcfile /genv/.bashrc
 ```
 
+To open another terminal inside the container use:
+```
+docker exec -it genv bash --rcfile /genv/.bashrc
+```
+
 ### Reference
 #### Environment Variables
 ---
