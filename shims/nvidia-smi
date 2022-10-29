@@ -7,9 +7,10 @@ import re
 import shutil
 import subprocess
 import sys
-from typing import Iterable, Optional
+from typing import Dict, Iterable, Optional
 
-# TODO(raz): move this function to a common library
+# TODO(raz): move some of the following functions to a common library
+
 def which(cmd: str) -> Optional[str]:
     """
     Find the original path of a genv shim.
@@ -18,6 +19,25 @@ def which(cmd: str) -> Optional[str]:
     path = os.pathsep.join(dir for dir in os.environ.get('PATH').split(os.pathsep) if os.path.realpath(dir) != shims)
 
     return shutil.which(cmd, path=path)
+
+def get_process_environ(pid: int) -> Dict[str, str]:
+    """
+    Returns the environment variables of the process with the given identifier.
+    Raises 'FileNotFoundError' if no such process.
+    """
+    with open(f'/proc/{pid}/environ', 'r') as f:
+        return { variable: value for variable, value in (line.split('=') for line in f.read().split('\x00') if line) }
+
+def find_process_eid(pid: int) -> Optional[str]:
+    """
+    Get the environment identifier of a process if it is running
+    in an activated environment.
+    Returns 'None' otherwise.
+    """
+    try:
+        return get_process_environ(pid).get('GENV_ENVIRONMENT_ID', None)
+    except FileNotFoundError:
+        return None
 
 def proxy(process: subprocess.Popen) -> None:
     """
@@ -28,6 +48,8 @@ def proxy(process: subprocess.Popen) -> None:
         re.compile(r'^\|\s*(\d+)\s+(\d+).*?(\d+)MiB \|$'), # < 11.1
         re.compile(r'^\|\s*(\d+)\s+N/A\s+N/A\s+(\d+).*?(\d+)MiB \|$'), # TODO(raz): support MIG (i.e. non N/A values)
     ]
+
+    EID = os.environ.get('GENV_ENVIRONMENT_ID')
 
     class Action(Enum):
         Print = 0
@@ -57,7 +79,7 @@ def proxy(process: subprocess.Popen) -> None:
                     pid = int(match.group(2))
                     mib = int(match.group(3))
 
-                    if True: # TODO(raz): filter processes by environment identifier
+                    if find_process_eid(pid) == EID:
                         processes[index].append(mib)
                     else:
                         skip = True
