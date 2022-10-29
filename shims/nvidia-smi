@@ -108,16 +108,19 @@ def proxy(process: subprocess.Popen) -> None:
             if re.match(r'^\|={77}\|$', line):
                 print('|  ' + 'No running processes found'.ljust(75) + '|')
 
-def run(args: Iterable[str]) -> int:
+def run(args: Iterable[str], bypass: bool=False) -> int:
     """
     Run the original nvidia-smi and manipulate its output.
     Returns the process exit code.
     """
-    with subprocess.Popen([which('nvidia-smi')] + args, stdout=subprocess.PIPE, text=True) as process:
-        proxy(process)
+    with subprocess.Popen([which('nvidia-smi')] + args, stdout=subprocess.PIPE if not bypass else None, text=True) as process:
+        if not bypass:
+            proxy(process)
+        else:
+            process.wait()
         return process.returncode
 
 # TODO(raz): handle modes of nvidia-smi where '--id' is not supported like 'pmon'
 args = [f'--id={os.environ.get("CUDA_VISIBLE_DEVICES")}'] + sys.argv[1:]
 
-sys.exit(run(args))
+sys.exit(run(args, bypass=int(os.environ.get('GENV_BYPASS', 0)) != 0))
