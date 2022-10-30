@@ -23,7 +23,7 @@ def which(cmd: str) -> Optional[str]:
 def get_process_environ(pid: int) -> Dict[str, str]:
     """
     Returns the environment variables of the process with the given identifier.
-    Raises 'FileNotFoundError' if no such process.
+    Raises 'FileNotFoundError' if no such process and 'PermissionError' if there is no sufficient permissions.
     """
     with open(f'/proc/{pid}/environ', 'r') as f:
         return { variable: value for variable, value in (line.split('=') for line in f.read().split('\x00') if line) }
@@ -36,7 +36,7 @@ def find_process_eid(pid: int) -> Optional[str]:
     """
     try:
         return get_process_environ(pid).get('GENV_ENVIRONMENT_ID', None)
-    except FileNotFoundError:
+    except (FileNotFoundError, PermissionError):
         return None
 
 def proxy(process: subprocess.Popen) -> None:
