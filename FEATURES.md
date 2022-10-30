@@ -3,6 +3,7 @@
 ## Table of Contents
 
 * [Environment Status](#environment-status)
+    * [nvidia-smi](#nvidia-smi)
 * [Activating an Environment](#activating-an-environment)
 * [Configuring an Environment](#configuring-an-environment)
     * [Device Count](#configure-the-device-count)
@@ -47,6 +48,14 @@ Configuration
     Name: my-environment
     Device count: 2
 ```
+
+#### `nvidia-smi`
+When running `nvidia-smi` from an activated environment, you will see information relevant only to the environment.
+
+You will see information only about devices that are attached to the environment.
+Their used GPU memory will show the GPU memory that is used only by processes from the environment.
+
+You will also see only processes from the environment.
 
 ### Activating an Environment
 In order to use _genv_, you need to activate the environment using the command:

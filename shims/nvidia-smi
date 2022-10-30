@@ -1,24 +1,126 @@
-#!/bin/bash
+#!/usr/bin/env python3
 
-set -e
-[ -n "$GENV_DEBUG" ] && set -x
+from collections import defaultdict
+from enum import Enum
+import os
+import re
+import shutil
+import subprocess
+import sys
+from typing import Dict, Iterable, Optional
 
-remove_shims_from_path()
-{
-  local IFS=:
+# TODO(raz): move some of the following functions to a common library
 
-  paths=($PATH)
-  for i in ${!paths[@]}; do
-    if [ ${paths[i]} = "$(exec genv root)/shims" ]; then
-      unset 'paths[i]'
-    fi
-  done
+def which(cmd: str) -> Optional[str]:
+    """
+    Find the original path of a genv shim.
+    """
+    shims = os.path.realpath(os.path.dirname(__file__))
+    path = os.pathsep.join(dir for dir in os.environ.get('PATH').split(os.pathsep) if os.path.realpath(dir) != shims)
 
-  echo "${paths[*]}"
-}
+    return shutil.which(cmd, path=path)
 
-if [ -n "$CUDA_VISIBLE_DEVICES" ]; then
-  set -- "--id=$CUDA_VISIBLE_DEVICES" "$@"
-fi
+def get_process_environ(pid: int) -> Dict[str, str]:
+    """
+    Returns the environment variables of the process with the given identifier.
+    Raises 'FileNotFoundError' if no such process and 'PermissionError' if there is no sufficient permissions.
+    """
+    with open(f'/proc/{pid}/environ', 'r') as f:
+        return { variable: value for variable, value in (line.split('=') for line in f.read().split('\x00') if line) }
 
-PATH="$(remove_shims_from_path)" nvidia-smi "$@"
+def find_process_eid(pid: int) -> Optional[str]:
+    """
+    Get the environment identifier of a process if it is running
+    in an activated environment.
+    Returns 'None' otherwise.
+    """
+    try:
+        return get_process_environ(pid).get('GENV_ENVIRONMENT_ID', None)
+    except (FileNotFoundError, PermissionError):
+        return None
+
+def proxy(process: subprocess.Popen) -> None:
+    """
+    Reprint the output of a running nvidia-smi process while manipulating it.
+    """
+    DEVICE = re.compile(r'(^\|.*)\| \s*(\d+)MiB / \s*(\d+)MiB \|(.*\|$)')
+    PROCESS = [
+        re.compile(r'^\|\s*(\d+)\s+(\d+).*?(\d+)MiB \|$'), # < 11.1
+        re.compile(r'^\|\s*(\d+)\s+N/A\s+N/A\s+(\d+).*?(\d+)MiB \|$'), # TODO(raz): support MIG (i.e. non N/A values)
+    ]
+
+    EID = os.environ.get('GENV_ENVIRONMENT_ID')
+
+    class Action(Enum):
+        Print = 0
+        Buffer = 1
+
+    action = Action.Print
+
+    previous = None
+    buffered = []
+    processes = defaultdict(list)
+
+    while process.poll() is None:
+        line = process.stdout.readline()
+
+        if action == Action.Print and DEVICE.match(line):
+            action = Action.Buffer
+
+        if action == Action.Print:
+            print(line, end='')
+        elif action == Action.Buffer:
+            skip = False
+
+            for pattern in PROCESS:
+                match = pattern.match(line)
+                if match:
+                    index = int(match.group(1))
+                    pid = int(match.group(2))
+                    mib = int(match.group(3))
+
+                    if find_process_eid(pid) == EID:
+                        processes[index].append(mib)
+                    else:
+                        skip = True
+
+                    break
+
+            if not skip:
+                buffered.append((line, previous))
+
+        previous = line
+
+    for line, previous in buffered:
+        match = DEVICE.match(line)
+        if match:
+            used = int(match.group(2))
+            total = int(match.group(3))
+
+            index = int(re.match(r'^\|\s*(\d+)\s*.*\|$', previous).group(1))
+            used = sum(processes[index])
+
+            line = DEVICE.sub(f'\\1| {str(used).rjust(6)}MiB / {str(total).rjust(5)}MiB |\\4', line)
+
+        print(line, end='')
+
+        if sum(len(processes[index]) for index in processes) == 0:
+            if re.match(r'^\|={77}\|$', line):
+                print('|  ' + 'No running processes found'.ljust(75) + '|')
+
+def run(args: Iterable[str], bypass: bool=False) -> int:
+    """
+    Run the original nvidia-smi and manipulate its output.
+    Returns the process exit code.
+    """
+    with subprocess.Popen([which('nvidia-smi')] + args, stdout=subprocess.PIPE if not bypass else None, text=True) as process:
+        if not bypass:
+            proxy(process)
+        else:
+            process.wait()
+        return process.returncode
+
+# TODO(raz): handle modes of nvidia-smi where '--id' is not supported like 'pmon'
+args = [f'--id={os.environ.get("CUDA_VISIBLE_DEVICES")}'] + sys.argv[1:]
+
+sys.exit(run(args, bypass=int(os.environ.get('GENV_BYPASS', 0)) != 0))
