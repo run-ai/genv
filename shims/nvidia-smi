@@ -59,7 +59,8 @@ def proxy(process: subprocess.Popen) -> None:
 
     previous = None
     buffered = []
-    processes = defaultdict(list)
+    env_processes = defaultdict(list)
+    total_processes = 0
 
     while process.poll() is None:
         line = process.stdout.readline()
@@ -79,8 +80,10 @@ def proxy(process: subprocess.Popen) -> None:
                     pid = int(match.group(2))
                     mib = int(match.group(3))
 
+                    total_processes += 1
+
                     if find_process_eid(pid) == EID:
-                        processes[index].append(mib)
+                        env_processes[index].append(mib)
                     else:
                         skip = True
 
@@ -98,15 +101,14 @@ def proxy(process: subprocess.Popen) -> None:
             total = int(match.group(3))
 
             index = int(re.match(r'^\|\s*(\d+)\s*.*\|$', previous).group(1))
-            used = sum(processes[index])
+            used = sum(env_processes[index])
 
             line = DEVICE.sub(f'\\1| {str(used).rjust(6)}MiB / {str(total).rjust(5)}MiB |\\4', line)
 
         print(line, end='')
 
-        if sum(len(processes[index]) for index in processes) == 0:
-            if re.match(r'^\|={77}\|$', line):
-                print('|  ' + 'No running processes found'.ljust(75) + '|')
+        if total_processes > 0 and sum(len(env_processes[index]) for index in env_processes) == 0 and re.match(r'^\|={77}\|$', line):
+            print('|  ' + 'No running processes found'.ljust(75) + '|')
 
 def run(args: Iterable[str], bypass: bool=False) -> int:
     """
