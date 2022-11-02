@@ -3,6 +3,8 @@
 ## Table of Contents
 * [Setup](#setup)
 * [Reference](#reference)
+    * [Environment Variables](#environment-variables)
+    * [Shims](#shims)
 
 
 ### Setup
@@ -62,6 +64,15 @@ Path of the temp directory where all state JSON files are stored.
 Default is `/var/tmp/genv`.
 
 #### Shims
+---
+`docker`
+
+This shim modifies the argument `--gpus` if passed.
+
+When `all` is passed, this shim passes the indices of all the devices that are attached to the environment.
+When a device count is passed (e.g. `--gpus 2`), this shim passes indices of this amount of devices that are attached to the environment.
+Any other value is not supported at the moment.
+
 ---
 `nvidia-smi`
 

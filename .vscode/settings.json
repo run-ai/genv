@@ -3,6 +3,7 @@
         "**/bin/genv": "shellscript",
         "**/exe/genv-*": "python",
         "**/libexec/genv*": "shellscript",
+        "**/shims/docker": "python",
         "**/shims/nvidia-smi": "python",
     },
     "terminal.integrated.defaultProfile.osx": "bash",
