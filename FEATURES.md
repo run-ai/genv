@@ -20,6 +20,7 @@
 * [List Devices](#list-devices)
 * [Advanced Features](#advanced-features)
     * [Multiple Terminals](#multiple-terminals)
+    * [Using `sudo`](#using-sudo)
 
 
 ### Environment Status
@@ -265,3 +266,55 @@ Your terminal should now be activated in the same environment.
 You could verify it by running `nvidia-smi` and seeing information about the GPUs of your environment.
 
 _genv_ automatically configures the terminal with the environment configuration and attaches the terminal to the devices that are attached to the environment.
+
+### Using `sudo`
+Much of _genv_ functionality is based on environment variables.
+You can see this by running the following command from an activated environment:
+```
+env | grep GENV_
+```
+
+By default, when using `sudo`, environment variables are not preserved.
+You can see this by running the same command from an activated environment:
+```
+sudo env | grep GENV_
+```
+
+This means that all that would not work when using `sudo` from an activated environment.
+
+To fix this, pass `-E` or `--preserve-env` to the `sudo` command.
+For example:
+```
+sudo -E env | grep GENV_
+```
+
+In addition to that, some _genv_ functionality is implemented as shims.
+When applications such as `nvidia-smi` and `docker` are being executed inside an activated environment, their respective shims get called instead.
+_genv_ modifies the environment variable `PATH` to do so.
+
+You can see this by running the following command from an activated environment:
+```
+echo $PATH
+```
+
+When using `sudo`, the environment variable `PATH` is not preserved even when passing `-E` or `--preserve-env`.
+You can see this by running the same command from an activated environment:
+```
+sudo -E bash -c 'echo "$PATH"'
+```
+
+This means that shims would not be executed.
+
+To solve this, you can explicitly preserve `PATH` by passing `env "PATH=$PATH"` after the `sudo` command.
+For example:
+```
+sudo -E env "PATH=$PATH" bash -c 'echo "$PATH"'
+```
+
+Alternatively, if you don't want to preserve `PATH`, you can just wrap the executed program with `which`.
+For example:
+```
+sudo -E `which nvidia-smi`
+```
+
+> NOTE: Make sure that you also pass `-E` to preserve all genv environment variables
