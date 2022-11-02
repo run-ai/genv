@@ -44,6 +44,45 @@ Integration with JupyterLab [(Take me to the installation guide!)](https://githu
 
 A PyCharm integration is also in our roadmap so stay tuned!
 
+## 💨 Guide to the Roadmap
+
+### **What is coming up soon?**
+
+After gathering valuable feedback and comments from data scientists, we created the following short-term roadmap for genv:
+
+**1. Environment specific information:** With this feature, you will be able to see the processes and machines specifically to your GPU environment when you type nvidia-smi
+
+**2. Docker support:** Running Docker containers powered by the GPUs in your environment
+
+**3. Configuring GPU memory:** Specifying the GPU memory that needs to be configured in an environment
+
+**4. To be able to provision the GPU fractions**
+
+**5. Support the extensions (VSCode, JupyterLab) with the new features above**
+
+
+The long-term overview of the roadmap includes 3 main category;
+
+- **EXTENSIONS**
+    - Displaying
+        - memory information of the GPUs
+        - GPU specs
+        - which environments are running on that GPU
+        - CUDA version
+        - icons at the bottom of the extensions to show the current status of the GPU memory consumption
+- **CORE:**
+    - Configuring GPU memory with config command (fractional GPUs)
+        - Warning for exceeding the memory requests when the training uses more than the environment is assigned to
+    - Installing with wrappers (e.g. For PyCharm)
+    - Notification about resources when they get available
+- **GPU PROVISIONING:**
+    - Provisioning of fractional GPUs
+    - Smart provisioning
+    - Dynamical provisioning
+        - Provisioning per user or per environment when new user joins
+    - Pre-configuring of the environments
+        - Admin mode to manage the environment
+
 ## 🏃🏻 Be an early runner in the genv community! 
 
 [<img src="https://img.shields.io/badge/Slack-Join%20the%20community!-ff007f?style=for-the-badge&logo=slack&logoColor=ff007f" height="30" />](https://join.slack.com/t/genvcommunity/shared_invite/zt-1i70tphdc-DmFgK5yr3HFI8Txx1yFXBw)
