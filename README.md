@@ -50,13 +50,13 @@ A PyCharm integration is also in our roadmap so stay tuned!
 
 After gathering valuable feedback and comments from data scientists, we created the following short-term roadmap for genv:
 
-**1. Environment specific information:** With this feature, you will be able to see the processes, machines and utilization of the machines specifically to your GPU environment when you type nvidia-smi
+**1. Environment specific information:** With this feature, you will be able to see the processes and machines specifically to your GPU environment when you type nvidia-smi
 
 **2. Docker support:** Running Docker containers powered by the GPUs in your environment
 
 **3. Configuring GPU memory:** Specifying the GPU memory that needs to be configured in an environment
 
-**4. To be able to provisioning the GPU fractions**
+**4. To be able to provision the GPU fractions**
 
 **5. Support the extensions (VSCode, JupyterLab) with the new features above**
 
