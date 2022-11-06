@@ -26,7 +26,7 @@ def get_process_environ(pid: int) -> Dict[str, str]:
     Raises 'FileNotFoundError' if no such process and 'PermissionError' if there is no sufficient permissions.
     """
     with open(f'/proc/{pid}/environ', 'r') as f:
-        return { variable: value for variable, value in (line.split('=') for line in f.read().split('\x00') if line) }
+        return { variable: value for variable, value in (line.split('=', 1) for line in f.read().split('\x00') if line) }
 
 def find_process_eid(pid: int) -> Optional[str]:
     """
