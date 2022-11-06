@@ -20,18 +20,11 @@ def attached_devices() -> Iterable[int]:
     return [index for index in (int(index) for index in os.environ.get("CUDA_VISIBLE_DEVICES").split(',')) if index != -1]
 
 def find_gpus_arg(docker_args: Iterable[str]) -> Optional[int]:
-    index = None
-
     for index, arg in enumerate(docker_args):
         if arg == '--gpus':
-            index += 1
-            break
-
-        if arg.startswith('--gpus='):
-            break
-
-    if index is not None and index < len(docker_args):
-        return index
+            return index + 1 if index < len(docker_args) - 1 else None
+        elif arg.startswith('--gpus='):
+            return index
 
 def get_gpus_arg(docker_args: Iterable[str], index: int) -> str:
     return docker_args[index].split('--gpus=')[-1]
