@@ -68,4 +68,6 @@ if __name__ == "__main__":
         set_gpus_arg(docker_args, index,
             '0' if len(indices) == 0 else f"\"device={','.join(str(index) for index in indices)}\"")
 
+        docker_args[index + 1:index + 1] = ['-e', f'GENV_ENVIRONMENT_ID={os.environ.get("GENV_ENVIRONMENT_ID")}']
+
     exec(docker_args)
