@@ -21,6 +21,7 @@
 * [Advanced Features](#advanced-features)
     * [Multiple Terminals](#multiple-terminals)
     * [Using `sudo`](#using-sudo)
+    * [Running Containers](#running-containers)
 
 
 ### Environment Status
@@ -318,3 +319,26 @@ sudo -E `which nvidia-smi`
 ```
 
 > NOTE: Make sure that you also pass `-E` to preserve all genv environment variables
+
+### Running Containers
+When running containers using a `docker run` command from an active environment, the `docker` [shim](DEVELOPMENT.md#shims) is executed.
+
+It is responsible for making the container accessible to devices attached to the environment, as well as propagating some of _genv_ environment variables.
+
+Thanks to these environment variables, processes running in such containers are marked as part of the active environment.
+This is necessary when running `nvidia-smi` in an active environment, as the `nvidia-smi` [shim](DEVELOPMENT.md#shims) queries the environment variables of GPU consuming processes in order to identify the ones running in the same environment.
+
+The problem is that containers can run as a different user than the shell they are executed in, and they typically run as root.
+
+This means that permissions may be required in order to query processes running in containers, even when queried from the same shell that executed the container.
+For example, when running `nvidia-smi` from a non-root shell in an active environment, it will not be able to identify processes running in containers from the same environment if they run as root.
+
+There are two ways to handle this issue.
+
+The easiest way is to run `nvidia-smi` with sufficient permissions [using `sudo`](#using-sudo):
+```
+sudo -E `which nvidia-smi`
+```
+
+The other option is to run the container as non-root.
+You can do that by passing `--user $(id -u):$(id -g)` to the `docker run` command, or by editing the Dockerfile.
