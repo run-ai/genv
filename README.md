@@ -44,6 +44,10 @@ Integration with JupyterLab [(Take me to the installation guide!)](https://githu
 
 A PyCharm integration is also in our roadmap so stay tuned!
 
+## Documentation
+
+Check out the genv [documentation site](https://run-ai.github.io/genv).
+
 ## 💨 Guide to the Roadmap
 
 ### **What is coming up soon?**
