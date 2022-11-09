@@ -21,3 +21,9 @@ genv lets you easily control, configure and monitor the GPU resources that you a
 
    development/development
    development/reference
+
+.. toctree::
+   :maxdepth: 2
+   :caption: About
+
+   about/changelog
