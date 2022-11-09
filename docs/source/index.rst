@@ -1,20 +1,23 @@
-.. genv documentation master file, created by
-   sphinx-quickstart on Mon Nov  7 15:39:03 2022.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
+GPU Environment Management
+==========================
 
-Welcome to genv's documentation!
-================================
+genv is an open-source environment management system for GPUs on Linux.
+
+It was highly inspired by `PyEnv <https://github.com/pyenv/pyenv>`_ and other version, package and environment management software like `Conda <https://docs.conda.io/projects/conda/en/latest/>`_, `nvm <https://github.com/nvm-sh/nvm>`_, `rbenv <https://github.com/rbenv/rbenv>`_.
+
+genv lets you easily control, configure and monitor the GPU resources that you are using.
 
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
+   :caption: Usage
 
+   usage/installation
+   usage/usage
+   usage/advanced-usage
 
+.. toctree::
+   :maxdepth: 2
+   :caption: Development
 
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
+   development/development
+   development/reference
