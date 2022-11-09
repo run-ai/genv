@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Usage &mdash; genv 0.1.1 documentation</title><link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Advanced Usage" href="advanced-usage.html" />
+    <link rel="prev" title="Installation" href="installation.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> genv
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption"><span class="caption-text">Usage</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Usage</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#environment-status">Environment Status</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#nvidia-smi">nvidia-smi</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#activating-an-environment">Activating an Environment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#configuring-an-environment">Configuring an Environment</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#configure-the-device-count">Configure the Device Count</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#configure-the-name">Configure the Name</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#printing-the-current-configuration">Printing the Current Configuration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#clearing-the-current-configuration">Clearing the Current Configuration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#managing-configuration-as-infrastructure-as-code">Managing Configuration as Infrastructure-as-Code</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#saving-configuration">Saving Configuration</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#loading-configuration">Loading Configuration</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#detaching-an-environment">Detaching an Environment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#reattaching-an-environment">Reattaching an Environment</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#list-environments">List Environments</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#list-devices">List Devices</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="advanced-usage.html">Advanced Usage</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../development/development.html">Development</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../development/reference.html">Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">genv</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a></li>
+      <li class="breadcrumb-item active">Usage</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/usage/usage.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <div class="section" id="usage">
+<h1>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h1>
+<div class="contents topic" id="contents">
+<p class="topic-title">Contents</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#usage" id="id6">Usage</a></p>
+<ul>
+<li><p><a class="reference internal" href="#environment-status" id="id7">Environment Status</a></p>
+<ul>
+<li><p><a class="reference internal" href="#nvidia-smi" id="id8">nvidia-smi</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#activating-an-environment" id="id9">Activating an Environment</a></p></li>
+<li><p><a class="reference internal" href="#configuring-an-environment" id="id10">Configuring an Environment</a></p>
+<ul>
+<li><p><a class="reference internal" href="#configure-the-device-count" id="id11">Configure the Device Count</a></p></li>
+<li><p><a class="reference internal" href="#configure-the-name" id="id12">Configure the Name</a></p></li>
+<li><p><a class="reference internal" href="#printing-the-current-configuration" id="id13">Printing the Current Configuration</a></p></li>
+<li><p><a class="reference internal" href="#clearing-the-current-configuration" id="id14">Clearing the Current Configuration</a></p></li>
+<li><p><a class="reference internal" href="#managing-configuration-as-infrastructure-as-code" id="id15">Managing Configuration as Infrastructure-as-Code</a></p></li>
+<li><p><a class="reference internal" href="#detaching-an-environment" id="id16">Detaching an Environment</a></p></li>
+<li><p><a class="reference internal" href="#reattaching-an-environment" id="id17">Reattaching an Environment</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#list-environments" id="id18">List Environments</a></p></li>
+<li><p><a class="reference internal" href="#list-devices" id="id19">List Devices</a></p></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section" id="environment-status">
+<h2>Environment Status<a class="headerlink" href="#environment-status" title="Permalink to this headline">¶</a></h2>
+<p>When using genv, you will be running inside environments.</p>
+<p>You can see the status of your environment using the command:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>genv status
+</pre></div>
+</div>
+<p>When not running in an active environment, you will see the following message:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$ genv status
+Environment is not active
+</pre></div>
+</div>
+<p>When running in an <a class="reference internal" href="#activating-an-environment"><span class="std std-ref">active</span></a> environment, you will see more information about your environment, like its identifier, attached GPUs and configuration.</p>
+<p>Here’s an example:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$ genv status
+Environment is active <span class="o">(</span><span class="m">22716</span><span class="o">)</span>
+Attached to GPUs at indices <span class="m">0</span>,1
+
+Configuration
+   Name: my-environment
+   Device count: <span class="m">2</span>
+</pre></div>
+</div>
+<div class="section" id="nvidia-smi">
+<h3>nvidia-smi<a class="headerlink" href="#nvidia-smi" title="Permalink to this headline">¶</a></h3>
+<p>When running <code class="code docutils literal notranslate"><span class="pre">nvidia-smi</span></code> from an activated environment, you will see information relevant only to the environment.</p>
+<p>You will see information only about devices that are attached to the environment.
+Their used GPU memory will show the GPU memory that is used only by processes from the environment.</p>
+<p>You will also see only processes from the environment.</p>
+</div>
+</div>
+<div class="section" id="activating-an-environment">
+<span id="id1"></span><h2>Activating an Environment<a class="headerlink" href="#activating-an-environment" title="Permalink to this headline">¶</a></h2>
+<p>In order to use genv, you need to activate the environment using the command:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>genv activate
+</pre></div>
+</div>
+<p>When activating an environment, it first gets detached from all GPUs on the machine.</p>
+<p>You could see this by running <code class="code docutils literal notranslate"><span class="pre">nvidia-smi</span></code> and seeing the following output:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$ nvidia-smi
+No devices were found
+</pre></div>
+</div>
+<p>You will later <a class="reference internal" href="#configuring-an-environment"><span class="std std-ref">configure</span></a> the environment device count and <a class="reference internal" href="#attach-an-environment-to-devices"><span class="std std-ref">attach</span></a> devices to it.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>To see all available options run <code class="code docutils literal notranslate"><span class="pre">genv</span> <span class="pre">activate</span> <span class="pre">--help</span></code> from a non-activated terminal</p>
+</div>
+<p>To deactivate an environment use the following command:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>genv deactivate
+</pre></div>
+</div>
+</div>
+<div class="section" id="configuring-an-environment">
+<span id="id2"></span><h2>Configuring an Environment<a class="headerlink" href="#configuring-an-environment" title="Permalink to this headline">¶</a></h2>
+<p>After <a class="reference internal" href="#activating-an-environment"><span class="std std-ref">activing</span></a> your environment, you need to configure it.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>To see all available options and configuration fields run <code class="code docutils literal notranslate"><span class="pre">genv</span> <span class="pre">config</span> <span class="pre">--help</span></code></p>
+</div>
+<div class="section" id="configure-the-device-count">
+<span id="id3"></span><h3>Configure the Device Count<a class="headerlink" href="#configure-the-device-count" title="Permalink to this headline">¶</a></h3>
+<p>Configuring the environment device count determines how many GPUs should be accessible to it when attaching devices.</p>
+<p>This is done with the following command:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>genv config gpus &lt;count&gt;
+</pre></div>
+</div>
+</div>
+<div class="section" id="configure-the-name">
+<h3>Configure the Name<a class="headerlink" href="#configure-the-name" title="Permalink to this headline">¶</a></h3>
+<p>Configuring the environment name is not mandatory, but it helps a lot when querying the active environments and devices, and is considered a good practice.</p>
+<p>This is done with the following command:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>genv config name &lt;name&gt;
+</pre></div>
+</div>
+</div>
+<div class="section" id="printing-the-current-configuration">
+<h3>Printing the Current Configuration<a class="headerlink" href="#printing-the-current-configuration" title="Permalink to this headline">¶</a></h3>
+<p>You can print the current configuration of any field by running the same command as if you want to configure it, just without specifying any value.</p>
+<p>For example, the following command would print you the environment name:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>genv config name
+</pre></div>
+</div>
+<p>You can also print the entire configuration by not specifying any field name:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>genv config
+</pre></div>
+</div>
+</div>
+<div class="section" id="clearing-the-current-configuration">
+<h3>Clearing the Current Configuration<a class="headerlink" href="#clearing-the-current-configuration" title="Permalink to this headline">¶</a></h3>
+<p>You can clear the configuration by passing the argument <code class="code docutils literal notranslate"><span class="pre">--clear</span></code> to the configuration command.</p>
+<p>This works both for field-specific configuration and for the entire configuration.</p>
+<p>For example, the next command would clear the environment name:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>genv config name --clear
+</pre></div>
+</div>
+<p>While the following command would clear the entire configuration:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>genv config --clear
+</pre></div>
+</div>
+</div>
+<div class="section" id="managing-configuration-as-infrastructure-as-code">
+<h3>Managing Configuration as Infrastructure-as-Code<a class="headerlink" href="#managing-configuration-as-infrastructure-as-code" title="Permalink to this headline">¶</a></h3>
+<p>genv lets you manage the GPU resources as infrastructure-as-code by letting you save and load environment configurations to and from the disk.</p>
+<p>In your project root, create a directory named <code class="code docutils literal notranslate"><span class="pre">.genv</span></code> using the command:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>mkdir -p .genv
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The <code class="code docutils literal notranslate"><span class="pre">-p</span></code> argument just causes the command to not fail in case the directory already exists</p>
+</div>
+<p>You can verify genv recognizes the directory by running:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>genv home
+</pre></div>
+</div>
+<div class="section" id="saving-configuration">
+<h4>Saving Configuration<a class="headerlink" href="#saving-configuration" title="Permalink to this headline">¶</a></h4>
+<p>You can save the configuration to the disk by running:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>genv config --save
+</pre></div>
+</div>
+<p>You can also keep your saved configuration up to date by adding the argument <code class="code docutils literal notranslate"><span class="pre">--save</span></code> whenever you reconfigure the environment or clear the configuration.</p>
+</div>
+<div class="section" id="loading-configuration">
+<span id="id4"></span><h4>Loading Configuration<a class="headerlink" href="#loading-configuration" title="Permalink to this headline">¶</a></h4>
+<p>You can load the configuration from the disk by running:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>genv config --load
+</pre></div>
+</div>
+<p>Note that genv will automatically load the saved configuration when you activate an environment from your project root directory (as long as you don’t pass <code class="code docutils literal notranslate"><span class="pre">--no-load</span></code> to <code class="code docutils literal notranslate"><span class="pre">genv</span> <span class="pre">activate</span></code>).</p>
+<div class="section" id="attach-an-environment-to-devices">
+<span id="id5"></span><h5>Attach an Environment to Devices<a class="headerlink" href="#attach-an-environment-to-devices" title="Permalink to this headline">¶</a></h5>
+<p>After <a class="reference internal" href="#activating-an-environment"><span class="std std-ref">activing</span></a> an environment and <a class="reference internal" href="#configuring-an-environment"><span class="std std-ref">configuring</span></a> its device count, you need to attach GPUs to it.</p>
+<p>This is done using the command:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>genv attach
+</pre></div>
+</div>
+<p>genv will look for available GPUs for your environment.</p>
+<p>If there are not enough GPUs available, or the configured device count is greater than the number of devices in the machine, an error message will be printed to the screen and your environment will be detached.</p>
+<p>If there are enough GPUs available, genv will attach them to the environment and make them unavailable for other environments.</p>
+<p>You can verify that the environment is attached to GPUs by running <code class="code docutils literal notranslate"><span class="pre">nvidia-smi</span></code>.
+It will show information only about the GPUs that are attached to your environment.</p>
+<p>Note that in case your environment configuration gets <a class="reference internal" href="#loading-configuration"><span class="std std-ref">loaded</span></a> upon activation, genv will also automatically try to attach devices to your environment (as long as you don’t pass <code class="code docutils literal notranslate"><span class="pre">--no-attach</span></code> to <code class="code docutils literal notranslate"><span class="pre">genv</span> <span class="pre">activate</span></code>).</p>
+</div>
+</div>
+</div>
+<div class="section" id="detaching-an-environment">
+<h3>Detaching an Environment<a class="headerlink" href="#detaching-an-environment" title="Permalink to this headline">¶</a></h3>
+<p>As long as your environment is active and attached to devices, no one else can use them.</p>
+<p>In case you want to stop using the attached devices, and release them for someone else to use, you need to detach your environment from them using the following command:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>genv detach
+</pre></div>
+</div>
+<p>You can verify that your environment is detached by running <code class="code docutils literal notranslate"><span class="pre">nvidia-smi</span></code> and seeing the following output:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$ nvidia-smi
+No devices were found
+</pre></div>
+</div>
+</div>
+<div class="section" id="reattaching-an-environment">
+<h3>Reattaching an Environment<a class="headerlink" href="#reattaching-an-environment" title="Permalink to this headline">¶</a></h3>
+<p>In case you <a class="reference internal" href="#configure-the-device-count"><span class="std std-ref">reconfigure</span></a> the device count of your environment, you need to reattach your environment by rerunning the <code class="code docutils literal notranslate"><span class="pre">genv</span> <span class="pre">attach</span></code> command.</p>
+</div>
+</div>
+<div class="section" id="list-environments">
+<h2>List Environments<a class="headerlink" href="#list-environments" title="Permalink to this headline">¶</a></h2>
+<p>To see information about all active environments use the following command:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>genv envs
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>To see all available options run <code class="code docutils literal notranslate"><span class="pre">genv</span> <span class="pre">envs</span> <span class="pre">--help</span></code></p>
+</div>
+<p>The information includes:</p>
+<ul class="simple">
+<li><p>Environment identifier</p></li>
+<li><p>Linux username and user identifier</p></li>
+<li><p>Environment name (if configured)</p></li>
+<li><p>Creation time</p></li>
+<li><p>Identifiers of all root processes in this environment</p></li>
+</ul>
+<p>Here’s a sample output:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$ genv envs
+ID      USER            NAME            CREATED              PID<span class="o">(</span>S<span class="o">)</span>
+<span class="m">1573</span>    paul<span class="o">(</span><span class="m">1004</span><span class="o">)</span>      Yesterday       <span class="m">27</span> minutes ago       <span class="m">1573</span>
+<span class="m">12167</span>   john<span class="o">(</span><span class="m">1005</span><span class="o">)</span>      Norwegian Wood  <span class="m">7</span> hours ago          <span class="m">12167</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="list-devices">
+<h2>List Devices<a class="headerlink" href="#list-devices" title="Permalink to this headline">¶</a></h2>
+<p>To see information about all devices use the following command:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>genv devices
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>To see all available options run <code class="code docutils literal notranslate"><span class="pre">genv</span> <span class="pre">devices</span> <span class="pre">--help</span></code></p>
+</div>
+<p>The information includes:</p>
+<ul class="simple">
+<li><p>Device index</p></li>
+<li><p>Environment identifier of the attached environment</p></li>
+<li><p>Environment name of the attached environment (if configured)</p></li>
+<li><p>Attachment time</p></li>
+</ul>
+<p>Here’s a sample output:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$ genv devices
+ID      ENV ID      ENV NAME        ATTACHED
+<span class="m">0</span>       <span class="m">1573</span>        Yesterday       <span class="m">25</span> minutes ago
+<span class="m">1</span>       <span class="m">12167</span>       Norwegian Wood  <span class="m">7</span> hours ago
+</pre></div>
+</div>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="installation.html" class="btn btn-neutral float-left" title="Installation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="advanced-usage.html" class="btn btn-neutral float-right" title="Advanced Usage" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Run.ai.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
