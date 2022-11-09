@@ -30,9 +30,9 @@ Plus, it's 100% free and gets installed before you can say Jack Robinson.
 ## 🎉 Simple Integration & Usage with your fav IDE
 
 
-Integration with VSCode [(Take me to the installation guide!)](https://github.com/run-ai/vscode-genv) | 
+Integration with VSCode [(Take me to the installation guide!)](https://github.com/run-ai/vscode-genv) |
 :-------------------------:|
-<img src="images/overview.gif" width="800" alt="genv vscode"/> |  
+<img src="images/overview.gif" width="800" alt="genv vscode"/> |
 
 <br />
 
@@ -83,7 +83,7 @@ The long-term overview of the roadmap includes 3 main category;
     - Pre-configuring of the environments
         - Admin mode to manage the environment
 
-## 🏃🏻 Be an early runner in the genv community! 
+## 🏃🏻 Be an early runner in the genv community!
 
 [<img src="https://img.shields.io/badge/Slack-Join%20the%20community!-ff007f?style=for-the-badge&logo=slack&logoColor=ff007f" height="30" />](https://join.slack.com/t/genvcommunity/shared_invite/zt-1i70tphdc-DmFgK5yr3HFI8Txx1yFXBw)
 
@@ -95,40 +95,11 @@ Join our Slack channel with the creators of *genv* and start building your model
 
 Looking forward to seeing you as a part of the community!
 
-## 📂 Table of Contents
-* [Installation](INSTALLATION.md#installation)
-    * [Installation Guide for VSCode](https://github.com/run-ai/vscode-genv)
-    * [Installation Guide for JupyterLab](https://github.com/run-ai/jupyterlab_genv)
-    * [Installation Guide for Terminal Usage](INSTALLATION.md#from-source)
-* [Features](FEATURES.md#features)
-    * [Environment Status](FEATURES.md#environment-status)
-    * [Activating an Environment](FEATURES.md#activating-an-environment)
-    * [Configuring an Environment](FEATURES.md#configuring-an-environment)
-        * [Device Count](FEATURES.md#configure-the-device-count)
-        * [Name](FEATURES.md#configure-the-name)
-        * [Printing the Configuration](FEATURES.md#printing-the-current-configuration)
-        * [Clearing the Configuration](FEATURES.md#clearing-the-current-configuration)
-        * [Configuration as Infrastructure-as-Code](FEATURES.md#managing-configuration-as-infrastructure-as-code)
-            * [Saving](FEATURES.md#saving-configuration)
-            * [Loading](FEATURES.md#loading-configuration)
-    * [Attach an Environment to Devices](FEATURES.md#attach-an-environment-to-devices)
-        * [Detaching](FEATURES.md#detaching-an-environment)
-        * [Reattaching](FEATURES.md#reattaching-an-environment)
-    * [List Environments](FEATURES.md#list-environments)
-    * [List Devices](FEATURES.md#list-devices)
-* [Advanced Features](FEATURES.md#advanced-features)
-    * [Multiple Terminals](FEATURES.md#multiple-terminals)
-* [Development](DEVELOPMENT.md#development)
-    * [Setup](DEVELOPMENT.md#setup)
-    * [Reference](DEVELOPMENT.md#reference)
-* [License](#license)
-
-
 ## 🏆 Special Thanks for Runners
 
 - You could be mentioned here! Submit a feature request to be featured here 💥
 
-## License 
+## License
 The genv software is Copyright 2022 [Run.ai Labs, Ltd.].
 The software is licensed by Run.ai under the AGPLv3 license.
 Please note that Run.ai’s intention in licensing the software are that the obligations of licensee pursuant to the AGPLv3 license should be interpreted broadly.
