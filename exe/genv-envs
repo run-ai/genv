@@ -14,6 +14,7 @@ QUERIES = {
     'creation': lambda env: env["creation"],
     'config.name': lambda env: env["config"].get("name"),
     'config.gpus': lambda env: env["config"].get("gpus"),
+    'config.gpu_memory': lambda env: env["config"].get("gpu_memory"),
 }
 
 def factory() -> Dict:
@@ -113,10 +114,19 @@ def do_config(envs: Envs, eid: str, command: str, args: argparse.Namespace) -> N
         if clear and "name" in env["config"]:
             del env["config"]["name"]
 
+    def gpu_memory(gpu_memory: Optional[int], clear: bool) -> None:
+        if gpu_memory is not None:
+            env["config"]["gpu_memory"] = gpu_memory
+
+        if clear and "gpu_memory" in env["config"]:
+            del env["config"]["gpu_memory"]
+
     if command == 'gpus':
         gpus(args.count, args.clear)
     elif command == 'name':
         name(args.name, args.clear)
+    elif command == 'gpu_memory':
+        gpu_memory(args.gpu_memory, args.clear)
 
 def do_deactivate(envs: Envs, pid: int) -> None:
     cleanup(envs, poll_pid=lambda pid_: pid_ != pid)
@@ -176,6 +186,11 @@ def parse_args() -> argparse.Namespace:
             group.add_argument('--name', help='Environment name')
             group.add_argument('--clear', action='store_true', help='Clear environment name')
 
+        def gpu_memory(parser):
+            group = parser.add_mutually_exclusive_group(required=True)
+            group.add_argument('--gpu_memory', type=int, help='Environment allocated gpu memory')
+            group.add_argument('--clear', action='store_true', help='Clear environment allocated gpu memory')
+
         parser.add_argument('--eid', required=True, help='Environment identifier')
 
         subparsers = parser.add_subparsers(dest='config', required=True)
@@ -183,6 +198,7 @@ def parse_args() -> argparse.Namespace:
         for command, help in [
             (gpus, 'Configure device count for environment'),
             (name, 'Configure environment name'),
+            (gpu_memory, 'Configure environment allocated gpu memory')
         ]:
             command(subparsers.add_parser(command.__name__, help=help))
 
