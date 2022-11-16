@@ -81,10 +81,11 @@ def attach_devices(devices: Devices, eid: str, indices: Union[List[int], int]) -
     now = datetime.now().strftime(genv.DATETIME_FMT)
 
     for index in indices:
-        # NOTE(raz): we don't yet support attaching multiple environments to the same device.
-        #            we will though, and we'll have to change this to be a memory-based check.
-        if len(devices[index]["eids"]) > 0:
-            raise RuntimeError(f'Device {index} is not available')
+        if int(os.environ.get('GENV_DEVICE_MULTI_ATTACH', 0)) == 0:
+            # NOTE(raz): we don't yet support attaching multiple environments to the same device.
+            #            we will though, and we'll have to change this to be a memory-based check.
+            if len(devices[index]["eids"]) > 0:
+                raise RuntimeError(f'Device {index} is not available')
 
         devices[index]["eids"][eid] = dict(
             eid=eid,
