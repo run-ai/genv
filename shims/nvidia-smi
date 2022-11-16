@@ -95,7 +95,6 @@ def proxy(process: subprocess.Popen) -> None:
 
         previous = line
 
-
     for line, previous in buffered:
         match = DEVICE.match(line)
         if match:

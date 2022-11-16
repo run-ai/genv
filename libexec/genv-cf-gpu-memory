@@ -23,7 +23,7 @@ EOS
 
 do_print()
 {
-  prefix=${GENV_CONFIG_PRINT_PREFIX:+gpu_memory\: }
+  prefix=${GENV_CONFIG_PRINT_PREFIX:+gpu-memory\: }
   target=${GENV_CONFIG_PRINT_TARGET:-\&\1}
 
   cat <<EOS
