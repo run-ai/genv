@@ -95,7 +95,8 @@
 <div class="section" id="environment-variables">
 <h2>Environment Variables<a class="headerlink" href="#environment-variables" title="Permalink to this headline">¶</a></h2>
 <p><code class="code docutils literal notranslate"><span class="pre">GENV_BYPASS</span></code></p>
-<p>Bypass shim behaviors and use similar behavior to the original applications.</p>
+<p>Bypass shim behaviors and use similar behavior to the original applications.
+Default is <code class="code docutils literal notranslate"><span class="pre">0</span></code>.</p>
 <hr class="docutils" />
 <p><code class="code docutils literal notranslate"><span class="pre">GENV_DEVICES</span></code></p>
 <p>Amount of GPUs that are managed by genv.
@@ -105,6 +106,10 @@ This is mainly for development environments on CPU machines where <code class="c
 <p><code class="code docutils literal notranslate"><span class="pre">GENV_TMPDIR</span></code></p>
 <p>Path of the temp directory where all state JSON files are stored.
 Default is <code class="code docutils literal notranslate"><span class="pre">/var/tmp/genv</span></code>.</p>
+<hr class="docutils" />
+<p><code class="code docutils literal notranslate"><span class="pre">GENV_DEVICE_MULTI_ATTACH</span></code></p>
+<p>Support attaching to already attached devices.
+Default is <code class="code docutils literal notranslate"><span class="pre">0</span></code>.</p>
 </div>
 <div class="section" id="shims">
 <span id="id1"></span><h2>Shims<a class="headerlink" href="#shims" title="Permalink to this headline">¶</a></h2>

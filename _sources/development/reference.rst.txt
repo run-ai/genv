@@ -11,6 +11,7 @@ Environment Variables
 :code:`GENV_BYPASS`
 
 Bypass shim behaviors and use similar behavior to the original applications.
+Default is :code:`0`.
 
 ----
 
@@ -26,6 +27,13 @@ This is mainly for development environments on CPU machines where :code:`nvidia-
 
 Path of the temp directory where all state JSON files are stored.
 Default is :code:`/var/tmp/genv`.
+
+----
+
+:code:`GENV_DEVICE_MULTI_ATTACH`
+
+Support attaching to already attached devices.
+Default is :code:`0`.
 
 .. _Shims:
 
