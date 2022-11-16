@@ -155,7 +155,9 @@ def run(args: Iterable[str], bypass: bool=False) -> int:
             process.wait()
         return process.returncode
 
-# TODO(raz): handle modes of nvidia-smi where '--id' is not supported like 'pmon'
-args = [f'--id={os.environ.get("CUDA_VISIBLE_DEVICES")}'] + sys.argv[1:]
+bypass = int(os.environ.get('GENV_BYPASS', 0)) != 0
 
-sys.exit(run(args, bypass=int(os.environ.get('GENV_BYPASS', 0)) != 0))
+# TODO(raz): handle modes of nvidia-smi where '--id' is not supported like 'pmon'
+args = ([] if bypass else [f'--id={os.environ.get("CUDA_VISIBLE_DEVICES")}']) + sys.argv[1:]
+
+sys.exit(run(args, bypass))
