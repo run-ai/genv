@@ -39,6 +39,27 @@ def find_process_eid(pid: int) -> Optional[str]:
     except (FileNotFoundError, PermissionError):
         return None
 
+def memory_cap_to_mib(cap: str) -> int:
+    """
+    Convert the environment memory capacity string to an integer value in MiB.
+    """
+    def _bytes(cap: str) -> int:
+        for unit, multiplier in [
+            ('b', 1),
+            ('k', 1000),
+            ('m', 1000 * 1000),
+            ('g', 1000 * 1000 * 1000),
+            ('ki', 1024),
+            ('mi', 1024 * 1024),
+            ('gi', 1024 * 1024 * 1024),
+        ]:
+            if cap.endswith(unit):
+                return int(cap.replace(unit, '')) * multiplier
+
+        return int(cap) # the value is already in bytes if no unit was specified
+
+    return _bytes(cap) // (1024 * 1024)
+
 def proxy(process: subprocess.Popen) -> None:
     """
     Reprint the output of a running nvidia-smi process while manipulating it.
@@ -61,6 +82,7 @@ def proxy(process: subprocess.Popen) -> None:
     buffered = []
     env_processes = defaultdict(list)
     total_processes = 0
+    is_memory_usage_over_cap = False
 
     while process.poll() is None:
         line = process.stdout.readline()
@@ -103,12 +125,23 @@ def proxy(process: subprocess.Popen) -> None:
             index = int(re.match(r'^\|\s*(\d+)\s*.*\|$', previous).group(1))
             used = sum(env_processes[index])
 
+            gpu_memory_cap = os.environ.get("GENV_GPU_MEMORY")
+            if gpu_memory_cap:
+                total = memory_cap_to_mib(gpu_memory_cap)
+
+            if used > total:
+                is_memory_usage_over_cap = True
+
             line = DEVICE.sub(f'\\1| {str(used).rjust(6)}MiB / {str(total).rjust(5)}MiB |\\4', line)
 
         print(line, end='')
 
         if total_processes > 0 and sum(len(env_processes[index]) for index in env_processes) == 0 and re.match(r'^\|={77}\|$', line):
             print('|  ' + 'No running processes found'.ljust(75) + '|')
+
+    if is_memory_usage_over_cap:
+        print('\n WARNING: The GPU memory usage for this environment has exceeded the set capacity of '
+              + str(os.environ.get("GENV_GPU_MEMORY")) + "\n")
 
 def run(args: Iterable[str], bypass: bool=False) -> int:
     """

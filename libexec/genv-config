@@ -32,7 +32,7 @@ print_help()
   echo
   echo "Fields:"
   for field in $(exec genv-commands --cf); do
-    printf "    %-5s    %s\n" "$field" "$(exec $(command -v "genv-cf-$field") --description)"
+    printf "    %-10s    %s\n" "$field" "$(exec $(command -v "genv-cf-$field") --description)"
   done
   echo
   echo "The terminal gets refreshed with the most recent environment configuration on any command."
