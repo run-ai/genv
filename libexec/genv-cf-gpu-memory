@@ -4,7 +4,7 @@ set -e
 [ -n "$GENV_DEBUG" ] && set -x
 
 if [[ $1 = "--description" ]] ; then
-  echo "Environment gpu memory"
+  echo "Environment GPU memory capacity"
   exit 0
 fi
 
@@ -12,11 +12,11 @@ config_env()
 {
   if [ -n "$1" ]; then
     cat <<EOS
-_genv_set_env GENV_GPUS_MEMORY $1
+_genv_set_env GENV_GPU_MEMORY $1
 EOS
   else
     cat <<EOS
-_genv_unset_env GENV_GPUS_MEMORY
+_genv_unset_env GENV_GPU_MEMORY
 EOS
   fi
 }
@@ -27,15 +27,15 @@ do_print()
   target=${GENV_CONFIG_PRINT_TARGET:-\&\1}
 
   cat <<EOS
-if [ -n "\$GENV_GPUS_MEMORY" ]; then
-  echo "$prefix\$GENV_GPUS_MEMORY" >$target
+if [ -n "\$GENV_GPU_MEMORY" ]; then
+  echo "$prefix\$GENV_GPU_MEMORY" >$target
 fi
 EOS
 }
 
 do_clear()
 {
-  ( exec genv exec envs config --eid $GENV_ENVIRONMENT_ID gpu_memory --clear )
+  ( exec genv exec envs config --eid $GENV_ENVIRONMENT_ID gpu-memory --clear )
 
   config_env
 }
@@ -49,7 +49,7 @@ do_refresh()
 
 do_config()
 {
-  ( exec genv exec envs config --eid $GENV_ENVIRONMENT_ID gpu_memory --gpu_memory "$1" )
+  ( exec genv exec envs config --eid $GENV_ENVIRONMENT_ID gpu-memory --gpu-memory "$1" )
 
   config_env "$1"
 }

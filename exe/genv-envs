@@ -188,8 +188,8 @@ def parse_args() -> argparse.Namespace:
 
         def gpu_memory(parser):
             group = parser.add_mutually_exclusive_group(required=True)
-            group.add_argument('--gpu_memory', type=int, help='Environment allocated gpu memory')
-            group.add_argument('--clear', action='store_true', help='Clear environment allocated gpu memory')
+            group.add_argument('--gpu-memory', type=int, help='Environment GPU memory capacity')
+            group.add_argument('--clear', action='store_true', help='Clear environment gpu memory capacity')
 
         parser.add_argument('--eid', required=True, help='Environment identifier')
 

@@ -21,6 +21,6 @@ else
   echo "Configuration"
   echo "    Name: ${GENV_ENVIRONMENT_NAME:-N/A}"
   echo "    Device count: ${GENV_GPUS:-N/A}"
-  echo "    GPU Memory cap: ${GENV_GPUS_MEMORY:-N/A}"
+  echo "    GPU Memory capacity: ${GENV_GPU_MEMORY:-N/A}"
   echo
 fi

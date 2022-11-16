@@ -105,7 +105,7 @@ def proxy(process: subprocess.Popen) -> None:
             index = int(re.match(r'^\|\s*(\d+)\s*.*\|$', previous).group(1))
             used = sum(env_processes[index])
 
-            gpu_memory_cap = os.environ.get("GENV_GPUS_MEMORY")
+            gpu_memory_cap = os.environ.get("GENV_GPU_MEMORY")
             if gpu_memory_cap:
                 total = gpu_memory_cap
 
@@ -120,8 +120,8 @@ def proxy(process: subprocess.Popen) -> None:
             print('|  ' + 'No running processes found'.ljust(75) + '|')
 
     if is_memory_usage_over_cap:
-        print('\n\n WARNING: The GPU memory usage for this environment has exceeded the set cap of '
-              + str(os.environ.get("GENV_GPUS_MEMORY")))
+        print('\n WARNING: The GPU memory usage for this environment has exceeded the set capacity of '
+              + str(os.environ.get("GENV_GPU_MEMORY")) + "\n")
 
 def run(args: Iterable[str], bypass: bool=False) -> int:
     """
