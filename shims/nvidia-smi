@@ -39,6 +39,27 @@ def find_process_eid(pid: int) -> Optional[str]:
     except (FileNotFoundError, PermissionError):
         return None
 
+def memory_cap_to_mib(cap: str) -> int:
+    """
+    Convert the environment memory capacity string to an integer value in MiB.
+    """
+    def _bytes(cap: str) -> int:
+        for unit, multiplier in [
+            ('b', 1),
+            ('k', 1000),
+            ('m', 1000 * 1000),
+            ('g', 1000 * 1000 * 1000),
+            ('ki', 1024),
+            ('mi', 1024 * 1024),
+            ('gi', 1024 * 1024 * 1024),
+        ]:
+            if cap.endswith(unit):
+                return int(cap.replace(unit, '')) * multiplier
+
+        return int(cap) # the value is already in bytes if no unit was specified
+
+    return _bytes(cap) // (1024 * 1024)
+
 def proxy(process: subprocess.Popen) -> None:
     """
     Reprint the output of a running nvidia-smi process while manipulating it.
@@ -106,9 +127,9 @@ def proxy(process: subprocess.Popen) -> None:
 
             gpu_memory_cap = os.environ.get("GENV_GPU_MEMORY")
             if gpu_memory_cap:
-                total = gpu_memory_cap
+                total = memory_cap_to_mib(gpu_memory_cap)
 
-            if int(used) > int(total):
+            if used > total:
                 is_memory_usage_over_cap = True
 
             line = DEVICE.sub(f'\\1| {str(used).rjust(6)}MiB / {str(total).rjust(5)}MiB |\\4', line)
