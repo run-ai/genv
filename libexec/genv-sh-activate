@@ -173,6 +173,7 @@ function setup()
 {
   cat <<EOS
 _genv_replace_env PATH "$GENV_ROOT/shims:\$PATH"
+_genv_set_env GENV_DEVICE_MULTI_ATTACH 1
 EOS
 
   if [ "$prompt" -eq 1 ]; then

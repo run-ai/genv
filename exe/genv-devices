@@ -12,12 +12,21 @@ import genv
 Device = Dict[Any, Any]
 Devices = Dict[int, Device]
 
-def factory() -> Dict:
-    count = int(os.environ.get('GENV_DEVICES') or subprocess.check_output("nvidia-smi --id=0 --query-gpu=count --format=csv,noheader", shell=True))
 
-    return dict(
-        devices={ index: { "eids": {} } for index in range(count) }
-    )
+def factory() -> Dict:
+    gpus_memory = subprocess.check_output("nvidia-smi --query-gpu=memory.total --format=csv,noheader", shell=True)
+    gpus_memory = gpus_memory.splitlines()
+    gpu_count = int(os.environ.get('GENV_DEVICES') or len(gpus_memory))
+
+    devices_dict = {}
+    for index in range(gpu_count):
+        devices_dict[index] = {
+            "eids": {},
+            "device_gpu_memory": str(gpus_memory[index].decode()) + "mi"
+        }
+
+    return dict(devices=devices_dict)
+
 
 def convert(json: Dict) -> Dict:
     """
@@ -25,9 +34,18 @@ def convert(json: Dict) -> Dict:
 
     This is needed because some numbers are saved as strings because dictionary keys in json files must be strings.
     """
-    json["devices"] = { int(index): device for index, device in json["devices"].items() }
+    json["devices"] = {int(index): device for index, device in json["devices"].items()}
 
-def cleanup(devices: Devices, eid: Optional[str]=None, count: Optional[int]=None) -> None:
+    for index, device in json["devices"].items():
+        if "device_gpu_memory" not in device.keys():
+            gpu_memory = subprocess.check_output(f'nvidia-smi --id={index} --query-gpu=memory.total --format=csv,'
+                                                  f'noheader', shell=True)
+            device["device_gpu_memory"] = str(gpu_memory.decode()) + "mi"
+
+    return json
+
+
+def cleanup(devices: Devices, eid: Optional[str] = None, count: Optional[int] = None) -> None:
     """
     Clean up devices.
 
@@ -63,13 +81,15 @@ def cleanup(devices: Devices, eid: Optional[str]=None, count: Optional[int]=None
             if len(device["eids"]) == 0:
                 count -= 1
 
+
 def detach_device(device: Device, eid: str) -> None:
     """
     Detaches a device from an environment.
     """
     del device["eids"][eid]
 
-def attach_devices(devices: Devices, eid: str, indices: Union[List[int], int]) -> None:
+
+def attach_devices(devices: Devices, eid: str, indices: Union[List[int], int], requested_gpu_mem: str = "") -> None:
     """
     Attaches a device or a set of devices to an environment.
 
@@ -81,18 +101,33 @@ def attach_devices(devices: Devices, eid: str, indices: Union[List[int], int]) -
     now = datetime.now().strftime(genv.DATETIME_FMT)
 
     for index in indices:
+        device = devices[index]
         if int(os.environ.get('GENV_DEVICE_MULTI_ATTACH', 0)) == 0:
-            # NOTE(raz): we don't yet support attaching multiple environments to the same device.
-            #            we will though, and we'll have to change this to be a memory-based check.
             if len(devices[index]["eids"]) > 0:
                 raise RuntimeError(f'Device {index} is not available')
+        else:
+            unallocated_device_gpu_mem = get_device_unallocated_memory(device)
+
+            if requested_gpu_mem:
+                if memory_to_mib(requested_gpu_mem) > unallocated_device_gpu_mem:
+                    raise RuntimeError(f"Device {index} doesn't have enough memory to accommodate the environment "
+                                       f"request - The device has only {unallocated_device_gpu_mem} Mib of free memory."
+                                       f" The environment has requested {requested_gpu_mem}")
+            else:
+                if len(devices[index]["eids"]) > 0:
+                    raise RuntimeError(f'Device {index} is in usage.'
+                                       f' A GPU can be shared if the environment specifies a gpu-memory request')
+
+                requested_gpu_mem = str(unallocated_device_gpu_mem) + "mib"
 
         devices[index]["eids"][eid] = dict(
             eid=eid,
             attached=now,
+            requested_gpu_mem=requested_gpu_mem
         )
 
-def find_available_device(devices: Devices, ignore: List[int]=[]) -> int:
+
+def find_available_device(devices: Devices, ignore: List[int] = [], requested_gpu_mem: str = "") -> int:
     """
     Finds an available device.
     """
@@ -100,23 +135,68 @@ def find_available_device(devices: Devices, ignore: List[int]=[]) -> int:
         if index in ignore:
             continue
 
-        if len(device["eids"]) == 0:
-            return index
+        if int(os.environ.get('GENV_DEVICE_MULTI_ATTACH', 0)) == 0 or not requested_gpu_mem:
+            if len(device["eids"]) == 0:
+                return index
+        else:
+            unallocated_device_gpu_mem = get_device_unallocated_memory(device)
+            if unallocated_device_gpu_mem >= memory_to_mib(requested_gpu_mem):
+                return index
 
-    raise RuntimeError("No available devices")
+    if int(os.environ.get('GENV_DEVICE_MULTI_ATTACH', 0)) == 0 or not requested_gpu_mem:
+        raise RuntimeError("No available devices - all devices are fully allocated")
+    else:
+        raise RuntimeError(f"No available devices - can't find a device with {requested_gpu_mem} of free memory.")
 
-def find_available_devices(devices: Devices, count: int) -> List[int]:
+
+def get_device_unallocated_memory(device):
+    unallocated_device_gpu_mem = memory_to_mib(device["device_gpu_memory"])
+    for eid in device["eids"]:
+        env_req_gpu_mem = device["eids"][eid]["requested_gpu_mem"]
+        if env_req_gpu_mem:
+            env_req_gpu_mem = memory_to_mib(env_req_gpu_mem)
+            unallocated_device_gpu_mem -= int(env_req_gpu_mem)
+
+    return unallocated_device_gpu_mem
+
+
+def find_available_devices(devices: Devices, count: int, env_mem_request: str) -> List[int]:
     """
     Finds a number of available devices.
     """
     indices = []
     for _ in range(count):
-        indices.append(find_available_device(devices, ignore=indices))
+        indices.append(find_available_device(devices, ignore=indices, requested_gpu_mem=env_mem_request))
 
     return indices
 
+
 def query(devices: Devices, eid: str) -> List[int]:
     return [index for index, device in devices.items() if eid in device["eids"]]
+
+
+def memory_to_mib(cap: str) -> int:
+    """
+    Convert the environment memory capacity string to an integer value in MiB.
+    """
+
+    def _bytes(cap: str) -> int:
+        for unit, multiplier in [
+            ('b', 1),
+            ('k', 1000),
+            ('m', 1000 * 1000),
+            ('g', 1000 * 1000 * 1000),
+            ('ki', 1024),
+            ('mi', 1024 * 1024),
+            ('gi', 1024 * 1024 * 1024),
+        ]:
+            if cap.endswith(unit):
+                return int(cap.replace(unit, '')) * multiplier
+
+        return int(cap)  # the value is already in bytes if no unit was specified
+
+    return _bytes(cap) // (1024 * 1024)
+
 
 def do_attach(devices: Devices, eid: str, count: Optional[int], index: Optional[int]) -> None:
     """
@@ -125,6 +205,7 @@ def do_attach(devices: Devices, eid: str, count: Optional[int], index: Optional[
     Either ensures that a specified count is attached to the environment, or explicitly tries to attach a device with a given index.
     """
     attached = query(devices, eid)
+    env_mem_request = get_env_gpu_mem(args.eid)
 
     def ensure_count():
         current = len(attached)
@@ -133,15 +214,15 @@ def do_attach(devices: Devices, eid: str, count: Optional[int], index: Optional[
             if count > len(devices):
                 raise RuntimeError(f"Requested more devices ({count}) than total available ({len(devices)})")
 
-            indices = find_available_devices(devices, count - current)
+            indices = find_available_devices(devices, count - current, env_mem_request)
 
-            attach_devices(devices, eid, indices)
+            attach_devices(devices, eid, indices, env_mem_request)
         elif current > count:
             cleanup(devices, eid, current - count)
 
     def attach_by_index():
         if index not in attached:
-            attach_devices(devices, eid, index)
+            attach_devices(devices, eid, index, env_mem_request)
 
     # TODO(raz): should this try/except be moved to main()?
     try:
@@ -153,7 +234,15 @@ def do_attach(devices: Devices, eid: str, count: Optional[int], index: Optional[
         print(e, file=sys.stderr)
         exit(1)
 
-    do_query(devices, eid) # print the up-to-date device indices
+    do_query(devices, eid)  # print the up-to-date device indices
+
+
+def get_env_gpu_mem(eid: int) -> str:
+    env_mem_query = "genv exec envs query --eid {0} --query config.gpu_memory".format(eid)
+    env_mem_request = subprocess.check_output(env_mem_query, shell=True).decode('utf-8')
+    env_mem_request = env_mem_request.strip()
+    return env_mem_request
+
 
 def do_detach(devices: Devices, eid: str, index: Optional[int]) -> None:
     if index is not None:
@@ -165,11 +254,13 @@ def do_detach(devices: Devices, eid: str, index: Optional[int]) -> None:
     else:
         cleanup(devices, eid)
 
-    do_query(devices, eid) # print the up-to-date device indices
+    do_query(devices, eid)  # print the up-to-date device indices
+
 
 def do_ps(devices: Devices, format: str, header: bool, timestamp: bool) -> None:
     envs = {}
-    for line in subprocess.check_output("genv exec envs query --query eid config.name", shell=True).decode('utf-8').splitlines():
+    for line in subprocess.check_output("genv exec envs query --query eid config.name", shell=True).decode(
+            'utf-8').splitlines():
         eid, name = line.split(',')
         envs[eid] = name
 
@@ -195,8 +286,10 @@ def do_ps(devices: Devices, format: str, header: bool, timestamp: bool) -> None:
 
                 print_line(index, eid, name, attached)
 
+
 def do_query(devices: Devices, eid: str) -> None:
     print(','.join(str(index) for index in query(devices, eid)))
+
 
 def parse_args() -> argparse.Namespace:
     def attach(parser):
@@ -212,7 +305,8 @@ def parse_args() -> argparse.Namespace:
     def ps(parser):
         parser.add_argument('--no-header', dest='header', action='store_false', help='Do not print column headers')
         parser.add_argument('--timestamp', action='store_true', help='Print a non-prettified timestamp')
-        parser.add_argument('--format', choices=['csv', 'tui'], help='Output format; CSV or TUI (Text-based user interface)', default='tui')
+        parser.add_argument('--format', choices=['csv', 'tui'],
+                            help='Output format; CSV or TUI (Text-based user interface)', default='tui')
 
     def query(parser):
         parser.add_argument('--eid', required=True, help='Environment identifier')
@@ -232,6 +326,7 @@ def parse_args() -> argparse.Namespace:
         command(subparsers.add_parser(command.__name__, help=help))
 
     return parser.parse_args()
+
 
 if __name__ == "__main__":
     args = parse_args()

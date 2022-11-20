@@ -33,7 +33,7 @@ Default is :code:`/var/tmp/genv`.
 :code:`GENV_DEVICE_MULTI_ATTACH`
 
 Support attaching to already attached devices.
-Default is :code:`0`.
+Default is :code:`1`.
 
 .. _Shims:
 
