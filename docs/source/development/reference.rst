@@ -37,7 +37,7 @@ Default is :code:`/var/tmp/genv`.
 
 ----
 
-:code:`GENV_DEVICE_OVER_ALLOCATION`
+:code:`GENV_ALLOW_DEVICE_OVER_ALLOCATION`
 
 Support attaching environments to a device even if memory cannot be guaranteed.
 Default is :code:`0`.

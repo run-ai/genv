@@ -41,7 +41,7 @@ def factory() -> Dict:
     )
 
 
-def convert(json: Dict) -> Dict:
+def convert(json: Dict) -> None:
     """
     Converts the loaded json file.
 
@@ -53,8 +53,6 @@ def convert(json: Dict) -> Dict:
     for index, device in json["devices"].items():
         if "total_memory" not in device:
             device["total_memory"] = get_devices_total_memory()[index]
-
-    return json
 
 
 def cleanup(devices: Devices, eid: Optional[str] = None, count: Optional[int] = None) -> None:
@@ -104,8 +102,6 @@ def detach_device(device: Device, eid: str) -> None:
 def attach_devices(devices: Devices, eid: str, indices: Union[List[int], int], env_gpu_memory: Optional[str]) -> None:
     """
     Attaches a device or a set of devices to an environment.
-
-    Raises 'RuntimeError' if any of the devices is not available.
     """
     if isinstance(indices, int):
         indices = [indices]
@@ -113,69 +109,63 @@ def attach_devices(devices: Devices, eid: str, indices: Union[List[int], int], e
     now = datetime.now().strftime(genv.DATETIME_FMT)
 
     for index in indices:
-        if int(os.environ.get('GENV_DEVICE_OVER_ALLOCATION', 0)) == 0:
-            if env_gpu_memory is None:
-                if len(devices[index]["eids"]) > 0:
-                    raise RuntimeError(f'Device {index} is not available')
-            else:
-                device_unallocated_memory = get_device_unallocated_memory(devices[index])
-
-                if genv.memory_to_bytes(env_gpu_memory) > genv.memory_to_bytes(device_unallocated_memory):
-                    raise RuntimeError(f"Device {index} doesn't have enough memory to accommodate the environment request."
-                                        f" The device has {device_unallocated_memory} bytes available."
-                                        f" The environment requested {env_gpu_memory}")
-
-        devices[index]["eids"][eid] = dict(
+        env = dict(
             eid=eid,
             attached=now,
         )
 
         if env_gpu_memory is not None:
-            devices[index]["eids"][eid]["gpu_memory"] = env_gpu_memory
+            env["gpu_memory"] = env_gpu_memory
+
+        devices[index]["eids"][eid] = env
 
 
-def find_available_device(devices: Devices, ignore: List[int] = [], env_gpu_memory: Optional[str] = None) -> int:
+def find_available_device(devices: Devices, ignore: List[int], gpu_memory: Optional[str]) -> int:
     """
-    Finds an available device.
+    Finds an available device while ignoring specified indices.
     """
     for index, device in devices.items():
         if index in ignore:
             continue
 
-        if env_gpu_memory is None:
-            # looking for a full GPU as no memory capacity was configured
-            if len(device["eids"]) == 0:
-                return index
-        elif genv.memory_to_bytes(get_device_unallocated_memory(device)) >= genv.memory_to_bytes(env_gpu_memory):
+        if is_device_available(device, gpu_memory):
             return index
 
-    if env_gpu_memory is None:
-        raise RuntimeError("No available devices - all devices are allocated")
-    else:
-        raise RuntimeError(f"No available devices - can't find a device with {env_gpu_memory} of available memory")
+    raise RuntimeError("No available devices")
 
 
-def get_device_unallocated_memory(device, unit: str = 'mi') -> str:
+def is_device_available(device: Device, gpu_memory: Optional[str]) -> bool:
     """
-    Get the device unallocated memory as a string.
+    Checks if a device is available.
+
+    Checking if the device is empty if amount of GPU memory not specified.
+    Otherwise, checking if this amount is available.
+    """
+    return len(device["eids"]) == 0 if gpu_memory is None else get_device_unallocated_memory_bytes(device) >= genv.memory_to_bytes(gpu_memory)
+
+
+def get_device_unallocated_memory_bytes(device) -> int:
+    """
+    Get the device unallocated memory in bytes.
     """
     unallocated_memory_bytes = genv.memory_to_bytes(device["total_memory"])
 
     for env in device["eids"].values():
-        unallocated_memory_bytes -= genv.memory_to_bytes(env.get("gpu_memory", "0"))
+        if "gpu_memory" not in env:
+            return 0 # the environment uses all the device memory
+        else:
+            unallocated_memory_bytes -= genv.memory_to_bytes(env["gpu_memory"])
 
-    unallocated_memory_bytes = max(unallocated_memory_bytes, 0) # this is for overallocated devices
-
-    return genv.bytes_to_memory(unallocated_memory_bytes, unit)
+    return max(unallocated_memory_bytes, 0) # convert negative values when device is overallocated
 
 
-def find_available_devices(devices: Devices, count: int, env_gpu_memory: Optional[str]) -> List[int]:
+def find_available_devices(devices: Devices, count: int, ignore: List[int], gpu_memory: Optional[str]) -> List[int]:
     """
     Finds a number of available devices.
     """
     indices = []
     for _ in range(count):
-        indices.append(find_available_device(devices, ignore=indices, env_gpu_memory=env_gpu_memory))
+        indices.append(find_available_device(devices, ignore + indices, gpu_memory))
 
     return indices
 
@@ -200,7 +190,7 @@ def do_attach(devices: Devices, eid: str, count: Optional[int], index: Optional[
             if count > len(devices):
                 raise RuntimeError(f"Requested more devices ({count}) than total available ({len(devices)})")
 
-            indices = find_available_devices(devices, count - current, env_gpu_memory)
+            indices = find_available_devices(devices, count - current, attached, env_gpu_memory)
 
             attach_devices(devices, eid, indices, env_gpu_memory)
         elif current > count:
@@ -208,6 +198,9 @@ def do_attach(devices: Devices, eid: str, count: Optional[int], index: Optional[
 
     def attach_by_index():
         if index not in attached:
+            if int(os.environ.get('GENV_ALLOW_DEVICE_OVER_ALLOCATION', 0)) == 0 and not is_device_available(devices[index], env_gpu_memory):
+                raise RuntimeError(f"Device {index} is not available")
+
             attach_devices(devices, eid, index, env_gpu_memory)
 
     # TODO(raz): should this try/except be moved to main()?
@@ -225,10 +218,11 @@ def do_attach(devices: Devices, eid: str, count: Optional[int], index: Optional[
 
 def get_env_gpu_memory(eid: int) -> Optional[str]:
     """
-    Query the configured GPU memory of an environment.
+    Query the configured GPU memory of an environment as a string.
 
     Returns 'None' if not configured.
     """
+    # TODO(raz): could this cause a deadlock if envs manager would query this manager?
     return subprocess.check_output(f"genv exec envs query --eid {eid} --query config.gpu_memory", shell=True).decode('utf-8').strip() or None
 
 
@@ -247,8 +241,7 @@ def do_detach(devices: Devices, eid: str, index: Optional[int]) -> None:
 
 def do_ps(devices: Devices, format: str, header: bool, timestamp: bool) -> None:
     envs = {}
-    for line in subprocess.check_output("genv exec envs query --query eid config.name", shell=True).decode(
-            'utf-8').splitlines():
+    for line in subprocess.check_output("genv exec envs query --query eid config.name", shell=True).decode('utf-8').splitlines():
         eid, name = line.split(',')
         envs[eid] = name
 
