@@ -111,3 +111,37 @@ def access_json(filename: str, factory: Callable[[], Dict], *, convert: Optional
 
             with open(path, 'w', opener=lambda path, flags: os.open(path, flags, 0o666)) as f:
                 json.dump(o, f, indent=4)
+
+def memory_to_bytes(cap: str) -> int:
+    """
+    Convert memory string to an integer value in bytes.
+    """
+    for unit, multiplier in [
+        ('b', 1),
+        ('k', 1000),
+        ('m', 1000 * 1000),
+        ('g', 1000 * 1000 * 1000),
+        ('ki', 1024),
+        ('mi', 1024 * 1024),
+        ('gi', 1024 * 1024 * 1024),
+    ]:
+        if cap.endswith(unit):
+            return int(cap.replace(unit, '')) * multiplier
+
+    return int(cap)  # the value is already in bytes if no unit was specified
+
+def bytes_to_memory(bytes: int, unit: str) -> str:
+    """
+    Convert bytes to a memory string.
+    """
+    multipliers = {
+        'b': 1,
+        'k': 1000,
+        'm': 1000 * 1000,
+        'g': 1000 * 1000 * 1000,
+        'ki': 1024,
+        'mi': 1024 * 1024,
+        'gi': 1024 * 1024 * 1024,
+    }
+
+    return f'{bytes // multipliers[unit]}{unit}'

@@ -36,7 +36,7 @@ You can test it by running:
 
 .. note::
 
-   If you are on a CPU machine, mock the amount of GPUs by setting the environment variable :code:`GENV_DEVICES`
+   If you are on a CPU machine, mock the amount of GPUs by setting the environment variable :code:`GENV_MOCK_DEVICE_COUNT`
 
 .. _Docker:
 

@@ -5,29 +5,57 @@ from datetime import datetime
 import os
 import subprocess
 import sys
-from typing import Any, Callable, Dict, List, Optional, Union
+from typing import Any, Callable, Dict, Iterable, List, Optional, Union
 
 import genv
 
 Device = Dict[Any, Any]
 Devices = Dict[int, Device]
 
-def factory() -> Dict:
-    count = int(os.environ.get('GENV_DEVICES') or subprocess.check_output("nvidia-smi --id=0 --query-gpu=count --format=csv,noheader", shell=True))
 
+def get_devices_total_memory() -> Iterable[str]:
+    """
+    Get total memory of all devices as string using nvidia-smi.
+
+    Cached for performance purposes as this should not change.
+    Can be mocked with environment variables.
+    """
+    def _impl():
+        if 'GENV_MOCK_DEVICE_COUNT' in os.environ:
+            return [os.environ.get('GENV_MOCK_DEVICE_MEMORY', '16g') for _ in range(int(os.environ['GENV_MOCK_DEVICE_COUNT']))]
+        else:
+            return [f'{int(line)}mi' for line in subprocess.check_output("GENV_BYPASS=1 nvidia-smi --query-gpu=memory.total --format=csv,noheader,nounits", shell=True).splitlines()]
+
+    if not hasattr(get_devices_total_memory, '__cache__'):
+        setattr(get_devices_total_memory, '__cache__', _impl())
+
+    return getattr(get_devices_total_memory, '__cache__')
+
+
+def factory() -> Dict:
+    """
+    Creates the json file.
+    """
     return dict(
-        devices={ index: { "eids": {} } for index in range(count) }
+        devices={ index: { "eids": {}, "total_memory": total_memory } for index, total_memory in enumerate(get_devices_total_memory()) }
     )
 
-def convert(json: Dict) -> Dict:
+
+def convert(json: Dict) -> None:
     """
     Converts the loaded json file.
 
     This is needed because some numbers are saved as strings because dictionary keys in json files must be strings.
     """
-    json["devices"] = { int(index): device for index, device in json["devices"].items() }
+    json["devices"] = {int(index): device for index, device in json["devices"].items()}
 
-def cleanup(devices: Devices, eid: Optional[str]=None, count: Optional[int]=None) -> None:
+    # "total_memory" was added in version 0.1.2
+    for index, device in json["devices"].items():
+        if "total_memory" not in device:
+            device["total_memory"] = get_devices_total_memory()[index]
+
+
+def cleanup(devices: Devices, eid: Optional[str] = None, count: Optional[int] = None) -> None:
     """
     Clean up devices.
 
@@ -63,17 +91,17 @@ def cleanup(devices: Devices, eid: Optional[str]=None, count: Optional[int]=None
             if len(device["eids"]) == 0:
                 count -= 1
 
+
 def detach_device(device: Device, eid: str) -> None:
     """
     Detaches a device from an environment.
     """
     del device["eids"][eid]
 
-def attach_devices(devices: Devices, eid: str, indices: Union[List[int], int]) -> None:
+
+def attach_devices(devices: Devices, eid: str, indices: Union[List[int], int], env_gpu_memory: Optional[str]) -> None:
     """
     Attaches a device or a set of devices to an environment.
-
-    Raises 'RuntimeError' if any of the devices is not available.
     """
     if isinstance(indices, int):
         indices = [indices]
@@ -81,42 +109,70 @@ def attach_devices(devices: Devices, eid: str, indices: Union[List[int], int]) -
     now = datetime.now().strftime(genv.DATETIME_FMT)
 
     for index in indices:
-        if int(os.environ.get('GENV_DEVICE_MULTI_ATTACH', 0)) == 0:
-            # NOTE(raz): we don't yet support attaching multiple environments to the same device.
-            #            we will though, and we'll have to change this to be a memory-based check.
-            if len(devices[index]["eids"]) > 0:
-                raise RuntimeError(f'Device {index} is not available')
-
-        devices[index]["eids"][eid] = dict(
+        env = dict(
             eid=eid,
             attached=now,
         )
 
-def find_available_device(devices: Devices, ignore: List[int]=[]) -> int:
+        if env_gpu_memory is not None:
+            env["gpu_memory"] = env_gpu_memory
+
+        devices[index]["eids"][eid] = env
+
+
+def find_available_device(devices: Devices, ignore: List[int], gpu_memory: Optional[str]) -> int:
     """
-    Finds an available device.
+    Finds an available device while ignoring specified indices.
     """
     for index, device in devices.items():
         if index in ignore:
             continue
 
-        if len(device["eids"]) == 0:
+        if is_device_available(device, gpu_memory):
             return index
 
     raise RuntimeError("No available devices")
 
-def find_available_devices(devices: Devices, count: int) -> List[int]:
+
+def is_device_available(device: Device, gpu_memory: Optional[str]) -> bool:
+    """
+    Checks if a device is available.
+
+    Checking if the device is empty if amount of GPU memory not specified.
+    Otherwise, checking if this amount is available.
+    """
+    return len(device["eids"]) == 0 if gpu_memory is None else get_device_unallocated_memory_bytes(device) >= genv.memory_to_bytes(gpu_memory)
+
+
+def get_device_unallocated_memory_bytes(device) -> int:
+    """
+    Get the device unallocated memory in bytes.
+    """
+    unallocated_memory_bytes = genv.memory_to_bytes(device["total_memory"])
+
+    for env in device["eids"].values():
+        if "gpu_memory" not in env:
+            return 0 # the environment uses all the device memory
+        else:
+            unallocated_memory_bytes -= genv.memory_to_bytes(env["gpu_memory"])
+
+    return max(unallocated_memory_bytes, 0) # convert negative values when device is overallocated
+
+
+def find_available_devices(devices: Devices, count: int, ignore: List[int], gpu_memory: Optional[str]) -> List[int]:
     """
     Finds a number of available devices.
     """
     indices = []
     for _ in range(count):
-        indices.append(find_available_device(devices, ignore=indices))
+        indices.append(find_available_device(devices, ignore + indices, gpu_memory))
 
     return indices
 
+
 def query(devices: Devices, eid: str) -> List[int]:
     return [index for index, device in devices.items() if eid in device["eids"]]
+
 
 def do_attach(devices: Devices, eid: str, count: Optional[int], index: Optional[int]) -> None:
     """
@@ -125,6 +181,7 @@ def do_attach(devices: Devices, eid: str, count: Optional[int], index: Optional[
     Either ensures that a specified count is attached to the environment, or explicitly tries to attach a device with a given index.
     """
     attached = query(devices, eid)
+    env_gpu_memory = get_env_gpu_memory(args.eid)
 
     def ensure_count():
         current = len(attached)
@@ -133,15 +190,18 @@ def do_attach(devices: Devices, eid: str, count: Optional[int], index: Optional[
             if count > len(devices):
                 raise RuntimeError(f"Requested more devices ({count}) than total available ({len(devices)})")
 
-            indices = find_available_devices(devices, count - current)
+            indices = find_available_devices(devices, count - current, attached, env_gpu_memory)
 
-            attach_devices(devices, eid, indices)
+            attach_devices(devices, eid, indices, env_gpu_memory)
         elif current > count:
             cleanup(devices, eid, current - count)
 
     def attach_by_index():
         if index not in attached:
-            attach_devices(devices, eid, index)
+            if int(os.environ.get('GENV_ALLOW_DEVICE_OVER_ALLOCATION', 0)) == 0 and not is_device_available(devices[index], env_gpu_memory):
+                raise RuntimeError(f"Device {index} is not available")
+
+            attach_devices(devices, eid, index, env_gpu_memory)
 
     # TODO(raz): should this try/except be moved to main()?
     try:
@@ -153,7 +213,18 @@ def do_attach(devices: Devices, eid: str, count: Optional[int], index: Optional[
         print(e, file=sys.stderr)
         exit(1)
 
-    do_query(devices, eid) # print the up-to-date device indices
+    do_query(devices, eid)  # print the up-to-date device indices
+
+
+def get_env_gpu_memory(eid: int) -> Optional[str]:
+    """
+    Query the configured GPU memory of an environment as a string.
+
+    Returns 'None' if not configured.
+    """
+    # TODO(raz): could this cause a deadlock if envs manager would query this manager?
+    return subprocess.check_output(f"genv exec envs query --eid {eid} --query config.gpu_memory", shell=True).decode('utf-8').strip() or None
+
 
 def do_detach(devices: Devices, eid: str, index: Optional[int]) -> None:
     if index is not None:
@@ -165,7 +236,8 @@ def do_detach(devices: Devices, eid: str, index: Optional[int]) -> None:
     else:
         cleanup(devices, eid)
 
-    do_query(devices, eid) # print the up-to-date device indices
+    do_query(devices, eid)  # print the up-to-date device indices
+
 
 def do_ps(devices: Devices, format: str, header: bool, timestamp: bool) -> None:
     envs = {}
@@ -195,8 +267,10 @@ def do_ps(devices: Devices, format: str, header: bool, timestamp: bool) -> None:
 
                 print_line(index, eid, name, attached)
 
+
 def do_query(devices: Devices, eid: str) -> None:
     print(','.join(str(index) for index in query(devices, eid)))
+
 
 def parse_args() -> argparse.Namespace:
     def attach(parser):
@@ -212,7 +286,8 @@ def parse_args() -> argparse.Namespace:
     def ps(parser):
         parser.add_argument('--no-header', dest='header', action='store_false', help='Do not print column headers')
         parser.add_argument('--timestamp', action='store_true', help='Print a non-prettified timestamp')
-        parser.add_argument('--format', choices=['csv', 'tui'], help='Output format; CSV or TUI (Text-based user interface)', default='tui')
+        parser.add_argument('--format', choices=['csv', 'tui'],
+                            help='Output format; CSV or TUI (Text-based user interface)', default='tui')
 
     def query(parser):
         parser.add_argument('--eid', required=True, help='Environment identifier')
@@ -232,6 +307,7 @@ def parse_args() -> argparse.Namespace:
         command(subparsers.add_parser(command.__name__, help=help))
 
     return parser.parse_args()
+
 
 if __name__ == "__main__":
     args = parse_args()
