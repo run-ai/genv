@@ -15,9 +15,16 @@ Default is :code:`0`.
 
 ----
 
-:code:`GENV_DEVICES`
+:code:`GENV_MOCK_DEVICE_COUNT`
 
-Amount of GPUs that are managed by genv.
+A mock for device count.
+By default, it is queried using :code:`nvidia-smi`.
+This is mainly for development environments on CPU machines where :code:`nvidia-smi` is not available.
+----
+
+:code:`GENV_MOCK_DEVICE_MEMORY`
+
+A mock for device memory.
 By default, it is queried using :code:`nvidia-smi`.
 This is mainly for development environments on CPU machines where :code:`nvidia-smi` is not available.
 
@@ -30,9 +37,9 @@ Default is :code:`/var/tmp/genv`.
 
 ----
 
-:code:`GENV_DEVICE_MULTI_ATTACH`
+:code:`GENV_ALLOW_DEVICE_OVER_ALLOCATION`
 
-Support attaching to already attached devices.
+Support attaching environments to a device even if memory cannot be guaranteed.
 Default is :code:`0`.
 
 .. _Shims:

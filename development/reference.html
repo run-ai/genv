@@ -98,8 +98,13 @@
 <p>Bypass shim behaviors and use similar behavior to the original applications.
 Default is <code class="code docutils literal notranslate"><span class="pre">0</span></code>.</p>
 <hr class="docutils" />
-<p><code class="code docutils literal notranslate"><span class="pre">GENV_DEVICES</span></code></p>
-<p>Amount of GPUs that are managed by genv.
+<p><code class="code docutils literal notranslate"><span class="pre">GENV_MOCK_DEVICE_COUNT</span></code></p>
+<p>A mock for device count.
+By default, it is queried using <code class="code docutils literal notranslate"><span class="pre">nvidia-smi</span></code>.
+This is mainly for development environments on CPU machines where <code class="code docutils literal notranslate"><span class="pre">nvidia-smi</span></code> is not available.
+—-</p>
+<p><code class="code docutils literal notranslate"><span class="pre">GENV_MOCK_DEVICE_MEMORY</span></code></p>
+<p>A mock for device memory.
 By default, it is queried using <code class="code docutils literal notranslate"><span class="pre">nvidia-smi</span></code>.
 This is mainly for development environments on CPU machines where <code class="code docutils literal notranslate"><span class="pre">nvidia-smi</span></code> is not available.</p>
 <hr class="docutils" />
@@ -107,8 +112,8 @@ This is mainly for development environments on CPU machines where <code class="c
 <p>Path of the temp directory where all state JSON files are stored.
 Default is <code class="code docutils literal notranslate"><span class="pre">/var/tmp/genv</span></code>.</p>
 <hr class="docutils" />
-<p><code class="code docutils literal notranslate"><span class="pre">GENV_DEVICE_MULTI_ATTACH</span></code></p>
-<p>Support attaching to already attached devices.
+<p><code class="code docutils literal notranslate"><span class="pre">GENV_ALLOW_DEVICE_OVER_ALLOCATION</span></code></p>
+<p>Support attaching environments to a device even if memory cannot be guaranteed.
 Default is <code class="code docutils literal notranslate"><span class="pre">0</span></code>.</p>
 </div>
 <div class="section" id="shims">
