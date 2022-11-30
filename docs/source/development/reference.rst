@@ -30,6 +30,13 @@ This is mainly for development environments on CPU machines where :code:`nvidia-
 
 ----
 
+:code:`GENV_SHELL`
+
+Set the shell type (e.g. `zsh`, `bash`).
+Default is based on environment variable :code:`$SHELL`.
+
+----
+
 :code:`GENV_TMPDIR`
 
 Path of the temp directory where all state JSON files are stored.
