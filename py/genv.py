@@ -9,8 +9,25 @@ import subprocess
 from typing import Callable, Dict, Optional, Union
 
 DATETIME_FMT = '%d/%m/%Y %H:%M:%S'
+MEMORY_TO_BYTES_MULTIPLIERS_DICT = {
+    'b': 1,
+    'k': 1000,
+    'm': 1000 * 1000,
+    'g': 1000 * 1000 * 1000,
+    'ki': 1024,
+    'mi': 1024 * 1024,
+    'gi': 1024 * 1024 * 1024,
+}
 
-def poll_pid(pid: int) -> bool:
+
+# cleanup utils
+
+def proc_kill(pid: int) -> bool:
+    """
+    Kill the process of the given pid.
+    :param pid: pid of the process to kill
+    :return: True iff the process has been killed successfully.
+    """
     try:
         os.kill(pid, 0)
     except OSError as e:
@@ -23,7 +40,8 @@ def poll_pid(pid: int) -> bool:
     else:
         return True
 
-def poll_kernel(kernel_id: str) -> bool:
+
+def jupyter_kernel_kill(kernel_id: str) -> bool:
     # TODO(raz): what about the case when 'jupyter' is not available in the
     #            environment that we are currently running in?
     #
@@ -38,37 +56,18 @@ def poll_kernel(kernel_id: str) -> bool:
 
     return result.returncode == 0
 
-def time_since(dt: Union[str, datetime]) -> str:
-    if isinstance(dt, str):
-        dt = datetime.strptime(dt, DATETIME_FMT)
 
-    value = int((datetime.now() - dt).total_seconds())
-    unit = 'second'
+# Cache files util functions
 
-    for amount, next in [
-        (60, 'minute'),
-        (60, 'hour'),
-        (24, 'day'),
-        (7, 'week'),
-    ]:
-        if value < amount:
-            break
-
-        value, _ = divmod(value, amount)
-        unit = next
-
-    if value > 1:
-        unit = f'{unit}s'
-
-    return f'{value} {unit} ago'
 
 @contextmanager
-def Umask(value: int=0):
+def Umask(value: int = 0):
     prev = os.umask(value)
     try:
         yield
     finally:
         os.umask(prev)
+
 
 class Flock:
     def __init__(self, path: str, mode: int):
@@ -90,8 +89,24 @@ class Flock:
         finally:
             os.close(self._fd)
 
+
 @contextmanager
-def access_json(filename: str, factory: Callable[[], Dict], *, convert: Optional[Callable[[Dict], None]]=None, reset: bool=False):
+def access_json(filename: str, factory: Callable[[], Dict], *, convert: Optional[Callable[[Dict], None]] = None,
+                reset: bool = False):
+    """
+    This function returns a json object representing a genv state data.
+    The state object will either be created or loaded from a cache file, and updated with the correct data.
+    At the end of the caller process, the state object will be writen into the cache file.
+
+
+    :param filename: A filename of a cache file holding the relevant state object.
+            The base path of the file is either GENV_TMPDIR (if defined) or /var/tmp/genv.
+    :param factory: A function creating a "clean" instance of the state object
+    :param convert: A convertor function mutating the state object
+                     to the correct form (backward compatibility / updating)
+    :param reset: If the reset flag is on,
+    :return:
+    """
     path = os.path.join(os.environ.get('GENV_TMPDIR', '/var/tmp/genv'), filename)
 
     with Umask(0):
@@ -112,36 +127,56 @@ def access_json(filename: str, factory: Callable[[], Dict], *, convert: Optional
             with open(path, 'w', opener=lambda path, flags: os.open(path, flags, 0o666)) as f:
                 json.dump(o, f, indent=4)
 
+
+# Convertors
+
 def memory_to_bytes(cap: str) -> int:
     """
     Convert memory string to an integer value in bytes.
     """
-    for unit, multiplier in [
-        ('b', 1),
-        ('k', 1000),
-        ('m', 1000 * 1000),
-        ('g', 1000 * 1000 * 1000),
-        ('ki', 1024),
-        ('mi', 1024 * 1024),
-        ('gi', 1024 * 1024 * 1024),
-    ]:
+    for unit, multiplier in MEMORY_TO_BYTES_MULTIPLIERS_DICT.items():
         if cap.endswith(unit):
             return int(cap.replace(unit, '')) * multiplier
 
     return int(cap)  # the value is already in bytes if no unit was specified
 
+
 def bytes_to_memory(bytes: int, unit: str) -> str:
     """
     Convert bytes to a memory string.
     """
-    multipliers = {
-        'b': 1,
-        'k': 1000,
-        'm': 1000 * 1000,
-        'g': 1000 * 1000 * 1000,
-        'ki': 1024,
-        'mi': 1024 * 1024,
-        'gi': 1024 * 1024 * 1024,
-    }
+    return f'{bytes // MEMORY_TO_BYTES_MULTIPLIERS_DICT[unit]}{unit}'
 
-    return f'{bytes // multipliers[unit]}{unit}'
+
+# Time functions
+
+
+def time_since(dt: Union[str, datetime]) -> str:
+    """
+    This function returns a human readable string describing the amount of time passed since 'dt'
+    :param dt: The base time to calculate from. Can be either string or datetime
+    :return: a human readable string describing the amount of time passed since 'dt'
+    """
+    if isinstance(dt, str):
+        dt = datetime.strptime(dt, DATETIME_FMT)
+
+    value = int((datetime.now() - dt).total_seconds())
+    unit = 'second'
+
+    for amount, next_units in [
+        (0, 'second'),
+        (60, 'minute'),
+        (60, 'hour'),
+        (24, 'day'),
+        (7, 'week'),
+    ]:
+        if value < amount:
+            break
+
+        value, _ = divmod(value, amount)
+        unit = next_units
+
+    if value > 1:
+        unit = f'{unit}s'
+
+    return f'{value} {unit} ago'

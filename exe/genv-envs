@@ -17,17 +17,23 @@ QUERIES = {
     'config.gpu_memory': lambda env: env["config"].get("gpu_memory"),
 }
 
+
 def factory() -> Dict:
+    """
+    Create a 'empty' state object for genv environments.
+    :return: The state object (dict of dicts)
+    """
     return dict(
         envs={}
     )
 
+
 def cleanup(
         envs: Envs,
-        poll_pid: Callable[[int], bool]=genv.poll_pid,
-        poll_kernel: Callable[[str], bool]=genv.poll_kernel) -> None:
+        poll_pid: Callable[[int], bool] = genv.proc_kill,
+        poll_kernel: Callable[[str], bool] = genv.jupyter_kernel_kill) -> None:
     """
-    Clean up processes, kernels and environments.
+    Clean up processes, kernels and environments connected to the given environment.
     """
     for env in envs.values():
         if "pids" in env:
@@ -46,7 +52,15 @@ def cleanup(
     for eid in [eid for eid, env in envs.items() if _should_cleanup_env(env)]:
         del envs[eid]
 
+
 def find(envs: Envs, pid: Optional[int], kernel_id: Optional[str]) -> Union[str, None]:
+    """
+    Find the environment which is connected to the pid or kernel given
+    :param envs: A state object describing all the genv environment
+    :param pid:
+    :param kernel_id:
+    :return: Return appropriate environments id
+    """
     for query, field in [
         (pid, "pids"),
         (kernel_id, "kernel_ids"),
@@ -63,7 +77,9 @@ def find(envs: Envs, pid: Optional[int], kernel_id: Optional[str]) -> Union[str,
 
             return eid
 
-def do_activate(envs: Envs, eid: str, uid: int, username: Optional[str], pid: Optional[int], kernel_id: Optional[str]) -> None:
+
+def do_activate(envs: Envs, eid: str, uid: int, username: Optional[str], pid: Optional[int],
+                kernel_id: Optional[str]) -> None:
     if eid not in envs:
         envs[eid] = dict(
             eid=eid,
@@ -88,11 +104,20 @@ def do_activate(envs: Envs, eid: str, uid: int, username: Optional[str], pid: Op
 
         env["kernel_ids"].append(kernel_id)
 
+
 def do_find(envs: Envs, pid: Optional[int], kernel_id: Optional[str]) -> None:
+    """
+    Query genv environments to find which one is related to the given process/kernel.
+    :param envs: A state object describing all the genv environment
+    :param pid:
+    :param kernel_id:
+    :return: Return appropriate environments id
+    """
     eid = find(envs, pid, kernel_id)
 
     if eid is not None:
         print(eid)
+
 
 def do_config(envs: Envs, eid: str, command: str, args: argparse.Namespace) -> None:
     env: Env = envs.get(eid)
@@ -130,8 +155,10 @@ def do_config(envs: Envs, eid: str, command: str, args: argparse.Namespace) -> N
     elif command == 'gpu-memory':
         gpu_memory(args.gpu_memory, args.clear)
 
+
 def do_deactivate(envs: Envs, pid: int) -> None:
     cleanup(envs, poll_pid=lambda pid_: pid_ != pid)
+
 
 def do_ps(envs: Envs, format: str, header: bool, timestamp: bool) -> None:
     if header:
@@ -153,6 +180,7 @@ def do_ps(envs: Envs, format: str, header: bool, timestamp: bool) -> None:
         elif format == 'tui':
             print(f'{eid:<8}{user:<16}{name:<16}{created:<21}{pids}')
 
+
 def do_query(envs: Envs, eid: Optional[str], queries: List[str]) -> None:
     eids = [eid] if eid is not None else list(envs.keys())
 
@@ -165,6 +193,7 @@ def do_query(envs: Envs, eid: Optional[str], queries: List[str]) -> None:
         query = lambda name: str(QUERIES[name](env) or '')
 
         print(','.join(query(name) for name in queries))
+
 
 def parse_args() -> argparse.Namespace:
     def activate(parser):
@@ -222,7 +251,8 @@ def parse_args() -> argparse.Namespace:
     def ps(parser):
         parser.add_argument('--no-header', dest='header', action='store_false', help='Do not print column headers')
         parser.add_argument('--timestamp', action='store_true', help='Print a non-prettified timestamp')
-        parser.add_argument('--format', choices=['csv', 'tui'], help='Output format; CSV or TUI (Text-based user interface)', default='tui')
+        parser.add_argument('--format', choices=['csv', 'tui'],
+                            help='Output format; CSV or TUI (Text-based user interface)', default='tui')
 
     def query(parser):
         parser.add_argument('--eid', help='Environment identifier')
@@ -245,6 +275,7 @@ def parse_args() -> argparse.Namespace:
         command(subparsers.add_parser(command.__name__, help=help))
 
     return parser.parse_args()
+
 
 if __name__ == "__main__":
     args = parse_args()
