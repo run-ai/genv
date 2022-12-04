@@ -22,7 +22,7 @@ MEMORY_TO_BYTES_MULTIPLIERS_DICT = {
 
 # cleanup utils
 
-def proc_kill(pid: int) -> bool:
+def poll_pid(pid: int) -> bool:
     """
     Kill the process of the given pid.
     :param pid: pid of the process to kill
@@ -41,7 +41,7 @@ def proc_kill(pid: int) -> bool:
         return True
 
 
-def jupyter_kernel_kill(kernel_id: str) -> bool:
+def poll_jupyter_kernel(kernel_id: str) -> bool:
     # TODO(raz): what about the case when 'jupyter' is not available in the
     #            environment that we are currently running in?
     #
@@ -164,7 +164,6 @@ def time_since(dt: Union[str, datetime]) -> str:
     unit = 'second'
 
     for amount, next_units in [
-        (0, 'second'),
         (60, 'minute'),
         (60, 'hour'),
         (24, 'day'),
