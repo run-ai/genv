@@ -36,9 +36,7 @@ def cleanup(
     Clean up processes, kernels and environments connected to the given environment.
     :param envs: dictionary describing all existing environments.
     :param poll_pid: a predicate which tells us which pids are still connected to the environment.
-                    The default poll_pid function will also kills the process with the pid.
     :param poll_kernel: a predicate which tells us which jupyter kernels are still connected to the environment.
-                    The default poll_kernel function will also kill the jupyter kernel.
     :return:
     """
     for env in envs.values():
