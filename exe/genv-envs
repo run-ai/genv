@@ -33,7 +33,7 @@ def cleanup(
         poll_pid: Callable[[int], bool] = genv.poll_pid,
         poll_kernel: Callable[[str], bool] = genv.poll_jupyter_kernel) -> None:
     """
-    Clean up processes, kernels and environments connected to the given environment.
+    Clean up processes, kernels and environments.
     :param envs: dictionary describing all existing environments.
     :param poll_pid: a predicate which tells us which pids are still connected to the environment.
     :param poll_kernel: a predicate which tells us which jupyter kernels are still connected to the environment.
@@ -57,7 +57,7 @@ def cleanup(
         del envs[eid]
 
 
-def find(envs: Envs, pid: Optional[int], kernel_id: Optional[str]) -> Union[str, None]:
+def find(envs: Envs, pid: Optional[int], kernel_id: Optional[str]) -> Union[int, None]:
     """
     Find the environment which is connected to the pid or kernel given
     :param envs: dictionary describing all existing environments.
@@ -122,11 +122,11 @@ def do_activate(envs: Envs, eid: str, uid: int, username: Optional[str], pid: Op
 
 def do_find(envs: Envs, pid: Optional[int], kernel_id: Optional[str]) -> None:
     """
-    Query genv environments to find which one is related to the given process/kernel.
+    Query genv environments to find which one is related to the given process/kernel. The result is printed to stdio.
     :param envs: dictionary describing all existing environments.
     :param pid: process id to query for (optional)
     :param kernel_id: jupyter kernel id to query for (optional).
-    :return: Return appropriate environments id
+    :return: None
     """
     eid = find(envs, pid, kernel_id)
 
@@ -183,7 +183,7 @@ def do_config(envs: Envs, eid: str, command: str, args: argparse.Namespace) -> N
 def do_deactivate(envs: Envs, pid: int) -> None:
     """
     Deactivate the genv environment with the current shell.
-    Removes the current shell connection to it's environment, and cleans all jupyter kernels (?!).
+    Removes the current shell connection to it's environment, and cleans all jupyter kernels.
     :param envs: dictionary describing all existing environments.
     :param pid: the pid of the current shell
     :return: None
@@ -225,7 +225,7 @@ def do_query(envs: Envs, eid: Optional[str], queries: List[str]) -> None:
     """
     Query environment data using a query string. The queries results will be printed into the stdio.
     :param envs: dictionary describing all existing environments.
-    :param eid: eid pointing to the environment to query. If none, query your current environment.
+    :param eid: eid pointing to the environment to query. If none, query all environments.
     :param queries: list of data queries to run over the environment.
     :return: None
     """

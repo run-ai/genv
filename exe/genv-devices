@@ -30,8 +30,7 @@ def get_devices_total_memory() -> Iterable[str]:
 
     def _impl():
         if 'GENV_MOCK_DEVICE_COUNT' in os.environ:
-            return [os.environ.get('GENV_MOCK_DEVICE_MEMORY', '16g') for _ in
-                    range(int(os.environ['GENV_MOCK_DEVICE_COUNT']))]
+            return [os.environ.get('GENV_MOCK_DEVICE_MEMORY', '16g') for _ in range(int(os.environ['GENV_MOCK_DEVICE_COUNT']))]
         else:
             return [f'{int(line)}mi' for line in subprocess.check_output(
                 "GENV_BYPASS=1 nvidia-smi --query-gpu=memory.total --format=csv,noheader,nounits",
@@ -164,7 +163,7 @@ def find_available_device(devices: Devices, ignore: List[int], gpu_memory: Optio
 
 def is_device_available(device: Device, gpu_memory: Optional[str]) -> bool:
     """
-    Check for device is availability.
+    Check for device availability.
     If a memory consumption constraint is specified, check if this amount is available on the device.
     Otherwise, a device must be non-attached to be considered "available".
     :param device:
@@ -319,10 +318,9 @@ def do_ps(devices: Devices, format: str, header: bool, timestamp: bool) -> None:
     """
     Print genv devices data in a human-readable fashion to the stdio.
     :param devices: dictionary describing all existing genv devices.
-    :param format: Which format should be used to print the devices data - csv or tui (default: tui).
-    :param header: a flag instructing if we should print a header as part of the output (default: print header).
+    :param format: Which format should be used to print the devices data - csv or tui.
+    :param header: a flag instructing if we should print a header as part of the output.
     :param timestamp: a flag instructing if we should print attachment time as is or relative duration (now - creation).
-                    (default: relative duration)
     :return: None
     """
     envs = {}
