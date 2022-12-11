@@ -195,7 +195,8 @@ def get_device_unallocated_memory_bytes(device) -> int:
 
 def find_available_devices(devices: Devices, count: int, ignore: List[int], gpu_memory: Optional[str]) -> List[int]:
     """
-    Find count (or less, if not enough available devices exists) available devices.
+    Find count available devices, considering blacklist and memory constraints.
+     If not enough devices are available, RuntimeError error will be raised.
     :param devices: dictionary describing all existing genv devices.
     :param count: max num of available devices to find
     :param ignore: devices blacklist. all these devices will be ignored
