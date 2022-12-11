@@ -17,17 +17,27 @@ QUERIES = {
     'config.gpu_memory': lambda env: env["config"].get("gpu_memory"),
 }
 
+
 def factory() -> Dict:
+    """
+    Create a 'empty' state object for genv environments.
+    :return: The state object (dict of dicts)
+    """
     return dict(
         envs={}
     )
 
+
 def cleanup(
         envs: Envs,
-        poll_pid: Callable[[int], bool]=genv.poll_pid,
-        poll_kernel: Callable[[str], bool]=genv.poll_kernel) -> None:
+        poll_pid: Callable[[int], bool] = genv.poll_pid,
+        poll_kernel: Callable[[str], bool] = genv.poll_jupyter_kernel) -> None:
     """
     Clean up processes, kernels and environments.
+    :param envs: dictionary describing all existing environments.
+    :param poll_pid: a predicate which tells us which pids are still connected to an environment.
+    :param poll_kernel: a predicate which tells us which jupyter kernels are still connected to an environment.
+    :return:
     """
     for env in envs.values():
         if "pids" in env:
@@ -46,7 +56,15 @@ def cleanup(
     for eid in [eid for eid, env in envs.items() if _should_cleanup_env(env)]:
         del envs[eid]
 
-def find(envs: Envs, pid: Optional[int], kernel_id: Optional[str]) -> Union[str, None]:
+
+def find(envs: Envs, pid: Optional[int], kernel_id: Optional[str]) -> Union[int, None]:
+    """
+    Find the environment which is connected to the pid or kernel given
+    :param envs: dictionary describing all existing environments.
+    :param pid:
+    :param kernel_id:
+    :return: Return appropriate environments id
+    """
     for query, field in [
         (pid, "pids"),
         (kernel_id, "kernel_ids"),
@@ -63,7 +81,20 @@ def find(envs: Envs, pid: Optional[int], kernel_id: Optional[str]) -> Union[str,
 
             return eid
 
-def do_activate(envs: Envs, eid: str, uid: int, username: Optional[str], pid: Optional[int], kernel_id: Optional[str]) -> None:
+
+def do_activate(envs: Envs, eid: str, uid: int, username: Optional[str], pid: Optional[int],
+                kernel_id: Optional[str]) -> None:
+    """
+    Activates an environment - fill/update username, process ids and jupyter kernel ids.
+     If an appropriate environment doesn't exists, create one.
+    :param envs: dictionary describing all existing environments.
+    :param eid: environment id for the environment to activate.
+    :param uid:
+    :param username: Environment username.
+    :param pid:
+    :param kernel_id:
+    :return: None
+    """
     if eid not in envs:
         envs[eid] = dict(
             eid=eid,
@@ -88,13 +119,31 @@ def do_activate(envs: Envs, eid: str, uid: int, username: Optional[str], pid: Op
 
         env["kernel_ids"].append(kernel_id)
 
+
 def do_find(envs: Envs, pid: Optional[int], kernel_id: Optional[str]) -> None:
+    """
+    Query genv environments to find which one is related to the given process/kernel. The result is printed to stdio.
+    :param envs: dictionary describing all existing environments.
+    :param pid: process id to query for (optional)
+    :param kernel_id: jupyter kernel id to query for (optional).
+    :return: None
+    """
     eid = find(envs, pid, kernel_id)
 
     if eid is not None:
         print(eid)
 
+
 def do_config(envs: Envs, eid: str, command: str, args: argparse.Namespace) -> None:
+    """
+    Update environment config variables - either set a specific variable or clear it.
+    :param envs: dictionary describing all existing environments.
+    :param eid: environment to change
+    :param command: a string describing which variable in the environment config to change
+    :param args: parameters for the config change.
+                For example - gpus count variable, clear/not clear config variable, etc.
+    :return: None
+    """
     env: Env = envs.get(eid)
 
     if env is None:
@@ -130,10 +179,28 @@ def do_config(envs: Envs, eid: str, command: str, args: argparse.Namespace) -> N
     elif command == 'gpu-memory':
         gpu_memory(args.gpu_memory, args.clear)
 
+
 def do_deactivate(envs: Envs, pid: int) -> None:
+    """
+    Deactivate the genv environment with the current shell.
+    Removes the current shell connection to it's environment, and cleans all jupyter kernels.
+    :param envs: dictionary describing all existing environments.
+    :param pid: the pid of the current shell
+    :return: None
+    """
     cleanup(envs, poll_pid=lambda pid_: pid_ != pid)
 
+
 def do_ps(envs: Envs, format: str, header: bool, timestamp: bool) -> None:
+    """
+    Print environments data in a human-readable fashion to the stdio.
+    :param envs: dictionary describing all existing environments.
+    :param format: Which format should be used to print the environment data - csv or tui (default: tui).
+    :param header: a flag instructing if we should print a header as part of the output (default: print header).
+    :param timestamp: a flag instructing if we should print creation time as is or relative duration (now - creation).
+                    (default: relative duration)
+    :return: None
+    """
     if header:
         if format == 'csv':
             print('ID,USER,NAME,CREATED,PID(S)')
@@ -153,7 +220,15 @@ def do_ps(envs: Envs, format: str, header: bool, timestamp: bool) -> None:
         elif format == 'tui':
             print(f'{eid:<8}{user:<16}{name:<16}{created:<21}{pids}')
 
+
 def do_query(envs: Envs, eid: Optional[str], queries: List[str]) -> None:
+    """
+    Query environment data using a query string. The queries results will be printed into the stdio.
+    :param envs: dictionary describing all existing environments.
+    :param eid: eid pointing to the environment to query. If none, query all environments.
+    :param queries: list of data queries to run over the environment.
+    :return: None
+    """
     eids = [eid] if eid is not None else list(envs.keys())
 
     for eid in eids:
@@ -166,7 +241,12 @@ def do_query(envs: Envs, eid: Optional[str], queries: List[str]) -> None:
 
         print(','.join(query(name) for name in queries))
 
+
 def parse_args() -> argparse.Namespace:
+    """
+    Set all possible genv environments commands and their arguments.
+    :return:
+    """
     def activate(parser):
         parser.add_argument('--eid', required=True, help='Environment identifier')
         parser.add_argument('--uid', type=int, required=True, help='User identifier')
@@ -222,7 +302,8 @@ def parse_args() -> argparse.Namespace:
     def ps(parser):
         parser.add_argument('--no-header', dest='header', action='store_false', help='Do not print column headers')
         parser.add_argument('--timestamp', action='store_true', help='Print a non-prettified timestamp')
-        parser.add_argument('--format', choices=['csv', 'tui'], help='Output format; CSV or TUI (Text-based user interface)', default='tui')
+        parser.add_argument('--format', choices=['csv', 'tui'],
+                            help='Output format; CSV or TUI (Text-based user interface)', default='tui')
 
     def query(parser):
         parser.add_argument('--eid', help='Environment identifier')
@@ -245,6 +326,7 @@ def parse_args() -> argparse.Namespace:
         command(subparsers.add_parser(command.__name__, help=help))
 
     return parser.parse_args()
+
 
 if __name__ == "__main__":
     args = parse_args()

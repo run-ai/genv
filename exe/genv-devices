@@ -12,20 +12,31 @@ import genv
 Device = Dict[Any, Any]
 Devices = Dict[int, Device]
 
+"""
+This module manages all genv devices. Each genv device represents a single Nvidia gpu.
+A device can be attached to 0, 1 or more environments.
+"""
+
 
 def get_devices_total_memory() -> Iterable[str]:
     """
     Get total memory of all devices as string using nvidia-smi.
 
     Cached for performance purposes as this should not change.
-    Can be mocked with environment variables.
+    Can be mocked using the GENV_MOCK_DEVICE_COUNT and GENV_MOCK_DEVICE_MEMORY environment variables.
+    :return: A list of gpu devices memory.
+            The memory at index i represents the memory (in mib) of the gpu device at index i.
     """
+
     def _impl():
         if 'GENV_MOCK_DEVICE_COUNT' in os.environ:
             return [os.environ.get('GENV_MOCK_DEVICE_MEMORY', '16g') for _ in range(int(os.environ['GENV_MOCK_DEVICE_COUNT']))]
         else:
-            return [f'{int(line)}mi' for line in subprocess.check_output("GENV_BYPASS=1 nvidia-smi --query-gpu=memory.total --format=csv,noheader,nounits", shell=True).splitlines()]
+            return [f'{int(line)}mi' for line in subprocess.check_output(
+                "GENV_BYPASS=1 nvidia-smi --query-gpu=memory.total --format=csv,noheader,nounits",
+                shell=True).splitlines()]
 
+    # TODO(davidL): How do we refresh the device memory data for newly installed gpus or mock/non-mock shift?
     if not hasattr(get_devices_total_memory, '__cache__'):
         setattr(get_devices_total_memory, '__cache__', _impl())
 
@@ -34,18 +45,22 @@ def get_devices_total_memory() -> Iterable[str]:
 
 def factory() -> Dict:
     """
-    Creates the json file.
+    Create a 'empty' state object for genv devices.
+    :return: The state object (dict of dicts)
     """
     return dict(
-        devices={ index: { "eids": {}, "total_memory": total_memory } for index, total_memory in enumerate(get_devices_total_memory()) }
+        devices={index: {"eids": {}, "total_memory": total_memory} for index, total_memory in
+                 enumerate(get_devices_total_memory())}
     )
 
 
 def convert(json: Dict) -> None:
     """
-    Converts the loaded json file.
+    Mutating the loaded genv devices state object to represent the current devices state.
+    Creates the 'total_memory' section for each device (if it doesn't exist) and translate all device indexes into ints.
 
-    This is needed because some numbers are saved as strings because dictionary keys in json files must be strings.
+    The index int conversion is needed because some numbers are saved as strings.
+        They are saved as strings because dictionary keys in json files must be strings.
     """
     json["devices"] = {int(index): device for index, device in json["devices"].items()}
 
@@ -57,14 +72,14 @@ def convert(json: Dict) -> None:
 
 def cleanup(devices: Devices, eid: Optional[str] = None, count: Optional[int] = None) -> None:
     """
-    Clean up devices.
-
-    When 'eid' is passed, only this environment is cleaned.
-    When 'eid' is not passed, all deactivated environments are cleaned.
-
-    When 'count' is passed, cleaning stops when this amount of devices are cleaned.
+    This function cleans (detaches) devices from a list of environments.
+    :param devices: dictionary describing all existing genv devices.
+    :param eid: When 'eid' is passed, only devices from this environment are cleaned.
+            When 'eid' is not passed, devices from all deactivated environments are cleaned.
+    :param count: When 'count' is passed, cleaning stops when this amount of devices are cleaned.
+    :return: None
     """
-    pred: Callable[[str], bool] = None
+    pred: Callable[[str], bool]
 
     if eid is not None:
         pred = lambda _: _ == eid
@@ -94,14 +109,22 @@ def cleanup(devices: Devices, eid: Optional[str] = None, count: Optional[int] = 
 
 def detach_device(device: Device, eid: str) -> None:
     """
-    Detaches a device from an environment.
+    Detach device from a specific environment.
+    :param device: device to detach.
+    :param eid: environment id to detach the device from.
+    :return: None
     """
     del device["eids"][eid]
 
 
 def attach_devices(devices: Devices, eid: str, indices: Union[List[int], int], env_gpu_memory: Optional[str]) -> None:
     """
-    Attaches a device or a set of devices to an environment.
+    Update devices state with the environment device attachments, including memory constraints .
+    :param devices: dictionary describing all existing genv devices.
+    :param eid: eid of the environment to which we will attach the devices.
+    :param indices: Attached devices indices (can be one or more).
+    :param env_gpu_memory: Attachment memory constraint.
+    :return:
     """
     if isinstance(indices, int):
         indices = [indices]
@@ -122,7 +145,11 @@ def attach_devices(devices: Devices, eid: str, indices: Union[List[int], int], e
 
 def find_available_device(devices: Devices, ignore: List[int], gpu_memory: Optional[str]) -> int:
     """
-    Finds an available device while ignoring specified indices.
+    Finds an available device for attachment. Takes into account memory constraint and device blacklist.
+    :param devices: dictionary describing all existing genv devices.
+    :param ignore: devices blacklist. Ignore this devices when looking for an available one
+    :param gpu_memory: gpu memory constraint
+    :return: available device index. If no device can satisfy the requirements, raises a RuntimeError.
     """
     for index, device in devices.items():
         if index in ignore:
@@ -136,32 +163,45 @@ def find_available_device(devices: Devices, ignore: List[int], gpu_memory: Optio
 
 def is_device_available(device: Device, gpu_memory: Optional[str]) -> bool:
     """
-    Checks if a device is available.
-
-    Checking if the device is empty if amount of GPU memory not specified.
-    Otherwise, checking if this amount is available.
+    Check for device availability.
+    If a memory consumption constraint is specified, check if this amount is available on the device.
+    Otherwise, a device must be non-attached to be considered "available".
+    :param device:
+    :param gpu_memory: memory constraint (optional)
+    :return: True iff the device is available
     """
-    return len(device["eids"]) == 0 if gpu_memory is None else get_device_unallocated_memory_bytes(device) >= genv.memory_to_bytes(gpu_memory)
+    return len(device["eids"]) == 0 if gpu_memory is None else get_device_unallocated_memory_bytes(
+        device) >= genv.memory_to_bytes(gpu_memory)
 
 
 def get_device_unallocated_memory_bytes(device) -> int:
     """
     Get the device unallocated memory in bytes.
+    If a device is attached without specifying memory consumption constraint,
+     then all of the devices memory is considered "allocated".
+    :param device:
+    :return: unallocated memory in bytes.
     """
     unallocated_memory_bytes = genv.memory_to_bytes(device["total_memory"])
 
     for env in device["eids"].values():
         if "gpu_memory" not in env:
-            return 0 # the environment uses all the device memory
+            return 0  # the environment uses all the device memory
         else:
             unallocated_memory_bytes -= genv.memory_to_bytes(env["gpu_memory"])
 
-    return max(unallocated_memory_bytes, 0) # convert negative values when device is overallocated
+    return max(unallocated_memory_bytes, 0)  # convert negative values when device is overallocated
 
 
 def find_available_devices(devices: Devices, count: int, ignore: List[int], gpu_memory: Optional[str]) -> List[int]:
     """
-    Finds a number of available devices.
+    Find count available devices, considering blacklist and memory constraints.
+     If not enough devices are available, RuntimeError error will be raised.
+    :param devices: dictionary describing all existing genv devices.
+    :param count: max num of available devices to find
+    :param ignore: devices blacklist. all these devices will be ignored
+    :param gpu_memory: memory constraint (optional)
+    :return: a list of available device indices
     """
     indices = []
     for _ in range(count):
@@ -171,19 +211,36 @@ def find_available_devices(devices: Devices, count: int, ignore: List[int], gpu_
 
 
 def query(devices: Devices, eid: str) -> List[int]:
+    """
+    List all devices attached to an specific environment.
+    :param devices: dictionary describing all existing genv devices.
+    :param eid: queried environment id.
+    :return: list of all devices indices attached to the environment.
+    """
     return [index for index, device in devices.items() if eid in device["eids"]]
 
 
 def do_attach(devices: Devices, eid: str, count: Optional[int], index: Optional[int]) -> None:
     """
-    Attaches devices to an environment and prints the device indices.
-
-    Either ensures that a specified count is attached to the environment, or explicitly tries to attach a device with a given index.
+    Attaches devices to an environment and print the device indices.
+    Either ensures that a specified count is attached to the environment,
+     or explicitly tries to attach a device with a given index.
+    :param devices: dictionary describing all existing genv devices.
+    :param eid: eid of the environment for which we attach the devices.
+    :param count: number of devices to attach. Cannot be used in conjunction with the 'index' parameter.
+    :param index: index of a specific device we want to attach to the environment.
+     Cannot be used in conjunction with the 'count' parameter.
+    :return: None
     """
     attached = query(devices, eid)
     env_gpu_memory = get_env_gpu_memory(args.eid)
 
     def ensure_count():
+        """
+        On attach command, attach or detach devices from the environment according to
+         the number of devices requested in the environment's configuration.
+        :return: None
+        """
         current = len(attached)
 
         if current < count:
@@ -197,8 +254,15 @@ def do_attach(devices: Devices, eid: str, count: Optional[int], index: Optional[
             cleanup(devices, eid, current - count)
 
     def attach_by_index():
+        """
+        Attach a specific device to our environment, as request by the attach command.
+        If the device is already attached to another environment, validate that device over-allocation is enabled
+         and the memory constrains will hold.
+        :return: None
+        """
         if index not in attached:
-            if int(os.environ.get('GENV_ALLOW_DEVICE_OVER_ALLOCATION', 0)) == 0 and not is_device_available(devices[index], env_gpu_memory):
+            if int(os.environ.get('GENV_ALLOW_DEVICE_OVER_ALLOCATION', 0)) == 0 and not is_device_available(
+                    devices[index], env_gpu_memory):
                 raise RuntimeError(f"Device {index} is not available")
 
             attach_devices(devices, eid, index, env_gpu_memory)
@@ -218,15 +282,27 @@ def do_attach(devices: Devices, eid: str, count: Optional[int], index: Optional[
 
 def get_env_gpu_memory(eid: int) -> Optional[str]:
     """
-    Query the configured GPU memory of an environment as a string.
+    Query the configured GPU memory of an environment.
 
     Returns 'None' if not configured.
+    :param eid: Environment to query
+    :return: return the configured gpu memory, or None if not configured
     """
     # TODO(raz): could this cause a deadlock if envs manager would query this manager?
-    return subprocess.check_output(f"genv exec envs query --eid {eid} --query config.gpu_memory", shell=True).decode('utf-8').strip() or None
+    return subprocess.check_output(f"genv exec envs query --eid {eid} --query config.gpu_memory", shell=True).decode(
+        'utf-8').strip() or None
 
 
 def do_detach(devices: Devices, eid: str, index: Optional[int]) -> None:
+    """
+    Detach devices from a given environment. After detaching, print environment-devices current relationship.
+    Either the device to detach is given, or a general cleanup is called on the environment.
+    :param devices: dictionary describing all existing genv devices.
+    :param eid: eid for the environment we are working on.
+    :param index: an index of the specific device to detach.
+                If no index is given a general cleanup is called on the environment.
+    :return: None
+    """
     if index is not None:
         if index in devices:
             device = devices[index]
@@ -240,8 +316,17 @@ def do_detach(devices: Devices, eid: str, index: Optional[int]) -> None:
 
 
 def do_ps(devices: Devices, format: str, header: bool, timestamp: bool) -> None:
+    """
+    Print genv devices data in a human-readable fashion to the stdio.
+    :param devices: dictionary describing all existing genv devices.
+    :param format: Which format should be used to print the devices data - csv or tui.
+    :param header: a flag instructing if we should print a header as part of the output.
+    :param timestamp: a flag instructing if we should print attachment time as is or relative duration (now - creation).
+    :return: None
+    """
     envs = {}
-    for line in subprocess.check_output("genv exec envs query --query eid config.name", shell=True).decode('utf-8').splitlines():
+    for line in subprocess.check_output("genv exec envs query --query eid config.name", shell=True).decode(
+            'utf-8').splitlines():
         eid, name = line.split(',')
         envs[eid] = name
 
@@ -269,6 +354,12 @@ def do_ps(devices: Devices, format: str, header: bool, timestamp: bool) -> None:
 
 
 def do_query(devices: Devices, eid: str) -> None:
+    """
+    Print all the indices of devices attached to a specific environment
+    :param devices: dictionary describing all existing genv devices.
+    :param eid: eid for the environment we are working on.
+    :return: None
+    """
     print(','.join(str(index) for index in query(devices, eid)))
 
 
