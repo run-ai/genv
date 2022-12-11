@@ -2,15 +2,23 @@ Installation
 ============
 
 .. contents::
-   :depth: 2
+   :depth: 3
    :backlinks: none
 
 Terminal
 --------
 
+Conda
+^^^^^
+If you are using `Conda <https://docs.conda.io/en/latest/>`__, the best way to install genv is using the `genv <https://anaconda.org/conda-forge/genv>`__ package from the channel `conda-forge <https://conda-forge.org/>`__:
+
+.. code-block:: shell
+
+   conda install -c conda-forge genv
+
 From Source
 ^^^^^^^^^^^
-It's super easy to get genv as everything you need is to clone its `repository <https://www.github.com/run-ai/genv>`__.
+If you are not using Conda, it is still super easy to get genv as everything you need is to clone its `repository <https://www.github.com/run-ai/genv>`__.
 Your home directory is a great place to keep it:
 
 .. code-block:: shell

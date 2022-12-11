@@ -39,6 +39,7 @@
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Installation</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#terminal">Terminal</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#conda">Conda</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#from-source">From Source</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#setting-up-your-shell">Setting Up Your Shell</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#dependencies">Dependencies</a></li>
@@ -96,19 +97,31 @@
 <ul class="simple">
 <li><p><a class="reference internal" href="#installation" id="id1">Installation</a></p>
 <ul>
-<li><p><a class="reference internal" href="#terminal" id="id2">Terminal</a></p></li>
-<li><p><a class="reference internal" href="#visual-studio-code" id="id3">Visual Studio Code</a></p></li>
-<li><p><a class="reference internal" href="#jupyterlab" id="id4">JupyterLab</a></p></li>
-<li><p><a class="reference internal" href="#pycharm" id="id5">PyCharm</a></p></li>
+<li><p><a class="reference internal" href="#terminal" id="id2">Terminal</a></p>
+<ul>
+<li><p><a class="reference internal" href="#conda" id="id3">Conda</a></p></li>
+<li><p><a class="reference internal" href="#from-source" id="id4">From Source</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#visual-studio-code" id="id5">Visual Studio Code</a></p></li>
+<li><p><a class="reference internal" href="#jupyterlab" id="id6">JupyterLab</a></p></li>
+<li><p><a class="reference internal" href="#pycharm" id="id7">PyCharm</a></p></li>
 </ul>
 </li>
 </ul>
 </div>
 <div class="section" id="terminal">
 <h2>Terminal<a class="headerlink" href="#terminal" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="conda">
+<h3>Conda<a class="headerlink" href="#conda" title="Permalink to this headline">¶</a></h3>
+<p>If you are using <a class="reference external" href="https://docs.conda.io/en/latest/">Conda</a>, the best way to install genv is using the <a class="reference external" href="https://anaconda.org/conda-forge/genv">genv</a> package from the channel <a class="reference external" href="https://conda-forge.org/">conda-forge</a>:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>conda install -c conda-forge genv
+</pre></div>
+</div>
+</div>
 <div class="section" id="from-source">
 <h3>From Source<a class="headerlink" href="#from-source" title="Permalink to this headline">¶</a></h3>
-<p>It’s super easy to get genv as everything you need is to clone its <a class="reference external" href="https://www.github.com/run-ai/genv">repository</a>.
+<p>If you are not using Conda, it is still super easy to get genv as everything you need is to clone its <a class="reference external" href="https://www.github.com/run-ai/genv">repository</a>.
 Your home directory is a great place to keep it:</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>git clone https://github.com/run-ai/genv.git ~/genv
 </pre></div>
