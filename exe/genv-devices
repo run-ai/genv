@@ -29,18 +29,25 @@ def get_devices_total_memory() -> Iterable[str]:
     """
 
     def _impl():
-        if 'GENV_MOCK_DEVICE_COUNT' in os.environ:
-            return [os.environ.get('GENV_MOCK_DEVICE_MEMORY', '16g') for _ in range(int(os.environ['GENV_MOCK_DEVICE_COUNT']))]
+        if "GENV_MOCK_DEVICE_COUNT" in os.environ:
+            return [
+                os.environ.get("GENV_MOCK_DEVICE_MEMORY", "16g")
+                for _ in range(int(os.environ["GENV_MOCK_DEVICE_COUNT"]))
+            ]
         else:
-            return [f'{int(line)}mi' for line in subprocess.check_output(
-                "GENV_BYPASS=1 nvidia-smi --query-gpu=memory.total --format=csv,noheader,nounits",
-                shell=True).splitlines()]
+            return [
+                f"{int(line)}mi"
+                for line in subprocess.check_output(
+                    "GENV_BYPASS=1 nvidia-smi --query-gpu=memory.total --format=csv,noheader,nounits",
+                    shell=True,
+                ).splitlines()
+            ]
 
     # TODO(davidL): How do we refresh the device memory data for newly installed gpus or mock/non-mock shift?
-    if not hasattr(get_devices_total_memory, '__cache__'):
-        setattr(get_devices_total_memory, '__cache__', _impl())
+    if not hasattr(get_devices_total_memory, "__cache__"):
+        setattr(get_devices_total_memory, "__cache__", _impl())
 
-    return getattr(get_devices_total_memory, '__cache__')
+    return getattr(get_devices_total_memory, "__cache__")
 
 
 def factory() -> Dict:
@@ -49,8 +56,10 @@ def factory() -> Dict:
     :return: The state object (dict of dicts)
     """
     return dict(
-        devices={index: {"eids": {}, "total_memory": total_memory} for index, total_memory in
-                 enumerate(get_devices_total_memory())}
+        devices={
+            index: {"eids": {}, "total_memory": total_memory}
+            for index, total_memory in enumerate(get_devices_total_memory())
+        }
     )
 
 
@@ -70,7 +79,9 @@ def convert(json: Dict) -> None:
             device["total_memory"] = get_devices_total_memory()[index]
 
 
-def cleanup(devices: Devices, eid: Optional[str] = None, count: Optional[int] = None) -> None:
+def cleanup(
+    devices: Devices, eid: Optional[str] = None, count: Optional[int] = None
+) -> None:
     """
     This function cleans (detaches) devices from a list of environments.
     :param devices: dictionary describing all existing genv devices.
@@ -84,7 +95,11 @@ def cleanup(devices: Devices, eid: Optional[str] = None, count: Optional[int] = 
     if eid is not None:
         pred = lambda _: _ == eid
     else:
-        eids = subprocess.check_output("genv exec envs query --query eid", shell=True).decode('utf-8').splitlines()
+        eids = (
+            subprocess.check_output("genv exec envs query --query eid", shell=True)
+            .decode("utf-8")
+            .splitlines()
+        )
         pred = lambda eid: eid not in eids
 
     for index in sorted(devices.keys(), reverse=True):
@@ -117,7 +132,12 @@ def detach_device(device: Device, eid: str) -> None:
     del device["eids"][eid]
 
 
-def attach_devices(devices: Devices, eid: str, indices: Union[List[int], int], env_gpu_memory: Optional[str]) -> None:
+def attach_devices(
+    devices: Devices,
+    eid: str,
+    indices: Union[List[int], int],
+    env_gpu_memory: Optional[str],
+) -> None:
     """
     Update devices state with the environment device attachments, including memory constraints .
     :param devices: dictionary describing all existing genv devices.
@@ -143,7 +163,9 @@ def attach_devices(devices: Devices, eid: str, indices: Union[List[int], int], e
         devices[index]["eids"][eid] = env
 
 
-def find_available_device(devices: Devices, ignore: List[int], gpu_memory: Optional[str]) -> int:
+def find_available_device(
+    devices: Devices, ignore: List[int], gpu_memory: Optional[str]
+) -> int:
     """
     Finds an available device for attachment. Takes into account memory constraint and device blacklist.
     :param devices: dictionary describing all existing genv devices.
@@ -170,8 +192,12 @@ def is_device_available(device: Device, gpu_memory: Optional[str]) -> bool:
     :param gpu_memory: memory constraint (optional)
     :return: True iff the device is available
     """
-    return len(device["eids"]) == 0 if gpu_memory is None else get_device_unallocated_memory_bytes(
-        device) >= genv.memory_to_bytes(gpu_memory)
+    return (
+        len(device["eids"]) == 0
+        if gpu_memory is None
+        else get_device_unallocated_memory_bytes(device)
+        >= genv.memory_to_bytes(gpu_memory)
+    )
 
 
 def get_device_unallocated_memory_bytes(device) -> int:
@@ -190,10 +216,14 @@ def get_device_unallocated_memory_bytes(device) -> int:
         else:
             unallocated_memory_bytes -= genv.memory_to_bytes(env["gpu_memory"])
 
-    return max(unallocated_memory_bytes, 0)  # convert negative values when device is overallocated
+    return max(
+        unallocated_memory_bytes, 0
+    )  # convert negative values when device is overallocated
 
 
-def find_available_devices(devices: Devices, count: int, ignore: List[int], gpu_memory: Optional[str]) -> List[int]:
+def find_available_devices(
+    devices: Devices, count: int, ignore: List[int], gpu_memory: Optional[str]
+) -> List[int]:
     """
     Find count available devices, considering blacklist and memory constraints.
      If not enough devices are available, RuntimeError error will be raised.
@@ -220,7 +250,9 @@ def query(devices: Devices, eid: str) -> List[int]:
     return [index for index, device in devices.items() if eid in device["eids"]]
 
 
-def do_attach(devices: Devices, eid: str, count: Optional[int], index: Optional[int]) -> None:
+def do_attach(
+    devices: Devices, eid: str, count: Optional[int], index: Optional[int]
+) -> None:
     """
     Attaches devices to an environment and print the device indices.
     Either ensures that a specified count is attached to the environment,
@@ -245,9 +277,13 @@ def do_attach(devices: Devices, eid: str, count: Optional[int], index: Optional[
 
         if current < count:
             if count > len(devices):
-                raise RuntimeError(f"Requested more devices ({count}) than total available ({len(devices)})")
+                raise RuntimeError(
+                    f"Requested more devices ({count}) than total available ({len(devices)})"
+                )
 
-            indices = find_available_devices(devices, count - current, attached, env_gpu_memory)
+            indices = find_available_devices(
+                devices, count - current, attached, env_gpu_memory
+            )
 
             attach_devices(devices, eid, indices, env_gpu_memory)
         elif current > count:
@@ -261,8 +297,9 @@ def do_attach(devices: Devices, eid: str, count: Optional[int], index: Optional[
         :return: None
         """
         if index not in attached:
-            if int(os.environ.get('GENV_ALLOW_DEVICE_OVER_ALLOCATION', 0)) == 0 and not is_device_available(
-                    devices[index], env_gpu_memory):
+            if int(
+                os.environ.get("GENV_ALLOW_DEVICE_OVER_ALLOCATION", 0)
+            ) == 0 and not is_device_available(devices[index], env_gpu_memory):
                 raise RuntimeError(f"Device {index} is not available")
 
             attach_devices(devices, eid, index, env_gpu_memory)
@@ -289,8 +326,14 @@ def get_env_gpu_memory(eid: int) -> Optional[str]:
     :return: return the configured gpu memory, or None if not configured
     """
     # TODO(raz): could this cause a deadlock if envs manager would query this manager?
-    return subprocess.check_output(f"genv exec envs query --eid {eid} --query config.gpu_memory", shell=True).decode(
-        'utf-8').strip() or None
+    return (
+        subprocess.check_output(
+            f"genv exec envs query --eid {eid} --query config.gpu_memory", shell=True
+        )
+        .decode("utf-8")
+        .strip()
+        or None
+    )
 
 
 def do_detach(devices: Devices, eid: str, index: Optional[int]) -> None:
@@ -325,30 +368,37 @@ def do_ps(devices: Devices, format: str, header: bool, timestamp: bool) -> None:
     :return: None
     """
     envs = {}
-    for line in subprocess.check_output("genv exec envs query --query eid config.name", shell=True).decode(
-            'utf-8').splitlines():
-        eid, name = line.split(',')
+    for line in (
+        subprocess.check_output(
+            "genv exec envs query --query eid config.name", shell=True
+        )
+        .decode("utf-8")
+        .splitlines()
+    ):
+        eid, name = line.split(",")
         envs[eid] = name
 
     if header:
-        if format == 'csv':
-            print('ID,ENV ID,ENV NAME,ATTACHED')
-        elif format == 'tui':
-            print('ID      ENV ID      ENV NAME        ATTACHED')
+        if format == "csv":
+            print("ID,ENV ID,ENV NAME,ATTACHED")
+        elif format == "tui":
+            print("ID      ENV ID      ENV NAME        ATTACHED")
 
     def print_line(index, eid, name, attached):
-        if format == 'csv':
-            print(f'{index},{eid},{name},{attached}')
-        elif format == 'tui':
-            print(f'{index:<8}{eid:<12}{name:<16}{attached}')
+        if format == "csv":
+            print(f"{index},{eid},{name},{attached}")
+        elif format == "tui":
+            print(f"{index:<8}{eid:<12}{name:<16}{attached}")
 
     for index, device in devices.items():
         if len(device["eids"]) == 0:
-            print_line(index, '', '', '')
+            print_line(index, "", "", "")
         else:
             for eid, info in device["eids"].items():
-                name = envs.get(eid, '')
-                attached = info["attached"] if timestamp else genv.time_since(info["attached"])
+                name = envs.get(eid, "")
+                attached = (
+                    info["attached"] if timestamp else genv.time_since(info["attached"])
+                )
 
                 print_line(index, eid, name, attached)
 
@@ -360,40 +410,60 @@ def do_query(devices: Devices, eid: str) -> None:
     :param eid: eid for the environment we are working on.
     :return: None
     """
-    print(','.join(str(index) for index in query(devices, eid)))
+    print(",".join(str(index) for index in query(devices, eid)))
 
 
 def parse_args() -> argparse.Namespace:
     def attach(parser):
-        parser.add_argument('--eid', required=True, help='Environment identifier')
+        parser.add_argument("--eid", required=True, help="Environment identifier")
         group = parser.add_mutually_exclusive_group(required=True)
-        group.add_argument('--count', type=int, help='Total devices count to be attached')
-        group.add_argument('--index', type=int, help='Device index to attach specifically')
+        group.add_argument(
+            "--count", type=int, help="Total devices count to be attached"
+        )
+        group.add_argument(
+            "--index", type=int, help="Device index to attach specifically"
+        )
 
     def detach(parser):
-        parser.add_argument('--eid', required=True, help='Environment identifier')
-        parser.add_argument('--index', type=int, help='Device index to dettach')
+        parser.add_argument("--eid", required=True, help="Environment identifier")
+        parser.add_argument("--index", type=int, help="Device index to dettach")
 
     def ps(parser):
-        parser.add_argument('--no-header', dest='header', action='store_false', help='Do not print column headers')
-        parser.add_argument('--timestamp', action='store_true', help='Print a non-prettified timestamp')
-        parser.add_argument('--format', choices=['csv', 'tui'],
-                            help='Output format; CSV or TUI (Text-based user interface)', default='tui')
+        parser.add_argument(
+            "--no-header",
+            dest="header",
+            action="store_false",
+            help="Do not print column headers",
+        )
+        parser.add_argument(
+            "--timestamp", action="store_true", help="Print a non-prettified timestamp"
+        )
+        parser.add_argument(
+            "--format",
+            choices=["csv", "tui"],
+            help="Output format; CSV or TUI (Text-based user interface)",
+            default="tui",
+        )
 
     def query(parser):
-        parser.add_argument('--eid', required=True, help='Environment identifier')
+        parser.add_argument("--eid", required=True, help="Environment identifier")
 
-    parser = argparse.ArgumentParser(description=f'genv device manager')
-    parser.add_argument('--no-cleanup', dest='cleanup', action='store_false', help='Do not perform clean up')
-    parser.add_argument('--reset', action='store_true', help='Reset previous state')
+    parser = argparse.ArgumentParser(description=f"genv device manager")
+    parser.add_argument(
+        "--no-cleanup",
+        dest="cleanup",
+        action="store_false",
+        help="Do not perform clean up",
+    )
+    parser.add_argument("--reset", action="store_true", help="Reset previous state")
 
-    subparsers = parser.add_subparsers(dest='command')
+    subparsers = parser.add_subparsers(dest="command")
 
     for command, help in [
-        (attach, 'Attach devices to an environment'),
-        (detach, 'Detach devices from an environment'),
-        (ps, 'Print information about devices'),
-        (query, 'Query devices of an environment'),
+        (attach, "Attach devices to an environment"),
+        (detach, "Detach devices from an environment"),
+        (ps, "Print information about devices"),
+        (query, "Query devices of an environment"),
     ]:
         command(subparsers.add_parser(command.__name__, help=help))
 
@@ -403,17 +473,19 @@ def parse_args() -> argparse.Namespace:
 if __name__ == "__main__":
     args = parse_args()
 
-    with genv.access_json('devices.json', factory, convert=convert, reset=args.reset) as json:
+    with genv.access_json(
+        "devices.json", factory, convert=convert, reset=args.reset
+    ) as json:
         devices: Devices = json["devices"]
 
         if args.cleanup:
             cleanup(devices)
 
-        if args.command == 'attach':
+        if args.command == "attach":
             do_attach(devices, args.eid, args.count, args.index)
-        elif args.command == 'detach':
+        elif args.command == "detach":
             do_detach(devices, args.eid, args.index)
-        elif args.command == 'ps':
+        elif args.command == "ps":
             do_ps(devices, args.format, args.header, args.timestamp)
-        elif args.command == 'query':
+        elif args.command == "query":
             do_query(devices, args.eid)

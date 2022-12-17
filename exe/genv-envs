@@ -10,11 +10,11 @@ Env = Dict[Any, Any]
 Envs = Dict[int, Env]
 
 QUERIES = {
-    'eid': lambda env: env["eid"],
-    'creation': lambda env: env["creation"],
-    'config.name': lambda env: env["config"].get("name"),
-    'config.gpus': lambda env: env["config"].get("gpus"),
-    'config.gpu_memory': lambda env: env["config"].get("gpu_memory"),
+    "eid": lambda env: env["eid"],
+    "creation": lambda env: env["creation"],
+    "config.name": lambda env: env["config"].get("name"),
+    "config.gpus": lambda env: env["config"].get("gpus"),
+    "config.gpu_memory": lambda env: env["config"].get("gpu_memory"),
 }
 
 
@@ -23,15 +23,14 @@ def factory() -> Dict:
     Create a 'empty' state object for genv environments.
     :return: The state object (dict of dicts)
     """
-    return dict(
-        envs={}
-    )
+    return dict(envs={})
 
 
 def cleanup(
-        envs: Envs,
-        poll_pid: Callable[[int], bool] = genv.poll_pid,
-        poll_kernel: Callable[[str], bool] = genv.poll_jupyter_kernel) -> None:
+    envs: Envs,
+    poll_pid: Callable[[int], bool] = genv.poll_pid,
+    poll_kernel: Callable[[str], bool] = genv.poll_jupyter_kernel,
+) -> None:
     """
     Clean up processes, kernels and environments.
     :param envs: dictionary describing all existing environments.
@@ -44,7 +43,9 @@ def cleanup(
             env["pids"] = [pid for pid in env["pids"] if poll_pid(pid)]
 
         if "kernel_ids" in env:
-            env["kernel_ids"] = [kernel_id for kernel_id in env["kernel_ids"] if poll_kernel(kernel_id)]
+            env["kernel_ids"] = [
+                kernel_id for kernel_id in env["kernel_ids"] if poll_kernel(kernel_id)
+            ]
 
     def _should_cleanup_env(env):
         for key in ["pids", "kernel_ids"]:
@@ -82,8 +83,14 @@ def find(envs: Envs, pid: Optional[int], kernel_id: Optional[str]) -> Union[int,
             return eid
 
 
-def do_activate(envs: Envs, eid: str, uid: int, username: Optional[str], pid: Optional[int],
-                kernel_id: Optional[str]) -> None:
+def do_activate(
+    envs: Envs,
+    eid: str,
+    uid: int,
+    username: Optional[str],
+    pid: Optional[int],
+    kernel_id: Optional[str],
+) -> None:
     """
     Activates an environment - fill/update username, process ids and jupyter kernel ids.
      If an appropriate environment doesn't exists, create one.
@@ -172,11 +179,11 @@ def do_config(envs: Envs, eid: str, command: str, args: argparse.Namespace) -> N
         if clear and "gpu_memory" in env["config"]:
             del env["config"]["gpu_memory"]
 
-    if command == 'gpus':
+    if command == "gpus":
         gpus(args.count, args.clear)
-    elif command == 'name':
+    elif command == "name":
         name(args.name, args.clear)
-    elif command == 'gpu-memory':
+    elif command == "gpu-memory":
         gpu_memory(args.gpu_memory, args.clear)
 
 
@@ -202,23 +209,23 @@ def do_ps(envs: Envs, format: str, header: bool, timestamp: bool) -> None:
     :return: None
     """
     if header:
-        if format == 'csv':
-            print('ID,USER,NAME,CREATED,PID(S)')
-        elif format == 'tui':
-            print('ID      USER            NAME            CREATED              PID(S)')
+        if format == "csv":
+            print("ID,USER,NAME,CREATED,PID(S)")
+        elif format == "tui":
+            print("ID      USER            NAME            CREATED              PID(S)")
 
     for env in envs.values():
         eid = env["eid"]
         user = f'{env["username"]}({env["uid"]})' if "username" in env else env["uid"]
-        name = env["config"].get("name", '')
+        name = env["config"].get("name", "")
         created = env["creation"] if timestamp else genv.time_since(env["creation"])
-        pids = ' '.join(str(pid) for pid in env.get("pids", []))
+        pids = " ".join(str(pid) for pid in env.get("pids", []))
         # TODO(raz): print kernel ids
 
-        if format == 'csv':
-            print(f'{eid},{user},{name},{created},{pids}')
-        elif format == 'tui':
-            print(f'{eid:<8}{user:<16}{name:<16}{created:<21}{pids}')
+        if format == "csv":
+            print(f"{eid},{user},{name},{created},{pids}")
+        elif format == "tui":
+            print(f"{eid:<8}{user:<16}{name:<16}{created:<21}{pids}")
 
 
 def do_query(envs: Envs, eid: Optional[str], queries: List[str]) -> None:
@@ -237,9 +244,9 @@ def do_query(envs: Envs, eid: Optional[str], queries: List[str]) -> None:
         if env is None:
             continue
 
-        query = lambda name: str(QUERIES[name](env) or '')
+        query = lambda name: str(QUERIES[name](env) or "")
 
-        print(','.join(query(name) for name in queries))
+        print(",".join(query(name) for name in queries))
 
 
 def parse_args() -> argparse.Namespace:
@@ -247,40 +254,49 @@ def parse_args() -> argparse.Namespace:
     Set all possible genv environments commands and their arguments.
     :return:
     """
+
     def activate(parser):
-        parser.add_argument('--eid', required=True, help='Environment identifier')
-        parser.add_argument('--uid', type=int, required=True, help='User identifier')
-        parser.add_argument('--username', help='User name')
+        parser.add_argument("--eid", required=True, help="Environment identifier")
+        parser.add_argument("--uid", type=int, required=True, help="User identifier")
+        parser.add_argument("--username", help="User name")
 
         group = parser.add_mutually_exclusive_group(required=True)
 
-        group.add_argument('--pid', type=int, help='Process identifier')
-        group.add_argument('--kernel-id', help='Jupyter kernel identifier')
+        group.add_argument("--pid", type=int, help="Process identifier")
+        group.add_argument("--kernel-id", help="Jupyter kernel identifier")
 
     def config(parser):
         def gpus(parser):
             group = parser.add_mutually_exclusive_group(required=True)
-            group.add_argument('--count', type=int, help='Device count')
-            group.add_argument('--clear', action='store_true', help='Clear device count')
+            group.add_argument("--count", type=int, help="Device count")
+            group.add_argument(
+                "--clear", action="store_true", help="Clear device count"
+            )
 
         def name(parser):
             group = parser.add_mutually_exclusive_group(required=True)
-            group.add_argument('--name', help='Environment name')
-            group.add_argument('--clear', action='store_true', help='Clear environment name')
+            group.add_argument("--name", help="Environment name")
+            group.add_argument(
+                "--clear", action="store_true", help="Clear environment name"
+            )
 
         def gpu_memory(parser):
             group = parser.add_mutually_exclusive_group(required=True)
-            group.add_argument('--gpu-memory', help='Environment GPU memory capacity')
-            group.add_argument('--clear', action='store_true', help='Clear environment GPU memory capacity')
+            group.add_argument("--gpu-memory", help="Environment GPU memory capacity")
+            group.add_argument(
+                "--clear",
+                action="store_true",
+                help="Clear environment GPU memory capacity",
+            )
 
-        parser.add_argument('--eid', required=True, help='Environment identifier')
+        parser.add_argument("--eid", required=True, help="Environment identifier")
 
-        subparsers = parser.add_subparsers(dest='config', required=True)
+        subparsers = parser.add_subparsers(dest="config", required=True)
 
         for option in [
-            (gpus, 'Configure device count for environment'),
-            (name, 'Configure environment name'),
-            (gpu_memory, 'gpu-memory', 'Configure environment GPU memory capacity')
+            (gpus, "Configure device count for environment"),
+            (name, "Configure environment name"),
+            (gpu_memory, "gpu-memory", "Configure environment GPU memory capacity"),
         ]:
             if len(option) == 2:
                 command, help = option
@@ -291,37 +307,60 @@ def parse_args() -> argparse.Namespace:
             command(subparsers.add_parser(name_, help=help))
 
     def deactivate(parser):
-        parser.add_argument('--pid', type=int, required=True, help='Process identifier')
+        parser.add_argument("--pid", type=int, required=True, help="Process identifier")
 
     def find(parser):
         group = parser.add_mutually_exclusive_group(required=True)
 
-        group.add_argument('--pid', type=int, help='Process identifier')
-        group.add_argument('--kernel-id', help='Jupyter kernel identifier')
+        group.add_argument("--pid", type=int, help="Process identifier")
+        group.add_argument("--kernel-id", help="Jupyter kernel identifier")
 
     def ps(parser):
-        parser.add_argument('--no-header', dest='header', action='store_false', help='Do not print column headers')
-        parser.add_argument('--timestamp', action='store_true', help='Print a non-prettified timestamp')
-        parser.add_argument('--format', choices=['csv', 'tui'],
-                            help='Output format; CSV or TUI (Text-based user interface)', default='tui')
+        parser.add_argument(
+            "--no-header",
+            dest="header",
+            action="store_false",
+            help="Do not print column headers",
+        )
+        parser.add_argument(
+            "--timestamp", action="store_true", help="Print a non-prettified timestamp"
+        )
+        parser.add_argument(
+            "--format",
+            choices=["csv", "tui"],
+            help="Output format; CSV or TUI (Text-based user interface)",
+            default="tui",
+        )
 
     def query(parser):
-        parser.add_argument('--eid', help='Environment identifier')
-        parser.add_argument('--query', '--queries', dest='queries', nargs='+', choices=QUERIES.keys(), required=True)
+        parser.add_argument("--eid", help="Environment identifier")
+        parser.add_argument(
+            "--query",
+            "--queries",
+            dest="queries",
+            nargs="+",
+            choices=QUERIES.keys(),
+            required=True,
+        )
 
-    parser = argparse.ArgumentParser(description=f'genv environment manager')
-    parser.add_argument('--no-cleanup', dest='cleanup', action='store_false', help='Do not perform clean up')
-    parser.add_argument('--reset', action='store_true', help='Reset previous state')
+    parser = argparse.ArgumentParser(description=f"genv environment manager")
+    parser.add_argument(
+        "--no-cleanup",
+        dest="cleanup",
+        action="store_false",
+        help="Do not perform clean up",
+    )
+    parser.add_argument("--reset", action="store_true", help="Reset previous state")
 
-    subparsers = parser.add_subparsers(dest='command')
+    subparsers = parser.add_subparsers(dest="command")
 
     for command, help in [
-        (activate, 'Activate a process or a Jupyter kernel'),
-        (config, 'Configure an environment'),
-        (deactivate, 'Deactivate a process or a Jupyter kernel'),
-        (find, 'Find the environment of a process or a Jupyter kernel'),
-        (ps, 'Print information about active environments'),
-        (query, 'Query environments or a specific one'),
+        (activate, "Activate a process or a Jupyter kernel"),
+        (config, "Configure an environment"),
+        (deactivate, "Deactivate a process or a Jupyter kernel"),
+        (find, "Find the environment of a process or a Jupyter kernel"),
+        (ps, "Print information about active environments"),
+        (query, "Query environments or a specific one"),
     ]:
         command(subparsers.add_parser(command.__name__, help=help))
 
@@ -331,21 +370,23 @@ def parse_args() -> argparse.Namespace:
 if __name__ == "__main__":
     args = parse_args()
 
-    with genv.access_json('envs.json', factory, reset=args.reset) as json:
+    with genv.access_json("envs.json", factory, reset=args.reset) as json:
         envs: Envs = json["envs"]
 
         if args.cleanup:
             cleanup(envs)
 
-        if args.command == 'activate':
-            do_activate(envs, args.eid, args.uid, args.username, args.pid, args.kernel_id)
-        elif args.command == 'config':
+        if args.command == "activate":
+            do_activate(
+                envs, args.eid, args.uid, args.username, args.pid, args.kernel_id
+            )
+        elif args.command == "config":
             do_config(envs, args.eid, command=args.config, args=args)
-        elif args.command == 'deactivate':
+        elif args.command == "deactivate":
             do_deactivate(envs, args.pid)
-        elif args.command == 'find':
+        elif args.command == "find":
             do_find(envs, args.pid, args.kernel_id)
-        elif args.command == 'ps':
+        elif args.command == "ps":
             do_ps(envs, args.format, args.header, args.timestamp)
-        elif args.command == 'query':
+        elif args.command == "query":
             do_query(envs, args.eid, args.queries)
