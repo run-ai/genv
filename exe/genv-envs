@@ -343,7 +343,7 @@ def parse_args() -> argparse.Namespace:
             required=True,
         )
 
-    parser = argparse.ArgumentParser(description=f"genv environment manager")
+    parser = argparse.ArgumentParser(description="genv environment manager")
     parser.add_argument(
         "--no-cleanup",
         dest="cleanup",

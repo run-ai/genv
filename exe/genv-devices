@@ -448,7 +448,7 @@ def parse_args() -> argparse.Namespace:
     def query(parser):
         parser.add_argument("--eid", required=True, help="Environment identifier")
 
-    parser = argparse.ArgumentParser(description=f"genv device manager")
+    parser = argparse.ArgumentParser(description="genv device manager")
     parser.add_argument(
         "--no-cleanup",
         dest="cleanup",
