@@ -1,0 +1,112 @@
+#!/usr/bin/env python3
+
+import argparse
+import asyncio
+import sys
+from typing import Iterable
+
+
+async def start_on_host(host: str, root: str, *args: str) -> asyncio.subprocess.Process:
+    """
+    Starts a background process that runs a Genv command on a remote host over SSH.
+
+    :param host: Hostname or IP address
+    :param root: Genv installation root directory
+    :param args: Genv command line to run
+
+    :return: Returns the SSH process
+    """
+    return await asyncio.create_subprocess_exec(
+        "ssh",
+        host,
+        f'PATH="{root}/bin:$PATH" genv {" ".join(args)}',
+        stdin=asyncio.subprocess.DEVNULL,
+        stdout=asyncio.subprocess.PIPE,
+        stderr=asyncio.subprocess.PIPE,
+    )
+
+
+async def run_on_hosts(hosts: Iterable[str], root: str, *args: str) -> Iterable[str]:
+    """
+    Runs a Genv command on multiple hosts over SSH.
+    Waits for the command to finish successfully on all hosts.
+    Raises 'RuntimeError' if failed to connect to any of the hosts.
+
+    :param hosts: Hostnames or IP addresses
+    :param root: Genv installation root directory
+    :param args: Genv command line to run
+
+    :return: Returns the stdout from all hosts
+    """
+    processes = [await start_on_host(host, root, *args) for host in hosts]
+
+    outputs = await asyncio.gather(*(process.communicate() for process in processes))
+
+    stdouts = [stdout.decode("utf-8").strip() for stdout, _ in outputs]
+    stderrs = [stderr.decode("utf-8").strip() for _, stderr in outputs]
+
+    for host, process, stderr in zip(hosts, processes, stderrs):
+        if process.returncode != 0:
+            raise RuntimeError(f"Failed connecting over SSH to {host} ({stderr})")
+
+    return stdouts
+
+
+def parse_args() -> argparse.Namespace:
+    """
+    Parses the arguments passed to this executable.
+
+    :return: Argument values
+    """
+
+    parser = argparse.ArgumentParser(description="Genv remote")
+
+    group = parser.add_mutually_exclusive_group(required=True)
+    group.add_argument(
+        "-H",
+        "-host",
+        "--host",
+        dest="hosts",
+        help="Comma-separated hostnames or IP addresses",
+    )
+    group.add_argument(
+        "-hostfile",
+        "--hostfile",
+        help="A file containing one hostname or IP address per line",
+    )
+
+    parser.add_argument(
+        "--root",
+        default="/opt/genv",
+        help="Genv installation root on remote hosts (default: %(default)s)",
+    )
+
+    subparsers = parser.add_subparsers(dest="command")
+
+    for command, help in []:
+        command(subparsers.add_parser(command.__name__, help=help))
+
+    return parser.parse_args()
+
+
+async def main() -> None:
+    """
+    Parses the arguments and runs the requested command.
+
+    :return: None
+    """
+    args = parse_args()
+
+    if args.hostfile:
+        with open(args.hostfile, "r") as f:
+            hosts = [line for line in [line.strip() for line in f.readlines()] if line]
+    else:
+        hosts = args.hosts.split(",")
+
+
+if __name__ == "__main__":
+    try:
+        asyncio.run(main())
+    except RuntimeError as e:
+        print(e, file=sys.stderr)
+        exit(1)
