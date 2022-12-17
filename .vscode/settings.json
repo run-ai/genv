@@ -10,4 +10,5 @@
     "python.analysis.extraPaths": [
         "./py"
     ],
+    "python.formatting.provider": "black",
 }
