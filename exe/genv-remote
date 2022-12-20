@@ -3,8 +3,11 @@
 import argparse
 import asyncio
 from collections import defaultdict
+import itertools
+import os
+import shutil
 import sys
-from typing import Dict, Iterable
+from typing import Dict, Iterable, NoReturn, Optional
 
 import genv
 
@@ -139,6 +142,71 @@ async def query_envs(hosts: Iterable[str], root: str) -> Dict[str, Dict]:
     return envs
 
 
+async def find_available_host(
+    hosts: Iterable[str], root: str, gpus: Optional[int]
+) -> str:
+    """
+    Finds a host with enough available resources.
+
+    Raises 'RuntimeError' if cannot find such host.
+
+    :param hosts: Hostnames or IP addresses
+    :param root: Genv installation root directory
+    :param gpus: Device count specification
+
+    :return: Hostname with enough available resources
+    """
+    host_to_devices = await query_devices(hosts, root)
+
+    for host, devices in host_to_devices.items():
+        available = len(
+            [idx for idx, attachments in devices.items() if len(attachments) == 0]
+        )
+
+        if gpus is not None:
+            if available < gpus:
+                continue
+
+        return host
+
+    raise RuntimeError("Cannot find a host with enough available resources")
+
+
+async def do_activate(
+    hosts: Iterable[str], root: str, gpus: Optional[int], name: Optional[str]
+) -> NoReturn:
+    """
+    Finds a remote host with enough available resources, connects to it using SSH
+    and activates an environment inside with the given specification.
+
+    :param hosts: Hostnames or IP addresses
+    :param root: Genv installation root directory
+    :param gpus: Device count specification
+    :param name: Environment name specification
+
+    :return: Does not return
+    """
+    host = await find_available_host(hosts, root, gpus)
+
+    env = {"GENV_PREACTIVATE": 1}
+
+    if gpus:
+        env.update({"GENV_PREACTIVATE_GPUS": gpus})
+
+    if name:
+        env.update({"GENV_PREACTIVATE_ENVIRONMENT_NAME": name})
+
+    path = shutil.which("ssh")
+    args = (
+        [path]
+        + list(itertools.chain(*(["-o", f"SendEnv={variable}"] for variable in env)))
+        + [host]
+    )
+    env = dict(os.environ, **{k: str(v) for k, v in env.items()})
+
+    os.execve(path, args, env)
+
+
 async def do_devices(
     hosts: Iterable[str],
     root: str,
@@ -242,6 +310,10 @@ def parse_args() -> argparse.Namespace:
     :return: Argument values
     """
 
+    def activate(parser):
+        parser.add_argument("--name", help="Environment name")
+        parser.add_argument("--gpus", type=int, help="Environment device count")
+
     def devices(parser):
         parser.add_argument(
             "--no-header",
@@ -310,6 +382,7 @@ def parse_args() -> argparse.Namespace:
     subparsers = parser.add_subparsers(dest="command")
 
     for command, help in [
+        (activate, "Activate environment in a remote host"),
         (devices, "Show device information from all hosts"),
         (envs, "List all active environments"),
     ]:
@@ -332,7 +405,9 @@ async def main() -> None:
     else:
         hosts = args.hosts.split(",")
 
-    if args.command == "devices":
+    if args.command == "activate":
+        await do_activate(hosts, args.root, args.gpus, args.name)
+    elif args.command == "devices":
         await do_devices(hosts, args.root, args.format, args.header, args.summary)
     elif args.command == "envs":
         await do_envs(
