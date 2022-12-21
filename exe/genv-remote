@@ -375,7 +375,7 @@ def parse_args() -> argparse.Namespace:
 
     parser.add_argument(
         "--root",
-        default="/opt/genv",
+        default="$HOME/genv",
         help="Genv installation root on remote hosts (default: %(default)s)",
     )
 
