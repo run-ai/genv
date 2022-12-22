@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Usage &mdash; genv 0.3.0 documentation</title><link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Development" href="../development/development.html" />
+    <link rel="prev" title="Installation" href="installation.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> genv
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption"><span class="caption-text">Usage</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../usage/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/advanced-usage.html">Advanced Usage</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Remote Usage</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Usage</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#list-environments">List Environments</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#device-information">Device Information</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#specifying-remote-hosts">Specifying Remote Hosts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#genv-installation-directory">Genv Installation Directory</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption"><span class="caption-text">Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../development/development.html">Development</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../development/reference.html">Reference</a></li>
+</ul>
+<p class="caption"><span class="caption-text">About</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../about/changelog.html">Changelog</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">genv</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a></li>
+      <li class="breadcrumb-item active">Usage</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/remote/usage.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <div class="section" id="usage">
+<h1>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h1>
+<p>All remote features of Genv are available as a subcommand to the command <code class="code docutils literal notranslate"><span class="pre">genv</span> <span class="pre">remote</span></code>.</p>
+<div class="contents topic" id="contents">
+<p class="topic-title">Contents</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#usage" id="id1">Usage</a></p>
+<ul>
+<li><p><a class="reference internal" href="#list-environments" id="id2">List Environments</a></p></li>
+<li><p><a class="reference internal" href="#device-information" id="id3">Device Information</a></p></li>
+<li><p><a class="reference internal" href="#specifying-remote-hosts" id="id4">Specifying Remote Hosts</a></p></li>
+<li><p><a class="reference internal" href="#genv-installation-directory" id="id5">Genv Installation Directory</a></p></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section" id="list-environments">
+<h2>List Environments<a class="headerlink" href="#list-environments" title="Permalink to this headline">¶</a></h2>
+<p>You can list active environments on all remote hosts using the command <code class="code docutils literal notranslate"><span class="pre">envs</span></code>.
+For example:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$ genv remote -H gpu-server-1,gpu-server-1 envs
+HOST               ID      USER            NAME            CREATED
+gpu-server-1       <span class="m">31739</span>   raz<span class="o">(</span><span class="m">1003</span><span class="o">)</span>       project-1       <span class="m">42</span> minutes ago
+gpu-server-2       <span class="m">13811</span>   john<span class="o">(</span><span class="m">1002</span><span class="o">)</span>      project-2       <span class="m">2</span> hours ago
+
+Total <span class="m">2</span> environments on <span class="m">2</span> hosts
+</pre></div>
+</div>
+</div>
+<div class="section" id="device-information">
+<h2>Device Information<a class="headerlink" href="#device-information" title="Permalink to this headline">¶</a></h2>
+<p>You can see device information and availability on all remote hosts using the command <code class="code docutils literal notranslate"><span class="pre">devices</span></code>.
+For example:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$ genv remote -H gpu-server-1,gpu-server-1 devices
+HOST                     TOTAL    AVAILABLE
+core-server-1            <span class="m">1</span>        <span class="m">0</span>
+core-server-2            <span class="m">2</span>        <span class="m">1</span>
+
+Total <span class="m">3</span> devices with <span class="m">1</span> available on <span class="m">2</span> hosts
+</pre></div>
+</div>
+</div>
+<div class="section" id="specifying-remote-hosts">
+<h2>Specifying Remote Hosts<a class="headerlink" href="#specifying-remote-hosts" title="Permalink to this headline">¶</a></h2>
+<p><code class="code docutils literal notranslate"><span class="pre">genv</span> <span class="pre">remote</span></code> commands connect to multiple remote hosts and run <code class="code docutils literal notranslate"><span class="pre">genv</span></code> commands on them.
+You can specify the remote hosts in two ways: using explicit hostnames or using a hostfile.</p>
+<p>You can pass multiple hostnames and IP addresses using a comma-separated string to the argument <code class="code docutils literal notranslate"><span class="pre">-H</span></code> or <code class="code docutils literal notranslate"><span class="pre">--host</span></code>.
+For example:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>genv remote -H gpu-server-1,gpu-server-2,192.168.1.42 envs
+</pre></div>
+</div>
+<p>Alternatively, you can create a text file with the hostnames and IP addresses.
+For example:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$ cat /etc/genv/hostfile
+gpu-server-1
+gpu-server-2
+<span class="m">192</span>.168.1.42
+</pre></div>
+</div>
+<p>Then you can pass it to the argument <code class="code docutils literal notranslate"><span class="pre">--hostfile</span></code>.
+For example:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>genv remote --hostfile /etc/genv/hostfile envs
+</pre></div>
+</div>
+</div>
+<div class="section" id="genv-installation-directory">
+<h2>Genv Installation Directory<a class="headerlink" href="#genv-installation-directory" title="Permalink to this headline">¶</a></h2>
+<p><code class="code docutils literal notranslate"><span class="pre">genv</span> <span class="pre">remote</span></code> commands run SSH commands similar to the following:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>ssh &lt;host&gt; <span class="nv">PATH</span><span class="o">=</span>/path/to/genv/bin genv ...
+</pre></div>
+</div>
+<p>Because login scripts (e.g. <code class="code docutils literal notranslate"><span class="pre">~/.bashrc</span></code>) are not loaded when executing commands over SSH and not just opening a shell, the installation directory of Genv on the remote hosts must be known.</p>
+<p>By default, <code class="code docutils literal notranslate"><span class="pre">genv</span> <span class="pre">remote</span></code> commands assume that Genv is installed at <code class="code docutils literal notranslate"><span class="pre">$HOME/genv</span></code>.
+If this is not the case in your setup, you can specify the installation directory on remote hosts using the argument <code class="code docutils literal notranslate"><span class="pre">--root</span></code>.
+For example:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>genv remote --root /opt/genv ...
+</pre></div>
+</div>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="installation.html" class="btn btn-neutral float-left" title="Installation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../development/development.html" class="btn btn-neutral float-right" title="Development" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Run.ai.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

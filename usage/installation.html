@@ -56,6 +56,12 @@
 <li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="advanced-usage.html">Advanced Usage</a></li>
 </ul>
+<p class="caption"><span class="caption-text">Remote Usage</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../remote/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../remote/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../remote/usage.html">Usage</a></li>
+</ul>
 <p class="caption"><span class="caption-text">Development</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../development/development.html">Development</a></li>
@@ -95,23 +101,23 @@
 <div class="contents topic" id="contents">
 <p class="topic-title">Contents</p>
 <ul class="simple">
-<li><p><a class="reference internal" href="#installation" id="id1">Installation</a></p>
+<li><p><a class="reference internal" href="#installation" id="id2">Installation</a></p>
 <ul>
-<li><p><a class="reference internal" href="#terminal" id="id2">Terminal</a></p>
+<li><p><a class="reference internal" href="#terminal" id="id3">Terminal</a></p>
 <ul>
-<li><p><a class="reference internal" href="#conda" id="id3">Conda</a></p></li>
-<li><p><a class="reference internal" href="#from-source" id="id4">From Source</a></p></li>
+<li><p><a class="reference internal" href="#conda" id="id4">Conda</a></p></li>
+<li><p><a class="reference internal" href="#from-source" id="id5">From Source</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#visual-studio-code" id="id5">Visual Studio Code</a></p></li>
-<li><p><a class="reference internal" href="#jupyterlab" id="id6">JupyterLab</a></p></li>
-<li><p><a class="reference internal" href="#pycharm" id="id7">PyCharm</a></p></li>
+<li><p><a class="reference internal" href="#visual-studio-code" id="id6">Visual Studio Code</a></p></li>
+<li><p><a class="reference internal" href="#jupyterlab" id="id7">JupyterLab</a></p></li>
+<li><p><a class="reference internal" href="#pycharm" id="id8">PyCharm</a></p></li>
 </ul>
 </li>
 </ul>
 </div>
 <div class="section" id="terminal">
-<h2>Terminal<a class="headerlink" href="#terminal" title="Permalink to this headline">¶</a></h2>
+<span id="install-in-terminal"></span><h2>Terminal<a class="headerlink" href="#terminal" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="conda">
 <h3>Conda<a class="headerlink" href="#conda" title="Permalink to this headline">¶</a></h3>
 <p>If you are using <a class="reference external" href="https://docs.conda.io/en/latest/">Conda</a>, the best way to install genv is using the <a class="reference external" href="https://anaconda.org/conda-forge/genv">genv</a> package from the channel <a class="reference external" href="https://conda-forge.org/">conda-forge</a>:</p>
@@ -120,14 +126,14 @@
 </div>
 </div>
 <div class="section" id="from-source">
-<h3>From Source<a class="headerlink" href="#from-source" title="Permalink to this headline">¶</a></h3>
+<span id="install-in-terminal-from-source"></span><h3>From Source<a class="headerlink" href="#from-source" title="Permalink to this headline">¶</a></h3>
 <p>If you are not using Conda, it is still super easy to get genv as everything you need is to clone its <a class="reference external" href="https://www.github.com/run-ai/genv">repository</a>.
 Your home directory is a great place to keep it:</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>git clone https://github.com/run-ai/genv.git ~/genv
 </pre></div>
 </div>
 <div class="section" id="setting-up-your-shell">
-<h4>Setting Up Your Shell<a class="headerlink" href="#setting-up-your-shell" title="Permalink to this headline">¶</a></h4>
+<span id="id1"></span><h4>Setting Up Your Shell<a class="headerlink" href="#setting-up-your-shell" title="Permalink to this headline">¶</a></h4>
 <p>In order to use genv you need to set up your shell environment with the following commands:</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span> <span class="nv">PATH</span><span class="o">=</span><span class="nv">$HOME</span>/genv/bin:<span class="nv">$PATH</span>
 <span class="nb">eval</span> <span class="s2">&quot;</span><span class="k">$(</span>genv init -<span class="k">)</span><span class="s2">&quot;</span>

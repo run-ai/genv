@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Installation &mdash; genv 0.3.0 documentation</title><link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Usage" href="usage.html" />
+    <link rel="prev" title="Overview" href="overview.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> genv
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption"><span class="caption-text">Usage</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../usage/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/advanced-usage.html">Advanced Usage</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Remote Usage</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#overview">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#local-hosts">Local Hosts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#remote-hosts">Remote Hosts</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#ssh-daemon-configuration">SSH Daemon Configuration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#per-user-installation-recommended">Per-User Installation (recommended)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#system-wide-installation">System-Wide Installation</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../development/development.html">Development</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../development/reference.html">Reference</a></li>
+</ul>
+<p class="caption"><span class="caption-text">About</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../about/changelog.html">Changelog</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">genv</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a></li>
+      <li class="breadcrumb-item active">Installation</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/remote/installation.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <div class="section" id="installation">
+<h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h1>
+<div class="contents topic" id="contents">
+<p class="topic-title">Contents</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#installation" id="id2">Installation</a></p>
+<ul>
+<li><p><a class="reference internal" href="#overview" id="id3">Overview</a></p></li>
+<li><p><a class="reference internal" href="#local-hosts" id="id4">Local Hosts</a></p></li>
+<li><p><a class="reference internal" href="#remote-hosts" id="id5">Remote Hosts</a></p></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section" id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h2>
+<p>Remote features in Genv are based on running <code class="code docutils literal notranslate"><span class="pre">genv</span></code> commands on remote hosts over SSH.
+This means that Genv should be installed on all local and remote hosts, and that all local hosts should have SSH access to all remote hosts.</p>
+<p>Genv uses commands similar to <code class="code docutils literal notranslate"><span class="pre">ssh</span> <span class="pre">&lt;host&gt;</span></code> for remote execution.
+Therefore, authentication must not be interactive using passwords for example.
+It is recommended to use SSH keys for authentication.</p>
+<p>The identity file and login user should be configured in the SSH configuration file at <code class="code docutils literal notranslate"><span class="pre">~/.ssh/config</span></code> so that the <code class="code docutils literal notranslate"><span class="pre">ssh</span></code> commands Genv uses would work without additional arguments.</p>
+<p>Genv also sends environment variables over SSH by passing <code class="code docutils literal notranslate"><span class="pre">-o</span> <span class="pre">SendEnv</span></code> to the <code class="code docutils literal notranslate"><span class="pre">ssh</span></code> command.
+Those environment variables must be explicitly accepted on all remote hosts by modifying the SSH daemon configuration file.</p>
+</div>
+<div class="section" id="local-hosts">
+<h2>Local Hosts<a class="headerlink" href="#local-hosts" title="Permalink to this headline">¶</a></h2>
+<p>On local hosts, <a class="reference internal" href="../usage/installation.html#install-in-terminal"><span class="std std-ref">install</span></a> the terminal component of Genv in your preferred way if not already installed.
+This is how you will run <code class="code docutils literal notranslate"><span class="pre">genv</span> <span class="pre">remote</span></code> commands.</p>
+<p>Then, make sure you have SSH access to all remote hosts and that the SSH configuration is set properly.
+You can verify that using commands similar to this:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>ssh &lt;host&gt;
+</pre></div>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>It is important that you verify the SSH access.
+If you can’t access any of the remote hosts using a command similar to the one above, <code class="code docutils literal notranslate"><span class="pre">genv</span> <span class="pre">remote</span></code> commands will not work properly.</p>
+</div>
+</div>
+<div class="section" id="remote-hosts">
+<h2>Remote Hosts<a class="headerlink" href="#remote-hosts" title="Permalink to this headline">¶</a></h2>
+<p>On remote hosts, the terminal component of Genv should also be installed.
+However, the installation directory on each of the remote hosts should be known and accessible to all users that will run <code class="code docutils literal notranslate"><span class="pre">genv</span> <span class="pre">remote</span></code> commands on local hosts.</p>
+<p>There are two main ways to install Genv on remote hosts: <a class="reference internal" href="#per-user-installation"><span class="std std-ref">per-user</span></a> and <a class="reference internal" href="#system-wide-installation"><span class="std std-ref">system-wide</span></a> installations, which we will get to in a second.</p>
+<div class="section" id="ssh-daemon-configuration">
+<h3>SSH Daemon Configuration<a class="headerlink" href="#ssh-daemon-configuration" title="Permalink to this headline">¶</a></h3>
+<p>Regardless of the installation method of Genv on remote hosts, it is required to edit the configuration of the SSH daemon.</p>
+<p>Genv uses SSH for communication, and relies on sending environment variables from local hosts to remote hosts by passing <code class="code docutils literal notranslate"><span class="pre">-o</span> <span class="pre">SendEnv</span></code> to the <code class="code docutils literal notranslate"><span class="pre">ssh</span></code> command.</p>
+<p>Those environment variables must be explicitly accepted on all remote hosts by modifying the SSH daemon configuration file.</p>
+<p>First, add <code class="code docutils literal notranslate"><span class="pre">GENV_*</span></code> to field <code class="code docutils literal notranslate"><span class="pre">AcceptEnv</span></code> in <code class="code docutils literal notranslate"><span class="pre">/etc/ssh/sshd_config</span></code>.
+You can do this with the following command (you will probably need to use <code class="code docutils literal notranslate"><span class="pre">sudo</span></code> here):</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>sed -i <span class="s2">&quot;/^AcceptEnv/s/</span>$<span class="s2">/ GENV_*/&quot;</span> /etc/ssh/sshd_config
+</pre></div>
+</div>
+<p>You can verify that it worked using the command:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>grep GENV /etc/ssh/sshd_config
+</pre></div>
+</div>
+<p>Then, restart the SSH daemon using the following command (you will probably need to use <code class="code docutils literal notranslate"><span class="pre">sudo</span></code> here as well):</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>systemctl restart ssh
+</pre></div>
+</div>
+<p>You can then test that everything is set up properly by running the following command from a local host:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">GENV_TEST</span><span class="o">=</span><span class="s2">&quot;ilovegpus&quot;</span> ssh -o <span class="nv">SendEnv</span><span class="o">=</span>GENV_TEST &lt;host&gt; env <span class="p">|</span> grep GENV
+</pre></div>
+</div>
+</div>
+<div class="section" id="per-user-installation-recommended">
+<span id="per-user-installation"></span><h3>Per-User Installation (recommended)<a class="headerlink" href="#per-user-installation-recommended" title="Permalink to this headline">¶</a></h3>
+<p>Every user should install Genv <a class="reference internal" href="../usage/installation.html#install-in-terminal-from-source"><span class="std std-ref">from source</span></a> in his or her home directory (i.e. <code class="code docutils literal notranslate"><span class="pre">$HOME/genv</span></code>) on all remote hosts.</p>
+<p>This is the recommended way to install Genv on remote hosts for a few reasons:</p>
+<ol class="arabic simple">
+<li><p>All <code class="code docutils literal notranslate"><span class="pre">genv</span> <span class="pre">remote</span></code> commands assume Genv is installed at <code class="code docutils literal notranslate"><span class="pre">$HOME/genv</span></code> by default.</p></li>
+<li><p>Some <code class="code docutils literal notranslate"><span class="pre">genv</span> <span class="pre">remote</span></code> commands like <code class="code docutils literal notranslate"><span class="pre">activate</span></code> expect <code class="code docutils literal notranslate"><span class="pre">genv</span></code> commands to work in the SSH session.</p></li>
+</ol>
+</div>
+<div class="section" id="system-wide-installation">
+<span id="id1"></span><h3>System-Wide Installation<a class="headerlink" href="#system-wide-installation" title="Permalink to this headline">¶</a></h3>
+<p>It is also possible to install Genv from source in a system-wide location such as <code class="code docutils literal notranslate"><span class="pre">/opt/genv</span></code> on all remote hosts.</p>
+<p>This could be done with the following command:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>git clone https://github.com/run-ai/genv.git /opt/genv
+</pre></div>
+</div>
+<p>Note that when using system installation, users will need to specify the installation location by passing the argument <code class="code docutils literal notranslate"><span class="pre">--root</span></code> to <code class="code docutils literal notranslate"><span class="pre">genv</span> <span class="pre">remote</span></code> commands.</p>
+<p>Also, if Genv is not installed in the <a class="reference internal" href="../usage/installation.html#setting-up-your-shell"><span class="std std-ref">login script</span></a> of a user on a remote host, some <code class="code docutils literal notranslate"><span class="pre">genv</span> <span class="pre">remote</span></code> commands like <code class="code docutils literal notranslate"><span class="pre">activate</span></code> will not work because the SSH shell will not be properly set up.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>It is recommended to install Genv on all remote hosts in the same way.</p>
+</div>
+</div>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="overview.html" class="btn btn-neutral float-left" title="Overview" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="usage.html" class="btn btn-neutral float-right" title="Usage" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Run.ai.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

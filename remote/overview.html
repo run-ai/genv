@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Overview &mdash; genv 0.3.0 documentation</title><link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Installation" href="installation.html" />
+    <link rel="prev" title="Advanced Usage" href="../usage/advanced-usage.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> genv
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption"><span class="caption-text">Usage</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../usage/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/advanced-usage.html">Advanced Usage</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Remote Usage</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Overview</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#quickstart">Quickstart</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../development/development.html">Development</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../development/reference.html">Reference</a></li>
+</ul>
+<p class="caption"><span class="caption-text">About</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../about/changelog.html">Changelog</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">genv</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a></li>
+      <li class="breadcrumb-item active">Overview</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/remote/overview.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <div class="section" id="overview">
+<h1>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h1>
+<p>Genv is an environment management software for GPUs.
+It manages all GPUs on a single machine.</p>
+<p>Users can create environments and specify GPU resource requirements such as device count and GPU memory.
+Genv will then find an available GPU for the environment and will make sure that no one else uses it.</p>
+<p>This is mostly relevant for machines with multiple GPUs that several users share.</p>
+<p>Genv also includes remote features to help managing shared GPUs accross multiple machines using <code class="code docutils literal notranslate"><span class="pre">genv</span> <span class="pre">remote</span></code> commands.</p>
+<p>Users can list all active environments and see information about all devices in all the remote hosts.</p>
+<p>Users can also use Genv to activate a GPU environment on a remote host.
+They can specify GPU resource requirements and Genv will look for a device on a remote host with enough available resources, connect to it with SSH and automatically create and configure an environment there.</p>
+<div class="section" id="quickstart">
+<h2>Quickstart<a class="headerlink" href="#quickstart" title="Permalink to this headline">¶</a></h2>
+<p>This is a guide to help you get started with remote features in Genv.</p>
+<p>First, you will need to <a class="reference internal" href="installation.html"><span class="doc">install</span></a> Genv on your local machine and one or more remote hosts.</p>
+<p>In my case, I have two remote machines: <code class="code docutils literal notranslate"><span class="pre">gpu-server-1</span></code> with a single GPU and <code class="code docutils literal notranslate"><span class="pre">gpu-server-2</span></code> with two GPUs.</p>
+<p>Now, create a hostfile named <code class="code docutils literal notranslate"><span class="pre">hostfile.txt</span></code> with the hostnames of your remote hosts.
+We will pass it as argument <code class="code docutils literal notranslate"><span class="pre">--hostfile</span></code> to all <code class="code docutils literal notranslate"><span class="pre">genv</span> <span class="pre">remote</span></code> commands.
+It should look something like this:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$ cat hostfile.txt
+gpu-server-1
+gpu-server-2
+</pre></div>
+</div>
+<p>Let’s see device information from all remote hosts:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$ genv remote --hostfile hostfile.txt devices
+HOST               TOTAL    AVAILABLE
+gpu-server-1       <span class="m">1</span>        <span class="m">1</span>
+gpu-server-2       <span class="m">2</span>        <span class="m">2</span>
+
+Total <span class="m">3</span> devices with <span class="m">3</span> available on <span class="m">2</span> hosts
+</pre></div>
+</div>
+<p>We can see that we have three devices in total and that all of them are available.
+This is because we don’t have any GPU environment attached to any of them.</p>
+<p>Let’s open another terminal and connect to <code class="code docutils literal notranslate"><span class="pre">gpu-server-2</span></code> using SSH:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$ ssh gpu-server-2
+</pre></div>
+</div>
+<p>There, let’s activate a new environment and attach to a GPU:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$ genv activate --name my-env --gpus <span class="m">1</span>
+<span class="o">(</span>genv<span class="o">)</span> $
+</pre></div>
+</div>
+<p>Now let’s go back to our local terminal, and see all active environments on the remote hosts:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$ genv remote --hostfile hostfile.txt envs
+HOST               ID      USER            NAME            CREATED
+gpu-server-2       <span class="m">15600</span>   raz<span class="o">(</span><span class="m">1003</span><span class="o">)</span>       my-env          <span class="m">42</span> seconds ago
+
+Total <span class="m">1</span> environments on <span class="m">2</span> hosts
+</pre></div>
+</div>
+<p>Now let’s ask Genv to activate an environment with a single GPU attached:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$ genv remote --hostfile hostfile.txt activate --gpus <span class="m">1</span>
+<span class="o">(</span>genv<span class="o">)</span> gpu-server-1 $
+</pre></div>
+</div>
+<p>You can now run <code class="code docutils literal notranslate"><span class="pre">genv</span> <span class="pre">status</span></code> and see information about your activated environment.</p>
+<p>Let’s exit the remote environment by executing <code class="code docutils literal notranslate"><span class="pre">exit</span></code>.</p>
+<p>Now, let’s ask Genv to activate a remote environment once again, but this time let’s ask for two GPUs:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$ genv remote --hostfile hostfile.txt activate --gpus <span class="m">2</span>
+Cannot find a host with enough available resources
+</pre></div>
+</div>
+<p>We can see that Genv can’t find a machine with enough available resources.
+This is because we have only one machine with two GPUs, but one of them is being used by our local environment from before.</p>
+<p>Let’s deactivate the local environment on <code class="code docutils literal notranslate"><span class="pre">gpu-server-2</span></code> by executing <code class="code docutils literal notranslate"><span class="pre">genv</span> <span class="pre">deactivate</span></code>, and rerun the <code class="code docutils literal notranslate"><span class="pre">genv</span> <span class="pre">remote</span> <span class="pre">activate</span></code> command from before on the local host.
+Now, Genv will activate a remote environment on <code class="code docutils literal notranslate"><span class="pre">gpu-server-2</span></code> and attach to both GPUs on it:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$ genv remote --hostfile hostfile.txt activate --gpus <span class="m">2</span>
+<span class="o">(</span>genv<span class="o">)</span> gpu-server-2 $
+</pre></div>
+</div>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../usage/advanced-usage.html" class="btn btn-neutral float-left" title="Advanced Usage" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="installation.html" class="btn btn-neutral float-right" title="Installation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Run.ai.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
