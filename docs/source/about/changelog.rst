@@ -1,6 +1,21 @@
 Changelog
 =========
 
+Version 0.4.0
+-------------
+**Date:** December 22, 2022
+
+Added
+~~~~~
+* Listing active environments on remote hosts with :code:`genv remote envs`
+* Showing device information on remote hosts with :code:`genv remote devices`
+* Activating an environment on a remote host with :code:`genv remote activate`
+
+Changed
+~~~~~~~
+* Formatting Python code with black
+* Linting Python code with flake8
+
 Version 0.3.0
 -------------
 **Date:** November 24, 2022
