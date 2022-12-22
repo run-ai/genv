@@ -35,6 +35,20 @@ genv()
 
   # TODO(raz): preserve the exit code of failed 'eval' commands
 }
+
+if [ "\$GENV_PREACTIVATE" = "1" ]; then
+  command="genv activate"
+
+  if [ -n "\$GENV_PREACTIVATE_GPUS" ]; then
+    command="\$command --gpus \$GENV_PREACTIVATE_GPUS"
+  fi
+
+  if [ -n "\$GENV_PREACTIVATE_ENVIRONMENT_NAME" ]; then
+    command="\$command --name \$GENV_PREACTIVATE_ENVIRONMENT_NAME"
+  fi
+
+  eval "\$command"
+fi
 EOS
 else
   if [ "$1" = "--warn" ]; then
