@@ -35,6 +35,31 @@ For example:
 
    Total 3 devices with 1 available on 2 hosts
 
+Activating an Environment
+-------------------------
+You can activate an environment on a remote host using the command :code:`activate`.
+
+You can also specify GPU resource requirements such as device count.
+Genv will then look for a remote host with enough available resources, connect to it with SSH and automatically create and configure an environment there.
+For example:
+
+.. code-block:: shell
+
+   $ genv remote -H gpu-server-1,gpu-server-2 activate --gpus 1 --name my-env
+   ...
+   (genv) gpu-server-2 $
+
+If Genv can't find a remote host with enough available resources, the :code:`genv remote activate` command will fail with the following message:
+
+.. code-block:: shell
+
+   $ genv remote -H gpu-server-1,gpu-server-2 activate --gpus 4
+   Cannot find a host with enough available resources
+
+.. note::
+
+   You can see all available resource specification options with the command :code:`genv remote activate --help`
+
 Specifying Remote Hosts
 -----------------------
 :code:`genv remote` commands connect to multiple remote hosts and run :code:`genv` commands on them.

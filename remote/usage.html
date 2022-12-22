@@ -48,6 +48,7 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Usage</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#list-environments">List Environments</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#device-information">Device Information</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#activating-an-environment">Activating an Environment</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#specifying-remote-hosts">Specifying Remote Hosts</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#genv-installation-directory">Genv Installation Directory</a></li>
 </ul>
@@ -97,8 +98,9 @@
 <ul>
 <li><p><a class="reference internal" href="#list-environments" id="id2">List Environments</a></p></li>
 <li><p><a class="reference internal" href="#device-information" id="id3">Device Information</a></p></li>
-<li><p><a class="reference internal" href="#specifying-remote-hosts" id="id4">Specifying Remote Hosts</a></p></li>
-<li><p><a class="reference internal" href="#genv-installation-directory" id="id5">Genv Installation Directory</a></p></li>
+<li><p><a class="reference internal" href="#activating-an-environment" id="id4">Activating an Environment</a></p></li>
+<li><p><a class="reference internal" href="#specifying-remote-hosts" id="id5">Specifying Remote Hosts</a></p></li>
+<li><p><a class="reference internal" href="#genv-installation-directory" id="id6">Genv Installation Directory</a></p></li>
 </ul>
 </li>
 </ul>
@@ -127,6 +129,27 @@ core-server-2            <span class="m">2</span>        <span class="m">1</span
 
 Total <span class="m">3</span> devices with <span class="m">1</span> available on <span class="m">2</span> hosts
 </pre></div>
+</div>
+</div>
+<div class="section" id="activating-an-environment">
+<h2>Activating an Environment<a class="headerlink" href="#activating-an-environment" title="Permalink to this headline">¶</a></h2>
+<p>You can activate an environment on a remote host using the command <code class="code docutils literal notranslate"><span class="pre">activate</span></code>.</p>
+<p>You can also specify GPU resource requirements such as device count.
+Genv will then look for a remote host with enough available resources, connect to it with SSH and automatically create and configure an environment there.
+For example:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$ genv remote -H gpu-server-1,gpu-server-2 activate --gpus <span class="m">1</span> --name my-env
+...
+<span class="o">(</span>genv<span class="o">)</span> gpu-server-2 $
+</pre></div>
+</div>
+<p>If Genv can’t find a remote host with enough available resources, the <code class="code docutils literal notranslate"><span class="pre">genv</span> <span class="pre">remote</span> <span class="pre">activate</span></code> command will fail with the following message:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$ genv remote -H gpu-server-1,gpu-server-2 activate --gpus <span class="m">4</span>
+Cannot find a host with enough available resources
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>You can see all available resource specification options with the command <code class="code docutils literal notranslate"><span class="pre">genv</span> <span class="pre">remote</span> <span class="pre">activate</span> <span class="pre">--help</span></code></p>
 </div>
 </div>
 <div class="section" id="specifying-remote-hosts">
