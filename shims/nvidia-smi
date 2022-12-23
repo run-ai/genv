@@ -11,22 +11,34 @@ from typing import Dict, Iterable, Optional
 
 # TODO(raz): move some of the following functions to a common library
 
+
 def which(cmd: str) -> Optional[str]:
     """
     Find the original path of a genv shim.
     """
     shims = os.path.realpath(os.path.dirname(__file__))
-    path = os.pathsep.join(dir for dir in os.environ.get('PATH').split(os.pathsep) if os.path.realpath(dir) != shims)
+    path = os.pathsep.join(
+        dir
+        for dir in os.environ.get("PATH").split(os.pathsep)
+        if os.path.realpath(dir) != shims
+    )
 
     return shutil.which(cmd, path=path)
+
 
 def get_process_environ(pid: int) -> Dict[str, str]:
     """
     Returns the environment variables of the process with the given identifier.
     Raises 'FileNotFoundError' if no such process and 'PermissionError' if there is no sufficient permissions.
     """
-    with open(f'/proc/{pid}/environ', 'r') as f:
-        return { variable: value for variable, value in (line.split('=', 1) for line in f.read().split('\x00') if line) }
+    with open(f"/proc/{pid}/environ", "r") as f:
+        return {
+            variable: value
+            for variable, value in (
+                line.split("=", 1) for line in f.read().split("\x00") if line
+            )
+        }
+
 
 def find_process_eid(pid: int) -> Optional[str]:
     """
@@ -35,42 +47,47 @@ def find_process_eid(pid: int) -> Optional[str]:
     Returns 'None' otherwise.
     """
     try:
-        return get_process_environ(pid).get('GENV_ENVIRONMENT_ID', None)
+        return get_process_environ(pid).get("GENV_ENVIRONMENT_ID", None)
     except (FileNotFoundError, PermissionError):
         return None
+
 
 def memory_cap_to_mib(cap: str) -> int:
     """
     Convert the environment memory capacity string to an integer value in MiB.
     """
+
     def _bytes(cap: str) -> int:
         for unit, multiplier in [
-            ('b', 1),
-            ('k', 1000),
-            ('m', 1000 * 1000),
-            ('g', 1000 * 1000 * 1000),
-            ('ki', 1024),
-            ('mi', 1024 * 1024),
-            ('gi', 1024 * 1024 * 1024),
+            ("b", 1),
+            ("k", 1000),
+            ("m", 1000 * 1000),
+            ("g", 1000 * 1000 * 1000),
+            ("ki", 1024),
+            ("mi", 1024 * 1024),
+            ("gi", 1024 * 1024 * 1024),
         ]:
             if cap.endswith(unit):
-                return int(cap.replace(unit, '')) * multiplier
+                return int(cap.replace(unit, "")) * multiplier
 
-        return int(cap) # the value is already in bytes if no unit was specified
+        return int(cap)  # the value is already in bytes if no unit was specified
 
     return _bytes(cap) // (1024 * 1024)
+
 
 def proxy(process: subprocess.Popen) -> None:
     """
     Reprint the output of a running nvidia-smi process while manipulating it.
     """
-    DEVICE = re.compile(r'(^\|.*)\| \s*(\d+)MiB / \s*(\d+)MiB \|(.*\|$)')
+    DEVICE = re.compile(r"(^\|.*)\| \s*(\d+)MiB / \s*(\d+)MiB \|(.*\|$)")
     PROCESS = [
-        re.compile(r'^\|\s*(\d+)\s+(\d+).*?(\d+)MiB \|$'), # < 11.1
-        re.compile(r'^\|\s*(\d+)\s+N/A\s+N/A\s+(\d+).*?(\d+)MiB \|$'), # TODO(raz): support MIG (i.e. non N/A values)
+        re.compile(r"^\|\s*(\d+)\s+(\d+).*?(\d+)MiB \|$"),  # < 11.1
+        re.compile(
+            r"^\|\s*(\d+)\s+N/A\s+N/A\s+(\d+).*?(\d+)MiB \|$"
+        ),  # TODO(raz): support MIG (i.e. non N/A values)
     ]
 
-    EID = os.environ.get('GENV_ENVIRONMENT_ID')
+    EID = os.environ.get("GENV_ENVIRONMENT_ID")
 
     class Action(Enum):
         Print = 0
@@ -91,7 +108,7 @@ def proxy(process: subprocess.Popen) -> None:
             action = Action.Buffer
 
         if action == Action.Print:
-            print(line, end='')
+            print(line, end="")
         elif action == Action.Buffer:
             skip = False
 
@@ -122,7 +139,7 @@ def proxy(process: subprocess.Popen) -> None:
             used = int(match.group(2))
             total = int(match.group(3))
 
-            index = int(re.match(r'^\|\s*(\d+)\s*.*\|$', previous).group(1))
+            index = int(re.match(r"^\|\s*(\d+)\s*.*\|$", previous).group(1))
             used = sum(env_processes[index])
 
             gpu_memory_cap = os.environ.get("GENV_GPU_MEMORY")
@@ -132,32 +149,49 @@ def proxy(process: subprocess.Popen) -> None:
             if used > total:
                 is_memory_usage_over_cap = True
 
-            line = DEVICE.sub(f'\\1| {str(used).rjust(6)}MiB / {str(total).rjust(5)}MiB |\\4', line)
+            line = DEVICE.sub(
+                f"\\1| {str(used).rjust(6)}MiB / {str(total).rjust(5)}MiB |\\4", line
+            )
 
-        print(line, end='')
+        print(line, end="")
 
-        if total_processes > 0 and sum(len(env_processes[index]) for index in env_processes) == 0 and re.match(r'^\|={77}\|$', line):
-            print('|  ' + 'No running processes found'.ljust(75) + '|')
+        if (
+            total_processes > 0
+            and sum(len(env_processes[index]) for index in env_processes) == 0
+            and re.match(r"^\|={77}\|$", line)
+        ):
+            print("|  " + "No running processes found".ljust(75) + "|")
 
     if is_memory_usage_over_cap:
-        print('\n WARNING: The GPU memory usage for this environment has exceeded the set capacity of '
-              + str(os.environ.get("GENV_GPU_MEMORY")) + "\n")
+        print(
+            "\nWARNING: The GPU memory usage for this environment has exceeded the set capacity of "
+            + str(os.environ.get("GENV_GPU_MEMORY"))
+            + "\n"
+        )
 
-def run(args: Iterable[str], bypass: bool=False) -> int:
+
+def run(args: Iterable[str], bypass: bool = False) -> int:
     """
     Run the original nvidia-smi and manipulate its output.
     Returns the process exit code.
     """
-    with subprocess.Popen([which('nvidia-smi')] + args, stdout=subprocess.PIPE if not bypass else None, text=True) as process:
+    with subprocess.Popen(
+        [which("nvidia-smi")] + args,
+        stdout=subprocess.PIPE if not bypass else None,
+        text=True,
+    ) as process:
         if not bypass:
             proxy(process)
         else:
             process.wait()
         return process.returncode
 
-bypass = int(os.environ.get('GENV_BYPASS', 0)) != 0
+
+bypass = int(os.environ.get("GENV_BYPASS", 0)) != 0
 
 # TODO(raz): handle modes of nvidia-smi where '--id' is not supported like 'pmon'
-args = ([] if bypass else [f'--id={os.environ.get("CUDA_VISIBLE_DEVICES")}']) + sys.argv[1:]
+args = (
+    [] if bypass else [f'--id={os.environ.get("CUDA_VISIBLE_DEVICES")}']
+) + sys.argv[1:]
 
 sys.exit(run(args, bypass))
