@@ -50,6 +50,13 @@ def parse_args() -> argparse.Namespace:
             dest=dest,
         )
 
+    add_enforcement(
+        "non-env-processes",
+        dest="terminate_non_env_processes",
+        help="Terminate processes that are not running in a GPU environment",
+        default=False,
+    )
+
     return parser.parse_args()
 
 
@@ -79,6 +86,15 @@ async def main() -> None:
                     f"[DEBUG] Process {process.pid} already terminated", file=sys.stderr
                 )
                 continue
+
+            if eid is None:
+                print(
+                    f"Process {process.pid} is not running in a GPU environment",
+                    file=sys.stderr,
+                )
+
+                if args.terminate_non_env_processes:
+                    to_terminate.add(process.pid)
 
         for pid in to_terminate:
             try:
