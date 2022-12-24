@@ -54,7 +54,7 @@ Use the following command:
         -v /var/tmp:/var/tmp \
         -w /genv \
         python \
-        bash --rcfile /genv/.bashrc
+        bash --rcfile /genv/devel/.bashrc
 
 .. note::
 
@@ -64,7 +64,7 @@ To open another terminal inside the container use:
 
 .. code-block:: shell
 
-    docker exec -it genv bash --rcfile /genv/.bashrc
+    docker exec -it genv bash --rcfile /genv/devel/.bashrc
 
 CPU-Only Setup
 ~~~~~~~~~~~~~~
@@ -83,7 +83,7 @@ Set up your shell with the following command:
 
 .. code-block:: shell
 
-    export PATH=$PWD/shims-mock:$PATH
+    export PATH=$PWD/devel/shims:$PATH
 
 Now, execute :code:`nvidia-smi` once again.
 This time it should work and you should see an :code:`nvidia-smi`-like output printed to the screen.
