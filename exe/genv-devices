@@ -29,6 +29,7 @@ def get_devices_total_memory() -> Iterable[str]:
     """
 
     def _impl():
+        # TODO(raz): move this mock functionality to 'nvidia-smi' mock shim
         if "GENV_MOCK_DEVICE_COUNT" in os.environ:
             return [
                 os.environ.get("GENV_MOCK_DEVICE_MEMORY", "16g")

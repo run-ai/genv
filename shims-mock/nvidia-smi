@@ -1,0 +1,43 @@
+#!/usr/bin/env python3
+
+import sys
+
+if len(sys.argv) == 1:
+    output = """\
+Fri Dec 23 23:11:41 2022
++-----------------------------------------------------------------------------+
+| NVIDIA-SMI 515.86.01    Driver Version: 515.86.01    CUDA Version: 11.7     |
+|-------------------------------+----------------------+----------------------+
+| GPU  Name        Persistence-M| Bus-Id        Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp  Perf  Pwr:Usage/Cap|         Memory-Usage | GPU-Util  Compute M. |
+|                               |                      |               MIG M. |
+|===============================+======================+======================|
+|   0  NVIDIA GeForce ...  Off  | 00000000:01:00.0 Off |                  N/A |
+| 30%   33C    P8    26W / 250W |      5MiB / 11264MiB |      0%      Default |
+|                               |                      |                  N/A |
++-------------------------------+----------------------+----------------------+
+|   1  NVIDIA GeForce ...  Off  | 00000000:02:00.0  On |                  N/A |
+| 29%   35C    P8    11W / 250W |    114MiB / 11264MiB |      0%      Default |
+|                               |                      |                  N/A |
++-------------------------------+----------------------+----------------------+
+
++-----------------------------------------------------------------------------+
+| Processes:                                                                  |
+|  GPU   GI   CI        PID   Type   Process name                  GPU Memory |
+|        ID   ID                                                   Usage      |
+|=============================================================================|
+|    0   N/A  N/A      1500      G   /usr/lib/xorg/Xorg                  4MiB |
+|    1   N/A  N/A      1500      G   /usr/lib/xorg/Xorg                 86MiB |
+|    1   N/A  N/A      2398      G   /usr/bin/gnome-shell               22MiB |
+|    1   N/A  N/A      3746      G   gnome-control-center                3MiB |
++-----------------------------------------------------------------------------+
+"""
+else:
+    args = " ".join(sys.argv[1:])
+    print(
+        f"nvidia-smi mock shim does not support command line '{args}'",
+        file=sys.stderr,
+    )
+    exit(1)
+
+print(output, end="")
