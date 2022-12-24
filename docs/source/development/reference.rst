@@ -15,6 +15,13 @@ Default is :code:`0`.
 
 ----
 
+:code:`GENV_TERMINATE_PROCESSES`
+
+Control whether to actually terminate enforced processes or not.
+Default is :code:`1`.
+
+----
+
 :code:`GENV_MOCK_DEVICE_COUNT`
 
 A mock for device count.

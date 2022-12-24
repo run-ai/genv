@@ -1,6 +1,9 @@
 from contextlib import contextmanager
 import fcntl
 import os
+import platform
+import signal
+from typing import Dict
 
 
 @contextmanager
@@ -31,3 +34,40 @@ class Flock:
             fcntl.flock(self._fd, fcntl.LOCK_UN)
         finally:
             os.close(self._fd)
+
+
+def get_process_environ(pid: int) -> Dict[str, str]:
+    """
+    Returns the environment variables of the process with the given identifier.
+
+    Raises 'NotImplementedError' if running in a non-Linux platform as it relies on the Linux proc filesystem.
+    Raises 'FileNotFoundError' if no such process.
+    Raises 'PermissionError' if there is no sufficient permissions.
+
+    """
+    # TODO(raz): support this with psutil.Process().eniron() probably
+    if platform.system() != "Linux":
+        raise NotImplementedError(
+            "genv.os.get_process_environ is not supported in platforms other than Linux"
+        )
+
+    with open(f"/proc/{pid}/environ", "r") as f:
+        return {
+            variable: value
+            for variable, value in (
+                line.split("=", 1) for line in f.read().split("\x00") if line
+            )
+        }
+
+
+def terminate(pid: int) -> None:
+    """
+    Terminates the running process with the given pid by sending the signal SIGTERM to it.
+
+    Raises 'ProcessLookupError' if no such process.
+    Raises 'PermissionError' if there is no sufficient permissions.
+    """
+    if int(os.environ.get("GENV_TERMINATE_PROCESSES", "1")) == 0:
+        return
+
+    os.kill(pid, signal.SIGTERM)

@@ -1,0 +1,107 @@
+#!/usr/bin/env python3
+
+import argparse
+import asyncio
+import sys
+
+import genv
+
+
+# TODO(raz): use a proper logger instead of printing to stderr
+
+
+def parse_args() -> argparse.Namespace:
+    """
+    Parses the arguments passed to this executable.
+
+    :return: Argument values
+    """
+
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument(
+        "--interval",
+        type=int,
+        default=10,
+        help="Interval in seconds between enforcement cycles; 0 means run once (default: %(default)s)",
+    )
+
+    enforcements = parser.add_argument_group("enforcements")
+
+    def add_enforcement(
+        name: str, *, dest: str, help: str, default: bool = True
+    ) -> None:
+        """
+        Adds a mutual exclusive group for an enforcement flag with true and false actions.
+        """
+        group = enforcements.add_mutually_exclusive_group()
+
+        group.add_argument(
+            f"--{name}",
+            action="store_true",
+            default=default,
+            help=help + " (default: %(default)s)",
+            dest=dest,
+        )
+
+        group.add_argument(
+            f"--no-{name}",
+            action="store_false",
+            dest=dest,
+        )
+
+    return parser.parse_args()
+
+
+async def main() -> None:
+    """
+    Runs the main logic and enforces GPU usage according to the arguments.
+
+    :return: None
+    """
+    args = parse_args()
+
+    while True:
+        processes = await genv.nvidia_smi.compute_processes()
+        to_terminate = set()
+
+        for process in processes:
+            try:
+                eid = genv.get_process_environ(process.pid).get("GENV_ENVIRONMENT_ID")
+            except PermissionError:
+                print(
+                    f"[WARNING] Not enough permissions to query environment of process {process.pid}",
+                    file=sys.stderr,
+                )
+                continue
+            except FileNotFoundError:
+                print(
+                    f"[DEBUG] Process {process.pid} already terminated", file=sys.stderr
+                )
+                continue
+
+        for pid in to_terminate:
+            try:
+                genv.terminate(pid)
+            except PermissionError:
+                print(
+                    f"[ERROR] Not enough permissions to terminate process {pid}",
+                    file=sys.stderr,
+                )
+            except ProcessLookupError:
+                print(f"[DEBUG] Process {pid} already terminated", file=sys.stderr)
+
+        if args.interval == 0:
+            break
+
+        await asyncio.sleep(args.interval)
+
+
+if __name__ == "__main__":
+    try:
+        asyncio.run(main())
+    except RuntimeError as e:
+        print(e, file=sys.stderr)
+        exit(1)
+    except KeyboardInterrupt:
+        pass
