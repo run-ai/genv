@@ -12,6 +12,7 @@ Envs = Dict[int, Env]
 QUERIES = {
     "eid": lambda env: env["eid"],
     "creation": lambda env: env["creation"],
+    "username": lambda env: env.get("username"),
     "config.name": lambda env: env["config"].get("name"),
     "config.gpus": lambda env: env["config"].get("gpus"),
     "config.gpu_memory": lambda env: env["config"].get("gpu_memory"),
