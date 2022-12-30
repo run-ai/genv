@@ -1,5 +1,5 @@
 import subprocess
-from typing import Dict, Iterable, Optional
+from typing import Dict, Iterable, Optional, Union
 
 
 # NOTE(raz): This should be the layer that queries and controls the state of Genv regarding active environments.
@@ -12,17 +12,48 @@ from typing import Dict, Iterable, Optional
 # call the other manager.
 
 
+def query(
+    *properties: str, eid: Optional[str] = None
+) -> Union[str, Iterable[str], Dict[str, str], Dict[str, Iterable[str]]]:
+    """
+    Queries the environment manager about all active environments or a specific one.
+
+    :param properties: Environment properties to query
+    :param eid: Identifier of a specific environment to query
+    """
+    if len(properties) == 0:
+        raise RuntimeError("At least one query property must be provided")
+
+    command = "genv exec envs query"
+
+    if eid:
+        command = f"{command} --eid {eid}"
+    else:
+        properties = ("eid", *properties)
+
+    command = f"{command} --query {' '.join(properties)}"
+
+    output = subprocess.check_output(command, shell=True).decode("utf-8").strip()
+
+    if eid:
+        return output if len(properties) == 1 else output.split(",")
+    else:
+        result = dict()
+
+        for line in output.splitlines():
+            eid, line = line.split(",", 1)
+            result[eid] = line if (len(properties) - 1) == 1 else line.split(",")
+
+        return result
+
+
 def eids() -> Iterable[str]:
     """
     Returns the identifiers of all active environments.
 
     :return: Identifiers of all active environments.
     """
-    return (
-        subprocess.check_output("genv exec envs query --query eid", shell=True)
-        .decode("utf-8")
-        .splitlines()
-    )
+    return list(query("eid").keys())
 
 
 def names() -> Dict[str, Optional[str]]:
@@ -31,32 +62,14 @@ def names() -> Dict[str, Optional[str]]:
 
     :return: A mapping from environment identifier to its configured name or None if not configured.
     """
-    names = {}
-    for line in (
-        subprocess.check_output(
-            "genv exec envs query --query eid config.name", shell=True
-        )
-        .decode("utf-8")
-        .splitlines()
-    ):
-        eid, name = line.split(",")
-        names[eid] = name or None
-
-    return names
+    return {eid: (name or None) for eid, name in query("config.name").items()}
 
 
-def gpu_memory(eid: int) -> Optional[str]:
+def gpu_memory(eid: str) -> Optional[str]:
     """
-    Returns the configured GPU memory of an environment.
+    Returns the configured amount of GPU memory of an environment.
 
     :param eid: Environment to query
-    :return: The configured GPU memory or None if not configured
+    :return: The configured amount of GPU memory or None if not configured
     """
-    return (
-        subprocess.check_output(
-            f"genv exec envs query --eid {eid} --query config.gpu_memory", shell=True
-        )
-        .decode("utf-8")
-        .strip()
-        or None
-    )
+    return query("config.gpu_memory", eid=eid) or None
