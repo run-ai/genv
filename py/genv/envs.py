@@ -65,6 +65,15 @@ def names() -> Dict[str, Optional[str]]:
     return {eid: (name or None) for eid, name in query("config.name").items()}
 
 
+def usernames() -> Dict[str, Optional[str]]:
+    """
+    Returns the usernames of all active environments
+
+    :return: A mapping from environment identifier to its owner username or None if unknown.
+    """
+    return {eid: (username or None) for eid, username in query("username").items()}
+
+
 def gpu_memory(eid: str) -> Optional[str]:
     """
     Returns the configured amount of GPU memory of an environment.
