@@ -313,7 +313,7 @@ def do_attach(
     do_query(devices, eid)  # print the up-to-date device indices
 
 
-def do_detach(devices: Devices, eid: str, index: Optional[int]) -> None:
+def do_detach(devices: Devices, eid: str, index: Optional[int], quiet: bool) -> None:
     """
     Detach devices from a given environment. After detaching, print environment-devices current relationship.
     Either the device to detach is given, or a general cleanup is called on the environment.
@@ -332,7 +332,8 @@ def do_detach(devices: Devices, eid: str, index: Optional[int]) -> None:
     else:
         cleanup(devices, eid)
 
-    do_query(devices, eid)  # print the up-to-date device indices
+    if not quiet:
+        do_query(devices, eid)  # print the up-to-date device indices
 
 
 def do_ps(devices: Devices, format: str, header: bool, timestamp: bool) -> None:
@@ -395,6 +396,11 @@ def parse_args() -> argparse.Namespace:
     def detach(parser):
         parser.add_argument("--eid", required=True, help="Environment identifier")
         parser.add_argument("--index", type=int, help="Device index to dettach")
+        parser.add_argument(
+            "--quiet",
+            action="store_true",
+            help="Don't print updated device indexes",
+        )
 
     def ps(parser):
         parser.add_argument(
@@ -452,7 +458,7 @@ if __name__ == "__main__":
         if args.command == "attach":
             do_attach(devices, args.eid, args.count, args.index)
         elif args.command == "detach":
-            do_detach(devices, args.eid, args.index)
+            do_detach(devices, args.eid, args.index, args.quiet)
         elif args.command == "ps":
             do_ps(devices, args.format, args.header, args.timestamp)
         elif args.command == "query":
