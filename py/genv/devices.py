@@ -1,5 +1,6 @@
 from collections import defaultdict
 import subprocess
+from typing import Dict, Iterable
 
 
 # NOTE(raz): This should be the layer that queries and controls the state of Genv regarding devices.
@@ -12,7 +13,12 @@ import subprocess
 # call the other manager.
 
 
-def attachments():
+def attachments() -> Dict[int, Iterable[str]]:
+    """
+    Returns all active device attachments.
+
+    :return: A mapping between device index and all attached environment identifiers
+    """
     attachments = defaultdict(list)
 
     for line in (
@@ -29,3 +35,17 @@ def attachments():
             attachments[int(index)].append(eid)
 
     return dict(attachments)
+
+
+def detach(eid: str, index: int) -> None:
+    """
+    Detaches an environment from a device.
+
+    :param eid: Environment identifier
+    :param index: Device index
+    :return: None
+    """
+    # TODO(raz): support detaching from multiple devices at the same time
+    subprocess.check_call(
+        f"genv exec devices detach --quiet --eid {eid} --index {index}", shell=True
+    )
