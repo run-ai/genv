@@ -96,12 +96,7 @@ def cleanup(
     if eid is not None:
         pred = lambda _: _ == eid
     else:
-        eids = (
-            subprocess.check_output("genv exec envs query --query eid", shell=True)
-            .decode("utf-8")
-            .splitlines()
-        )
-        pred = lambda eid: eid not in eids
+        pred = lambda eid: eid not in genv.envs.eids()
 
     for index in sorted(devices.keys(), reverse=True):
         if count == 0:
@@ -266,7 +261,7 @@ def do_attach(
     :return: None
     """
     attached = query(devices, eid)
-    env_gpu_memory = get_env_gpu_memory(args.eid)
+    env_gpu_memory = genv.envs.gpu_memory(args.eid)
 
     def ensure_count():
         """
@@ -318,25 +313,6 @@ def do_attach(
     do_query(devices, eid)  # print the up-to-date device indices
 
 
-def get_env_gpu_memory(eid: int) -> Optional[str]:
-    """
-    Query the configured GPU memory of an environment.
-
-    Returns 'None' if not configured.
-    :param eid: Environment to query
-    :return: return the configured gpu memory, or None if not configured
-    """
-    # TODO(raz): could this cause a deadlock if envs manager would query this manager?
-    return (
-        subprocess.check_output(
-            f"genv exec envs query --eid {eid} --query config.gpu_memory", shell=True
-        )
-        .decode("utf-8")
-        .strip()
-        or None
-    )
-
-
 def do_detach(devices: Devices, eid: str, index: Optional[int]) -> None:
     """
     Detach devices from a given environment. After detaching, print environment-devices current relationship.
@@ -368,17 +344,6 @@ def do_ps(devices: Devices, format: str, header: bool, timestamp: bool) -> None:
     :param timestamp: a flag instructing if we should print attachment time as is or relative duration (now - creation).
     :return: None
     """
-    envs = {}
-    for line in (
-        subprocess.check_output(
-            "genv exec envs query --query eid config.name", shell=True
-        )
-        .decode("utf-8")
-        .splitlines()
-    ):
-        eid, name = line.split(",")
-        envs[eid] = name
-
     if header:
         if format == "csv":
             print("ID,ENV ID,ENV NAME,ATTACHED")
@@ -391,12 +356,14 @@ def do_ps(devices: Devices, format: str, header: bool, timestamp: bool) -> None:
         elif format == "tui":
             print(f"{index:<8}{eid:<12}{name:<16}{attached}")
 
+    names = genv.envs.names()
+
     for index, device in devices.items():
         if len(device["eids"]) == 0:
             print_line(index, "", "", "")
         else:
             for eid, info in device["eids"].items():
-                name = envs.get(eid, "")
+                name = names.get(eid) or ""
                 attached = (
                     info["attached"] if timestamp else genv.time_since(info["attached"])
                 )
