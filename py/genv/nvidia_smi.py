@@ -76,6 +76,9 @@ class Process:
     pid: int
     used_gpu_memory: str
 
+    def __hash__(self) -> int:
+        return self.pid.__hash__()
+
     def __repr__(self) -> str:
         return f"nvidia_smi.Process(gpu={self.gpu_index}, pid={self.pid}, used_gpu_memory='{self.used_gpu_memory}')"
 

@@ -2,12 +2,77 @@
 
 import argparse
 import asyncio
+from dataclasses import dataclass
 import sys
+from typing import Iterable, Optional, Set
 
 import genv
 
 
 # TODO(raz): use a proper logger instead of printing to stderr
+
+
+@dataclass
+class Process(genv.nvidia_smi.Process):
+    eid: Optional[str]
+
+    def __hash__(self) -> int:
+        return super().__hash__()
+
+
+@dataclass
+class Snapshot:
+    processes: Iterable[Process]
+
+
+class Report:
+    """
+    A holder class for the cumulative conclusion of all enforcers.
+    """
+
+    def __init__(self) -> None:
+        self.processes_to_terminate: Set[Process] = set()
+
+
+async def take_snapshot() -> Snapshot:
+    """
+    Takes a snapshot of the current state of the system.
+    This includes running processes, active environments and device attachments.
+    """
+    processes = []
+
+    for process in await genv.nvidia_smi.compute_processes():
+        try:
+            eid = genv.get_process_environ(process.pid).get("GENV_ENVIRONMENT_ID", None)
+
+            process_ = Process(
+                process.gpu_index,
+                process.pid,
+                process.used_gpu_memory,
+                eid,
+            )
+
+            processes.append(process_)
+        except PermissionError:
+            print(
+                f"[WARNING] Not enough permissions to query environment of process {process.pid}",
+                file=sys.stderr,
+            )
+        except FileNotFoundError:
+            print(f"[DEBUG] Process {process.pid} already terminated", file=sys.stderr)
+
+    return Snapshot(processes)
+
+
+def enforce_non_env_processes(snapshot: Snapshot, report: Report) -> None:
+    for process in snapshot.processes:
+        if process.eid is None:
+            print(
+                f"Process {process.pid} is not running in a GPU environment",
+                file=sys.stderr,
+            )
+
+            report.processes_to_terminate.add(process)
 
 
 def parse_args() -> argparse.Namespace:
@@ -69,43 +134,27 @@ async def main() -> None:
     args = parse_args()
 
     while True:
-        processes = await genv.nvidia_smi.compute_processes()
-        to_terminate = set()
+        snapshot = await take_snapshot()
+        report = Report()
 
-        for process in processes:
+        if args.terminate_non_env_processes:
+            enforce_non_env_processes(snapshot, report)
+
+        for process in report.processes_to_terminate:
             try:
-                eid = genv.get_process_environ(process.pid).get("GENV_ENVIRONMENT_ID")
+                print(
+                    f"Terminating process {process.pid} from environment {process.eid or 'N/A'} that is running on GPU {process.gpu_index} and using {process.used_gpu_memory}"
+                )
+                genv.terminate(process.pid)
             except PermissionError:
                 print(
-                    f"[WARNING] Not enough permissions to query environment of process {process.pid}",
-                    file=sys.stderr,
-                )
-                continue
-            except FileNotFoundError:
-                print(
-                    f"[DEBUG] Process {process.pid} already terminated", file=sys.stderr
-                )
-                continue
-
-            if eid is None:
-                print(
-                    f"Process {process.pid} is not running in a GPU environment",
-                    file=sys.stderr,
-                )
-
-                if args.terminate_non_env_processes:
-                    to_terminate.add(process.pid)
-
-        for pid in to_terminate:
-            try:
-                genv.terminate(pid)
-            except PermissionError:
-                print(
-                    f"[ERROR] Not enough permissions to terminate process {pid}",
+                    f"[ERROR] Not enough permissions to terminate process {process.pid}",
                     file=sys.stderr,
                 )
             except ProcessLookupError:
-                print(f"[DEBUG] Process {pid} already terminated", file=sys.stderr)
+                print(
+                    f"[DEBUG] Process {process.pid} already terminated", file=sys.stderr
+                )
 
         if args.interval == 0:
             break
