@@ -1,4 +1,6 @@
 import asyncio
+from dataclasses import dataclass
+import os
 from typing import Dict, Iterable
 
 
@@ -11,6 +13,7 @@ async def run(*args: str) -> str:
 
     process = await asyncio.create_subprocess_exec(
         *args,
+        env={"GENV_BYPASS": "1", **os.environ},
         stdin=asyncio.subprocess.DEVNULL,
         stdout=asyncio.subprocess.PIPE,
         stderr=asyncio.subprocess.PIPE,
@@ -67,11 +70,11 @@ async def compute_apps() -> Iterable[Dict]:
     return apps
 
 
+@dataclass
 class Process:
-    def __init__(self, gpu_index: int, pid: int, used_gpu_memory: str) -> None:
-        self.gpu_index = gpu_index
-        self.pid = pid
-        self.used_gpu_memory = used_gpu_memory
+    gpu_index: int
+    pid: int
+    used_gpu_memory: str
 
     def __repr__(self) -> str:
         return f"nvidia_smi.Process(gpu={self.gpu_index}, pid={self.pid}, used_gpu_memory='{self.used_gpu_memory}')"
