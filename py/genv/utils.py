@@ -5,7 +5,7 @@ import os
 from pathlib import Path
 from typing import Callable, Dict, Optional, Union
 
-from .os import Umask, Flock
+from .os_ import Umask, Flock
 
 DATETIME_FMT = "%d/%m/%Y %H:%M:%S"
 MEMORY_TO_BYTES_MULTIPLIERS_DICT = {

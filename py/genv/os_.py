@@ -48,7 +48,7 @@ def get_process_environ(pid: int) -> Dict[str, str]:
     # TODO(raz): support this with psutil.Process().eniron() probably
     if platform.system() != "Linux":
         raise NotImplementedError(
-            "genv.os.get_process_environ is not supported in platforms other than Linux"
+            "genv.os_.get_process_environ is not supported in platforms other than Linux"
         )
 
     with open(f"/proc/{pid}/environ", "r") as f:

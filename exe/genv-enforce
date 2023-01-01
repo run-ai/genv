@@ -66,7 +66,7 @@ async def take_snapshot() -> Snapshot:
 
     for process in await genv.nvidia_smi.compute_processes():
         try:
-            eid = genv.get_process_environ(process.pid).get("GENV_ENVIRONMENT_ID", None)
+            eid = genv.os_.get_process_environ(process.pid).get("GENV_ENVIRONMENT_ID", None)
 
             process_ = Process(
                 process.gpu_index,
@@ -99,7 +99,7 @@ def execute_report(report: Report) -> None:
                 f"Terminating process {process.pid} from environment {process.eid or 'N/A'} that is running on GPU {process.gpu_index} and using {process.used_gpu_memory}"
             )
 
-            genv.terminate(process.pid)
+            genv.os_.terminate(process.pid)
         except PermissionError:
             print(
                 f"[ERROR] Not enough permissions to terminate process {process.pid}",

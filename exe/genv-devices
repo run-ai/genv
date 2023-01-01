@@ -145,7 +145,7 @@ def attach_devices(
     if isinstance(indices, int):
         indices = [indices]
 
-    now = datetime.now().strftime(genv.DATETIME_FMT)
+    now = datetime.now().strftime(genv.utils.DATETIME_FMT)
 
     for index in indices:
         env = dict(
@@ -192,7 +192,7 @@ def is_device_available(device: Device, gpu_memory: Optional[str]) -> bool:
         len(device["eids"]) == 0
         if gpu_memory is None
         else get_device_unallocated_memory_bytes(device)
-        >= genv.memory_to_bytes(gpu_memory)
+        >= genv.utils.memory_to_bytes(gpu_memory)
     )
 
 
@@ -204,13 +204,13 @@ def get_device_unallocated_memory_bytes(device) -> int:
     :param device:
     :return: unallocated memory in bytes.
     """
-    unallocated_memory_bytes = genv.memory_to_bytes(device["total_memory"])
+    unallocated_memory_bytes = genv.utils.memory_to_bytes(device["total_memory"])
 
     for env in device["eids"].values():
         if "gpu_memory" not in env:
             return 0  # the environment uses all the device memory
         else:
-            unallocated_memory_bytes -= genv.memory_to_bytes(env["gpu_memory"])
+            unallocated_memory_bytes -= genv.utils.memory_to_bytes(env["gpu_memory"])
 
     return max(
         unallocated_memory_bytes, 0
@@ -366,7 +366,7 @@ def do_ps(devices: Devices, format: str, header: bool, timestamp: bool) -> None:
             for eid, info in device["eids"].items():
                 name = names.get(eid) or ""
                 attached = (
-                    info["attached"] if timestamp else genv.time_since(info["attached"])
+                    info["attached"] if timestamp else genv.utils.time_since(info["attached"])
                 )
 
                 print_line(index, eid, name, attached)
@@ -447,7 +447,7 @@ def parse_args() -> argparse.Namespace:
 if __name__ == "__main__":
     args = parse_args()
 
-    with genv.access_json(
+    with genv.utils.access_json(
         "devices.json", factory, convert=convert, reset=args.reset
     ) as json:
         devices: Devices = json["devices"]
