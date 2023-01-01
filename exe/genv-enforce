@@ -4,7 +4,7 @@ import argparse
 import asyncio
 from dataclasses import dataclass
 import sys
-from typing import Iterable, Optional, Set
+from typing import Iterable, Optional, Set, Tuple
 
 import genv
 
@@ -23,15 +23,38 @@ class Process(genv.nvidia_smi.Process):
 @dataclass
 class Snapshot:
     processes: Iterable[Process]
+    user_attachments: genv.users.Attachments
 
 
+@dataclass
 class Report:
-    """
-    A holder class for the cumulative conclusion of all enforcers.
-    """
+    processes_to_terminate: Set[Process]
+    envs_to_detach: Set[Tuple[str, int, Optional[str]]]
 
+
+class Survey:
     def __init__(self) -> None:
-        self.processes_to_terminate: Set[Process] = set()
+        self._processes_to_terminate = set()
+        self._envs_to_detach = set()
+
+    def terminate(self, process: Process) -> None:
+        self._processes_to_terminate.add(process)
+
+    def detach(self, eid: str, index: int, username: Optional[str]) -> None:
+        self._envs_to_detach.add((eid, index, username))
+
+    def report(self, snapshot: Snapshot) -> Report:
+        return Report(
+            self._processes_to_terminate.union(
+                set(
+                    process
+                    for eid, index, _ in self._envs_to_detach
+                    for process in snapshot.processes
+                    if process.eid == eid and process.gpu_index == index
+                )
+            ),
+            self._envs_to_detach,
+        )
 
 
 async def take_snapshot() -> Snapshot:
@@ -61,18 +84,66 @@ async def take_snapshot() -> Snapshot:
         except FileNotFoundError:
             print(f"[DEBUG] Process {process.pid} already terminated", file=sys.stderr)
 
-    return Snapshot(processes)
+    user_attachments = genv.users.attachments()
+
+    return Snapshot(processes, user_attachments)
 
 
-def enforce_non_env_processes(snapshot: Snapshot, report: Report) -> None:
-    for process in snapshot.processes:
-        if process.eid is None:
+def execute_report(report: Report) -> None:
+    """
+    Terminates processes and detaches environments from devices according to the given report.
+    """
+    for process in report.processes_to_terminate:
+        try:
             print(
-                f"Process {process.pid} is not running in a GPU environment",
-                file=sys.stderr,
+                f"Terminating process {process.pid} from environment {process.eid or 'N/A'} that is running on GPU {process.gpu_index} and using {process.used_gpu_memory}"
             )
 
-            report.processes_to_terminate.add(process)
+            genv.terminate(process.pid)
+        except PermissionError:
+            print(
+                f"[ERROR] Not enough permissions to terminate process {process.pid}",
+                file=sys.stderr,
+            )
+        except ProcessLookupError:
+            print(f"[DEBUG] Process {process.pid} already terminated", file=sys.stderr)
+
+    for eid, index, username in report.envs_to_detach:
+        print(
+            f"Detaching environment {eid} of user {username or 'N/A'} from device {index}"
+        )
+
+        genv.devices.detach(eid, index)
+
+
+def enforce_non_env_processes(snapshot: Snapshot, survey: Survey) -> None:
+    for process in snapshot.processes:
+        if process.eid is not None:
+            continue
+
+        print(f"Process {process.pid} is not running in a GPU environment")
+
+        survey.terminate(process)
+
+
+def enforce_max_devices_per_user(
+    snapshot: Snapshot, survey: Survey, maximum: int
+) -> None:
+    for username, attachments in snapshot.user_attachments.items():
+        attached = len(attachments)
+
+        if attached <= maximum:
+            continue
+
+        over = attached - maximum
+
+        print(
+            f"User {username} is using {attached} devices which is {over} more than the maximum allowed"
+        )
+
+        for index in list(attachments.keys())[:over]:
+            for eid in attachments[index]:
+                survey.detach(eid, index, username)
 
 
 def parse_args() -> argparse.Namespace:
@@ -88,7 +159,7 @@ def parse_args() -> argparse.Namespace:
         "--interval",
         type=int,
         default=10,
-        help="Interval in seconds between enforcement cycles; 0 means run once (default: %(default)s)",
+        help="interval in seconds between enforcement cycles; 0 means run once (default: %(default)s)",
     )
 
     enforcements = parser.add_argument_group("enforcements")
@@ -118,8 +189,14 @@ def parse_args() -> argparse.Namespace:
     add_enforcement(
         "non-env-processes",
         dest="terminate_non_env_processes",
-        help="Terminate processes that are not running in a GPU environment",
+        help="terminate processes that are not running in a GPU environment",
         default=False,
+    )
+
+    enforcements.add_argument(
+        "--max-devices-per-user",
+        type=int,
+        help="maximum allowed attached devices for each user",
     )
 
     return parser.parse_args()
@@ -135,26 +212,19 @@ async def main() -> None:
 
     while True:
         snapshot = await take_snapshot()
-        report = Report()
+        survey = Survey()
 
         if args.terminate_non_env_processes:
-            enforce_non_env_processes(snapshot, report)
+            enforce_non_env_processes(snapshot, survey)
 
-        for process in report.processes_to_terminate:
-            try:
-                print(
-                    f"Terminating process {process.pid} from environment {process.eid or 'N/A'} that is running on GPU {process.gpu_index} and using {process.used_gpu_memory}"
-                )
-                genv.terminate(process.pid)
-            except PermissionError:
-                print(
-                    f"[ERROR] Not enough permissions to terminate process {process.pid}",
-                    file=sys.stderr,
-                )
-            except ProcessLookupError:
-                print(
-                    f"[DEBUG] Process {process.pid} already terminated", file=sys.stderr
-                )
+        if args.max_devices_per_user is not None:
+            enforce_max_devices_per_user(
+                snapshot, survey, maximum=args.max_devices_per_user
+            )
+
+        report = survey.report(snapshot)
+
+        execute_report(report)
 
         if args.interval == 0:
             break

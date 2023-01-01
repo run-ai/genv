@@ -4,7 +4,10 @@ from . import devices
 from . import envs
 
 
-def attachments() -> Dict[str, Dict[int, Iterable[str]]]:
+Attachments = Dict[str, Dict[int, Iterable[str]]]
+
+
+def attachments() -> Attachments:
     """
     Returns active device attachments of users.
     """
