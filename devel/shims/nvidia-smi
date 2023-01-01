@@ -3,8 +3,10 @@
 import os
 import sys
 
+
 if len(sys.argv) == 1:
-    output = """\
+    print(
+        """\
 Fri Dec 23 23:11:41 2022
 +-----------------------------------------------------------------------------+
 | NVIDIA-SMI 515.86.01    Driver Version: 515.86.01    CUDA Version: 11.7     |
@@ -32,25 +34,39 @@ Fri Dec 23 23:11:41 2022
 |    1   N/A  N/A      2398      G   /usr/bin/gnome-shell               22MiB |
 |    1   N/A  N/A      3746      G   gnome-control-center                3MiB |
 +-----------------------------------------------------------------------------+
-"""
+""",
+        end="",
+    )
 elif (
     len(sys.argv) == 3
     and sys.argv[1] == "--query-gpu=uuid,index"
     and sys.argv[2] == "--format=csv,noheader"
 ):
-    output = """\
+    print(
+        """\
 GPU-00000000-0000-0000-0000-000000000000, 0
 GPU-11111111-1111-1111-1111-111111111111, 1
-"""
+""",
+        end="",
+    )
 elif (
     len(sys.argv) == 3
     and sys.argv[1] == "--query-compute-apps=gpu_uuid,pid,used_gpu_memory"
     and sys.argv[2] == "--format=csv,noheader,nounits"
 ):
-    pid = os.getppid()
-    output = f"""\
-GPU-00000000-0000-0000-0000-000000000000, {pid}, 10000
-"""
+    # TODO(raz): this should be global and manipulate all modes of this dev shim
+    pids = [
+        int(pid)
+        for pid in str(os.environ.get("GENV_MOCK_NVIDIA_SMI_PIDS", os.getpid())).split(
+            ","
+        )
+    ]
+
+    print(
+        "\n".join(
+            f"GPU-00000000-0000-0000-0000-000000000000, {pid}, 10000" for pid in pids
+        )
+    )
 else:
     args = " ".join(sys.argv[1:])
     print(
@@ -58,5 +74,3 @@ else:
         file=sys.stderr,
     )
     exit(1)
-
-print(output, end="")
