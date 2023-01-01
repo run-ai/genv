@@ -30,7 +30,12 @@ function functions()
   cat <<EOS
 _genv_unset_envs()
 {
-  IFS=: read -a names <<< "\$GENV_ENVS"
+  if [ "$GENV_SHELL" = "zsh" ]; then
+    names=("\${(@s/:/)GENV_ENVS}")
+  else
+    IFS=: read -a names <<< "\$GENV_ENVS"
+  fi
+
   unset GENV_ENVS
 
   for name in "\${names[@]}"
@@ -41,7 +46,12 @@ _genv_unset_envs()
 
 _genv_restore_envs()
 {
-  IFS=: read -a names <<< "\$GENV_BACKUP_ENVS"
+  if [ "$GENV_SHELL" = "zsh" ]; then
+    names=("\${(@s/:/)GENV_BACKUP_ENVS}")
+  else
+    IFS=: read -a names <<< "\$GENV_BACKUP_ENVS"
+  fi
+
   unset GENV_BACKUP_ENVS
 
   for name in "\${names[@]}"
@@ -71,6 +81,7 @@ unset -f _genv_backup_env
 unset -f _genv_unset_env
 unset -f _genv_set_env
 unset -f _genv_append_to_env
+unset -f _genv_get_env
 EOS
 }
 
