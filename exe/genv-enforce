@@ -6,7 +6,10 @@ from dataclasses import dataclass
 import sys
 from typing import Iterable, Optional, Set, Tuple
 
-import genv
+import genv.devices
+import genv.nvidia_smi
+import genv.os_
+import genv.users
 
 
 # TODO(raz): use a proper logger instead of printing to stderr
@@ -66,7 +69,9 @@ async def take_snapshot() -> Snapshot:
 
     for process in await genv.nvidia_smi.compute_processes():
         try:
-            eid = genv.os_.get_process_environ(process.pid).get("GENV_ENVIRONMENT_ID", None)
+            eid = genv.os_.get_process_environ(process.pid).get(
+                "GENV_ENVIRONMENT_ID", None
+            )
 
             process_ = Process(
                 process.gpu_index,

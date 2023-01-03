@@ -9,7 +9,7 @@ import shutil
 import sys
 from typing import Dict, Iterable, NoReturn, Optional
 
-import genv
+import genv.utils
 
 
 async def start_on_host(host: str, root: str, *args: str) -> asyncio.subprocess.Process:
@@ -290,7 +290,9 @@ async def do_envs(
             eid = env["eid"]
             user = env["user"]
             name = env["name"]
-            created = env["creation"] if timestamp else genv.utils.time_since(env["creation"])
+            created = (
+                env["creation"] if timestamp else genv.utils.time_since(env["creation"])
+            )
 
             if format == "csv":
                 print(f"{host},{eid},{user},{name},{created}")

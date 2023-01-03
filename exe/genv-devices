@@ -7,7 +7,8 @@ import subprocess
 import sys
 from typing import Any, Callable, Dict, Iterable, List, Optional, Union
 
-import genv
+import genv.envs
+import genv.utils
 
 Device = Dict[Any, Any]
 Devices = Dict[int, Device]
@@ -366,7 +367,9 @@ def do_ps(devices: Devices, format: str, header: bool, timestamp: bool) -> None:
             for eid, info in device["eids"].items():
                 name = names.get(eid) or ""
                 attached = (
-                    info["attached"] if timestamp else genv.utils.time_since(info["attached"])
+                    info["attached"]
+                    if timestamp
+                    else genv.utils.time_since(info["attached"])
                 )
 
                 print_line(index, eid, name, attached)

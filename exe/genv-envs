@@ -4,7 +4,8 @@ import argparse
 from datetime import datetime
 from typing import Any, Callable, Dict, List, Optional, Union
 
-import genv
+import genv.poll
+import genv.utils
 
 Env = Dict[Any, Any]
 Envs = Dict[int, Env]
@@ -219,7 +220,9 @@ def do_ps(envs: Envs, format: str, header: bool, timestamp: bool) -> None:
         eid = env["eid"]
         user = f'{env["username"]}({env["uid"]})' if "username" in env else env["uid"]
         name = env["config"].get("name", "")
-        created = env["creation"] if timestamp else genv.utils.time_since(env["creation"])
+        created = (
+            env["creation"] if timestamp else genv.utils.time_since(env["creation"])
+        )
         pids = " ".join(str(pid) for pid in env.get("pids", []))
         # TODO(raz): print kernel ids
 
