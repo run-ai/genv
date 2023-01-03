@@ -4,11 +4,12 @@ import argparse
 import asyncio
 from dataclasses import dataclass
 import sys
-from typing import Iterable, Optional, Set, Tuple
+from typing import Optional, Set, Tuple
 
 import genv.devices
 import genv.nvidia_smi
 import genv.os_
+import genv.usage
 import genv.users
 
 
@@ -16,22 +17,8 @@ import genv.users
 
 
 @dataclass
-class Process(genv.nvidia_smi.Process):
-    eid: Optional[str]
-
-    def __hash__(self) -> int:
-        return super().__hash__()
-
-
-@dataclass
-class Snapshot:
-    processes: Iterable[Process]
-    user_attachments: genv.users.Attachments
-
-
-@dataclass
 class Report:
-    processes_to_terminate: Set[Process]
+    processes_to_terminate: Set[genv.usage.Process]
     envs_to_detach: Set[Tuple[str, int, Optional[str]]]
 
 
@@ -40,13 +27,13 @@ class Survey:
         self._processes_to_terminate = set()
         self._envs_to_detach = set()
 
-    def terminate(self, process: Process) -> None:
+    def terminate(self, process: genv.usage.Process) -> None:
         self._processes_to_terminate.add(process)
 
     def detach(self, eid: str, index: int, username: Optional[str]) -> None:
         self._envs_to_detach.add((eid, index, username))
 
-    def report(self, snapshot: Snapshot) -> Report:
+    def report(self, snapshot: genv.usage.Snapshot) -> Report:
         return Report(
             self._processes_to_terminate.union(
                 set(
@@ -58,40 +45,6 @@ class Survey:
             ),
             self._envs_to_detach,
         )
-
-
-async def take_snapshot() -> Snapshot:
-    """
-    Takes a snapshot of the current state of the system.
-    This includes running processes, active environments and device attachments.
-    """
-    processes = []
-
-    for process in await genv.nvidia_smi.compute_processes():
-        try:
-            eid = genv.os_.get_process_environ(process.pid).get(
-                "GENV_ENVIRONMENT_ID", None
-            )
-
-            process_ = Process(
-                process.gpu_index,
-                process.pid,
-                process.used_gpu_memory,
-                eid,
-            )
-
-            processes.append(process_)
-        except PermissionError:
-            print(
-                f"[WARNING] Not enough permissions to query environment of process {process.pid}",
-                file=sys.stderr,
-            )
-        except FileNotFoundError:
-            print(f"[DEBUG] Process {process.pid} already terminated", file=sys.stderr)
-
-    user_attachments = genv.users.attachments()
-
-    return Snapshot(processes, user_attachments)
 
 
 def execute_report(report: Report) -> None:
@@ -121,7 +74,7 @@ def execute_report(report: Report) -> None:
         genv.devices.detach(eid, index)
 
 
-def enforce_non_env_processes(snapshot: Snapshot, survey: Survey) -> None:
+def enforce_non_env_processes(snapshot: genv.usage.Snapshot, survey: Survey) -> None:
     for process in snapshot.processes:
         if process.eid is not None:
             continue
@@ -132,7 +85,7 @@ def enforce_non_env_processes(snapshot: Snapshot, survey: Survey) -> None:
 
 
 def enforce_max_devices_per_user(
-    snapshot: Snapshot, survey: Survey, maximum: int
+    snapshot: genv.usage.Snapshot, survey: Survey, maximum: int
 ) -> None:
     for username, attachments in snapshot.user_attachments.items():
         attached = len(attachments)
@@ -216,7 +169,7 @@ async def main() -> None:
     args = parse_args()
 
     while True:
-        snapshot = await take_snapshot()
+        snapshot = await genv.usage.take_snapshot()
         survey = Survey()
 
         if args.terminate_non_env_processes:
