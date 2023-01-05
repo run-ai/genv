@@ -13,13 +13,23 @@ from typing import Dict, Iterable, Optional, Union
 
 
 def query(
-    *properties: str, eid: Optional[str] = None
-) -> Union[str, Iterable[str], Dict[str, str], Dict[str, Iterable[str]]]:
+    *properties: str, eid: Optional[str] = None, eids: bool = False
+) -> Union[
+    str,
+    Iterable[str],
+    Iterable[Iterable[str]],
+    Dict[str, str],
+    Dict[str, Iterable[str]],
+]:
     """
     Queries the environment manager about all active environments or a specific one.
+    Returns a query result per environment.
+    A query result can be a single string if only a single property was queried,
+    or a list of strings if multiple properties were queried.
 
     :param properties: Environment properties to query
     :param eid: Identifier of a specific environment to query
+    :param eids: Return a mapping between environment identifiers to query results
     """
     if len(properties) == 0:
         raise RuntimeError("At least one query property must be provided")
@@ -44,7 +54,7 @@ def query(
             eid, line = line.split(",", 1)
             result[eid] = line if (len(properties) - 1) == 1 else line.split(",")
 
-        return result
+        return result if eids else list(result.values())
 
 
 def eids() -> Iterable[str]:
@@ -53,7 +63,7 @@ def eids() -> Iterable[str]:
 
     :return: Identifiers of all active environments.
     """
-    return list(query("eid").keys())
+    return query("eid")
 
 
 def names() -> Dict[str, Optional[str]]:
@@ -62,16 +72,9 @@ def names() -> Dict[str, Optional[str]]:
 
     :return: A mapping from environment identifier to its configured name or None if not configured.
     """
-    return {eid: (name or None) for eid, name in query("config.name").items()}
-
-
-def usernames() -> Dict[str, Optional[str]]:
-    """
-    Returns the usernames of all active environments
-
-    :return: A mapping from environment identifier to its owner username or None if unknown.
-    """
-    return {eid: (username or None) for eid, username in query("username").items()}
+    return {
+        eid: (name or None) for eid, name in query("config.name", eids=True).items()
+    }
 
 
 def gpu_memory(eid: str) -> Optional[str]:

@@ -1,4 +1,3 @@
-from collections import defaultdict
 import subprocess
 from typing import Dict, Iterable
 
@@ -13,13 +12,13 @@ from typing import Dict, Iterable
 # call the other manager.
 
 
-def attachments() -> Dict[int, Iterable[str]]:
+def ps() -> Dict[int, Iterable[str]]:
     """
-    Returns all active device attachments.
+    Returns information about device and active attachments.
 
     :return: A mapping between device index and all attached environment identifiers
     """
-    attachments = defaultdict(list)
+    devices = dict()
 
     for line in (
         subprocess.check_output(
@@ -30,11 +29,15 @@ def attachments() -> Dict[int, Iterable[str]]:
         .splitlines()
     ):
         index, eid, _, _ = line.split(",")
+        index = int(index)
+
+        if index not in devices:
+            devices[index] = {"eids": []}
 
         if eid:
-            attachments[int(index)].append(eid)
+            devices[index]["eids"].append(eid)
 
-    return dict(attachments)
+    return devices
 
 
 def detach(eid: str, index: int) -> None:

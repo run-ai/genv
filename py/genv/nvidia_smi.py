@@ -1,5 +1,4 @@
 import asyncio
-from dataclasses import dataclass
 import os
 from typing import Dict, Iterable
 
@@ -68,32 +67,3 @@ async def compute_apps() -> Iterable[Dict]:
         )
 
     return apps
-
-
-@dataclass
-class Process:
-    gpu_index: int
-    pid: int
-    used_gpu_memory: str
-
-    def __hash__(self) -> int:
-        return self.pid.__hash__()
-
-    def __repr__(self) -> str:
-        return f"nvidia_smi.Process(gpu={self.gpu_index}, pid={self.pid}, used_gpu_memory='{self.used_gpu_memory}')"
-
-
-async def compute_processes() -> Iterable[Process]:
-    """
-    Returns information about all running compute processes.
-    """
-    uuids, apps = await asyncio.gather(device_uuids(), compute_apps())
-
-    return [
-        Process(
-            gpu_index=uuids[app["gpu_uuid"]],
-            pid=app["pid"],
-            used_gpu_memory=app["used_gpu_memory"],
-        )
-        for app in apps
-    ]

@@ -1,10 +1,11 @@
 from dataclasses import dataclass
-from typing import Optional, Set, Tuple
+from typing import Iterable, Tuple
 
-from .process import Process
+from .envs import Env
+from .processes import Process
 
 
 @dataclass
 class Report:
-    processes_to_terminate: Set[Process]
-    envs_to_detach: Set[Tuple[str, int, Optional[str]]]
+    processes_to_terminate: Iterable[Process]
+    envs_to_detach: Iterable[Tuple[Env, int]]

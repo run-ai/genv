@@ -1,17 +1,19 @@
 import sys
-from typing import Optional, Set, Tuple
+from typing import Iterable, Tuple
 
 import genv.devices
 import genv.os_
 
-from .report import Report, Process
+from .envs import Env
+from .processes import Process
+from .report import Report
 
 
-def _terminate(processes: Set[Process]) -> None:
+def _terminate(processes: Iterable[Process]) -> None:
     for process in processes:
         try:
             print(
-                f"Terminating process {process.pid} from environment {process.eid or 'N/A'} that is running on GPU {process.gpu_index} and using {process.used_gpu_memory}"
+                f"Terminating process {process.pid} from environment {process.eid or 'N/A'} that is running on GPU(s) {','.join([str(usage.index) for usage in process.used_gpu_memory])}"
             )
 
             genv.os_.terminate(process.pid)
@@ -24,13 +26,13 @@ def _terminate(processes: Set[Process]) -> None:
             print(f"[DEBUG] Process {process.pid} already terminated", file=sys.stderr)
 
 
-def _detach(envs: Set[Tuple[str, int, Optional[str]]]) -> None:
-    for eid, index, username in envs:
+def _detach(envs: Iterable[Tuple[Env, int]]) -> None:
+    for env, index in envs:
         print(
-            f"Detaching environment {eid} of user {username or 'N/A'} from device {index}"
+            f"Detaching environment {env.eid} of user {env.username or 'N/A'} from device {index}"
         )
 
-        genv.devices.detach(eid, index)
+        genv.devices.detach(env.eid, index)
 
 
 def execute(report: Report) -> None:

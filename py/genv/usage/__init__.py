@@ -1,5 +1,5 @@
-from .process import Process
-from .snapshot import Snapshot, take as take_snapshot
+from .devices import Device
+from .snapshot import Snapshot, snapshot
 from .report import Report
 from .survey import Survey
 from .execute import execute

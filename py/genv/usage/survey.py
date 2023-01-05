@@ -1,6 +1,6 @@
-from typing import Optional
-
-from .process import Process
+from typing import Iterable, Union
+from .envs import Env
+from .processes import Process
 from .snapshot import Snapshot
 from .report import Report
 
@@ -13,18 +13,27 @@ class Survey:
     def terminate(self, process: Process) -> None:
         self._processes_to_terminate.add(process)
 
-    def detach(self, eid: str, index: int, username: Optional[str]) -> None:
-        self._envs_to_detach.add((eid, index, username))
+    def detach(self, envs: Union[Env, Iterable[Env]], index: int) -> None:
+        if isinstance(envs, Env):
+            envs = [envs]
+
+        self._envs_to_detach.update((env, index) for env in envs)
 
     def report(self, snapshot: Snapshot) -> Report:
         return Report(
-            self._processes_to_terminate.union(
-                set(
-                    process
-                    for eid, index, _ in self._envs_to_detach
-                    for process in snapshot.processes
-                    if process.eid == eid and process.gpu_index == index
+            list(
+                self._processes_to_terminate.union(
+                    set(
+                        process
+                        for env, index in self._envs_to_detach
+                        for process in snapshot.processes
+                        if process.eid == env.eid
+                        and index in [usage.index for usage in process.used_gpu_memory]
+                    )
                 )
             ),
-            self._envs_to_detach,
+            list(self._envs_to_detach),
         )
+
+    def __bool__(self) -> bool:
+        return bool(self._processes_to_terminate) or bool(self._envs_to_detach)

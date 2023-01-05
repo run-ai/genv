@@ -2,79 +2,14 @@
 
 import argparse
 import asyncio
-from dataclasses import dataclass
 import sys
-from typing import Optional, Set, Tuple
 
-import genv.devices
-import genv.nvidia_smi
-import genv.os_
 import genv.usage
-import genv.users
 
 
-# TODO(raz): use a proper logger instead of printing to stderr
-
-
-@dataclass
-class Report:
-    processes_to_terminate: Set[genv.usage.Process]
-    envs_to_detach: Set[Tuple[str, int, Optional[str]]]
-
-
-class Survey:
-    def __init__(self) -> None:
-        self._processes_to_terminate = set()
-        self._envs_to_detach = set()
-
-    def terminate(self, process: genv.usage.Process) -> None:
-        self._processes_to_terminate.add(process)
-
-    def detach(self, eid: str, index: int, username: Optional[str]) -> None:
-        self._envs_to_detach.add((eid, index, username))
-
-    def report(self, snapshot: genv.usage.Snapshot) -> Report:
-        return Report(
-            self._processes_to_terminate.union(
-                set(
-                    process
-                    for eid, index, _ in self._envs_to_detach
-                    for process in snapshot.processes
-                    if process.eid == eid and process.gpu_index == index
-                )
-            ),
-            self._envs_to_detach,
-        )
-
-
-def execute_report(report: Report) -> None:
-    """
-    Terminates processes and detaches environments from devices according to the given report.
-    """
-    for process in report.processes_to_terminate:
-        try:
-            print(
-                f"Terminating process {process.pid} from environment {process.eid or 'N/A'} that is running on GPU {process.gpu_index} and using {process.used_gpu_memory}"
-            )
-
-            genv.os_.terminate(process.pid)
-        except PermissionError:
-            print(
-                f"[ERROR] Not enough permissions to terminate process {process.pid}",
-                file=sys.stderr,
-            )
-        except ProcessLookupError:
-            print(f"[DEBUG] Process {process.pid} already terminated", file=sys.stderr)
-
-    for eid, index, username in report.envs_to_detach:
-        print(
-            f"Detaching environment {eid} of user {username or 'N/A'} from device {index}"
-        )
-
-        genv.devices.detach(eid, index)
-
-
-def enforce_non_env_processes(snapshot: genv.usage.Snapshot, survey: Survey) -> None:
+def enforce_non_env_processes(
+    snapshot: genv.usage.Snapshot, survey: genv.usage.Survey
+) -> None:
     for process in snapshot.processes:
         if process.eid is not None:
             continue
@@ -85,10 +20,23 @@ def enforce_non_env_processes(snapshot: genv.usage.Snapshot, survey: Survey) -> 
 
 
 def enforce_max_devices_per_user(
-    snapshot: genv.usage.Snapshot, survey: Survey, maximum: int
+    snapshot: genv.usage.Snapshot, survey: genv.usage.Survey, maximum: int
 ) -> None:
-    for username, attachments in snapshot.user_attachments.items():
-        attached = len(attachments)
+    usernames = set(env.username for env in snapshot.envs if env.username)
+
+    for username in usernames:
+        envs = [env for env in snapshot.envs if env.username == username]
+
+        attachments = [
+            (device.index, env)
+            for device in snapshot.devices
+            for env in envs
+            if env.eid in device.eids
+        ]
+
+        indices = set(index for index, _ in attachments)
+
+        attached = len(indices)
 
         if attached <= maximum:
             continue
@@ -99,9 +47,9 @@ def enforce_max_devices_per_user(
             f"User {username} is using {attached} devices which is {over} more than the maximum allowed"
         )
 
-        for index in list(attachments.keys())[:over]:
-            for eid in attachments[index]:
-                survey.detach(eid, index, username)
+        for index in list(indices)[:over]:
+            for env in [env for index_, env in attachments if index_ == index]:
+                survey.detach(env, index)
 
 
 def parse_args() -> argparse.Namespace:
@@ -169,8 +117,8 @@ async def main() -> None:
     args = parse_args()
 
     while True:
-        snapshot = await genv.usage.take_snapshot()
-        survey = Survey()
+        snapshot = await genv.usage.snapshot()
+        survey = genv.usage.Survey()
 
         if args.terminate_non_env_processes:
             enforce_non_env_processes(snapshot, survey)
@@ -182,7 +130,7 @@ async def main() -> None:
 
         report = survey.report(snapshot)
 
-        execute_report(report)
+        genv.usage.execute(report)
 
         if args.interval == 0:
             break
