@@ -1,12 +1,11 @@
 from contextlib import contextmanager
 from datetime import datetime
-import errno
-import fcntl
 import json
 import os
 from pathlib import Path
-import subprocess
 from typing import Callable, Dict, Optional, Union
+
+from .os_ import Umask, Flock
 
 DATETIME_FMT = "%d/%m/%Y %H:%M:%S"
 MEMORY_TO_BYTES_MULTIPLIERS_DICT = {
@@ -18,79 +17,6 @@ MEMORY_TO_BYTES_MULTIPLIERS_DICT = {
     "mi": 1024 * 1024,
     "gi": 1024 * 1024 * 1024,
 }
-
-
-# cleanup utils
-
-
-def poll_pid(pid: int) -> bool:
-    """
-    Kill the process of the given pid.
-    :param pid: pid of the process to kill
-    :return: True iff the process has been killed successfully.
-    """
-    try:
-        os.kill(pid, 0)
-    except OSError as e:
-        if e.errno == errno.ESRCH:
-            return False
-        elif e.errno == errno.EPERM:
-            return True
-        else:
-            raise
-    else:
-        return True
-
-
-def poll_jupyter_kernel(kernel_id: str) -> bool:
-    # TODO(raz): what about the case when 'jupyter' is not available in the
-    #            environment that we are currently running in?
-    #
-    # should we ignore such cases and _not_ cleanup kernels if we don't have the 'jupyter' command?
-    # should we look for kernel processes similarly to 'ps -ef | grep kernel-'?
-    # should we document the kernel json path when activating a kernel, so that the path will
-    # be known in other environments as well? what if we don't have read permissions?
-
-    result = subprocess.run(
-        ["sh", "-c", f"ls $(jupyter --runtime-dir)/kernel-{kernel_id}.json"],
-        stdout=subprocess.DEVNULL,
-        stderr=subprocess.DEVNULL,
-    )
-
-    return result.returncode == 0
-
-
-# Cache files util functions
-
-
-@contextmanager
-def Umask(value: int = 0):
-    prev = os.umask(value)
-    try:
-        yield
-    finally:
-        os.umask(prev)
-
-
-class Flock:
-    def __init__(self, path: str, mode: int):
-        self._path = path
-        self._mode = mode
-
-    def __enter__(self):
-        self._fd = os.open(self._path, os.O_RDWR | os.O_CREAT | os.O_TRUNC, self._mode)
-
-        try:
-            fcntl.flock(self._fd, fcntl.LOCK_EX)
-        except (IOError, OSError):
-            os.close(self._fd)
-            raise
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        try:
-            fcntl.flock(self._fd, fcntl.LOCK_UN)
-        finally:
-            os.close(self._fd)
 
 
 @contextmanager
@@ -138,9 +64,6 @@ def access_json(
                 json.dump(o, f, indent=4)
 
 
-# Convertors
-
-
 def memory_to_bytes(cap: str) -> int:
     """
     Convert memory string to an integer value in bytes.
@@ -157,9 +80,6 @@ def bytes_to_memory(bytes: int, unit: str) -> str:
     Convert bytes to a memory string.
     """
     return f"{bytes // MEMORY_TO_BYTES_MULTIPLIERS_DICT[unit]}{unit}"
-
-
-# Time functions
 
 
 def time_since(dt: Union[str, datetime]) -> str:

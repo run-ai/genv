@@ -8,7 +8,11 @@ Development
 Prerequisites
 -------------
 
-All you need is to clone the project `repository <https://www.github.com/run-ai/genv>`__.
+Start by cloning the project `repository <https://www.github.com/run-ai/genv>`__:
+
+.. code-block:: shell
+
+    git clone https://github.com/run-ai/genv.git
 
 Setup
 -----
@@ -34,16 +38,12 @@ You can test it by running:
 
    genv
 
-.. note::
-
-   If you are on a CPU machine, mock the amount of GPUs by setting the environment variable :code:`GENV_MOCK_DEVICE_COUNT`
-
 .. _Docker:
 
 Docker
 ~~~~~~
 You can also use a container for the development.
-This is useful if you are using macOS as genv is developed for Linux systems and some things are not available in macOS (e.g. :code:`/proc` filesystem).
+This is useful if you are using macOS as Genv is developed for Linux systems and some things are not available in macOS (e.g. :code:`/proc` filesystem).
 
 Use the following command:
 
@@ -52,14 +52,52 @@ Use the following command:
     docker run -it --rm --name genv \
         -v $PWD:/genv \
         -v /var/tmp:/var/tmp \
+        -w /genv \
         python \
-        bash --rcfile /genv/.bashrc
+        bash --rcfile /genv/devel/.bashrc
+
+.. note::
+
+    You can pass :code:`-v $HOME/.ssh:/root/.ssh` if you want to use remote features as well
 
 To open another terminal inside the container use:
 
 .. code-block:: shell
 
-    docker exec -it genv bash --rcfile /genv/.bashrc
+    docker exec -it genv bash --rcfile /genv/devel/.bashrc
+
+CPU-Only Setup
+~~~~~~~~~~~~~~
+Some Genv features rely on executing :code:`nvidia-smi` commands.
+Those commands will not work if you are developing on a machine without GPUs.
+
+Here is what you will probably see if you will try running :code:`nvidia-smi`:
+
+.. code-block:: shell
+
+    $ nvidia-smi
+    bash: nvidia-smi: command not found
+
+In such cases, it is recommended to use the mock shim of :code:`nvidia-smi`.
+Set up your shell with the following command:
+
+.. code-block:: shell
+
+    export PATH=$PWD/devel/shims:$PATH
+
+Now, execute :code:`nvidia-smi` once again.
+This time it should work and you should see an :code:`nvidia-smi`-like output printed to the screen.
+
+Also, you will need to manually initialize :code:`devices.json` with a made up device count using the environment variable :code:`GENV_MOCK_DEVICE_COUNT`.
+Run the following command and can configure how many GPUs you want to have:
+
+.. code-block:: shell
+
+    GENV_MOCK_DEVICE_COUNT=4 genv devices
+
+.. note::
+
+    You can also control the amount of GPU memory with the environment variable :code:`GENV_MOCK_DEVICE_MEMORY`
 
 Docs
 ----
