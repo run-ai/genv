@@ -4,35 +4,66 @@ import argparse
 import asyncio
 from collections import defaultdict
 import itertools
+import json
 import os
 import shutil
 import sys
-from typing import Dict, Iterable, NoReturn, Optional
+from typing import Dict, Iterable, NoReturn, Optional, TextIO
 
+import genv.usage
 import genv.utils
 
 
-async def start_on_host(host: str, root: str, *args: str) -> asyncio.subprocess.Process:
+def reprint(
+    hosts: Iterable[str], outputs: Iterable[str], file: TextIO = sys.stdout
+) -> None:
+    """
+    Reprints outputs from multiple hosts with the hostname as a prefix.
+
+    :param hosts: Hostnames or IP addresses
+    :param outputs: Output for every host
+    :param file: Output to print to
+    """
+    for host, output in zip(hosts, outputs):
+        for line in output.splitlines():
+            print(f"[{host}] {line}", file=file)
+
+
+async def start_on_host(
+    host: str, root: str, stdin: int, *args: str, sudo: bool = False
+) -> asyncio.subprocess.Process:
     """
     Starts a background process that runs a Genv command on a remote host over SSH.
 
     :param host: Hostname or IP address
     :param root: Genv installation root directory
     :param args: Genv command line to run
+    :param sudo: Run command as root using sudo
 
     :return: Returns the SSH process
     """
+    command = f'env PATH="{root}/bin:$PATH" genv {" ".join(args)}'
+
+    if sudo:
+        command = f"sudo {command}"
+
     return await asyncio.create_subprocess_exec(
         "ssh",
         host,
-        f'PATH="{root}/bin:$PATH" genv {" ".join(args)}',
-        stdin=asyncio.subprocess.DEVNULL,
+        command,
+        stdin=stdin,
         stdout=asyncio.subprocess.PIPE,
         stderr=asyncio.subprocess.PIPE,
     )
 
 
-async def run_on_hosts(hosts: Iterable[str], root: str, *args: str) -> Iterable[str]:
+async def run_on_hosts(
+    hosts: Iterable[str],
+    root: str,
+    *args: str,
+    stdins: Optional[Iterable[str]] = None,
+    sudo: bool = False,
+) -> Iterable[str]:
     """
     Runs a Genv command on multiple hosts over SSH.
     Waits for the command to finish successfully on all hosts.
@@ -41,12 +72,28 @@ async def run_on_hosts(hosts: Iterable[str], root: str, *args: str) -> Iterable[
     :param hosts: Hostnames or IP addresses
     :param root: Genv installation root directory
     :param args: Genv command line to run
+    :param stdins: Stdins to send
+    :param sudo: Run command with sudo
 
     :return: Returns the stdout from all hosts
     """
-    processes = [await start_on_host(host, root, *args) for host in hosts]
+    processes = [
+        await start_on_host(
+            host,
+            root,
+            asyncio.subprocess.PIPE if stdins else asyncio.subprocess.DEVNULL,
+            *args,
+            sudo=sudo,
+        )
+        for host in hosts
+    ]
 
-    outputs = await asyncio.gather(*(process.communicate() for process in processes))
+    outputs = await asyncio.gather(
+        *(
+            process.communicate(stdin.encode("utf-8") if stdin else None)
+            for process, stdin in zip(processes, stdins or [None for _ in hosts])
+        )
+    )
 
     stdouts = [stdout.decode("utf-8").strip() for stdout, _ in outputs]
     stderrs = [stderr.decode("utf-8").strip() for _, stderr in outputs]
@@ -54,6 +101,8 @@ async def run_on_hosts(hosts: Iterable[str], root: str, *args: str) -> Iterable[
     for host, process, stderr in zip(hosts, processes, stderrs):
         if process.returncode != 0:
             raise RuntimeError(f"Failed connecting over SSH to {host} ({stderr})")
+
+    reprint(hosts, stderrs, file=sys.stderr)
 
     return stdouts
 
@@ -139,7 +188,7 @@ async def query_envs(hosts: Iterable[str], root: str) -> Dict[str, Dict]:
                 )
             )
 
-    return envs
+    return dict(envs)
 
 
 async def find_available_host(
@@ -170,6 +219,122 @@ async def find_available_host(
         return host
 
     raise RuntimeError("Cannot find a host with enough available resources")
+
+
+async def take_snapshots(
+    hosts: Iterable[str], root: str
+) -> Iterable[genv.usage.Snapshot]:
+    """
+    Takes usage snapshots on multiple hosts.
+    """
+    stdouts = await run_on_hosts(
+        hosts,
+        root,
+        "exec",
+        "usage",
+        "snapshot",
+        sudo=True,
+    )
+
+    return [json.loads(stdout, cls=genv.usage.JSONDecoder) for stdout in stdouts]
+
+
+async def execute_reports(
+    hosts: Iterable[str],
+    root: str,
+    reports: Iterable[genv.usage.Report],
+    cleanup: bool = True,
+) -> None:
+    """
+    Executes reports on multiple hosts.
+
+    :param cleanup: Don't execute empty reports
+    """
+    if cleanup:
+        filtered = [(host, report) for host, report in zip(hosts, reports) if report]
+        hosts = [_[0] for _ in filtered]
+        reports = [_[1] for _ in filtered]
+
+    stdouts = await run_on_hosts(
+        hosts,
+        root,
+        "exec",
+        "usage",
+        "execute",
+        stdins=[json.dumps(report, cls=genv.usage.JSONEncoder) for report in reports],
+        sudo=True,
+    )
+
+    reprint(hosts, stdouts)
+
+
+def enforce_non_env_processes(
+    hosts: Iterable[str],
+    snapshots: Iterable[genv.usage.Snapshot],
+    surveys: Iterable[genv.usage.Survey],
+) -> None:
+    for host, snapshot, survey in zip(hosts, snapshots, surveys):
+        for process in snapshot.processes:
+            if process.eid is not None:
+                continue
+
+            print(
+                f"Process {process.pid} on host {host} is not running in a GPU environment"
+            )
+
+            survey.terminate(process)
+
+
+def enforce_max_devices_for_user(
+    username: str,
+    snapshots: Iterable[genv.usage.Snapshot],
+    surveys: Iterable[genv.usage.Survey],
+    maximum: int,
+) -> None:
+    attached = sum(len(snapshot.attached()) for snapshot in snapshots)
+
+    if attached <= maximum:
+        return
+
+    over = attached - maximum
+
+    hosts = len([snapshot for snapshot in snapshots if len(snapshot.envs) > 0])
+
+    print(
+        f"User {username} is using {attached} devices on {hosts} hosts which is {over} more than the maximum allowed"
+    )
+
+    detached = 0
+
+    for snapshot, survey in zip(snapshots, surveys):
+        for device in snapshot.attached():
+            if detached == over:
+                break  # already detached enough devices
+
+            survey.detach(
+                [env for env in snapshot.envs if env.eid in device.eids], device.index
+            )
+
+            detached += 1
+
+
+def enforce_max_devices_per_user(
+    hosts: Iterable[str],
+    snapshots: Iterable[genv.usage.Snapshot],
+    surveys: Iterable[genv.usage.Survey],
+    maximum: int,
+) -> None:
+    usernames = set(
+        env.username for snapshot in snapshots for env in snapshot.envs if env.username
+    )
+
+    for username in usernames:
+        enforce_max_devices_for_user(
+            username,
+            snapshots=[snapshot.filter(username) for snapshot in snapshots],
+            surveys=surveys,
+            maximum=maximum,
+        )
 
 
 async def do_activate(
@@ -256,6 +421,43 @@ async def do_devices(
         )
 
 
+async def do_enforce(
+    hosts: Iterable[str], root: str, interval: int, max_devices_per_user: Optional[int]
+) -> None:
+    """
+    Enforce GPU usage on multiple hosts.
+
+    :param hosts: Hostnames or IP addresses
+    :param root: Genv installation root directory
+
+    :return: None
+    """
+    while True:
+        snapshots = await take_snapshots(hosts, root)
+        surveys = [genv.usage.Survey() for _ in hosts]
+
+        if args.terminate_non_env_processes:
+            enforce_non_env_processes(hosts, snapshots, surveys)
+
+        if max_devices_per_user is not None:
+            enforce_max_devices_per_user(
+                hosts, snapshots, surveys, maximum=max_devices_per_user
+            )
+
+        # TODO(raz): terminate processes that run in environments but on devices that are not attached
+
+        reports = [
+            survey.report(snapshot) for snapshot, survey in zip(snapshots, surveys)
+        ]
+
+        await execute_reports(hosts, root, reports)
+
+        if interval == 0:
+            break
+
+        await asyncio.sleep(interval)
+
+
 async def do_envs(
     hosts: Iterable[str],
     root: str,
@@ -336,6 +538,51 @@ def parse_args() -> argparse.Namespace:
             default="tui",
         )
 
+    def enforce(parser):
+        parser.add_argument(
+            "--interval",
+            type=int,
+            default=10,
+            help="interval in seconds between enforcement cycles; 0 means run once (default: %(default)s)",
+        )
+
+        enforcements = parser.add_argument_group("enforcements")
+
+        def add_enforcement(
+            name: str, *, dest: str, help: str, default: bool = True
+        ) -> None:
+            """
+            Adds a mutual exclusive group for an enforcement flag with true and false actions.
+            """
+            group = enforcements.add_mutually_exclusive_group()
+
+            group.add_argument(
+                f"--{name}",
+                action="store_true",
+                default=default,
+                help=help + " (default: %(default)s)",
+                dest=dest,
+            )
+
+            group.add_argument(
+                f"--no-{name}",
+                action="store_false",
+                dest=dest,
+            )
+
+        add_enforcement(
+            "non-env-processes",
+            dest="terminate_non_env_processes",
+            help="terminate processes that are not running in a GPU environment",
+            default=False,
+        )
+
+        enforcements.add_argument(
+            "--max-devices-per-user",
+            type=int,
+            help="maximum allowed attached devices for each user",
+        )
+
     def envs(parser):
         parser.add_argument(
             "--no-header",
@@ -386,6 +633,7 @@ def parse_args() -> argparse.Namespace:
     for command, help in [
         (activate, "Activate environment in a remote host"),
         (devices, "Show device information from all hosts"),
+        (enforce, "Enforce GPU usage on all hosts"),
         (envs, "List all active environments"),
     ]:
         command(subparsers.add_parser(command.__name__, help=help))
@@ -393,12 +641,25 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-async def main() -> None:
+async def main(args: argparse.Namespace, hosts: Iterable[str]) -> None:
     """
     Parses the arguments and runs the requested command.
 
     :return: None
     """
+    if args.command == "activate":
+        await do_activate(hosts, args.root, args.gpus, args.name)
+    elif args.command == "devices":
+        await do_devices(hosts, args.root, args.format, args.header, args.summary)
+    elif args.command == "enforce":
+        await do_enforce(hosts, args.root, args.interval, args.max_devices_per_user)
+    elif args.command == "envs":
+        await do_envs(
+            hosts, args.root, args.format, args.header, args.summary, args.timestamp
+        )
+
+
+if __name__ == "__main__":
     args = parse_args()
 
     if args.hostfile:
@@ -407,19 +668,11 @@ async def main() -> None:
     else:
         hosts = args.hosts.split(",")
 
-    if args.command == "activate":
-        await do_activate(hosts, args.root, args.gpus, args.name)
-    elif args.command == "devices":
-        await do_devices(hosts, args.root, args.format, args.header, args.summary)
-    elif args.command == "envs":
-        await do_envs(
-            hosts, args.root, args.format, args.header, args.summary, args.timestamp
-        )
-
-
-if __name__ == "__main__":
     try:
-        asyncio.run(main())
+        asyncio.run(main(args, hosts))
     except RuntimeError as e:
         print(e, file=sys.stderr)
         exit(1)
+    except KeyboardInterrupt:
+        if args.command != "enforce":
+            raise

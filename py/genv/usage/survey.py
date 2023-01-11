@@ -34,6 +34,3 @@ class Survey:
             ),
             list(self._envs_to_detach),
         )
-
-    def __bool__(self) -> bool:
-        return bool(self._processes_to_terminate) or bool(self._envs_to_detach)

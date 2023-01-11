@@ -22,6 +22,7 @@ def enforce_non_env_processes(
 def enforce_max_devices_per_user(
     snapshot: genv.usage.Snapshot, survey: genv.usage.Survey, maximum: int
 ) -> None:
+    # TODO(raz): combine code with remote
     usernames = set(env.username for env in snapshot.envs if env.username)
 
     for username in usernames:

@@ -1,0 +1,71 @@
+#!/usr/bin/env python3
+
+import argparse
+import asyncio
+import json
+import sys
+
+import genv.usage
+
+
+async def do_execute() -> None:
+    report = json.loads(sys.stdin.read(), cls=genv.usage.JSONDecoder)
+
+    genv.usage.execute(report)
+
+
+async def do_snapshot(format: str) -> None:
+    snapshot = await genv.usage.snapshot()
+
+    if format == "json":
+        print(json.dumps(snapshot, cls=genv.usage.JSONEncoder, indent=2))
+
+
+def parse_args() -> argparse.Namespace:
+    """
+    Set all possible genv environments commands and their arguments.
+
+    :return: Parsed arguments
+    """
+
+    def execute(parser):
+        pass
+
+    def snapshot(parser):
+        parser.add_argument(
+            "--format",
+            choices=["json"],
+            help="Output format (%(choices)s)",
+            default="json",
+        )
+
+    parser = argparse.ArgumentParser()
+
+    subparsers = parser.add_subparsers(dest="command", required=True)
+
+    for command, help in [
+        (execute, "Execute the report passed in stdin"),
+        (snapshot, "Take a snapshot of GPU usage"),
+    ]:
+        command(subparsers.add_parser(command.__name__, help=help))
+
+    return parser.parse_args()
+
+
+async def main() -> None:
+    args = parse_args()
+
+    if args.command == "execute":
+        await do_execute()
+    elif args.command == "snapshot":
+        await do_snapshot(args.format)
+
+
+if __name__ == "__main__":
+    try:
+        asyncio.run(main())
+    except RuntimeError as e:
+        print(e, file=sys.stderr)
+        exit(1)
+    except KeyboardInterrupt:
+        pass
