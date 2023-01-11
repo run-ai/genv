@@ -19,38 +19,42 @@ def enforce_non_env_processes(
         survey.terminate(process)
 
 
+def enforce_max_devices_for_user(
+    username: str, snapshot: genv.Snapshot, survey: genv.enforce.Survey, maximum: int
+) -> None:
+    attached = len(snapshot.attached())
+
+    if attached <= maximum:
+        return
+
+    over = attached - maximum
+
+    print(
+        f"User {username} is using {attached} devices which is {over} more than the maximum allowed"
+    )
+
+    detached = 0
+
+    for device in snapshot.attached():
+        if detached == over:
+            break  # already detached enough devices
+
+        survey.detach(
+            [env for env in snapshot.envs if env.eid in device.eids], device.index
+        )
+
+        detached += 1
+
+
 def enforce_max_devices_per_user(
     snapshot: genv.Snapshot, survey: genv.enforce.Survey, maximum: int
 ) -> None:
-    # TODO(raz): combine code with remote
     usernames = set(env.username for env in snapshot.envs if env.username)
 
     for username in usernames:
-        envs = [env for env in snapshot.envs if env.username == username]
-
-        attachments = [
-            (device.index, env)
-            for device in snapshot.devices
-            for env in envs
-            if env.eid in device.eids
-        ]
-
-        indices = set(index for index, _ in attachments)
-
-        attached = len(indices)
-
-        if attached <= maximum:
-            continue
-
-        over = attached - maximum
-
-        print(
-            f"User {username} is using {attached} devices which is {over} more than the maximum allowed"
+        enforce_max_devices_for_user(
+            username, snapshot.filter(username), survey, maximum
         )
-
-        for index in list(indices)[:over]:
-            for env in [env for index_, env in attachments if index_ == index]:
-                survey.detach(env, index)
 
 
 def parse_args() -> argparse.Namespace:
