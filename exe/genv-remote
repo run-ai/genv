@@ -9,9 +9,7 @@ import shutil
 import sys
 from typing import Dict, Iterable, NoReturn, Optional
 
-import genv.usage
-import genv.utils
-import genv.remote
+import genv
 
 
 async def query_devices(hosts: Iterable[str], root: str) -> Dict[str, Dict]:
@@ -23,7 +21,7 @@ async def query_devices(hosts: Iterable[str], root: str) -> Dict[str, Dict]:
 
     :return: A mapping from host to its devices information
     """
-    stdouts = await genv.remote.run_on_hosts(
+    stdouts = await genv.remote.run(
         hosts,
         root,
         "exec",
@@ -68,7 +66,7 @@ async def query_envs(hosts: Iterable[str], root: str) -> Dict[str, Dict]:
 
     :return: A mapping from host to its active environments
     """
-    stdouts = await genv.remote.run_on_hosts(
+    stdouts = await genv.remote.run(
         hosts,
         root,
         "exec",
@@ -130,8 +128,8 @@ async def find_available_host(
 
 def enforce_non_env_processes(
     hosts: Iterable[str],
-    snapshots: Iterable[genv.usage.Snapshot],
-    surveys: Iterable[genv.usage.Survey],
+    snapshots: Iterable[genv.Snapshot],
+    surveys: Iterable[genv.enforce.Survey],
 ) -> None:
     for host, snapshot, survey in zip(hosts, snapshots, surveys):
         for process in snapshot.processes:
@@ -147,8 +145,8 @@ def enforce_non_env_processes(
 
 def enforce_max_devices_for_user(
     username: str,
-    snapshots: Iterable[genv.usage.Snapshot],
-    surveys: Iterable[genv.usage.Survey],
+    snapshots: Iterable[genv.Snapshot],
+    surveys: Iterable[genv.enforce.Survey],
     maximum: int,
 ) -> None:
     attached = sum(len(snapshot.attached()) for snapshot in snapshots)
@@ -180,8 +178,8 @@ def enforce_max_devices_for_user(
 
 def enforce_max_devices_per_user(
     hosts: Iterable[str],
-    snapshots: Iterable[genv.usage.Snapshot],
-    surveys: Iterable[genv.usage.Survey],
+    snapshots: Iterable[genv.Snapshot],
+    surveys: Iterable[genv.enforce.Survey],
     maximum: int,
 ) -> None:
     usernames = set(
@@ -293,8 +291,8 @@ async def do_enforce(
     :return: None
     """
     while True:
-        snapshots = await genv.remote.usage.snapshot(hosts, root)
-        surveys = [genv.usage.Survey() for _ in hosts]
+        snapshots = await genv.remote.snapshot(hosts, root)
+        surveys = [genv.enforce.Survey() for _ in hosts]
 
         if args.terminate_non_env_processes:
             enforce_non_env_processes(hosts, snapshots, surveys)
@@ -310,7 +308,7 @@ async def do_enforce(
             survey.report(snapshot) for snapshot, survey in zip(snapshots, surveys)
         ]
 
-        await genv.remote.execute(hosts, root, reports)
+        await genv.remote.enforce.execute(hosts, root, reports)
 
         if interval == 0:
             break

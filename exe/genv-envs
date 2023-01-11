@@ -4,8 +4,7 @@ import argparse
 from datetime import datetime
 from typing import Any, Callable, Dict, List, Optional, Union
 
-import genv.poll
-import genv.utils
+import genv
 
 Env = Dict[Any, Any]
 Envs = Dict[int, Env]

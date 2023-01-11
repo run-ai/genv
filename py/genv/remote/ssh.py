@@ -5,7 +5,7 @@ from typing import Iterable, Optional
 from .utils import reprint
 
 
-async def start_on_host(
+async def start(
     host: str, root: str, stdin: int, *args: str, sudo: bool = False
 ) -> asyncio.subprocess.Process:
     """
@@ -34,7 +34,7 @@ async def start_on_host(
     )
 
 
-async def run_on_hosts(
+async def run(
     hosts: Iterable[str],
     root: str,
     *args: str,
@@ -55,7 +55,7 @@ async def run_on_hosts(
     :return: Returns the stdout from all hosts
     """
     processes = [
-        await start_on_host(
+        await start(
             host,
             root,
             asyncio.subprocess.PIPE if stdins else asyncio.subprocess.DEVNULL,

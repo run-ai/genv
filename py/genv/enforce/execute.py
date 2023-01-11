@@ -1,11 +1,11 @@
 import sys
 from typing import Iterable, Tuple
 
-import genv.devices
-import genv.os_
+from .. import os_
+from .. import devices
+from ..envs import Env
+from ..processes import Process
 
-from .envs import Env
-from .processes import Process
 from .report import Report
 
 
@@ -16,7 +16,7 @@ def _terminate(processes: Iterable[Process]) -> None:
                 f"Terminating process {process.pid} from environment {process.eid or 'N/A'} that is running on GPU(s) {','.join([str(usage.index) for usage in process.used_gpu_memory])}"
             )
 
-            genv.os_.terminate(process.pid)
+            os_.terminate(process.pid)
         except PermissionError:
             print(
                 f"[ERROR] Not enough permissions to terminate process {process.pid}",
@@ -32,7 +32,7 @@ def _detach(envs: Iterable[Tuple[Env, int]]) -> None:
             f"Detaching environment {env.eid} of user {env.username or 'N/A'} from device {index}"
         )
 
-        genv.devices.detach(env.eid, index)
+        devices.detach(env.eid, index)
 
 
 def execute(report: Report) -> None:

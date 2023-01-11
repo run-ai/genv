@@ -3,7 +3,8 @@ from dataclasses import dataclass
 import sys
 from typing import Iterable, Optional
 
-import genv.nvidia_smi
+from . import nvidia_smi
+from . import os_
 
 
 @dataclass
@@ -35,7 +36,7 @@ class Process:
         Returns None if the process is not running in an environment or if it could not be queried.
         """
         try:
-            return genv.os_.get_process_environ(pid).get("GENV_ENVIRONMENT_ID")
+            return os_.get_process_environ(pid).get("GENV_ENVIRONMENT_ID")
         except PermissionError:
             print(
                 f"[WARNING] Not enough permissions to query environment of process {pid}",
@@ -50,7 +51,7 @@ async def snapshot() -> Iterable[Process]:
     Returns a snapshot of all running compute processes.
     """
     uuids, apps = await asyncio.gather(
-        genv.nvidia_smi.device_uuids(), genv.nvidia_smi.compute_apps()
+        nvidia_smi.device_uuids(), nvidia_smi.compute_apps()
     )
 
     pid_to_apps = {

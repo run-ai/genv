@@ -1,16 +1,17 @@
 import json
 from typing import Iterable
 
-import genv.usage
+from ...json_ import JSONEncoder
+from ...enforce import Report
 
-from .utils import reprint
-from .ssh import run_on_hosts
+from ..utils import reprint
+from ..ssh import run
 
 
 async def execute(
     hosts: Iterable[str],
     root: str,
-    reports: Iterable[genv.usage.Report],
+    reports: Iterable[Report],
     cleanup: bool = True,
 ) -> None:
     """
@@ -27,13 +28,13 @@ async def execute(
         hosts = [_[0] for _ in filtered]
         reports = [_[1] for _ in filtered]
 
-    stdouts = await run_on_hosts(
+    stdouts = await run(
         hosts,
         root,
         "exec",
         "usage",
         "execute",
-        stdins=[json.dumps(report, cls=genv.usage.JSONEncoder) for report in reports],
+        stdins=[json.dumps(report, cls=JSONEncoder) for report in reports],
         sudo=True,
     )
 

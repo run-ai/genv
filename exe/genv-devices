@@ -7,8 +7,7 @@ import subprocess
 import sys
 from typing import Any, Callable, Dict, Iterable, List, Optional, Union
 
-import genv.envs
-import genv.utils
+import genv
 
 Device = Dict[Any, Any]
 Devices = Dict[int, Device]

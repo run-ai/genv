@@ -5,7 +5,7 @@ from .devices import Device
 from .envs import Env
 from .processes import Process
 from .snapshot import Snapshot
-from .report import Report
+from .enforce import Report
 
 Types = [Device, Env, Process, Process.Usage, Report, Snapshot]
 

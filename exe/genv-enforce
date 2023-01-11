@@ -4,11 +4,11 @@ import argparse
 import asyncio
 import sys
 
-import genv.usage
+import genv
 
 
 def enforce_non_env_processes(
-    snapshot: genv.usage.Snapshot, survey: genv.usage.Survey
+    snapshot: genv.Snapshot, survey: genv.enforce.Survey
 ) -> None:
     for process in snapshot.processes:
         if process.eid is not None:
@@ -20,7 +20,7 @@ def enforce_non_env_processes(
 
 
 def enforce_max_devices_per_user(
-    snapshot: genv.usage.Snapshot, survey: genv.usage.Survey, maximum: int
+    snapshot: genv.Snapshot, survey: genv.enforce.Survey, maximum: int
 ) -> None:
     # TODO(raz): combine code with remote
     usernames = set(env.username for env in snapshot.envs if env.username)
@@ -118,8 +118,8 @@ async def main() -> None:
     args = parse_args()
 
     while True:
-        snapshot = await genv.usage.snapshot()
-        survey = genv.usage.Survey()
+        snapshot = await genv.snapshot()
+        survey = genv.enforce.Survey()
 
         if args.terminate_non_env_processes:
             enforce_non_env_processes(snapshot, survey)
@@ -131,7 +131,7 @@ async def main() -> None:
 
         report = survey.report(snapshot)
 
-        genv.usage.execute(report)
+        genv.enforce.execute(report)
 
         if args.interval == 0:
             break

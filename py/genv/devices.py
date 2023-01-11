@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 import subprocess
 from typing import Dict, Iterable
 
@@ -10,6 +11,16 @@ from typing import Dict, Iterable
 # It should take the Genv lock for the atomicity of the transaction, and print output as needed.
 # The current architecture has an inherent potential deadlock because each manager locks a different lock, and might
 # call the other manager.
+
+
+@dataclass
+class Device:
+    index: int
+    eids: Iterable[str]
+
+
+def snapshot() -> Iterable[Device]:
+    return [Device(index, d["eids"]) for index, d in ps().items()]
 
 
 def ps() -> Dict[int, Iterable[str]]:

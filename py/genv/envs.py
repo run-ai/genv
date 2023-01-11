@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 import subprocess
 from typing import Dict, Iterable, Optional, Union
 
@@ -10,6 +11,23 @@ from typing import Dict, Iterable, Optional, Union
 # It should take the Genv lock for the atomicity of the transaction, and print output as needed.
 # The current architecture has an inherent potential deadlock because each manager locks a different lock, and might
 # call the other manager.
+
+
+@dataclass
+class Env:
+    eid: str
+    username: Optional[str]
+    name: Optional[str]
+
+    def __hash__(self) -> int:
+        return self.eid.__hash__()
+
+
+def snapshot() -> Iterable[Env]:
+    return [
+        Env(eid, username or None, name or None)
+        for eid, username, name in query("eid", "username", "config.name")
+    ]
 
 
 def query(

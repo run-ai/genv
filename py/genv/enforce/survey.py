@@ -1,7 +1,9 @@
 from typing import Iterable, Union
-from .envs import Env
-from .processes import Process
-from .snapshot import Snapshot
+
+from ..envs import Env
+from ..processes import Process
+from ..snapshot import Snapshot
+
 from .report import Report
 
 

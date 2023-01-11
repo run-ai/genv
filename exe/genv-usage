@@ -5,20 +5,20 @@ import asyncio
 import json
 import sys
 
-import genv.usage
+import genv
 
 
 async def do_execute() -> None:
-    report = json.loads(sys.stdin.read(), cls=genv.usage.JSONDecoder)
+    report = json.loads(sys.stdin.read(), cls=genv.JSONDecoder)
 
-    genv.usage.execute(report)
+    genv.enforce.execute(report)
 
 
 async def do_snapshot(format: str) -> None:
-    snapshot = await genv.usage.snapshot()
+    snapshot = await genv.snapshot()
 
     if format == "json":
-        print(json.dumps(snapshot, cls=genv.usage.JSONEncoder, indent=2))
+        print(json.dumps(snapshot, cls=genv.JSONEncoder, indent=2))
 
 
 def parse_args() -> argparse.Namespace:

@@ -1,8 +1,8 @@
 from dataclasses import dataclass
 from typing import Iterable, Tuple
 
-from .envs import Env
-from .processes import Process
+from ..envs import Env
+from ..processes import Process
 
 
 @dataclass
