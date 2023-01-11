@@ -4,107 +4,14 @@ import argparse
 import asyncio
 from collections import defaultdict
 import itertools
-import json
 import os
 import shutil
 import sys
-from typing import Dict, Iterable, NoReturn, Optional, TextIO
+from typing import Dict, Iterable, NoReturn, Optional
 
 import genv.usage
 import genv.utils
-
-
-def reprint(
-    hosts: Iterable[str], outputs: Iterable[str], file: TextIO = sys.stdout
-) -> None:
-    """
-    Reprints outputs from multiple hosts with the hostname as a prefix.
-
-    :param hosts: Hostnames or IP addresses
-    :param outputs: Output for every host
-    :param file: Output to print to
-    """
-    for host, output in zip(hosts, outputs):
-        for line in output.splitlines():
-            print(f"[{host}] {line}", file=file)
-
-
-async def start_on_host(
-    host: str, root: str, stdin: int, *args: str, sudo: bool = False
-) -> asyncio.subprocess.Process:
-    """
-    Starts a background process that runs a Genv command on a remote host over SSH.
-
-    :param host: Hostname or IP address
-    :param root: Genv installation root directory
-    :param args: Genv command line to run
-    :param sudo: Run command as root using sudo
-
-    :return: Returns the SSH process
-    """
-    command = f'env PATH="{root}/bin:$PATH" genv {" ".join(args)}'
-
-    if sudo:
-        command = f"sudo {command}"
-
-    return await asyncio.create_subprocess_exec(
-        "ssh",
-        host,
-        command,
-        stdin=stdin,
-        stdout=asyncio.subprocess.PIPE,
-        stderr=asyncio.subprocess.PIPE,
-    )
-
-
-async def run_on_hosts(
-    hosts: Iterable[str],
-    root: str,
-    *args: str,
-    stdins: Optional[Iterable[str]] = None,
-    sudo: bool = False,
-) -> Iterable[str]:
-    """
-    Runs a Genv command on multiple hosts over SSH.
-    Waits for the command to finish successfully on all hosts.
-    Raises 'RuntimeError' if failed to connect to any of the hosts.
-
-    :param hosts: Hostnames or IP addresses
-    :param root: Genv installation root directory
-    :param args: Genv command line to run
-    :param stdins: Stdins to send
-    :param sudo: Run command with sudo
-
-    :return: Returns the stdout from all hosts
-    """
-    processes = [
-        await start_on_host(
-            host,
-            root,
-            asyncio.subprocess.PIPE if stdins else asyncio.subprocess.DEVNULL,
-            *args,
-            sudo=sudo,
-        )
-        for host in hosts
-    ]
-
-    outputs = await asyncio.gather(
-        *(
-            process.communicate(stdin.encode("utf-8") if stdin else None)
-            for process, stdin in zip(processes, stdins or [None for _ in hosts])
-        )
-    )
-
-    stdouts = [stdout.decode("utf-8").strip() for stdout, _ in outputs]
-    stderrs = [stderr.decode("utf-8").strip() for _, stderr in outputs]
-
-    for host, process, stderr in zip(hosts, processes, stderrs):
-        if process.returncode != 0:
-            raise RuntimeError(f"Failed connecting over SSH to {host} ({stderr})")
-
-    reprint(hosts, stderrs, file=sys.stderr)
-
-    return stdouts
+import genv.remote
 
 
 async def query_devices(hosts: Iterable[str], root: str) -> Dict[str, Dict]:
@@ -116,7 +23,7 @@ async def query_devices(hosts: Iterable[str], root: str) -> Dict[str, Dict]:
 
     :return: A mapping from host to its devices information
     """
-    stdouts = await run_on_hosts(
+    stdouts = await genv.remote.run_on_hosts(
         hosts,
         root,
         "exec",
@@ -161,7 +68,7 @@ async def query_envs(hosts: Iterable[str], root: str) -> Dict[str, Dict]:
 
     :return: A mapping from host to its active environments
     """
-    stdouts = await run_on_hosts(
+    stdouts = await genv.remote.run_on_hosts(
         hosts,
         root,
         "exec",
@@ -219,53 +126,6 @@ async def find_available_host(
         return host
 
     raise RuntimeError("Cannot find a host with enough available resources")
-
-
-async def take_snapshots(
-    hosts: Iterable[str], root: str
-) -> Iterable[genv.usage.Snapshot]:
-    """
-    Takes usage snapshots on multiple hosts.
-    """
-    stdouts = await run_on_hosts(
-        hosts,
-        root,
-        "exec",
-        "usage",
-        "snapshot",
-        sudo=True,
-    )
-
-    return [json.loads(stdout, cls=genv.usage.JSONDecoder) for stdout in stdouts]
-
-
-async def execute_reports(
-    hosts: Iterable[str],
-    root: str,
-    reports: Iterable[genv.usage.Report],
-    cleanup: bool = True,
-) -> None:
-    """
-    Executes reports on multiple hosts.
-
-    :param cleanup: Don't execute empty reports
-    """
-    if cleanup:
-        filtered = [(host, report) for host, report in zip(hosts, reports) if report]
-        hosts = [_[0] for _ in filtered]
-        reports = [_[1] for _ in filtered]
-
-    stdouts = await run_on_hosts(
-        hosts,
-        root,
-        "exec",
-        "usage",
-        "execute",
-        stdins=[json.dumps(report, cls=genv.usage.JSONEncoder) for report in reports],
-        sudo=True,
-    )
-
-    reprint(hosts, stdouts)
 
 
 def enforce_non_env_processes(
@@ -433,7 +293,7 @@ async def do_enforce(
     :return: None
     """
     while True:
-        snapshots = await take_snapshots(hosts, root)
+        snapshots = await genv.remote.usage.snapshot(hosts, root)
         surveys = [genv.usage.Survey() for _ in hosts]
 
         if args.terminate_non_env_processes:
@@ -450,7 +310,7 @@ async def do_enforce(
             survey.report(snapshot) for snapshot, survey in zip(snapshots, surveys)
         ]
 
-        await execute_reports(hosts, root, reports)
+        await genv.remote.execute(hosts, root, reports)
 
         if interval == 0:
             break
