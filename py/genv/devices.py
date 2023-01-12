@@ -2,6 +2,7 @@ from dataclasses import dataclass
 import subprocess
 from typing import Dict, Iterable, Optional
 
+from genv import nvidia_smi
 from genv.partial_deserialization import smart_ctor
 
 
@@ -18,12 +19,6 @@ from genv.partial_deserialization import smart_ctor
 
 @dataclass
 class Device:
-    index: int
-    total_memory: Optional[str]
-    eids: Iterable[str]
-
-    def __init__(self, *args_dict, **kwargs):
-        smart_ctor(self, *args_dict, **kwargs)
 
     @dataclass
     class Usage:
@@ -31,15 +26,48 @@ class Device:
         The GPU utilization and amount of GPU memory consumed of the device.
         """
 
-        index: int
-        gpu_memory: str
+        used_memory: Optional[str]
+        gpu_utilization: float
+        memory_utilization: float
 
         def __init__(self, *args_dict, **kwargs):
             smart_ctor(self, *args_dict, **kwargs)
 
+    index: int
+    gpu_uuid: Optional[str]
+    total_memory: Optional[str]
+    usage: Optional[Usage]
+    eids: Optional[Iterable[str]]
+
+    def __init__(self, *args_dict, **kwargs):
+        smart_ctor(self, *args_dict, **kwargs)
+
 
 def snapshot() -> Iterable[Device]:
     return [Device(index, d["eids"]) for index, d in ps().items()]
+
+
+async def nvidia_smi_snapshot(host_name: str = "local") -> Iterable[Device]:
+    """
+    Get the list of GPU devices data using nvidia-smi only (do not assume that genv is installed).
+    :param host_name: If equals local, query the current running machine.
+                        Else, query nvidia-smi on the host specified using ssh.
+    :return: List of the machine GPU devices
+    """
+    devices_dict_lst = await nvidia_smi.get_devices_metric_data(host_name)
+
+    devices_lst = []
+    for dev_dict in devices_dict_lst:
+        device_obj = Device(index=dev_dict['index'],
+                            gpu_uuid=dev_dict['gpu_uuid'],
+                            total_memory=dev_dict['total_memory'],
+                            usage=Device.Usage(used_memory=dev_dict['used_memory'],
+                                               gpu_utilization=dev_dict['gpu_utilization'],
+                                               memory_utilization=dev_dict['memory_utilization'])
+                            )
+        devices_lst.append(device_obj)
+
+    return devices_lst
 
 
 def ps() -> Dict[int, Iterable[str]]:

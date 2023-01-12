@@ -6,7 +6,7 @@ from .utils import reprint
 
 
 async def start(
-    host: str, root: str, stdin: int, *args: str, sudo: bool = False
+    host: str, root: str, stdin: int, *args: str, sudo: bool = False, genv_command: bool = True
 ) -> asyncio.subprocess.Process:
     """
     Starts a background process that runs a Genv command on a remote host over SSH.
@@ -19,7 +19,10 @@ async def start(
 
     :return: Returns the SSH process
     """
-    command = f'env PATH="{root}/bin:$PATH" genv {" ".join(args)}'
+    if genv_command:
+        command = f'env PATH="{root}/bin:$PATH" genv {" ".join(args)}'
+    else:
+        command = f'{" ".join(args)}'
 
     if sudo:
         command = f"sudo {command}"
