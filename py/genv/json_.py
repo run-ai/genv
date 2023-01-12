@@ -27,9 +27,9 @@ class JSONDecoder(json.JSONDecoder):
         # we rely on `co_varnames` to find them dynamically.
         # here's the documentation: https://docs.python.org/3.7/reference/datamodel.html#index-55.
         for cls in Types:
-            varnames = cls.__init__.__code__.co_varnames[1:]  # ignore 'self'
+            class_properties = set(cls.__dict__['__dataclass_fields__'].keys())
 
-            if set(varnames) == set(d.keys()):
-                return cls(*(d[varname] for varname in varnames))
+            if set(d.keys()).issubset(class_properties):
+                return cls(d)
 
         return d
