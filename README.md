@@ -91,7 +91,7 @@ The long-term overview of the roadmap includes 3 main category;
 
 [<img src="https://img.shields.io/badge/Discord-Join%20the%20community!-7289da?style=for-the-badge&logo=discord&logoColor=7289da" height="30" />](https://discord.gg/zN3Q9pQAuT)
 
-Looking for a place to discuss best practices, discover new tools, and exchange ideas about how to make the most out of our GPUs without losing time? Join our Discord server with the creators of *genv* and [*rntop*](https://github.com/runai/rntop) - start building your models faster!
+Looking for a place to discuss best practices, discover new tools, and exchange ideas about how to make the most out of our GPUs without losing time? Join the Discord server with the creators of *genv* and [*rntop*](https://github.com/run-ai/rntop) - start building your models faster!
 
 - Installation and setup support as well as best practice tips and tricks directly for your use-case
 - Discuss possible features
