@@ -2,6 +2,8 @@ import asyncio
 import os
 from typing import Dict, Iterable
 
+from genv.runners.runner import Runner
+
 
 async def run(machine_name: str, *args: str) -> str:
     """
@@ -73,13 +75,14 @@ async def compute_apps() -> Iterable[Dict]:
     return apps
 
 
-async def get_devices_metric_data(machine_name: str = "local") -> Iterable[Dict]:
+async def get_devices_metric_data(host_runner: Runner) -> Iterable[Dict]:
     """
     Query GPU devices metric data via nvidia-smi
+    :param host_runner: host process runner abstraction
     :return: A list of dictionaries, each representing a single device and it's metrics
     """
-    output = await run(
-        machine_name,
+    output = await host_runner.run(
+        "nvidia-smi",
         "--query-gpu=index,uuid,timestamp,memory.used,memory.total,utilization.gpu,utilization.memory",
         "--format=csv,noheader,nounits"
     )

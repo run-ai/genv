@@ -1,10 +1,14 @@
+import asyncio
 from dataclasses import dataclass
-from typing import Iterable
+from typing import Iterable, Optional
+from datetime import datetime
 
 from . import processes as processes_
 from . import envs as envs_
 from . import devices as devices_
 from .partial_deserialization import smart_ctor
+from .runners.local import LocalRunner
+from .runners.runner import Runner
 
 
 @dataclass
@@ -12,6 +16,7 @@ class Snapshot:
     processes: Iterable[processes_.Process]
     envs: Iterable[envs_.Env]
     devices: Iterable[devices_.Device]
+    time: datetime
 
     def __init__(self, *args_dict, **kwargs):
         smart_ctor(self, *args_dict, **kwargs)
@@ -43,6 +48,10 @@ class Snapshot:
 
         return Snapshot(processes=processes, envs=envs, devices=devices)
 
+    @staticmethod
+    async def get_nvidia_smi_snapshot(host_runner: Runner) -> 'Snapshot':
+        return Snapshot(devices=await devices_.nvidia_smi_snapshot(host_runner), time=datetime.now())
+
 
 # NOTE(raz): this method is not atomic because it runs manager executables in the background.
 # each manager locks its state file and for this reason the snapshot is not coherent by definition.
@@ -53,3 +62,15 @@ async def snapshot() -> Snapshot:
         envs=envs_.snapshot(),
         devices=devices_.snapshot(),
     )
+
+
+async def nvidia_smi_snapshots(hosts_runners: Optional[Iterable[Runner]] = None) -> Iterable[Snapshot]:
+    if not hosts_runners:
+        hosts_runners = [LocalRunner()]
+
+    remote_snapshots_calls = []
+    for host_runner in hosts_runners:
+        remote_snapshots_calls.append(Snapshot.get_nvidia_smi_snapshot(host_runner))
+
+    snapshots = await asyncio.gather(*remote_snapshots_calls)
+    return snapshots
