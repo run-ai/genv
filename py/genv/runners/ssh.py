@@ -11,6 +11,9 @@ class SshRunner(Runner):
     def __init__(self, host_name: str):
         self.host_name = host_name
 
+    def name(self) -> str:
+        return self.host_name
+
     async def _execute(self, *args, process_env, sudo: bool = False) -> Process:
         if sudo:
             args = ["sudo", *args]

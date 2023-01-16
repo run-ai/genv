@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 import subprocess
-from typing import Dict, Iterable, Optional
+from typing import Dict, Iterable, Optional, Any, Mapping, Collection
 
 from genv import nvidia_smi
 from genv.serialization.partial_deserialization import smart_ctor
@@ -42,6 +42,20 @@ class Device:
 
     def __init__(self, *args_dict, **kwargs):
         smart_ctor(self, *args_dict, **kwargs)
+
+    @staticmethod
+    def monitoring_data_keys() -> Collection[str]:
+        return ["gpu_index", "gpu_uuid", "total_memory", "used_memory", "gpu_utilization", "memory_utilization"]
+
+    def get_monitoring_data(self, add_genv_data: bool = False) -> Dict[str, Any]:
+        monitoring_data = dict()
+        monitoring_data["gpu_index"] = self.index
+        monitoring_data["gpu_uuid"] = self.gpu_uuid
+        monitoring_data["total_memory"] = self.total_memory
+        monitoring_data["used_memory"] = self.usage.used_memory
+        monitoring_data["gpu_utilization"] = self.usage.gpu_utilization
+        monitoring_data["memory_utilization"] = self.usage.memory_utilization
+        return monitoring_data
 
 
 def snapshot() -> Iterable[Device]:

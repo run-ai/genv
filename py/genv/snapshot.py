@@ -1,6 +1,6 @@
 import asyncio
 from dataclasses import dataclass
-from typing import Iterable, Optional
+from typing import Iterable, Optional, Dict
 from datetime import datetime
 
 from . import processes as processes_
@@ -64,13 +64,15 @@ async def snapshot() -> Snapshot:
     )
 
 
-async def nvidia_smi_snapshots(hosts_runners: Optional[Iterable[Runner]] = None) -> Iterable[Snapshot]:
+async def nvidia_smi_snapshots(hosts_runners: Optional[Iterable[Runner]] = None) -> Dict[str, Snapshot]:
     if not hosts_runners:
         hosts_runners = [LocalRunner()]
 
+    hosts_names = []
     remote_snapshots_calls = []
     for host_runner in hosts_runners:
+        hosts_names.append(host_runner.name())
         remote_snapshots_calls.append(Snapshot.get_nvidia_smi_snapshot(host_runner))
 
     snapshots = await asyncio.gather(*remote_snapshots_calls)
-    return snapshots
+    return dict(zip(hosts_names, snapshots))

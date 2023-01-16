@@ -18,6 +18,10 @@ class Runner(ABC):
         return stdout.decode("utf-8").strip()
 
     @abstractmethod
+    def name(self) -> str:
+        raise NotImplementedError('This should be implemented in subclasses')
+
+    @abstractmethod
     async def _execute(self, *args, process_env, sudo: bool = False):
         pass
 

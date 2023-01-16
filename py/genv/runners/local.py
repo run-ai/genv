@@ -5,6 +5,9 @@ from .runner import Runner
 
 
 class LocalRunner(Runner):
+    def name(self) -> str:
+        return "local"
+
     async def _execute(self, *args, process_env, sudo: bool = False) -> Process:
         if sudo:
             args = ["sudo", *args]
