@@ -5,7 +5,7 @@ from typing import Iterable, Optional
 
 from . import nvidia_smi
 from . import os_
-from .partial_deserialization import smart_ctor
+from genv.serialization.partial_deserialization import smart_ctor
 
 
 @dataclass

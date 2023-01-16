@@ -1,6 +1,6 @@
 from . import envs
 from . import enforce
-from .json_ import JSONEncoder, JSONDecoder
+from genv.serialization.json_ import JSONEncoder, JSONDecoder
 from . import poll
 from . import remote
 from .devices import Device

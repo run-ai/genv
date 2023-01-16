@@ -67,6 +67,13 @@ elif (
             f"GPU-00000000-0000-0000-0000-000000000000, {pid}, 10000" for pid in pids
         )
     )
+elif (
+        len(sys.argv) == 3
+        and sys.argv[1] == "--query-gpu=index,uuid,timestamp,memory.used,memory.total,utilization.gpu,utilization.memory"
+        and sys.argv[2] == "--format=csv,noheader,nounits"
+):
+    print("0, GPU-00000000-0000-0000-0000-000000000000, 86276428376, 10, 20, 1, 50")
+    print("1, GPU-00000000-1000-0000-0000-000000000000, 86276428376, 5, 20, 15, 25")
 else:
     args = " ".join(sys.argv[1:])
     print(

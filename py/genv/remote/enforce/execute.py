@@ -1,7 +1,7 @@
 import json
 from typing import Iterable
 
-from ...json_ import JSONEncoder
+from genv.serialization.json_ import JSONEncoder
 from ...enforce import Report
 
 from ..utils import reprint

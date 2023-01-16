@@ -1,11 +1,11 @@
 import json
 from typing import Any, Dict
 
-from .devices import Device
-from .envs import Env
-from .processes import Process
-from .snapshot import Snapshot
-from .enforce import Report
+from genv.devices import Device
+from genv.envs import Env
+from genv.processes import Process
+from genv.snapshot import Snapshot
+from genv.enforce import Report
 
 Types = [Device, Env, Process, Process.Usage, Report, Snapshot]
 

@@ -2,7 +2,7 @@ import json
 from typing import Iterable
 
 from ..snapshot import Snapshot
-from ..json_ import JSONDecoder
+from genv.serialization.json_ import JSONDecoder
 
 from .ssh import run
 

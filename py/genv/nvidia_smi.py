@@ -2,18 +2,15 @@ import asyncio
 import os
 from typing import Dict, Iterable
 
-from genv.runners.runner import Runner
+from genv.runners import Runner
 
 
-async def run(machine_name: str, *args: str) -> str:
+async def run(*args: str) -> str:
     """
     Runs nvidia-smi with the given arguments as a subprocess, waits for it and returns its output.
     Raises 'RuntimeError' if subprocess exited with failure.
     """
     args = ["nvidia-smi", *args]
-
-    if machine_name != "local":
-        args.insert(0, "ssh")
 
     process = await asyncio.create_subprocess_exec(
         *args,
@@ -40,7 +37,7 @@ async def device_uuids() -> Dict[str, int]:
 
     :return: A mapping from device UUID to its index
     """
-    output = await run("local", "--query-gpu=uuid,index", "--format=csv,noheader")
+    output = await run("--query-gpu=uuid,index", "--format=csv,noheader")
 
     mapping = dict()
 
@@ -56,7 +53,6 @@ async def compute_apps() -> Iterable[Dict]:
     Queries the running compute apps.
     """
     output = await run(
-        "local",
         "--query-compute-apps=gpu_uuid,pid,used_gpu_memory",
         "--format=csv,noheader,nounits",
     )

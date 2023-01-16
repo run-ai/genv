@@ -2,7 +2,7 @@ from dataclasses import dataclass
 import subprocess
 from typing import Dict, Iterable, Optional, Union
 
-from genv.partial_deserialization import smart_ctor
+from genv.serialization.partial_deserialization import smart_ctor
 
 
 # NOTE(raz): This should be the layer that queries and controls the state of Genv regarding active environments.

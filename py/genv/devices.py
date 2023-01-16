@@ -3,8 +3,8 @@ import subprocess
 from typing import Dict, Iterable, Optional
 
 from genv import nvidia_smi
-from genv.partial_deserialization import smart_ctor
-from genv.runners.runner import Runner
+from genv.serialization.partial_deserialization import smart_ctor
+from genv.runners import Runner
 
 
 # NOTE(raz): This should be the layer that queries and controls the state of Genv regarding devices.

@@ -12,13 +12,15 @@ class SshRunner(Runner):
         self.host_name = host_name
 
     async def _execute(self, *args, process_env, sudo: bool = False) -> Process:
-        args = [SshRunner.ssh_command_prefix, *args]
-
         if sudo:
             args = ["sudo", *args]
 
+        command = f'{" ".join(args)}'
+
         return await asyncio.create_subprocess_exec(
-            *args,
+            SshRunner.ssh_command_prefix,
+            self.host_name,
+            command,
             env=process_env,
             stdin=asyncio.subprocess.DEVNULL,
             stdout=asyncio.subprocess.PIPE,
