@@ -20,6 +20,7 @@ Because with *genv*, you will:
 
 - Easily share GPUs with your teammates
 - Find available GPUs for you to use - on-prem or on cloud via remote access
+- Pool the GPUs from multiple machines, allocate the available machine without SSH-ing every one of them
 - Switch between GPUs without code changes
 - Reserve GPU resources for as long as you use them with no one else hijacking them
 - Reproduce your experiment environment easily
