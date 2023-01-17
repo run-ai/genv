@@ -1,9 +1,8 @@
 from dataclasses import dataclass
 import subprocess
-from typing import Dict, Iterable, Optional, Any, Mapping, Collection
+from typing import Dict, Iterable, Optional, Any, Collection
 
 from genv import nvidia_smi
-from genv.serialization.partial_deserialization import smart_ctor
 from genv.runners import Runner
 
 
@@ -31,17 +30,11 @@ class Device:
         gpu_utilization: float
         memory_utilization: float
 
-        def __init__(self, *args_dict, **kwargs):
-            smart_ctor(self, *args_dict, **kwargs)
-
     index: int
     total_memory: Optional[str] = None
     eids: Optional[Iterable[str]] = None
     gpu_uuid: Optional[str] = None
     usage: Optional[Usage] = None
-
-    def __init__(self, *args_dict, **kwargs):
-        smart_ctor(self, *args_dict, **kwargs)
 
     @staticmethod
     def monitoring_data_keys() -> Collection[str]:

@@ -6,20 +6,16 @@ from datetime import datetime
 from . import processes as processes_
 from . import envs as envs_
 from . import devices as devices_
-from genv.serialization.partial_deserialization import smart_ctor
 from .runners import LocalRunner
 from .runners import Runner
 
 
 @dataclass
 class Snapshot:
-    processes: Iterable[processes_.Process]
-    envs: Iterable[envs_.Env]
-    devices: Iterable[devices_.Device]
-    time: datetime
-
-    def __init__(self, *args_dict, **kwargs):
-        smart_ctor(self, *args_dict, **kwargs)
+    processes: Iterable[processes_.Process] = None
+    envs: Iterable[envs_.Env] = None
+    devices: Iterable[devices_.Device] = None
+    time: Optional[datetime] = None
 
     def attached(self) -> Iterable[devices_.Device]:
         """

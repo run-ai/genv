@@ -2,8 +2,6 @@ from dataclasses import dataclass
 import subprocess
 from typing import Dict, Iterable, Optional, Union
 
-from genv.serialization.partial_deserialization import smart_ctor
-
 
 # NOTE(raz): This should be the layer that queries and controls the state of Genv regarding active environments.
 # Currently, it relies on executing the environment manager executable of Genv, as this is where the logic is implemented.
@@ -18,11 +16,8 @@ from genv.serialization.partial_deserialization import smart_ctor
 @dataclass
 class Env:
     eid: str
-    username: Optional[str]
-    name: Optional[str]
-
-    def __init__(self, *args_dict, **kwargs):
-        smart_ctor(self, *args_dict, **kwargs)
+    username: Optional[str] = None
+    name: Optional[str] = None
 
     def __hash__(self) -> int:
         return self.eid.__hash__()

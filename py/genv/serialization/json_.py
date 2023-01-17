@@ -7,7 +7,7 @@ from genv.processes import Process
 from genv.snapshot import Snapshot
 from genv.enforce import Report
 
-Types = [Device, Env, Process, Process.Usage, Report, Snapshot]
+Types = [Device, Device.Usage, Env, Process, Process.Usage, Report, Snapshot]
 
 
 class JSONEncoder(json.JSONEncoder):
@@ -27,9 +27,9 @@ class JSONDecoder(json.JSONDecoder):
         # we rely on `co_varnames` to find them dynamically.
         # here's the documentation: https://docs.python.org/3.7/reference/datamodel.html#index-55.
         for cls in Types:
-            class_properties = set(cls.__dict__['__dataclass_fields__'].keys())
+            varnames = cls.__init__.__code__.co_varnames[1:]  # ignore 'self'
 
-            if set(d.keys()).issubset(class_properties):
-                return cls(d)
+            if set(varnames) == set(d.keys()):
+                return cls(*(d[varname] for varname in varnames))
 
         return d

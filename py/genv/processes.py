@@ -5,7 +5,6 @@ from typing import Iterable, Optional
 
 from . import nvidia_smi, Runner
 from . import os_
-from genv.serialization.partial_deserialization import smart_ctor
 
 
 @dataclass
@@ -13,9 +12,6 @@ class Process:
     """
     A compute running process either from an environment or not.
     """
-
-    def __init__(self, *args_dict, **kwargs):
-        smart_ctor(self, *args_dict, **kwargs)
 
     @dataclass
     class Usage:
@@ -26,12 +22,9 @@ class Process:
         index: int
         gpu_memory: str
 
-        def __init__(self, *args_dict, **kwargs):
-            smart_ctor(self, *args_dict, **kwargs)
-
     pid: int
-    used_gpu_memory: Iterable[Usage]
-    eid: Optional[str]
+    used_gpu_memory: Iterable[Usage] = None
+    eid: Optional[str] = None
 
     def __hash__(self) -> int:
         return self.pid.__hash__()
