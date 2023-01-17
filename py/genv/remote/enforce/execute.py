@@ -1,14 +1,13 @@
+import asyncio
 import json
 from typing import Iterable
 
-from genv.serialization.json_ import JSONEncoder
+from ... import SshRunner, JSONEncoder
 from ...enforce import Report
-
 from ..utils import reprint
-from ..ssh import run
 
 
-async def execute(
+async def execute_report(
     hosts: Iterable[str],
     root: str,
     reports: Iterable[Report],
@@ -17,7 +16,7 @@ async def execute(
     """
     Executes reports on multiple hosts.
 
-    :param host: Hostname or IP address
+    :param hosts: list of Hostname or IP address
     :param root: Genv installation root directory
     :param reports: Reports to execute on each host
     :param cleanup: Don't execute empty reports
@@ -28,14 +27,16 @@ async def execute(
         hosts = [_[0] for _ in filtered]
         reports = [_[1] for _ in filtered]
 
-    stdouts = await run(
-        hosts,
-        root,
-        "exec",
-        "usage",
-        "execute",
-        stdins=[json.dumps(report, cls=JSONEncoder) for report in reports],
-        sudo=True,
-    )
+    genv_command = ["genv", "exec", "usage", "execute"]
+
+    usage_commands = []
+    for host_index in range(len(hosts)):
+        host = hosts[host_index]
+        report = reports[host_index]
+
+        runner = SshRunner(host, process_env={"PATH": f'"{root}/bin:$PATH"'})
+        command = runner.run_with_stdin(*genv_command, stdins=[json.dumps(report, cls=JSONEncoder)])
+        usage_commands.append(command)
+    stdouts = await asyncio.gather(*usage_commands)
 
     reprint(hosts, stdouts)

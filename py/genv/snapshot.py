@@ -58,7 +58,7 @@ class Snapshot:
 # this should be done oppositely, by locking a single lock and querying all state files altogether.
 async def snapshot() -> Snapshot:
     return Snapshot(
-        processes=await processes_.snapshot(),
+        processes=await processes_.snapshot(LocalRunner()),
         envs=envs_.snapshot(),
         devices=devices_.snapshot(),
     )

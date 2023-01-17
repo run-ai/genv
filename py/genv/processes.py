@@ -3,7 +3,7 @@ from dataclasses import dataclass
 import sys
 from typing import Iterable, Optional
 
-from . import nvidia_smi
+from . import nvidia_smi, Runner
 from . import os_
 from genv.serialization.partial_deserialization import smart_ctor
 
@@ -53,12 +53,12 @@ class Process:
             print(f"[DEBUG] Process {pid} already terminated", file=sys.stderr)
 
 
-async def snapshot() -> Iterable[Process]:
+async def snapshot(host_runner: Runner) -> Iterable[Process]:
     """
     Returns a snapshot of all running compute processes.
     """
     uuids, apps = await asyncio.gather(
-        nvidia_smi.device_uuids(), nvidia_smi.compute_apps()
+        nvidia_smi.device_uuids(host_runner), nvidia_smi.compute_apps(host_runner)
     )
 
     pid_to_apps = {

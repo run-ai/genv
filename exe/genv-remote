@@ -21,16 +21,8 @@ async def query_devices(hosts: Iterable[str], root: str) -> Dict[str, Dict]:
 
     :return: A mapping from host to its devices information
     """
-    stdouts = await genv.remote.run(
-        hosts,
-        root,
-        "exec",
-        "devices",
-        "ps",
-        "--format csv",
-        "--no-header",
-        "--timestamp",
-    )
+    genv_command = ["genv", "exec",  "devices", "ps", "--format csv", "--no-header", "--timestamp"]
+    stdouts = await genv.run_on_hosts_ssh(hosts, genv_command, process_env={"PATH": f'"{root}/bin:$PATH"'})
 
     def parse_stdout(stdout: str) -> Dict[int, Iterable[Dict]]:
         attachments = dict()
@@ -66,16 +58,8 @@ async def query_envs(hosts: Iterable[str], root: str) -> Dict[str, Dict]:
 
     :return: A mapping from host to its active environments
     """
-    stdouts = await genv.remote.run(
-        hosts,
-        root,
-        "exec",
-        "envs",
-        "ps",
-        "--format csv",
-        "--no-header",
-        "--timestamp",
-    )
+    genv_command = ["genv", "exec",  "devices", "envs", "--format csv", "--no-header", "--timestamp"]
+    stdouts = await genv.run_on_hosts_ssh(hosts, genv_command, process_env={"PATH": f'"{root}/bin:$PATH"'})
 
     envs = defaultdict(list)
 
@@ -308,7 +292,7 @@ async def do_enforce(
             survey.report(snapshot) for snapshot, survey in zip(snapshots, surveys)
         ]
 
-        await genv.remote.enforce.execute(hosts, root, reports)
+        await genv.remote.enforce.execute_report(hosts, root, reports)
 
         if interval == 0:
             break

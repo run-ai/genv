@@ -10,7 +10,7 @@ from genv import nvidia_smi_snapshots, snapshot_to_monitor_output, FileOutputTyp
 
 def calc_host_runner(hosts: Optional[Iterable[str]]) -> Iterable[Runner]:
     if not hosts:
-        return [LocalRunner()]
+        return [LocalRunner({"GENV_BYPASS": "1"})]
     else:
         return [SshRunner(host) for host in hosts]
 

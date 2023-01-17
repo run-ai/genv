@@ -1,43 +1,15 @@
-import asyncio
-import os
 from typing import Dict, Iterable
 
 from genv.runners import Runner
 
 
-async def run(*args: str) -> str:
-    """
-    Runs nvidia-smi with the given arguments as a subprocess, waits for it and returns its output.
-    Raises 'RuntimeError' if subprocess exited with failure.
-    """
-    args = ["nvidia-smi", *args]
-
-    process = await asyncio.create_subprocess_exec(
-        *args,
-        env={"GENV_BYPASS": "1", **os.environ},
-        stdin=asyncio.subprocess.DEVNULL,
-        stdout=asyncio.subprocess.PIPE,
-        stderr=asyncio.subprocess.PIPE,
-    )
-
-    stdout, stderr = await process.communicate()
-
-    if process.returncode != 0:
-        command = " ".join(args)
-        raise RuntimeError(
-            f"Failed running '{command}' ({stderr.decode('utf-8').strip()})"
-        )
-
-    return stdout.decode("utf-8").strip()
-
-
-async def device_uuids() -> Dict[str, int]:
+async def device_uuids(host_runner: Runner) -> Dict[str, int]:
     """
     Queries device UUIDs.
 
     :return: A mapping from device UUID to its index
     """
-    output = await run("--query-gpu=uuid,index", "--format=csv,noheader")
+    output = await host_runner.run("nvidia-smi", "--query-gpu=uuid,index", "--format=csv,noheader")
 
     mapping = dict()
 
@@ -48,11 +20,12 @@ async def device_uuids() -> Dict[str, int]:
     return mapping
 
 
-async def compute_apps() -> Iterable[Dict]:
+async def compute_apps(host_runner: Runner) -> Iterable[Dict]:
     """
     Queries the running compute apps.
     """
-    output = await run(
+    output = await host_runner.run(
+        "nvidia-smi",
         "--query-compute-apps=gpu_uuid,pid,used_gpu_memory",
         "--format=csv,noheader,nounits",
     )
