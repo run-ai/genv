@@ -40,17 +40,24 @@
 <li class="toctree-l1"><a class="reference internal" href="../usage/installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../usage/usage.html">Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../usage/advanced-usage.html">Advanced Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/enforcement.html">Enforcement</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Remote Usage</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../remote/overview.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../remote/installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../remote/usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../remote/enforcement.html">Enforcement</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Development</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="development.html">Development</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#files">Files</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#envs-json">envs.json</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#devices-json">devices.json</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="#environment-variables">Environment Variables</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#shims">Shims</a></li>
 </ul>
@@ -90,19 +97,55 @@
 <div class="contents topic" id="contents">
 <p class="topic-title">Contents</p>
 <ul class="simple">
-<li><p><a class="reference internal" href="#reference" id="id2">Reference</a></p>
+<li><p><a class="reference internal" href="#reference" id="id5">Reference</a></p>
 <ul>
-<li><p><a class="reference internal" href="#environment-variables" id="id3">Environment Variables</a></p></li>
-<li><p><a class="reference internal" href="#shims" id="id4">Shims</a></p></li>
+<li><p><a class="reference internal" href="#files" id="id6">Files</a></p></li>
+<li><p><a class="reference internal" href="#environment-variables" id="id7">Environment Variables</a></p></li>
+<li><p><a class="reference internal" href="#shims" id="id8">Shims</a></p></li>
 </ul>
 </li>
 </ul>
+</div>
+<div class="section" id="files">
+<span id="id1"></span><h2>Files<a class="headerlink" href="#files" title="Permalink to this headline">¶</a></h2>
+<p>Genv uses JSON files to keep its state.
+These files are queried and modified by <code class="code docutils literal notranslate"><span class="pre">genv</span></code> commands.</p>
+<p>You can take a look at the files using the command:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>cat <span class="si">${</span><span class="nv">GENV_TMPDIR</span><span class="k">:-</span><span class="p">/var/tmp/genv</span><span class="si">}</span>/*.json
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>These state files are saved under <code class="code docutils literal notranslate"><span class="pre">/var/tmp/genv</span></code> by default.
+This can be configured with the environment variable <code class="code docutils literal notranslate"><span class="pre">GENV_TMPDIR</span></code>.</p>
+</div>
+<p>These files are created by Genv on the first use as well as the temp directory.
+Genv makes sure that any Linux user would have permissions to these files.</p>
+<p>This can be seen with the following command:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>ls -la <span class="si">${</span><span class="nv">GENV_TMPDIR</span><span class="k">:-</span><span class="p">/var/tmp/genv</span><span class="si">}</span>
+</pre></div>
+</div>
+<p>You can see that the directory was created with <code class="code docutils literal notranslate"><span class="pre">rwxrwxrwx</span></code> and the files with <code class="code docutils literal notranslate"><span class="pre">rw-rw-rw</span></code>.</p>
+<hr class="docutils" />
+<div class="section" id="envs-json">
+<h3>envs.json<a class="headerlink" href="#envs-json" title="Permalink to this headline">¶</a></h3>
+<p>Information about active environments and their configuration.</p>
+</div>
+<hr class="docutils" />
+<div class="section" id="devices-json">
+<h3>devices.json<a class="headerlink" href="#devices-json" title="Permalink to this headline">¶</a></h3>
+<p>Information about device attachments.</p>
+</div>
 </div>
 <div class="section" id="environment-variables">
 <h2>Environment Variables<a class="headerlink" href="#environment-variables" title="Permalink to this headline">¶</a></h2>
 <p><code class="code docutils literal notranslate"><span class="pre">GENV_BYPASS</span></code></p>
 <p>Bypass shim behaviors and use similar behavior to the original applications.
 Default is <code class="code docutils literal notranslate"><span class="pre">0</span></code>.</p>
+<hr class="docutils" />
+<p><code class="code docutils literal notranslate"><span class="pre">GENV_TERMINATE_PROCESSES</span></code></p>
+<p>Control whether to actually terminate enforced processes or not.
+Default is <code class="code docutils literal notranslate"><span class="pre">1</span></code>.</p>
 <hr class="docutils" />
 <p><code class="code docutils literal notranslate"><span class="pre">GENV_MOCK_DEVICE_COUNT</span></code></p>
 <p>A mock for device count.
@@ -123,7 +166,10 @@ Default is <code class="code docutils literal notranslate"><span class="pre">/va
 Default is <code class="code docutils literal notranslate"><span class="pre">0</span></code>.</p>
 </div>
 <div class="section" id="shims">
-<span id="id1"></span><h2>Shims<a class="headerlink" href="#shims" title="Permalink to this headline">¶</a></h2>
+<span id="id2"></span><h2>Shims<a class="headerlink" href="#shims" title="Permalink to this headline">¶</a></h2>
+<p>A shim <a class="footnote-reference brackets" href="#id4" id="id3">1</a> is a small application that runs instead of the originally intended one and acts as a middleware.
+It manipulates the input and output of the real application, and provides an easy way to de-facto change the behavior of the original application.</p>
+<hr class="docutils" />
 <p><code class="code docutils literal notranslate"><span class="pre">docker</span></code></p>
 <p>This shim modifies the argument <code class="code docutils literal notranslate"><span class="pre">--gpus</span></code> if passed.</p>
 <p>When <code class="code docutils literal notranslate"><span class="pre">all</span></code> is passed, this shim passes the indices of all the devices that are attached to the environment.
@@ -136,6 +182,11 @@ Any other value is not supported at the moment.</p>
 It is also good to note that <code class="code docutils literal notranslate"><span class="pre">nvidia-smi</span></code> ignores the environment variable <code class="code docutils literal notranslate"><span class="pre">CUDA_VISIBLE_DEVICES</span></code> as it uses NVML and not CUDA.</p>
 <p>This shim passes the argument <code class="code docutils literal notranslate"><span class="pre">--id</span></code> to <code class="code docutils literal notranslate"><span class="pre">nvidia-smi</span></code> and specifies the device indices that are attached to this environment.</p>
 <p>It also filters out processes that are not from the current environment, and shows GPU memory information that is relevant only for this environment, by summing the used GPU memory of all processes in this environment.</p>
+<dl class="footnote brackets">
+<dt class="label" id="id4"><span class="brackets"><a class="fn-backref" href="#id3">1</a></span></dt>
+<dd><p><a class="reference external" href="https://en.wikipedia.org/wiki/Shim_(computing">https://en.wikipedia.org/wiki/Shim_(computing</a>)</p>
+</dd>
+</dl>
 </div>
 </div>
 

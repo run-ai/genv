@@ -16,7 +16,7 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Overview" href="../remote/overview.html" />
+    <link rel="next" title="Enforcement" href="enforcement.html" />
     <link rel="prev" title="Usage" href="usage.html" /> 
 </head>
 
@@ -41,16 +41,22 @@
 <li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Advanced Usage</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#multiple-terminals">Multiple Terminals</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#using-sudo">Using <code class="code docutils literal notranslate"><span class="pre">sudo</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#using-sudo">Using <code class="code docutils literal notranslate"><span class="pre">sudo</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#genv-commands">Genv Commands</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#other-commands">Other Commands</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="#running-containers">Running Containers</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="enforcement.html">Enforcement</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Remote Usage</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../remote/overview.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../remote/installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../remote/usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../remote/enforcement.html">Enforcement</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Development</span></p>
 <ul>
@@ -122,6 +128,19 @@ You could verify it by running <code class="code docutils literal notranslate"><
 </div>
 <div class="section" id="using-sudo">
 <span id="id1"></span><h2>Using <code class="code docutils literal notranslate"><span class="pre">sudo</span></code><a class="headerlink" href="#using-sudo" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="genv-commands">
+<h3>Genv Commands<a class="headerlink" href="#genv-commands" title="Permalink to this headline">¶</a></h3>
+<p>To run <code class="code docutils literal notranslate"><span class="pre">genv</span></code> commands as root using <code class="code docutils literal notranslate"><span class="pre">sudo</span></code>, use a command similar to the following:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>sudo <span class="k">$(</span>which genv<span class="k">)</span> ...
+</pre></div>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Shell commands like <code class="code docutils literal notranslate"><span class="pre">genv</span> <span class="pre">activate</span></code> should not be executed this way because they will not be able to manipulate the shell.</p>
+</div>
+</div>
+<div class="section" id="other-commands">
+<h3>Other Commands<a class="headerlink" href="#other-commands" title="Permalink to this headline">¶</a></h3>
 <p>Much of genv functionality is based on environment variables.
 You can see this by running the following command from an activated environment:</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>env <span class="p">|</span> grep GENV_
@@ -138,7 +157,7 @@ For example:</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>sudo -E env <span class="p">|</span> grep GENV_
 </pre></div>
 </div>
-<p>In addition to that, some genv functionality is implemented as shims.
+<p>In addition to that, some genv functionality is implemented as <a class="reference internal" href="../development/reference.html#shims"><span class="std std-ref">shims</span></a>.
 When applications such as <code class="code docutils literal notranslate"><span class="pre">nvidia-smi</span></code> and <code class="code docutils literal notranslate"><span class="pre">docker</span></code> are being executed inside an activated environment, their respective shims get called instead.
 genv modifies the environment variable <code class="code docutils literal notranslate"><span class="pre">PATH</span></code> to do so.</p>
 <p>You can see this by running the following command from an activated environment:</p>
@@ -166,6 +185,7 @@ For example:</p>
 <p>Make sure that you also pass <code class="code docutils literal notranslate"><span class="pre">-E</span></code> to preserve all genv environment variables</p>
 </div>
 </div>
+</div>
 <div class="section" id="running-containers">
 <h2>Running Containers<a class="headerlink" href="#running-containers" title="Permalink to this headline">¶</a></h2>
 <p>When running containers using a <code class="code docutils literal notranslate"><span class="pre">docker</span> <span class="pre">run</span></code> command from an active environment, the <code class="code docutils literal notranslate"><span class="pre">docker</span></code> <a class="reference internal" href="../development/reference.html#shims"><span class="std std-ref">shim</span></a> is executed.</p>
@@ -190,7 +210,7 @@ You can do that by passing <code class="code docutils literal notranslate"><span
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="usage.html" class="btn btn-neutral float-left" title="Usage" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="../remote/overview.html" class="btn btn-neutral float-right" title="Overview" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="enforcement.html" class="btn btn-neutral float-right" title="Enforcement" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

@@ -60,6 +60,11 @@ If Genv can't find a remote host with enough available resources, the :code:`gen
 
    You can see all available resource specification options with the command :code:`genv remote activate --help`
 
+Enforcement
+-----------
+Genv supports enforcement features on multiple hosts.
+Check out :ref:`this <Remote Enforcement>` document for more information.
+
 Specifying Remote Hosts
 -----------------------
 :code:`genv remote` commands connect to multiple remote hosts and run :code:`genv` commands on them.
