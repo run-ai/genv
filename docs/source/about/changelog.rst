@@ -1,6 +1,28 @@
 Changelog
 =========
 
+Version 0.5.0
+-------------
+**Date:** January 27, 2023
+
+Added
+~~~~~
+* Introduced local and remote enforcement features with two enforcement rules: non environment processes and max devices per user
+* Added :code:`genv-usage` executable for taking snapshots and executing enforcement reports
+* Supporting querying environment usernames
+* Added flag :code:`--quiet` to :code:`genv-devices detach`
+* Created :code:`devel` directory and :code:`nvidia-smi` mock shim
+* Added environment variable :code:`GENV_TERMINATE_PROCESSES` to allow not terminating processes
+* Added environment variable :code:`GENV_MOCK_NVIDIA_SMI_PIDS` to set process identifiers in the :code:`nvidia-smi` mock shim
+
+Changed
+~~~~~~~
+* Created Python package :code:`genv`
+* Major refactor to Python code by adding logic layers (e.g. :code:`genv.envs`) and entities (e.g. :code:`genv.envs.Env`)
+* Supporting encoding and decoding entities as JSON
+* Supporting sending standard input to SSH commands
+* Supporting running SSH commands with :code:`sudo`
+
 Version 0.4.0
 -------------
 **Date:** December 22, 2022
