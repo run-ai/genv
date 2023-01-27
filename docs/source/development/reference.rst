@@ -5,6 +5,50 @@ Reference
    :depth: 2
    :backlinks: none
 
+.. _Files:
+
+Files
+-----
+
+Genv uses JSON files to keep its state.
+These files are queried and modified by :code:`genv` commands.
+
+You can take a look at the files using the command:
+
+.. code-block:: shell
+
+   cat ${GENV_TMPDIR:-/var/tmp/genv}/*.json
+
+.. note::
+
+   These state files are saved under :code:`/var/tmp/genv` by default.
+   This can be configured with the environment variable :code:`GENV_TMPDIR`.
+
+These files are created by Genv on the first use as well as the temp directory.
+Genv makes sure that any Linux user would have permissions to these files.
+
+This can be seen with the following command:
+
+.. code-block:: shell
+
+   ls -la ${GENV_TMPDIR:-/var/tmp/genv}
+
+You can see that the directory was created with :code:`rwxrwxrwx` and the files with :code:`rw-rw-rw`.
+
+----
+
+envs.json
+~~~~~~~~~
+
+Information about active environments and their configuration.
+
+----
+
+devices.json
+~~~~~~~~~~~~
+
+Information about device attachments.
+
 Environment Variables
 ---------------------
 
@@ -12,6 +56,13 @@ Environment Variables
 
 Bypass shim behaviors and use similar behavior to the original applications.
 Default is :code:`0`.
+
+----
+
+:code:`GENV_TERMINATE_PROCESSES`
+
+Control whether to actually terminate enforced processes or not.
+Default is :code:`1`.
 
 ----
 
@@ -47,6 +98,11 @@ Default is :code:`0`.
 Shims
 -----
 
+A shim [#]_ is a small application that runs instead of the originally intended one and acts as a middleware.
+It manipulates the input and output of the real application, and provides an easy way to de-facto change the behavior of the original application.
+
+----
+
 :code:`docker`
 
 This shim modifies the argument :code:`--gpus` if passed.
@@ -67,3 +123,5 @@ It is also good to note that :code:`nvidia-smi` ignores the environment variable
 This shim passes the argument :code:`--id` to :code:`nvidia-smi` and specifies the device indices that are attached to this environment.
 
 It also filters out processes that are not from the current environment, and shows GPU memory information that is relevant only for this environment, by summing the used GPU memory of all processes in this environment.
+
+.. [#] https://en.wikipedia.org/wiki/Shim_(computing)

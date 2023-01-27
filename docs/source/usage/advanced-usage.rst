@@ -37,6 +37,21 @@ genv automatically configures the terminal with the environment configuration an
 
 Using :code:`sudo`
 ------------------
+
+Genv Commands
+~~~~~~~~~~~~~
+To run :code:`genv` commands as root using :code:`sudo`, use a command similar to the following:
+
+.. code-block:: shell
+
+   sudo $(which genv) ...
+
+.. warning::
+
+   Shell commands like :code:`genv activate` should not be executed this way because they will not be able to manipulate the shell.
+
+Other Commands
+~~~~~~~~~~~~~~
 Much of genv functionality is based on environment variables.
 You can see this by running the following command from an activated environment:
 
@@ -60,7 +75,7 @@ For example:
 
    sudo -E env | grep GENV_
 
-In addition to that, some genv functionality is implemented as shims.
+In addition to that, some genv functionality is implemented as :ref:`shims <Shims>`.
 When applications such as :code:`nvidia-smi` and :code:`docker` are being executed inside an activated environment, their respective shims get called instead.
 genv modifies the environment variable :code:`PATH` to do so.
 

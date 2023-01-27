@@ -1,0 +1,76 @@
+#!/usr/bin/env python3
+
+import os
+import sys
+
+
+if len(sys.argv) == 1:
+    print(
+        """\
+Fri Dec 23 23:11:41 2022
++-----------------------------------------------------------------------------+
+| NVIDIA-SMI 515.86.01    Driver Version: 515.86.01    CUDA Version: 11.7     |
+|-------------------------------+----------------------+----------------------+
+| GPU  Name        Persistence-M| Bus-Id        Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp  Perf  Pwr:Usage/Cap|         Memory-Usage | GPU-Util  Compute M. |
+|                               |                      |               MIG M. |
+|===============================+======================+======================|
+|   0  NVIDIA GeForce ...  Off  | 00000000:01:00.0 Off |                  N/A |
+| 30%   33C    P8    26W / 250W |      5MiB / 11264MiB |      0%      Default |
+|                               |                      |                  N/A |
++-------------------------------+----------------------+----------------------+
+|   1  NVIDIA GeForce ...  Off  | 00000000:02:00.0  On |                  N/A |
+| 29%   35C    P8    11W / 250W |    114MiB / 11264MiB |      0%      Default |
+|                               |                      |                  N/A |
++-------------------------------+----------------------+----------------------+
+
++-----------------------------------------------------------------------------+
+| Processes:                                                                  |
+|  GPU   GI   CI        PID   Type   Process name                  GPU Memory |
+|        ID   ID                                                   Usage      |
+|=============================================================================|
+|    0   N/A  N/A      1500      G   /usr/lib/xorg/Xorg                  4MiB |
+|    1   N/A  N/A      1500      G   /usr/lib/xorg/Xorg                 86MiB |
+|    1   N/A  N/A      2398      G   /usr/bin/gnome-shell               22MiB |
+|    1   N/A  N/A      3746      G   gnome-control-center                3MiB |
++-----------------------------------------------------------------------------+
+""",
+        end="",
+    )
+elif (
+    len(sys.argv) == 3
+    and sys.argv[1] == "--query-gpu=uuid,index"
+    and sys.argv[2] == "--format=csv,noheader"
+):
+    print(
+        """\
+GPU-00000000-0000-0000-0000-000000000000, 0
+GPU-11111111-1111-1111-1111-111111111111, 1
+""",
+        end="",
+    )
+elif (
+    len(sys.argv) == 3
+    and sys.argv[1] == "--query-compute-apps=gpu_uuid,pid,used_gpu_memory"
+    and sys.argv[2] == "--format=csv,noheader,nounits"
+):
+    # TODO(raz): this should be global and manipulate all modes of this dev shim
+    pids = [
+        int(pid)
+        for pid in str(os.environ.get("GENV_MOCK_NVIDIA_SMI_PIDS", os.getpid())).split(
+            ","
+        )
+    ]
+
+    print(
+        "\n".join(
+            f"GPU-00000000-0000-0000-0000-000000000000, {pid}, 10000" for pid in pids
+        )
+    )
+else:
+    args = " ".join(sys.argv[1:])
+    print(
+        f"nvidia-smi mock shim does not support command line '{args}'",
+        file=sys.stderr,
+    )
+    exit(1)

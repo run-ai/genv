@@ -1,0 +1,153 @@
+#!/usr/bin/env python3
+
+import argparse
+import asyncio
+import sys
+
+import genv
+
+
+def enforce_non_env_processes(
+    snapshot: genv.Snapshot, survey: genv.enforce.Survey
+) -> None:
+    for process in snapshot.processes:
+        if process.eid is not None:
+            continue
+
+        print(f"Process {process.pid} is not running in a GPU environment")
+
+        survey.terminate(process)
+
+
+def enforce_max_devices_for_user(
+    username: str, snapshot: genv.Snapshot, survey: genv.enforce.Survey, maximum: int
+) -> None:
+    attached = len(snapshot.attached())
+
+    if attached <= maximum:
+        return
+
+    over = attached - maximum
+
+    print(
+        f"User {username} is using {attached} devices which is {over} more than the maximum allowed"
+    )
+
+    detached = 0
+
+    for device in snapshot.attached():
+        if detached == over:
+            break  # already detached enough devices
+
+        survey.detach(
+            [env for env in snapshot.envs if env.eid in device.eids], device.index
+        )
+
+        detached += 1
+
+
+def enforce_max_devices_per_user(
+    snapshot: genv.Snapshot, survey: genv.enforce.Survey, maximum: int
+) -> None:
+    usernames = set(env.username for env in snapshot.envs if env.username)
+
+    for username in usernames:
+        enforce_max_devices_for_user(
+            username, snapshot.filter(username), survey, maximum
+        )
+
+
+def parse_args() -> argparse.Namespace:
+    """
+    Parses the arguments passed to this executable.
+
+    :return: Argument values
+    """
+
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument(
+        "--interval",
+        type=int,
+        default=10,
+        help="interval in seconds between enforcement cycles; 0 means run once (default: %(default)s)",
+    )
+
+    enforcements = parser.add_argument_group("enforcements")
+
+    def add_enforcement(
+        name: str, *, dest: str, help: str, default: bool = True
+    ) -> None:
+        """
+        Adds a mutual exclusive group for an enforcement flag with true and false actions.
+        """
+        group = enforcements.add_mutually_exclusive_group()
+
+        group.add_argument(
+            f"--{name}",
+            action="store_true",
+            default=default,
+            help=help + " (default: %(default)s)",
+            dest=dest,
+        )
+
+        group.add_argument(
+            f"--no-{name}",
+            action="store_false",
+            dest=dest,
+        )
+
+    add_enforcement(
+        "non-env-processes",
+        dest="terminate_non_env_processes",
+        help="terminate processes that are not running in a GPU environment",
+        default=False,
+    )
+
+    enforcements.add_argument(
+        "--max-devices-per-user",
+        type=int,
+        help="maximum allowed attached devices for each user",
+    )
+
+    return parser.parse_args()
+
+
+async def main() -> None:
+    """
+    Runs the main logic and enforces GPU usage according to the arguments.
+
+    :return: None
+    """
+    args = parse_args()
+
+    while True:
+        snapshot = await genv.snapshot()
+        survey = genv.enforce.Survey()
+
+        if args.terminate_non_env_processes:
+            enforce_non_env_processes(snapshot, survey)
+
+        if args.max_devices_per_user is not None:
+            enforce_max_devices_per_user(
+                snapshot, survey, maximum=args.max_devices_per_user
+            )
+
+        report = survey.report(snapshot)
+
+        genv.enforce.execute(report)
+
+        if args.interval == 0:
+            break
+
+        await asyncio.sleep(args.interval)
+
+
+if __name__ == "__main__":
+    try:
+        asyncio.run(main())
+    except RuntimeError as e:
+        print(e, file=sys.stderr)
+        exit(1)
+    except KeyboardInterrupt:
+        pass

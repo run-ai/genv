@@ -12,6 +12,7 @@ Envs = Dict[int, Env]
 QUERIES = {
     "eid": lambda env: env["eid"],
     "creation": lambda env: env["creation"],
+    "username": lambda env: env.get("username"),
     "config.name": lambda env: env["config"].get("name"),
     "config.gpus": lambda env: env["config"].get("gpus"),
     "config.gpu_memory": lambda env: env["config"].get("gpu_memory"),
@@ -28,8 +29,8 @@ def factory() -> Dict:
 
 def cleanup(
     envs: Envs,
-    poll_pid: Callable[[int], bool] = genv.poll_pid,
-    poll_kernel: Callable[[str], bool] = genv.poll_jupyter_kernel,
+    poll_pid: Callable[[int], bool] = genv.poll.poll_pid,
+    poll_kernel: Callable[[str], bool] = genv.poll.poll_jupyter_kernel,
 ) -> None:
     """
     Clean up processes, kernels and environments.
@@ -106,7 +107,7 @@ def do_activate(
         envs[eid] = dict(
             eid=eid,
             uid=uid,
-            creation=datetime.now().strftime(genv.DATETIME_FMT),
+            creation=datetime.now().strftime(genv.utils.DATETIME_FMT),
             config={},
         )
 
@@ -218,7 +219,9 @@ def do_ps(envs: Envs, format: str, header: bool, timestamp: bool) -> None:
         eid = env["eid"]
         user = f'{env["username"]}({env["uid"]})' if "username" in env else env["uid"]
         name = env["config"].get("name", "")
-        created = env["creation"] if timestamp else genv.time_since(env["creation"])
+        created = (
+            env["creation"] if timestamp else genv.utils.time_since(env["creation"])
+        )
         pids = " ".join(str(pid) for pid in env.get("pids", []))
         # TODO(raz): print kernel ids
 
@@ -370,7 +373,7 @@ def parse_args() -> argparse.Namespace:
 if __name__ == "__main__":
     args = parse_args()
 
-    with genv.access_json("envs.json", factory, reset=args.reset) as json:
+    with genv.utils.access_json("envs.json", factory, reset=args.reset) as json:
         envs: Envs = json["envs"]
 
         if args.cleanup:
