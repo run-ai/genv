@@ -45,26 +45,32 @@ Docker
 You can also use a container for the development.
 This is useful if you are using macOS as Genv is developed for Linux systems and some things are not available in macOS (e.g. :code:`/proc` filesystem).
 
-Use the following command:
+First, build the Docker image :code:`genv:devel` with the following command:
+
+.. code-block:: shell
+
+    docker build -t genv:devel -f devel/Dockerfile devel
+
+Now, run a development container using the following command from the root directory of the project:
 
 .. code-block:: shell
 
     docker run -it --rm --name genv \
-        -v $PWD:/genv \
-        -v /var/tmp:/var/tmp \
-        -w /genv \
-        python \
-        bash --rcfile /genv/devel/.bashrc
+        -v $PWD:/root/genv \
+        -w /root/genv \
+        genv:devel
+
+.. TODO(raz): document how to use real GPUs
 
 .. note::
 
-    You can pass :code:`-v $HOME/.ssh:/root/.ssh` if you want to use remote features as well
+    Pass :code:`-v /var/tmp:/var/tmp --pid host` if you want to share the state with the host machine or with other containers and :code:`-v $HOME/.ssh:/root/.ssh` if you want to use remote features as well
 
 To open another terminal inside the container use:
 
 .. code-block:: shell
 
-    docker exec -it genv bash --rcfile /genv/devel/.bashrc
+    docker exec -it genv bash
 
 CPU-Only Setup
 ~~~~~~~~~~~~~~
@@ -85,8 +91,14 @@ Set up your shell with the following command:
 
     export PATH=$PWD/devel/shims:$PATH
 
+.. note::
+
+    If you are using a :ref:`Docker <Docker>` development setup, your shell should already be set.
+
 Now, execute :code:`nvidia-smi` once again.
 This time it should work and you should see an :code:`nvidia-smi`-like output printed to the screen.
+
+.. TODO(raz): remove this once it's fixed
 
 Also, you will need to manually initialize :code:`devices.json` with a made up device count using the environment variable :code:`GENV_MOCK_DEVICE_COUNT`.
 Run the following command and can configure how many GPUs you want to have:
@@ -98,6 +110,92 @@ Run the following command and can configure how many GPUs you want to have:
 .. note::
 
     You can also control the amount of GPU memory with the environment variable :code:`GENV_MOCK_DEVICE_MEMORY`
+
+Remote Features
+~~~~~~~~~~~~~~~
+If you are working on :ref:`remote features <Remote Overview>`, you might want to test them on a few remote machines.
+However, many times you will not have as many GPU machines as you would like, or SSH access to them.
+You might also want to work on remote features using only your single CPU machine.
+
+For this case, you can use the :code:`genv:sshd` Docker image that acts as a remote machine over SSH.
+
+First, build the :ref:`Docker image <Docker>` :code:`genv:devel` as it is the base image of :code:`genv:sshd` and then build the Docker image :code:`genv:sshd` with the following command:
+
+.. code-block:: shell
+
+    docker build -t genv:sshd -f devel/sshd.Dockerfile devel
+
+Now, run a container using the following command from the root directory of the project:
+
+.. code-block:: shell
+
+    docker run -d --rm \
+        --name genv-server-1 \
+        -p 2221:22 \
+        -v $PWD:/root/genv \
+        genv:sshd
+
+.. TODO(raz): document how to use real GPUs
+
+This command runs a container in the background that is named :code:`genv-server-1` and accepts SSH connections on port 2221.
+
+You can rerun this command as many times as you want to simulate more remote machines.
+Make sure to change the host port each time and also rename the container (or have the container unnamed by omitting the flag :code:`--name` entirely).
+
+You can open a terminal in such a container using a command similar to the following:
+
+.. code-block:: shell
+
+    docker exec -it genv-server-1 bash
+
+To terminate such a container, use a command similar to the following:
+
+.. code-block:: shell
+
+    docker kill genv-server-1
+
+Then, because of how remote features :ref:`work <Remote Installation>`, you will have to edit the SSH configuration on the host machine to allow simple SSH commands that :code:`genv remote` uses.
+
+Edit the SSH configuration file by running the following command on the host machine:
+
+.. code-block:: shell
+
+    vim ~/.ssh/config
+
+Add the following configuration for each of the containers.
+Make sure to set the correct port for every container:
+
+.. code-block:: shell
+
+    Host genv-server-1
+        Port 2221
+        Hostname 127.0.0.1
+        User root
+
+Then, test the SSH connectivity using the command:
+
+.. code-block:: shell
+
+    ssh genv-server-1
+
+.. warning::
+
+    You might need to approve the SSH key of the container on the first time.
+    Type :code:`yes` if you see a message similar to :code:`Are you sure you want to continue connecting (yes/no)?`.
+
+.. TODO(raz): remove this once it's fixed
+
+Also, if you are running on a CPU-only machine, you will need to initialize :code:`devices.json` with running the following command inside the container:
+
+.. code-block:: shell
+
+    GENV_MOCK_DEVICE_COUNT=4 genv devices
+
+After setting up all containers, test your setup with a command similar to the following:
+
+.. code-block:: shell
+
+    genv remote -H genv-server-1,genv-server-2 devices
 
 Docs
 ----
