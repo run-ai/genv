@@ -1,10 +1,57 @@
 #!/usr/bin/env python3
 
+from dataclasses import dataclass
 import os
 import sys
 
+sys.path.append(os.path.realpath(os.path.join(os.path.dirname(__file__), "../../py")))
 
-if len(sys.argv) == 1:
+import genv
+
+
+@dataclass
+class Device:
+    index: int
+    uuid: str
+    total_memory: str
+    used_memory: str
+
+    @staticmethod
+    def uuid_(index: int) -> str:
+        suffix = f"0{index}" if index < 10 else f"{index}"
+        return f"GPU-00000000-0000-0000-0000-0000000000{suffix}"
+
+
+@dataclass
+class Process:
+    device: Device
+    pid: int
+    gpu_memory: str
+
+
+devices = [
+    Device(
+        index=index,
+        uuid=Device.uuid_(index),
+        total_memory=os.environ.get("GENV_MOCK_DEVICE_TOTAL_MEMORY", "16g"),
+        used_memory=os.environ.get("GENV_MOCK_DEVICE_USED_MEMORY", "10mi"),
+    )
+    for index in range(int(os.environ.get("GENV_MOCK_DEVICE_COUNT", "2")))
+]
+
+processes = [
+    Process(
+        device=device,
+        pid=int(pid),
+        gpu_memory=os.environ.get("GENV_MOCK_COMPUTE_APPS_GPU_MEMORY", "42mi"),
+    )
+    for pid in str(os.environ.get("GENV_MOCK_COMPUTE_APPS_PIDS", os.getpid())).split(",")
+    for device in devices
+]
+
+args = sys.argv[1:]
+
+if args == []:
     print(
         """\
 Fri Dec 23 23:11:41 2022
@@ -15,62 +62,60 @@ Fri Dec 23 23:11:41 2022
 | Fan  Temp  Perf  Pwr:Usage/Cap|         Memory-Usage | GPU-Util  Compute M. |
 |                               |                      |               MIG M. |
 |===============================+======================+======================|
-|   0  NVIDIA GeForce ...  Off  | 00000000:01:00.0 Off |                  N/A |
-| 30%   33C    P8    26W / 250W |      5MiB / 11264MiB |      0%      Default |
-|                               |                      |                  N/A |
-+-------------------------------+----------------------+----------------------+
-|   1  NVIDIA GeForce ...  Off  | 00000000:02:00.0  On |                  N/A |
-| 29%   35C    P8    11W / 250W |    114MiB / 11264MiB |      0%      Default |
-|                               |                      |                  N/A |
-+-------------------------------+----------------------+----------------------+
+""",
+        end="",
+    )
 
+    for device in devices:
+        used_memory_mib = genv.utils.memory_to_memory(
+            device.used_memory, unit="mi", suffix=False
+        )
+        total_memory_mib = genv.utils.memory_to_memory(
+            device.total_memory, unit="mi", suffix=False
+        )
+
+        print(
+            f"""\
+|  {device.index:2}  NVIDIA GeForce ...  Off  | 00000000:01:00.0 Off |                  N/A |
+| 30%   33C    P8    26W / 250W |  {used_memory_mib:>5}MiB / {total_memory_mib:>5}MiB |      0%      Default |
+|                               |                      |                  N/A |
++-------------------------------+----------------------+----------------------+
+""",
+            end="",
+        )
+
+    print(
+        """
 +-----------------------------------------------------------------------------+
 | Processes:                                                                  |
 |  GPU   GI   CI        PID   Type   Process name                  GPU Memory |
 |        ID   ID                                                   Usage      |
 |=============================================================================|
-|    0   N/A  N/A      1500      G   /usr/lib/xorg/Xorg                  4MiB |
-|    1   N/A  N/A      1500      G   /usr/lib/xorg/Xorg                 86MiB |
-|    1   N/A  N/A      2398      G   /usr/bin/gnome-shell               22MiB |
-|    1   N/A  N/A      3746      G   gnome-control-center                3MiB |
+|  No running processes found                                                 |
 +-----------------------------------------------------------------------------+
 """,
         end="",
-    )
-elif (
-    len(sys.argv) == 3
-    and sys.argv[1] == "--query-gpu=uuid,index"
-    and sys.argv[2] == "--format=csv,noheader"
-):
-    print(
-        """\
-GPU-00000000-0000-0000-0000-000000000000, 0
-GPU-11111111-1111-1111-1111-111111111111, 1
-""",
-        end="",
-    )
-elif (
-    len(sys.argv) == 3
-    and sys.argv[1] == "--query-compute-apps=gpu_uuid,pid,used_gpu_memory"
-    and sys.argv[2] == "--format=csv,noheader,nounits"
-):
-    # TODO(raz): this should be global and manipulate all modes of this dev shim
-    pids = [
-        int(pid)
-        for pid in str(os.environ.get("GENV_MOCK_NVIDIA_SMI_PIDS", os.getpid())).split(
-            ","
+    )  # TODO(raz): support mock processes
+elif args == ["--query-gpu=uuid,index", "--format=csv,noheader"]:
+    for device in devices:
+        print(f"{device.uuid}, {device.index}")
+elif args == [
+    "--query-compute-apps=gpu_uuid,pid,used_gpu_memory",
+    "--format=csv,noheader,nounits",
+]:
+    for process in processes:
+        gpu_memory_mib = genv.utils.memory_to_memory(
+            process.gpu_memory, unit="mi", suffix=False
         )
-    ]
 
-    print(
-        "\n".join(
-            f"GPU-00000000-0000-0000-0000-000000000000, {pid}, 10000" for pid in pids
-        )
-    )
+        print(f"{process.device.uuid}, {process.pid}, {gpu_memory_mib}")
+elif args == ["--query-gpu=memory.total", "--format=csv,noheader,nounits"]:
+    for device in devices:
+        print(genv.utils.memory_to_memory(device.total_memory, unit="mi", suffix=False))
 else:
-    args = " ".join(sys.argv[1:])
+    cmdline = " ".join(args)
     print(
-        f"nvidia-smi mock shim does not support command line '{args}'",
+        f"nvidia-smi mock shim does not support command line '{cmdline}'",
         file=sys.stderr,
     )
     exit(1)

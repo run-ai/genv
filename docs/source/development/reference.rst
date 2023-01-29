@@ -49,6 +49,8 @@ devices.json
 
 Information about device attachments.
 
+.. _Environment Variables:
+
 Environment Variables
 ---------------------
 
@@ -66,18 +68,38 @@ Default is :code:`1`.
 
 ----
 
-:code:`GENV_MOCK_DEVICE_COUNT`
+:code:`GENV_MOCK_COMPUTE_APPS_GPU_MEMORY`
 
-A mock for device count.
-By default, it is queried using :code:`nvidia-smi`.
-This is mainly for development environments on CPU machines where :code:`nvidia-smi` is not available.
+Used GPU memory for compute apps in the :code:`nvidia-smi` mock shim.
+Default is :code:`42mi`.
+
 ----
 
-:code:`GENV_MOCK_DEVICE_MEMORY`
+:code:`GENV_MOCK_COMPUTE_APPS_PIDS`
 
-A mock for device memory.
-By default, it is queried using :code:`nvidia-smi`.
-This is mainly for development environments on CPU machines where :code:`nvidia-smi` is not available.
+Comma-separated list of process identifiers for compute apps in the :code:`nvidia-smi` mock shim.
+Default is the :code:`nvidia-smi` process identifier itself.
+
+----
+
+:code:`GENV_MOCK_DEVICE_COUNT`
+
+Device count in the :code:`nvidia-smi` mock shim.
+Default is :code:`2`.
+
+----
+
+:code:`GENV_MOCK_DEVICE_TOTAL_MEMORY`
+
+Total device memory in the :code:`nvidia-smi` mock shim.
+Default is :code:`16g`.
+
+----
+
+:code:`GENV_MOCK_DEVICE_USED_MEMORY`
+
+Used device memory in the :code:`nvidia-smi` mock shim.
+Default is :code:`10mi`.
 
 ----
 

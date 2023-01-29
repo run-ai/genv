@@ -98,18 +98,16 @@ Set up your shell with the following command:
 Now, execute :code:`nvidia-smi` once again.
 This time it should work and you should see an :code:`nvidia-smi`-like output printed to the screen.
 
-.. TODO(raz): remove this once it's fixed
+.. _Mock Devices:
 
-Also, you will need to manually initialize :code:`devices.json` with a made up device count using the environment variable :code:`GENV_MOCK_DEVICE_COUNT`.
-Run the following command and can configure how many GPUs you want to have:
+~~~~~~~~~~~~
+Mock Devices
+~~~~~~~~~~~~
+You can control the mock devices by executing a command similar to the following and specifying the supported :code:`GENV_MOCK_*` :ref:`environment variables <Environment Variables>`:
 
 .. code-block:: shell
 
-    GENV_MOCK_DEVICE_COUNT=4 genv devices
-
-.. note::
-
-    You can also control the amount of GPU memory with the environment variable :code:`GENV_MOCK_DEVICE_MEMORY`
+    GENV_MOCK_DEVICE_COUNT=4 GENV_MOCK_DEVICE_TOTAL_MEMORY=8g genv exec devices --reset
 
 Remote Features
 ~~~~~~~~~~~~~~~
@@ -183,13 +181,9 @@ Then, test the SSH connectivity using the command:
     You might need to approve the SSH key of the container on the first time.
     Type :code:`yes` if you see a message similar to :code:`Are you sure you want to continue connecting (yes/no)?`.
 
-.. TODO(raz): remove this once it's fixed
+.. note::
 
-Also, if you are running on a CPU-only machine, you will need to initialize :code:`devices.json` with running the following command inside the container:
-
-.. code-block:: shell
-
-    GENV_MOCK_DEVICE_COUNT=4 genv devices
+    You can also control the mock devices by running over SSH what is described :ref:`here <Mock Devices>`.
 
 After setting up all containers, test your setup with a command similar to the following:
 
