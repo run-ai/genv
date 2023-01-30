@@ -34,7 +34,9 @@ devices = [
         index=index,
         uuid=Device.uuid_(index),
         total_memory=os.environ.get("GENV_MOCK_DEVICE_TOTAL_MEMORY", "16g"),
-        used_memory=os.environ.get("GENV_MOCK_DEVICE_USED_MEMORY", "10mi"),
+        used_memory=os.environ.get(
+            "GENV_MOCK_DEVICE_USED_MEMORY", "10mi"
+        ),  # TODO(raz): calculate used memory by summing all processes
     )
     for index in range(int(os.environ.get("GENV_MOCK_DEVICE_COUNT", "2")))
 ]
@@ -42,10 +44,12 @@ devices = [
 processes = [
     Process(
         device=device,
-        pid=int(pid),
+        pid=pid,
         gpu_memory=os.environ.get("GENV_MOCK_COMPUTE_APPS_GPU_MEMORY", "42mi"),
     )
-    for pid in str(os.environ.get("GENV_MOCK_COMPUTE_APPS_PIDS", os.getpid())).split(",")
+    for pid in genv.os_.pgrep(
+        os.environ.get("GENV_MOCK_COMPUTE_APPS_PROCESS_NAME", "sleep")
+    )
     for device in devices
 ]
 
@@ -67,20 +71,21 @@ Fri Dec 23 23:11:41 2022
     )
 
     for device in devices:
-        used_memory_mib = genv.utils.memory_to_memory(
-            device.used_memory, unit="mi", suffix=False
-        )
-        total_memory_mib = genv.utils.memory_to_memory(
-            device.total_memory, unit="mi", suffix=False
-        )
-
         print(
-            f"""\
-|  {device.index:2}  NVIDIA GeForce ...  Off  | 00000000:01:00.0 Off |                  N/A |
-| 30%   33C    P8    26W / 250W |  {used_memory_mib:>5}MiB / {total_memory_mib:>5}MiB |      0%      Default |
+            """\
+|  {index:2}  NVIDIA GeForce ...  Off  | 00000000:01:00.0 Off |                  N/A |
+| 30%   33C    P8    26W / 250W |  {used_memory:>5}MiB / {total_memory:>5}MiB |      0%      Default |
 |                               |                      |                  N/A |
 +-------------------------------+----------------------+----------------------+
-""",
+""".format(
+                index=device.index,
+                used_memory=genv.utils.memory_to_memory(
+                    device.used_memory, unit="mi", suffix=False
+                ),
+                total_memory=genv.utils.memory_to_memory(
+                    device.total_memory, unit="mi", suffix=False
+                ),
+            ),
             end="",
         )
 
@@ -91,11 +96,35 @@ Fri Dec 23 23:11:41 2022
 |  GPU   GI   CI        PID   Type   Process name                  GPU Memory |
 |        ID   ID                                                   Usage      |
 |=============================================================================|
-|  No running processes found                                                 |
-+-----------------------------------------------------------------------------+
 """,
         end="",
-    )  # TODO(raz): support mock processes
+    )
+
+    if len(processes) == 0:
+        print(
+            "|  No running processes found                                                 |"
+        )
+    else:
+        for process in processes:
+            name = genv.os_.cmdline(process.pid)[0]
+            if len(name) > 28:
+                name = f"...{name[-25:]}"
+
+            print(
+                "|   {index:2}   N/A  N/A    {pid:6}      C   {name:28}   {memory:>6}MiB |".format(
+                    index=process.device.index,
+                    pid=process.pid,
+                    name=name,
+                    memory=genv.utils.memory_to_memory(
+                        process.gpu_memory, unit="mi", suffix=False
+                    ),
+                )
+            )
+
+    print(
+        "+-----------------------------------------------------------------------------+"
+    )
+
 elif args == ["--query-gpu=uuid,index", "--format=csv,noheader"]:
     for device in devices:
         print(f"{device.uuid}, {device.index}")
@@ -104,11 +133,15 @@ elif args == [
     "--format=csv,noheader,nounits",
 ]:
     for process in processes:
-        gpu_memory_mib = genv.utils.memory_to_memory(
-            process.gpu_memory, unit="mi", suffix=False
+        print(
+            "{uuid}, {pid}, {gpu_memory}".format(
+                uuid=process.device.uuid,
+                pid=process.pid,
+                gpu_memory=genv.utils.memory_to_memory(
+                    process.gpu_memory, unit="mi", suffix=False
+                ),
+            )
         )
-
-        print(f"{process.device.uuid}, {process.pid}, {gpu_memory_mib}")
 elif args == ["--query-gpu=memory.total", "--format=csv,noheader,nounits"]:
     for device in devices:
         print(genv.utils.memory_to_memory(device.total_memory, unit="mi", suffix=False))

@@ -75,10 +75,10 @@ Default is :code:`42mi`.
 
 ----
 
-:code:`GENV_MOCK_COMPUTE_APPS_PIDS`
+:code:`GENV_MOCK_COMPUTE_APPS_PROCESS_NAME`
 
-Comma-separated list of process identifiers for compute apps in the :code:`nvidia-smi` mock shim.
-Default is the :code:`nvidia-smi` process identifier itself.
+Name of processes to be considered as compute apps in the :code:`nvidia-smi` mock shim.
+Default is :code:`sleep` (e.g. :code:`sleep infinity`).
 
 ----
 
