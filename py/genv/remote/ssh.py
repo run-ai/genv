@@ -1,4 +1,5 @@
 import asyncio
+import os
 import sys
 from typing import Iterable, Optional
 
@@ -19,7 +20,13 @@ async def start(
 
     :return: Returns the SSH process
     """
-    command = f'env PATH="{root}/bin:$PATH" genv {" ".join(args)}'
+    path = f"$PATH:{root}/bin"
+
+    # TODO(raz): consider adding a 'genv devel' command that sets this environment variable
+    if int(os.environ.get("GENV_REMOTE_USE_DEVEL_SHIMS", "0")) != 0:
+        path = f"{path}:{root}/devel/shims"
+
+    command = f'env PATH="{path}" genv {" ".join(args)}'
 
     if sudo:
         command = f"sudo {command}"

@@ -115,6 +115,13 @@ Default is :code:`/var/tmp/genv`.
 Support attaching environments to a device even if memory cannot be guaranteed.
 Default is :code:`0`.
 
+----
+
+:code:`GENV_REMOTE_USE_DEVEL_SHIMS`
+
+Use devel shims and :code:`nvidia-smi` in particular in remote commands when using :code:`genv remote`.
+Default is :code:`0`.
+
 .. _Shims:
 
 Shims

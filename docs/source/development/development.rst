@@ -91,6 +91,8 @@ Set up your shell with the following command:
 
     export PATH=$PWD/devel/shims:$PATH
 
+.. TODO(raz): consider adding a 'genv devel' command to set this
+
 .. note::
 
     If you are using a :ref:`Docker <Docker>` development setup, your shell should already be set.
@@ -190,6 +192,12 @@ After setting up all containers, test your setup with a command similar to the f
 .. code-block:: shell
 
     genv remote -H genv-server-1,genv-server-2 devices
+
+If you work on :ref:`remote enforcement features <Remote Enforcement>`, you will also need to set the following environment variables in order to use the development shims and :code:`nvidia-smi` in particular in the SSH commands that :code:`genv remote enforce` runs:
+
+.. code-block:: shell
+
+    export GENV_REMOTE_USE_DEVEL_SHIMS=1
 
 Docs
 ----
