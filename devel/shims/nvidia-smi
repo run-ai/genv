@@ -29,6 +29,16 @@ class Process:
     gpu_memory: str
 
 
+args = sys.argv[1:]
+
+indices = range(int(os.environ.get("GENV_MOCK_DEVICE_COUNT", "2")))
+
+for i in range(len(args)):
+    if args[i].startswith("--id="):
+        indices = [int(index) for index in args[i].split("--id=")[1].split(",")]
+        del args[i]
+        break
+
 devices = [
     Device(
         index=index,
@@ -38,8 +48,9 @@ devices = [
             "GENV_MOCK_DEVICE_USED_MEMORY", "10mi"
         ),  # TODO(raz): calculate used memory by summing all processes
     )
-    for index in range(int(os.environ.get("GENV_MOCK_DEVICE_COUNT", "2")))
+    for index in indices
 ]
+
 
 processes = [
     Process(
@@ -53,7 +64,6 @@ processes = [
     for device in devices
 ]
 
-args = sys.argv[1:]
 
 if args == []:
     print(
