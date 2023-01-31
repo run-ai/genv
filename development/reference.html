@@ -97,11 +97,11 @@
 <div class="contents topic" id="contents">
 <p class="topic-title">Contents</p>
 <ul class="simple">
-<li><p><a class="reference internal" href="#reference" id="id5">Reference</a></p>
+<li><p><a class="reference internal" href="#reference" id="id6">Reference</a></p>
 <ul>
-<li><p><a class="reference internal" href="#files" id="id6">Files</a></p></li>
-<li><p><a class="reference internal" href="#environment-variables" id="id7">Environment Variables</a></p></li>
-<li><p><a class="reference internal" href="#shims" id="id8">Shims</a></p></li>
+<li><p><a class="reference internal" href="#files" id="id7">Files</a></p></li>
+<li><p><a class="reference internal" href="#environment-variables" id="id8">Environment Variables</a></p></li>
+<li><p><a class="reference internal" href="#shims" id="id9">Shims</a></p></li>
 </ul>
 </li>
 </ul>
@@ -138,7 +138,7 @@ Genv makes sure that any Linux user would have permissions to these files.</p>
 </div>
 </div>
 <div class="section" id="environment-variables">
-<h2>Environment Variables<a class="headerlink" href="#environment-variables" title="Permalink to this headline">¶</a></h2>
+<span id="id2"></span><h2>Environment Variables<a class="headerlink" href="#environment-variables" title="Permalink to this headline">¶</a></h2>
 <p><code class="code docutils literal notranslate"><span class="pre">GENV_BYPASS</span></code></p>
 <p>Bypass shim behaviors and use similar behavior to the original applications.
 Default is <code class="code docutils literal notranslate"><span class="pre">0</span></code>.</p>
@@ -147,15 +147,25 @@ Default is <code class="code docutils literal notranslate"><span class="pre">0</
 <p>Control whether to actually terminate enforced processes or not.
 Default is <code class="code docutils literal notranslate"><span class="pre">1</span></code>.</p>
 <hr class="docutils" />
+<p><code class="code docutils literal notranslate"><span class="pre">GENV_MOCK_COMPUTE_APPS_GPU_MEMORY</span></code></p>
+<p>Used GPU memory for compute apps in the <code class="code docutils literal notranslate"><span class="pre">nvidia-smi</span></code> mock shim.
+Default is <code class="code docutils literal notranslate"><span class="pre">42mi</span></code>.</p>
+<hr class="docutils" />
+<p><code class="code docutils literal notranslate"><span class="pre">GENV_MOCK_COMPUTE_APPS_PROCESS_NAME</span></code></p>
+<p>Name of processes to be considered as compute apps in the <code class="code docutils literal notranslate"><span class="pre">nvidia-smi</span></code> mock shim.
+Default is <code class="code docutils literal notranslate"><span class="pre">sleep</span></code> (e.g. <code class="code docutils literal notranslate"><span class="pre">sleep</span> <span class="pre">infinity</span></code>).</p>
+<hr class="docutils" />
 <p><code class="code docutils literal notranslate"><span class="pre">GENV_MOCK_DEVICE_COUNT</span></code></p>
-<p>A mock for device count.
-By default, it is queried using <code class="code docutils literal notranslate"><span class="pre">nvidia-smi</span></code>.
-This is mainly for development environments on CPU machines where <code class="code docutils literal notranslate"><span class="pre">nvidia-smi</span></code> is not available.
-—-</p>
-<p><code class="code docutils literal notranslate"><span class="pre">GENV_MOCK_DEVICE_MEMORY</span></code></p>
-<p>A mock for device memory.
-By default, it is queried using <code class="code docutils literal notranslate"><span class="pre">nvidia-smi</span></code>.
-This is mainly for development environments on CPU machines where <code class="code docutils literal notranslate"><span class="pre">nvidia-smi</span></code> is not available.</p>
+<p>Device count in the <code class="code docutils literal notranslate"><span class="pre">nvidia-smi</span></code> mock shim.
+Default is <code class="code docutils literal notranslate"><span class="pre">2</span></code>.</p>
+<hr class="docutils" />
+<p><code class="code docutils literal notranslate"><span class="pre">GENV_MOCK_DEVICE_TOTAL_MEMORY</span></code></p>
+<p>Total device memory in the <code class="code docutils literal notranslate"><span class="pre">nvidia-smi</span></code> mock shim.
+Default is <code class="code docutils literal notranslate"><span class="pre">16g</span></code>.</p>
+<hr class="docutils" />
+<p><code class="code docutils literal notranslate"><span class="pre">GENV_MOCK_DEVICE_USED_MEMORY</span></code></p>
+<p>Used device memory in the <code class="code docutils literal notranslate"><span class="pre">nvidia-smi</span></code> mock shim.
+Default is <code class="code docutils literal notranslate"><span class="pre">10mi</span></code>.</p>
 <hr class="docutils" />
 <p><code class="code docutils literal notranslate"><span class="pre">GENV_TMPDIR</span></code></p>
 <p>Path of the temp directory where all state JSON files are stored.
@@ -166,8 +176,8 @@ Default is <code class="code docutils literal notranslate"><span class="pre">/va
 Default is <code class="code docutils literal notranslate"><span class="pre">0</span></code>.</p>
 </div>
 <div class="section" id="shims">
-<span id="id2"></span><h2>Shims<a class="headerlink" href="#shims" title="Permalink to this headline">¶</a></h2>
-<p>A shim <a class="footnote-reference brackets" href="#id4" id="id3">1</a> is a small application that runs instead of the originally intended one and acts as a middleware.
+<span id="id3"></span><h2>Shims<a class="headerlink" href="#shims" title="Permalink to this headline">¶</a></h2>
+<p>A shim <a class="footnote-reference brackets" href="#id5" id="id4">1</a> is a small application that runs instead of the originally intended one and acts as a middleware.
 It manipulates the input and output of the real application, and provides an easy way to de-facto change the behavior of the original application.</p>
 <hr class="docutils" />
 <p><code class="code docutils literal notranslate"><span class="pre">docker</span></code></p>
@@ -183,7 +193,7 @@ It is also good to note that <code class="code docutils literal notranslate"><sp
 <p>This shim passes the argument <code class="code docutils literal notranslate"><span class="pre">--id</span></code> to <code class="code docutils literal notranslate"><span class="pre">nvidia-smi</span></code> and specifies the device indices that are attached to this environment.</p>
 <p>It also filters out processes that are not from the current environment, and shows GPU memory information that is relevant only for this environment, by summing the used GPU memory of all processes in this environment.</p>
 <dl class="footnote brackets">
-<dt class="label" id="id4"><span class="brackets"><a class="fn-backref" href="#id3">1</a></span></dt>
+<dt class="label" id="id5"><span class="brackets"><a class="fn-backref" href="#id4">1</a></span></dt>
 <dd><p><a class="reference external" href="https://en.wikipedia.org/wiki/Shim_(computing">https://en.wikipedia.org/wiki/Shim_(computing</a>)</p>
 </dd>
 </dl>

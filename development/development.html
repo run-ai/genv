@@ -56,11 +56,15 @@
 <li class="toctree-l2"><a class="reference internal" href="#setup">Setup</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#local">Local</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#docker">Docker</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#cpu-only-setup">CPU-Only Setup</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#cpu-only-setup">CPU-Only Setup</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#mock-devices">Mock Devices</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#remote-features">Remote Features</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#docs">Docs</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#id2">Setup</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id3">Setup</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#build">Build</a></li>
 </ul>
 </li>
@@ -102,20 +106,21 @@
 <div class="contents topic" id="contents">
 <p class="topic-title">Contents</p>
 <ul class="simple">
-<li><p><a class="reference internal" href="#development" id="id3">Development</a></p>
+<li><p><a class="reference internal" href="#development" id="id4">Development</a></p>
 <ul>
-<li><p><a class="reference internal" href="#prerequisites" id="id4">Prerequisites</a></p></li>
-<li><p><a class="reference internal" href="#setup" id="id5">Setup</a></p>
+<li><p><a class="reference internal" href="#prerequisites" id="id5">Prerequisites</a></p></li>
+<li><p><a class="reference internal" href="#setup" id="id6">Setup</a></p>
 <ul>
-<li><p><a class="reference internal" href="#local" id="id6">Local</a></p></li>
-<li><p><a class="reference internal" href="#docker" id="id7">Docker</a></p></li>
-<li><p><a class="reference internal" href="#cpu-only-setup" id="id8">CPU-Only Setup</a></p></li>
+<li><p><a class="reference internal" href="#local" id="id7">Local</a></p></li>
+<li><p><a class="reference internal" href="#docker" id="id8">Docker</a></p></li>
+<li><p><a class="reference internal" href="#cpu-only-setup" id="id9">CPU-Only Setup</a></p></li>
+<li><p><a class="reference internal" href="#remote-features" id="id10">Remote Features</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#docs" id="id9">Docs</a></p>
+<li><p><a class="reference internal" href="#docs" id="id11">Docs</a></p>
 <ul>
-<li><p><a class="reference internal" href="#id2" id="id10">Setup</a></p></li>
-<li><p><a class="reference internal" href="#build" id="id11">Build</a></p></li>
+<li><p><a class="reference internal" href="#id3" id="id12">Setup</a></p></li>
+<li><p><a class="reference internal" href="#build" id="id13">Build</a></p></li>
 </ul>
 </li>
 </ul>
@@ -152,21 +157,23 @@
 <span id="id1"></span><h3>Docker<a class="headerlink" href="#docker" title="Permalink to this headline">¶</a></h3>
 <p>You can also use a container for the development.
 This is useful if you are using macOS as Genv is developed for Linux systems and some things are not available in macOS (e.g. <code class="code docutils literal notranslate"><span class="pre">/proc</span></code> filesystem).</p>
-<p>Use the following command:</p>
+<p>First, build the Docker image <code class="code docutils literal notranslate"><span class="pre">genv:devel</span></code> with the following command:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>docker build -t genv:devel -f devel/Dockerfile devel
+</pre></div>
+</div>
+<p>Now, run a development container using the following command from the root directory of the project:</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>docker run -it --rm --name genv <span class="se">\</span>
-    -v <span class="nv">$PWD</span>:/genv <span class="se">\</span>
-    -v /var/tmp:/var/tmp <span class="se">\</span>
-    -w /genv <span class="se">\</span>
-    python <span class="se">\</span>
-    bash --rcfile /genv/devel/.bashrc
+    -v <span class="nv">$PWD</span>:/root/genv <span class="se">\</span>
+    -w /root/genv <span class="se">\</span>
+    genv:devel
 </pre></div>
 </div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>You can pass <code class="code docutils literal notranslate"><span class="pre">-v</span> <span class="pre">$HOME/.ssh:/root/.ssh</span></code> if you want to use remote features as well</p>
+<p>Pass <code class="code docutils literal notranslate"><span class="pre">-v</span> <span class="pre">/var/tmp:/var/tmp</span> <span class="pre">--pid</span> <span class="pre">host</span></code> if you want to share the state with the host machine or with other containers and <code class="code docutils literal notranslate"><span class="pre">-v</span> <span class="pre">$HOME/.ssh:/root/.ssh</span></code> if you want to use remote features as well</p>
 </div>
 <p>To open another terminal inside the container use:</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>docker <span class="nb">exec</span> -it genv bash --rcfile /genv/devel/.bashrc
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>docker <span class="nb">exec</span> -it genv bash
 </pre></div>
 </div>
 </div>
@@ -184,23 +191,85 @@ Set up your shell with the following command:</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span> <span class="nv">PATH</span><span class="o">=</span><span class="nv">$PWD</span>/devel/shims:<span class="nv">$PATH</span>
 </pre></div>
 </div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If you are using a <a class="reference internal" href="#docker"><span class="std std-ref">Docker</span></a> development setup, your shell should already be set.</p>
+</div>
 <p>Now, execute <code class="code docutils literal notranslate"><span class="pre">nvidia-smi</span></code> once again.
 This time it should work and you should see an <code class="code docutils literal notranslate"><span class="pre">nvidia-smi</span></code>-like output printed to the screen.</p>
-<p>Also, you will need to manually initialize <code class="code docutils literal notranslate"><span class="pre">devices.json</span></code> with a made up device count using the environment variable <code class="code docutils literal notranslate"><span class="pre">GENV_MOCK_DEVICE_COUNT</span></code>.
-Run the following command and can configure how many GPUs you want to have:</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">GENV_MOCK_DEVICE_COUNT</span><span class="o">=</span><span class="m">4</span> genv devices
+<div class="section" id="mock-devices">
+<span id="id2"></span><h4>Mock Devices<a class="headerlink" href="#mock-devices" title="Permalink to this headline">¶</a></h4>
+<p>You can control the mock devices by executing a command similar to the following and specifying the supported <code class="code docutils literal notranslate"><span class="pre">GENV_MOCK_*</span></code> <a class="reference internal" href="reference.html#environment-variables"><span class="std std-ref">environment variables</span></a>:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">GENV_MOCK_DEVICE_COUNT</span><span class="o">=</span><span class="m">4</span> <span class="nv">GENV_MOCK_DEVICE_TOTAL_MEMORY</span><span class="o">=</span>8g genv <span class="nb">exec</span> devices --reset
 </pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="remote-features">
+<h3>Remote Features<a class="headerlink" href="#remote-features" title="Permalink to this headline">¶</a></h3>
+<p>If you are working on <a class="reference internal" href="../remote/overview.html#remote-overview"><span class="std std-ref">remote features</span></a>, you might want to test them on a few remote machines.
+However, many times you will not have as many GPU machines as you would like, or SSH access to them.
+You might also want to work on remote features using only your single CPU machine.</p>
+<p>For this case, you can use the <code class="code docutils literal notranslate"><span class="pre">genv:sshd</span></code> Docker image that acts as a remote machine over SSH.</p>
+<p>First, build the <a class="reference internal" href="#docker"><span class="std std-ref">Docker image</span></a> <code class="code docutils literal notranslate"><span class="pre">genv:devel</span></code> as it is the base image of <code class="code docutils literal notranslate"><span class="pre">genv:sshd</span></code> and then build the Docker image <code class="code docutils literal notranslate"><span class="pre">genv:sshd</span></code> with the following command:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>docker build -t genv:sshd -f devel/sshd.Dockerfile devel
+</pre></div>
+</div>
+<p>Now, run a container using the following command from the root directory of the project:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>docker run -d --rm <span class="se">\</span>
+    --name genv-server-1 <span class="se">\</span>
+    -p <span class="m">2221</span>:22 <span class="se">\</span>
+    -v <span class="nv">$PWD</span>:/root/genv <span class="se">\</span>
+    genv:sshd
+</pre></div>
+</div>
+<p>This command runs a container in the background that is named <code class="code docutils literal notranslate"><span class="pre">genv-server-1</span></code> and accepts SSH connections on port 2221.</p>
+<p>You can rerun this command as many times as you want to simulate more remote machines.
+Make sure to change the host port each time and also rename the container (or have the container unnamed by omitting the flag <code class="code docutils literal notranslate"><span class="pre">--name</span></code> entirely).</p>
+<p>You can open a terminal in such a container using a command similar to the following:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>docker <span class="nb">exec</span> -it genv-server-1 bash
+</pre></div>
+</div>
+<p>To terminate such a container, use a command similar to the following:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>docker <span class="nb">kill</span> genv-server-1
+</pre></div>
+</div>
+<p>Then, because of how remote features <a class="reference internal" href="../remote/installation.html#remote-installation"><span class="std std-ref">work</span></a>, you will have to edit the SSH configuration on the host machine to allow simple SSH commands that <code class="code docutils literal notranslate"><span class="pre">genv</span> <span class="pre">remote</span></code> uses.</p>
+<p>Edit the SSH configuration file by running the following command on the host machine:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>vim ~/.ssh/config
+</pre></div>
+</div>
+<p>Add the following configuration for each of the containers.
+Make sure to set the correct port for every container:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>Host genv-server-1
+    Port <span class="m">2221</span>
+    Hostname <span class="m">127</span>.0.0.1
+    User root
+</pre></div>
+</div>
+<p>Then, test the SSH connectivity using the command:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>ssh genv-server-1
+</pre></div>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>You might need to approve the SSH key of the container on the first time.
+Type <code class="code docutils literal notranslate"><span class="pre">yes</span></code> if you see a message similar to <code class="code docutils literal notranslate"><span class="pre">Are</span> <span class="pre">you</span> <span class="pre">sure</span> <span class="pre">you</span> <span class="pre">want</span> <span class="pre">to</span> <span class="pre">continue</span> <span class="pre">connecting</span> <span class="pre">(yes/no)?</span></code>.</p>
 </div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>You can also control the amount of GPU memory with the environment variable <code class="code docutils literal notranslate"><span class="pre">GENV_MOCK_DEVICE_MEMORY</span></code></p>
+<p>You can also control the mock devices by running over SSH what is described <a class="reference internal" href="#mock-devices"><span class="std std-ref">here</span></a>.</p>
+</div>
+<p>After setting up all containers, test your setup with a command similar to the following:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>genv remote -H genv-server-1,genv-server-2 devices
+</pre></div>
 </div>
 </div>
 </div>
 <div class="section" id="docs">
 <h2>Docs<a class="headerlink" href="#docs" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="id2">
-<h3>Setup<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id3">
+<h3>Setup<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h3>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python -m venv .venv
 <span class="nb">source</span> .venv/bin/activate
 python -m pip install sphinx
