@@ -22,8 +22,9 @@ async def start(
     """
     path = f"$PATH:{root}/bin"
 
-    # TODO(raz): consider adding a 'genv devel' command that sets this environment variable
-    if int(os.environ.get("GENV_REMOTE_USE_DEVEL_SHIMS", "0")) != 0:
+    if os.path.realpath(os.path.join(os.environ["GENV_ROOT"], "devel/shims")) in [
+        os.path.realpath(path) for path in os.environ["PATH"].split(":")
+    ]:
         path = f"{path}:{root}/devel/shims"
 
     command = f'env PATH="{path}" genv {" ".join(args)}'

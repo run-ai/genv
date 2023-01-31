@@ -193,12 +193,6 @@ After setting up all containers, test your setup with a command similar to the f
 
     genv remote -H genv-server-1,genv-server-2 devices
 
-If you work on :ref:`remote enforcement features <Remote Enforcement>`, you will also need to set the following environment variables in order to use the development shims and :code:`nvidia-smi` in particular in the SSH commands that :code:`genv remote enforce` runs:
-
-.. code-block:: shell
-
-    export GENV_REMOTE_USE_DEVEL_SHIMS=1
-
 Docs
 ----
 
