@@ -23,26 +23,19 @@ def get_devices_total_memory() -> Iterable[str]:
     Get total memory of all devices as string using nvidia-smi.
 
     Cached for performance purposes as this should not change.
-    Can be mocked using the GENV_MOCK_DEVICE_COUNT and GENV_MOCK_DEVICE_MEMORY environment variables.
     :return: A list of gpu devices memory.
             The memory at index i represents the memory (in mib) of the gpu device at index i.
     """
 
     def _impl():
-        # TODO(raz): move this mock functionality to 'nvidia-smi' mock shim
-        if "GENV_MOCK_DEVICE_COUNT" in os.environ:
-            return [
-                os.environ.get("GENV_MOCK_DEVICE_MEMORY", "16g")
-                for _ in range(int(os.environ["GENV_MOCK_DEVICE_COUNT"]))
-            ]
-        else:
-            return [
-                f"{int(line)}mi"
-                for line in subprocess.check_output(
-                    "GENV_BYPASS=1 nvidia-smi --query-gpu=memory.total --format=csv,noheader,nounits",
-                    shell=True,
-                ).splitlines()
-            ]
+        # move to genv.nvidia_smi once async is supported here
+        return [
+            f"{int(line)}mi"
+            for line in subprocess.check_output(
+                "GENV_BYPASS=1 nvidia-smi --query-gpu=memory.total --format=csv,noheader,nounits",
+                shell=True,
+            ).splitlines()
+        ]
 
     # TODO(davidL): How do we refresh the device memory data for newly installed gpus or mock/non-mock shift?
     if not hasattr(get_devices_total_memory, "__cache__"):

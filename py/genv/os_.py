@@ -3,7 +3,8 @@ import fcntl
 import os
 import platform
 import signal
-from typing import Dict
+import subprocess
+from typing import Dict, Iterable
 
 
 @contextmanager
@@ -58,6 +59,29 @@ def get_process_environ(pid: int) -> Dict[str, str]:
                 line.split("=", 1) for line in f.read().split("\x00") if line
             )
         }
+
+
+def pgrep(name: str) -> Iterable[int]:
+    """
+    Returns the identifiers of processes with the given name.
+    """
+    return [
+        int(pid)
+        for pid in subprocess.check_output(
+            f"pgrep {name} || true", shell=True
+        ).splitlines()
+    ]
+
+
+def cmdline(pid: int) -> Iterable[str]:
+    """
+    Returns the cmdline of the process with the given identifier.
+    """
+    return (
+        subprocess.check_output(f"tr '\\0' ' ' </proc/{pid}/cmdline", shell=True)
+        .decode("utf-8")
+        .split()
+    )
 
 
 def terminate(pid: int) -> None:
