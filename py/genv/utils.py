@@ -75,11 +75,23 @@ def memory_to_bytes(cap: str) -> int:
     return int(cap)  # the value is already in bytes if no unit was specified
 
 
-def bytes_to_memory(bytes: int, unit: str) -> str:
+def bytes_to_memory(bytes: int, unit: str, suffix: bool = True) -> str:
     """
     Convert bytes to a memory string.
     """
-    return f"{bytes // MEMORY_TO_BYTES_MULTIPLIERS_DICT[unit]}{unit}"
+    s = f"{bytes // MEMORY_TO_BYTES_MULTIPLIERS_DICT[unit]}"
+
+    if suffix:
+        s = f"{s}{unit}"
+
+    return s
+
+
+def memory_to_memory(memory: str, unit: str, suffix: bool = True) -> str:
+    """
+    Convert memory string to a memory string in another unit.
+    """
+    return bytes_to_memory(bytes=memory_to_bytes(memory), unit=unit, suffix=suffix)
 
 
 def time_since(dt: Union[str, datetime]) -> str:

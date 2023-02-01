@@ -14,6 +14,7 @@ genv lets you easily control, configure and monitor the GPU resources that you a
    usage/installation
    usage/usage
    usage/advanced-usage
+   usage/enforcement
 
 .. toctree::
    :maxdepth: 2
@@ -22,6 +23,7 @@ genv lets you easily control, configure and monitor the GPU resources that you a
    remote/overview
    remote/installation
    remote/usage
+   remote/enforcement
 
 .. toctree::
    :maxdepth: 2

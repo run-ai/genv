@@ -1,3 +1,5 @@
+.. _Remote Installation:
+
 Installation
 ============
 
@@ -15,6 +17,9 @@ Therefore, authentication must not be interactive using passwords for example.
 It is recommended to use SSH keys for authentication.
 
 The identity file and login user should be configured in the SSH configuration file at :code:`~/.ssh/config` so that the :code:`ssh` commands Genv uses would work without additional arguments.
+
+Genv :ref:`remote enforcement features <Remote Enforcement>` use commands similar to :code:`ssh <host> sudo` for querying the environment variables of processes or terminating processes.
+Therefore, Linux users that want to use these features need to have passwordless :code:`sudo` permissions on all remote machines.
 
 Genv also sends environment variables over SSH by passing :code:`-o SendEnv` to the :code:`ssh` command.
 Those environment variables must be explicitly accepted on all remote hosts by modifying the SSH daemon configuration file.

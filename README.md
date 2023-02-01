@@ -3,7 +3,7 @@
   <img src="images/genv blade landscape white@4x.png#gh-dark-mode-only" width="600" alt="genv"/>
 </p>
 
-# genv (GPU Environment Management) [![Join the community at https://join.slack.com/t/genvcommunity/shared_invite/zt-1i70tphdc-DmFgK5yr3HFI8Txx1yFXBw](https://img.shields.io/badge/Slack-genv-ff007f?logo=slack)](https://join.slack.com/t/genvcommunity/shared_invite/zt-1i70tphdc-DmFgK5yr3HFI8Txx1yFXBw) [![Join the chat at https://gitter.im/run-ai-genv/community](https://badges.gitter.im/run-ai-genv/community.svg)](https://gitter.im/run-ai-genv/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+# genv (GPU Environment Management) [![Join the community at (https://discord.gg/zN3Q9pQAuT)](https://img.shields.io/badge/Discord-genv-7289da?logo=discord)](https://discord.gg/zN3Q9pQAuT) [![Join the chat at https://gitter.im/run-ai-genv/community](https://badges.gitter.im/run-ai-genv/community.svg)](https://gitter.im/run-ai-genv/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 
 *genv* lets you easily control, configure and monitor the GPU resources that you are using.
@@ -20,6 +20,7 @@ Because with *genv*, you will:
 
 - Easily share GPUs with your teammates
 - Find available GPUs for you to use - on-prem or on cloud via remote access
+- Pool the GPUs from multiple machines, allocate the available machine without SSH-ing every one of them
 - Switch between GPUs without code changes
 - Reserve GPU resources for as long as you use them with no one else hijacking them
 - Reproduce your experiment environment easily
@@ -48,56 +49,18 @@ A PyCharm integration is also in our roadmap so stay tuned!
 
 Check out the genv [documentation site](https://run-ai.github.io/genv).
 
-## 💨 Guide to the Roadmap
 
-### **What is coming up soon?**
+## 🏃🏻 Be an early runner in the AI Infrastructure Club!
 
-After gathering valuable feedback and comments from data scientists, we created the following short-term roadmap for genv:
+[<img src="https://img.shields.io/badge/Discord-Join%20the%20community!-7289da?style=for-the-badge&logo=discord&logoColor=7289da" height="30" />](https://discord.gg/zN3Q9pQAuT)
 
-**1. (Implemented) Environment specific information:** With this feature, you will be able to see the processes and machines specifically to your GPU environment when you type nvidia-smi
-
-**2. (Implemented) Docker support:** Running Docker containers powered by the GPUs in your environment
-
-**3. Configuring GPU memory:** Specifying the GPU memory that needs to be configured in an environment
-
-**4. To be able to provision the GPU fractions**
-
-**5. Support the extensions (VSCode, JupyterLab) with the new features above**
-
-
-The long-term overview of the roadmap includes 3 main category;
-
-- **EXTENSIONS**
-    - Displaying
-        - memory information of the GPUs
-        - GPU specs
-        - which environments are running on that GPU
-        - CUDA version
-        - icons at the bottom of the extensions to show the current status of the GPU memory consumption
-- **CORE:**
-    - Configuring GPU memory with config command (fractional GPUs)
-        - Warning for exceeding the memory requests when the training uses more than the environment is assigned to
-    - Installing with wrappers (e.g. For PyCharm)
-    - Notification about resources when they get available
-- **GPU PROVISIONING:**
-    - Provisioning of fractional GPUs
-    - Smart provisioning
-    - Dynamical provisioning
-        - Provisioning per user or per environment when new user joins
-    - Pre-configuring of the environments
-        - Admin mode to manage the environment
-
-## 🏃🏻 Be an early runner in the genv community!
-
-[<img src="https://img.shields.io/badge/Slack-Join%20the%20community!-ff007f?style=for-the-badge&logo=slack&logoColor=ff007f" height="30" />](https://join.slack.com/t/genvcommunity/shared_invite/zt-1i70tphdc-DmFgK5yr3HFI8Txx1yFXBw)
-
-Join our Slack channel with the creators of *genv* and start building your models faster!
+Looking for a place to discuss best practices, discover new tools, and exchange ideas about how to make the most out of our GPUs without losing time? Join the Discord server with the creators of *genv* and [*rntop*](https://github.com/run-ai/rntop) - start building your models faster!
 
 - Installation and setup support as well as best practice tips and tricks directly for your use-case
 - Discuss possible features
-- Monthly coffee breaks to get to know the rest of the community
-
-Looking forward to seeing you as a part of the community!
+- Monthly Beers with Engineers sessions with amazing guests
+- Networking events 
+- and many more...
 
 ## 🏆 Special Thanks for Runners
 
