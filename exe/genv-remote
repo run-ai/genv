@@ -10,6 +10,7 @@ import sys
 from typing import Dict, Iterable, NoReturn, Optional
 
 import genv
+from genv import SshRunner
 
 
 async def query_devices(hosts: Iterable[str], root: str) -> Dict[str, Dict]:
@@ -22,7 +23,9 @@ async def query_devices(hosts: Iterable[str], root: str) -> Dict[str, Dict]:
     :return: A mapping from host to its devices information
     """
     genv_command = ["genv", "exec",  "devices", "ps", "--format csv", "--no-header", "--timestamp"]
-    stdouts = await genv.run_on_hosts_ssh(hosts, genv_command, process_env={"PATH": f'"{root}/bin:$PATH"'})
+    stdouts = await genv.run_on_hosts_ssh(
+        hosts, genv_command, process_env={"PATH": SshRunner.calc_remote_path_env(root)}
+    )
 
     def parse_stdout(stdout: str) -> Dict[int, Iterable[Dict]]:
         attachments = dict()
@@ -59,7 +62,9 @@ async def query_envs(hosts: Iterable[str], root: str) -> Dict[str, Dict]:
     :return: A mapping from host to its active environments
     """
     genv_command = ["genv", "exec",  "devices", "envs", "--format csv", "--no-header", "--timestamp"]
-    stdouts = await genv.run_on_hosts_ssh(hosts, genv_command, process_env={"PATH": f'"{root}/bin:$PATH"'})
+    stdouts = await genv.run_on_hosts_ssh(
+        hosts, genv_command, process_env={"PATH": SshRunner.calc_remote_path_env(root)}
+    )
 
     envs = defaultdict(list)
 

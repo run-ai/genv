@@ -1,4 +1,5 @@
 import asyncio
+import os
 from asyncio.subprocess import Process
 from typing import Dict, Optional, Iterable
 
@@ -45,6 +46,17 @@ class SshRunner(Runner):
 
     async def _get_error_msg(self, command: str, stderr: str):
         return f"Failed to run a command using ssh on {self.host_name}: command: '{command}' ({stderr})"
+
+    @staticmethod
+    async def calc_remote_path_env(root: str) -> str:
+        path_env = f"$PATH:{root}/bin"
+
+        if os.path.realpath(os.path.join(os.environ["GENV_ROOT"], "devel/shims")) in [
+            os.path.realpath(path) for path in os.environ["PATH"].split(":")
+        ]:
+            path_env = f"{path_env}:{root}/devel/shims"
+
+        return path_env
 
 
 async def run_on_hosts_ssh(hosts: Iterable[str], *args, process_env: Optional[Dict] = None, sudo: bool = False

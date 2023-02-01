@@ -34,7 +34,7 @@ async def execute_report(
         host = hosts[host_index]
         report = reports[host_index]
 
-        runner = SshRunner(host, process_env={"PATH": f'"{root}/bin:$PATH"'})
+        runner = SshRunner(host, process_env={"PATH": SshRunner.calc_remote_path_env(root)})
         command = runner.run_with_stdin(*genv_command, stdins=[json.dumps(report, cls=JSONEncoder)])
         usage_commands.append(command)
     stdouts = await asyncio.gather(*usage_commands)
