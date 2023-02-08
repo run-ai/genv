@@ -11,6 +11,12 @@ from typing import Dict, Iterable, NoReturn, Optional
 
 import genv
 
+QUERIES = {
+    "host": lambda host, env: host,
+    "eid": lambda host, env: env["eid"],
+    "creation": lambda host, env: env["creation"],
+}
+
 
 async def query_devices(hosts: Iterable[str], root: str) -> Dict[str, Dict]:
     """
@@ -370,6 +376,31 @@ async def do_envs(
         )
 
 
+async def do_query(
+    hosts: Iterable[str], root: str, name: str, queries: Iterable[str]
+) -> None:
+    """
+    Query environment data using a query string and print the results to the string.
+
+    :param hosts: Hostnames or IP addresses
+    :param root: Genv installation root directory
+    :param name: Environment name
+    :param queries: List of query names
+
+    :return: None
+    """
+    host_to_envs = await query_envs(hosts, root)
+
+    for host, envs in host_to_envs.items():
+        for env in envs:
+            if env["name"] != name:
+                continue
+
+            query = lambda name: str(QUERIES[name](host, env) or "")
+
+            print(",".join(query(name) for name in queries))
+
+
 def parse_args() -> argparse.Namespace:
     """
     Parses the arguments passed to this executable.
@@ -475,6 +506,17 @@ def parse_args() -> argparse.Namespace:
             default="tui",
         )
 
+    def query(parser):
+        parser.add_argument("--name", required=True, help="Environment name")
+        parser.add_argument(
+            "--query",
+            "--queries",
+            dest="queries",
+            nargs="+",
+            choices=QUERIES.keys(),
+            required=True,
+        )
+
     parser = argparse.ArgumentParser(description="Genv remote")
 
     group = parser.add_mutually_exclusive_group(required=True)
@@ -504,6 +546,7 @@ def parse_args() -> argparse.Namespace:
         (devices, "Show device information from all hosts"),
         (enforce, "Enforce GPU usage on all hosts"),
         (envs, "List all active environments"),
+        (query, "Query environments or a specific one"),
     ]:
         command(subparsers.add_parser(command.__name__, help=help))
 
@@ -526,6 +569,8 @@ async def main(args: argparse.Namespace, hosts: Iterable[str]) -> None:
         await do_envs(
             hosts, args.root, args.format, args.header, args.summary, args.timestamp
         )
+    elif args.command == "query":
+        await do_query(hosts, args.root, args.name, args.queries)
 
 
 if __name__ == "__main__":
