@@ -99,7 +99,7 @@ def parse_args() -> argparse.Namespace:
 
     add_enforcement(
         "non-env-processes",
-        dest="terminate_non_env_processes",
+        dest="non_env_processes",
         help="terminate processes that are not running in a GPU environment",
         default=False,
     )
@@ -125,7 +125,7 @@ async def main() -> None:
         snapshot = await genv.snapshot()
         survey = genv.enforce.Survey()
 
-        if args.terminate_non_env_processes:
+        if args.non_env_processes:
             enforce_non_env_processes(snapshot, survey)
 
         if args.max_devices_per_user is not None:

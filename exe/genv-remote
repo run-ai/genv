@@ -291,7 +291,11 @@ async def do_devices(
 
 
 async def do_enforce(
-    hosts: Iterable[str], root: str, interval: int, max_devices_per_user: Optional[int]
+    hosts: Iterable[str],
+    root: str,
+    interval: int,
+    non_env_processes: bool,
+    max_devices_per_user: Optional[int],
 ) -> None:
     """
     Enforce GPU usage on multiple hosts.
@@ -305,7 +309,7 @@ async def do_enforce(
         snapshots = await genv.remote.snapshot(hosts, root)
         surveys = [genv.enforce.Survey() for _ in hosts]
 
-        if args.terminate_non_env_processes:
+        if non_env_processes:
             enforce_non_env_processes(hosts, snapshots, surveys)
 
         if max_devices_per_user is not None:
@@ -472,7 +476,7 @@ def parse_args() -> argparse.Namespace:
 
         add_enforcement(
             "non-env-processes",
-            dest="terminate_non_env_processes",
+            dest="non_env_processes",
             help="terminate processes that are not running in a GPU environment",
             default=False,
         )
@@ -564,7 +568,13 @@ async def main(args: argparse.Namespace, hosts: Iterable[str]) -> None:
     elif args.command == "devices":
         await do_devices(hosts, args.root, args.format, args.header, args.summary)
     elif args.command == "enforce":
-        await do_enforce(hosts, args.root, args.interval, args.max_devices_per_user)
+        await do_enforce(
+            hosts,
+            args.root,
+            args.interval,
+            args.non_env_processes,
+            args.max_devices_per_user,
+        )
     elif args.command == "envs":
         await do_envs(
             hosts, args.root, args.format, args.header, args.summary, args.timestamp
