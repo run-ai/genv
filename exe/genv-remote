@@ -196,7 +196,11 @@ def enforce_max_devices_per_user(
 
 
 async def do_activate(
-    hosts: Iterable[str], root: str, gpus: Optional[int], name: Optional[str]
+    hosts: Iterable[str],
+    root: str,
+    gpus: Optional[int],
+    name: Optional[str],
+    prompt: bool,
 ) -> NoReturn:
     """
     Finds a remote host with enough available resources, connects to it using SSH
@@ -206,12 +210,13 @@ async def do_activate(
     :param root: Genv installation root directory
     :param gpus: Device count specification
     :param name: Environment name specification
+    :param prompt: Change the remote shell prompt
 
     :return: Does not return
     """
     host = await find_available_host(hosts, root, gpus)
 
-    env = {"GENV_PREACTIVATE": 1}
+    env = {"GENV_PREACTIVATE": 1, "GENV_PREACTIVATE_PROMPT": "1" if prompt else "0"}
 
     if gpus:
         env.update({"GENV_PREACTIVATE_GPUS": gpus})
@@ -375,6 +380,12 @@ def parse_args() -> argparse.Namespace:
     def activate(parser):
         parser.add_argument("--name", help="Environment name")
         parser.add_argument("--gpus", type=int, help="Environment device count")
+        parser.add_argument(
+            "--no-prompt",
+            dest="prompt",
+            action="store_false",
+            help="Don't change the shell prompt",
+        )
 
     def devices(parser):
         parser.add_argument(
@@ -506,7 +517,7 @@ async def main(args: argparse.Namespace, hosts: Iterable[str]) -> None:
     :return: None
     """
     if args.command == "activate":
-        await do_activate(hosts, args.root, args.gpus, args.name)
+        await do_activate(hosts, args.root, args.gpus, args.name, args.prompt)
     elif args.command == "devices":
         await do_devices(hosts, args.root, args.format, args.header, args.summary)
     elif args.command == "enforce":
