@@ -21,6 +21,7 @@ class Env:
     @dataclass
     class Config:
         name: Optional[str]
+        gpu_memory: Optional[str]
 
     config: Config
 
@@ -30,8 +31,10 @@ class Env:
 
 def snapshot() -> Iterable[Env]:
     return [
-        Env(eid, username or None, Env.Config(name or None))
-        for eid, username, name in query("eid", "username", "config.name")
+        Env(eid, username or None, Env.Config(name or None, gpu_memory or None))
+        for eid, username, name, gpu_memory in query(
+            "eid", "username", "config.name", "config.gpu_memory"
+        )
     ]
 
 
