@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 import subprocess
-from typing import Dict, Iterable
+from typing import Dict, Iterable, Optional
 
 
 # NOTE(raz): This should be the layer that queries and controls the state of Genv regarding devices.
@@ -18,9 +18,52 @@ class Device:
     index: int
     eids: Iterable[str]
 
+    def filter(self, eids: Iterable[str]):
+        """
+        Returns a new device with only the given environment identifiers.
+        """
+        return Device(self.index, [eid for eid in eids if eid in self.eids])
 
-def snapshot() -> Iterable[Device]:
-    return [Device(index, d["eids"]) for index, d in ps().items()]
+
+@dataclass
+class Snapshot:
+    """
+    A snapshot of devices.
+    """
+
+    devices: Iterable[Device]
+
+    def __iter__(self):
+        return self.devices.__iter__()
+
+    def __len__(self):
+        return self.devices.__len__()
+
+    def filter(
+        self, *, eids: Optional[Iterable[str]] = None, attached: Optional[bool] = None
+    ):
+        """
+        Returns a new filtered snapshot.
+
+        :param eids: Environment identifiers to keep
+        :param attached: Keep only devices with environments attached or not
+        """
+
+        devices = self.devices
+
+        if eids is not None:
+            devices = [device.filter(eids) for device in devices]
+
+        if attached is not None:
+            pred = (lambda envs: envs > 0) if attached else (lambda envs: envs == 0)
+
+            devices = [device for device in devices if pred(len(device.eids))]
+
+        return Snapshot(devices)
+
+
+def snapshot() -> Snapshot:
+    return Snapshot([Device(index, d["eids"]) for index, d in ps().items()])
 
 
 def ps() -> Dict[int, Iterable[str]]:

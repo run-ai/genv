@@ -155,7 +155,9 @@ def enforce_max_devices_for_user(
     surveys: Iterable[genv.enforce.Survey],
     maximum: int,
 ) -> None:
-    attached = sum(len(snapshot.attached()) for snapshot in snapshots)
+    attached = sum(
+        len(snapshot.devices.filter(attached=True)) for snapshot in snapshots
+    )
 
     if attached <= maximum:
         return
@@ -171,7 +173,7 @@ def enforce_max_devices_for_user(
     detached = 0
 
     for snapshot, survey in zip(snapshots, surveys):
-        for device in snapshot.attached():
+        for device in snapshot.devices.filter(attached=True):
             if detached == over:
                 break  # already detached enough devices
 

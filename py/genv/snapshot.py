@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from typing import Iterable
 
 from . import processes as processes_
 from . import envs as envs_
@@ -10,13 +9,7 @@ from . import devices as devices_
 class Snapshot:
     processes: processes_.Snapshot
     envs: envs_.Snapshot
-    devices: Iterable[devices_.Device]
-
-    def attached(self) -> Iterable[devices_.Device]:
-        """
-        Returns devices with attached environments.
-        """
-        return [device for device in self.devices if len(device.eids) > 0]
+    devices: devices_.Snapshot
 
     def filter(self, username: str):
         """
@@ -26,17 +19,11 @@ class Snapshot:
         """
         envs = self.envs.filter(username=username)
 
-        processes = self.processes.filter(eids=envs.eids)
-
-        devices = [
-            devices_.Device(
-                index=device.index,
-                eids=[eid for eid in envs.eids if eid in device.eids],
-            )
-            for device in self.devices
-        ]
-
-        return Snapshot(processes=processes, envs=envs, devices=devices)
+        return Snapshot(
+            processes=self.processes.filter(eids=envs.eids),
+            envs=envs,
+            devices=self.devices.filter(eids=envs.eids),
+        )
 
 
 # NOTE(raz): this method is not atomic because it runs manager executables in the background.
