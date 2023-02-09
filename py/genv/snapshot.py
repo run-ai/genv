@@ -9,7 +9,7 @@ from . import devices as devices_
 @dataclass
 class Snapshot:
     processes: processes_.Snapshot
-    envs: Iterable[envs_.Env]
+    envs: envs_.Snapshot
     devices: Iterable[devices_.Device]
 
     def attached(self) -> Iterable[devices_.Device]:
@@ -24,15 +24,14 @@ class Snapshot:
 
         :return: A new snapshot with information related only to the given username.
         """
-        envs = [env for env in self.envs if env.username == username]
-        eids = [env.eid for env in envs]
+        envs = self.envs.filter(username=username)
 
-        processes = self.processes.filter(eids=eids)
+        processes = self.processes.filter(eids=envs.eids)
 
         devices = [
             devices_.Device(
                 index=device.index,
-                eids=[eid for eid in eids if eid in device.eids],
+                eids=[eid for eid in envs.eids if eid in device.eids],
             )
             for device in self.devices
         ]

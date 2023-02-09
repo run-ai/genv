@@ -29,13 +29,52 @@ class Env:
         return self.eid.__hash__()
 
 
-def snapshot() -> Iterable[Env]:
-    return [
-        Env(eid, username or None, Env.Config(name or None, gpu_memory or None))
-        for eid, username, name, gpu_memory in query(
-            "eid", "username", "config.name", "config.gpu_memory"
-        )
-    ]
+@dataclass
+class Snapshot:
+    """
+    A snapshot of active environments.
+    """
+
+    envs: Iterable[Env]
+
+    @property
+    def eids(self) -> Iterable[str]:
+        return [env.eid for env in self.envs]
+
+    def __iter__(self):
+        return self.envs.__iter__()
+
+    def __len__(self):
+        return self.envs.__len__()
+
+    def filter(
+        self, *, eids: Optional[Iterable[str]] = None, username: Optional[str] = None
+    ):
+        """
+        Returns a new filtered snapshot.
+        """
+
+        def pred(env: Env) -> bool:
+            if (eids is not None) and (env.eid not in eids):
+                return False
+
+            if (username is not None) and (env.username != username):
+                return False
+
+            return True
+
+        return Snapshot(envs=[env for env in self.envs if pred(env)])
+
+
+def snapshot() -> Snapshot:
+    return Snapshot(
+        [
+            Env(eid, username or None, Env.Config(name or None, gpu_memory or None))
+            for eid, username, name, gpu_memory in query(
+                "eid", "username", "config.name", "config.gpu_memory"
+            )
+        ]
+    )
 
 
 def query(

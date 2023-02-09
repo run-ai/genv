@@ -2,7 +2,7 @@ import json
 from typing import Any, Dict
 
 from .devices import Device
-from .envs import Env
+from . import envs
 from . import processes
 from .snapshot import Snapshot
 from .enforce import Report
@@ -10,8 +10,9 @@ from .enforce import Report
 # TODO(raz): test here that all types have a different set of keys for creation
 Types = [
     Device,
-    Env,
-    Env.Config,
+    envs.Env,
+    envs.Env.Config,
+    envs.Snapshot,
     processes.Process,
     processes.Process.Usage,
     processes.Snapshot,

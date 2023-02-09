@@ -40,7 +40,7 @@ def enforce_max_devices_for_user(
             break  # already detached enough devices
 
         survey.detach(
-            [env for env in snapshot.envs if env.eid in device.eids], device.index
+            [env for env in snapshot.envs.filter(eids=device.eids)], device.index
         )
 
         detached += 1
