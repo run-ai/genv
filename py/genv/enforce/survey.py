@@ -28,9 +28,9 @@ class Survey:
                     set(
                         process
                         for env, index in self._envs_to_detach
-                        for process in snapshot.processes
-                        if process.eid == env.eid
-                        and index in [usage.index for usage in process.used_gpu_memory]
+                        for process in snapshot.processes.filter(
+                            eid=env.eid, index=index
+                        )
                     )
                 )
             ),

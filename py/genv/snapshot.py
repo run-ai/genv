@@ -8,7 +8,7 @@ from . import devices as devices_
 
 @dataclass
 class Snapshot:
-    processes: Iterable[processes_.Process]
+    processes: processes_.Snapshot
     envs: Iterable[envs_.Env]
     devices: Iterable[devices_.Device]
 
@@ -27,7 +27,7 @@ class Snapshot:
         envs = [env for env in self.envs if env.username == username]
         eids = [env.eid for env in envs]
 
-        processes = [process for process in self.processes if process.eid in eids]
+        processes = self.processes.filter(eids=eids)
 
         devices = [
             devices_.Device(
