@@ -17,7 +17,12 @@ from typing import Dict, Iterable, Optional, Union
 class Env:
     eid: str
     username: Optional[str]
-    name: Optional[str]
+
+    @dataclass
+    class Config:
+        name: Optional[str]
+
+    config: Config
 
     def __hash__(self) -> int:
         return self.eid.__hash__()
@@ -25,7 +30,7 @@ class Env:
 
 def snapshot() -> Iterable[Env]:
     return [
-        Env(eid, username or None, name or None)
+        Env(eid, username or None, Env.Config(name or None))
         for eid, username, name in query("eid", "username", "config.name")
     ]
 

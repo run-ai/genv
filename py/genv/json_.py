@@ -7,7 +7,7 @@ from .processes import Process
 from .snapshot import Snapshot
 from .enforce import Report
 
-Types = [Device, Env, Process, Process.Usage, Report, Snapshot]
+Types = [Device, Env, Env.Config, Process, Process.Usage, Report, Snapshot]
 
 
 class JSONEncoder(json.JSONEncoder):
