@@ -29,11 +29,12 @@ class Config:
 
     :param hosts: Host configurations
     :param throw_on_error: Raise 'RuntimeError' if failing to connect to any host
+    :param quiet: Ignore SSH errors
     """
 
     hosts: Iterable[Host]
     throw_on_error: bool
-
+    quiet: bool
 
 @dataclass
 class Command:
@@ -136,7 +137,7 @@ async def run(
 
         if config.throw_on_error:
             raise RuntimeError(message)
-        else:
+        elif not config.quiet:
             print(message, file=sys.stderr)
 
     hosts = succeeded(config.hosts)

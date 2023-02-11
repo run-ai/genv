@@ -303,6 +303,7 @@ async def do_enforce(
             config=genv.remote.Config(
                 hosts=[host for host, report in zip(hosts, reports) if report],
                 throw_on_error=config.throw_on_error,
+                quiet=config.quiet,
             ),
             reports=[report for report in reports if report],
         )
@@ -535,6 +536,13 @@ def parse_args() -> argparse.Namespace:
         help="Exit on SSH error to one or more hosts (default: %(default)s)",
     )
 
+    parser.add_argument(
+        "-q",
+        "--quiet",
+        action="store_true",
+        help="Ignore SSH errors (default: %(default)s)",
+    )
+
     subparsers = parser.add_subparsers(dest="command")
 
     for command, help in [
@@ -595,7 +603,7 @@ if __name__ == "__main__":
         genv.remote.Host(hostname, args.root, args.timeout) for hostname in hostnames
     ]
 
-    config = genv.remote.Config(hosts, args.throw_on_error)
+    config = genv.remote.Config(hosts, args.throw_on_error, args.quiet)
 
     try:
         asyncio.run(main(config, args))
