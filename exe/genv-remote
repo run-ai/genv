@@ -2,7 +2,6 @@
 
 import argparse
 import asyncio
-from collections import defaultdict
 import itertools
 import os
 import shutil
@@ -12,31 +11,24 @@ from typing import Dict, Iterable, NoReturn, Optional
 import genv
 
 QUERIES = {
-    "host": lambda host, env: host,
-    "eid": lambda host, env: env["eid"],
-    "creation": lambda host, env: env["creation"],
+    "hostname": lambda hostname, env: hostname,
+    "eid": lambda hostname, env: env["eid"],
+    "creation": lambda hostname, env: env["creation"],
 }
 
 
-async def query_devices(hosts: Iterable[str], root: str) -> Dict[str, Dict]:
+# TODO(raz): remove this entirely and use remote snapshots and devices.Device objects
+async def query_devices(config: genv.remote.Config) -> Dict[str, Dict]:
     """
     Query devices on multiple hosts.
 
-    :param hosts: Hostnames or IP addresses
-    :param root: Genv installation root directory
-
     :return: A mapping from host to its devices information
     """
-    stdouts = await genv.remote.run(
-        hosts,
-        root,
-        "exec",
-        "devices",
-        "ps",
-        "--format csv",
-        "--no-header",
-        "--timestamp",
+    command = genv.remote.Command(
+        ["exec", "devices", "ps", "--format csv", "--no-header", "--timestamp"]
     )
+
+    hosts, stdouts = await genv.remote.run(config, command)
 
     def parse_stdout(stdout: str) -> Dict[int, Iterable[Dict]]:
         attachments = dict()
@@ -60,36 +52,29 @@ async def query_devices(hosts: Iterable[str], root: str) -> Dict[str, Dict]:
 
         return attachments
 
-    return {host: parse_stdout(stdout) for host, stdout in zip(hosts, stdouts)}
+    return {host.hostname: parse_stdout(stdout) for host, stdout in zip(hosts, stdouts)}
 
 
-async def query_envs(hosts: Iterable[str], root: str) -> Dict[str, Dict]:
+# TODO(raz): remove this entirely and use remote snapshots and envs.Env objects
+async def query_envs(config: genv.remote.Config) -> Dict[str, Dict]:
     """
     Query environments on multiple hosts.
 
-    :param hosts: Hostnames or IP addresses
-    :param root: Genv installation root directory
-
     :return: A mapping from host to its active environments
     """
-    stdouts = await genv.remote.run(
-        hosts,
-        root,
-        "exec",
-        "envs",
-        "ps",
-        "--format csv",
-        "--no-header",
-        "--timestamp",
+    command = genv.remote.Command(
+        ["exec", "envs", "ps", "--format csv", "--no-header", "--timestamp"]
     )
 
-    envs = defaultdict(list)
+    hosts, stdouts = await genv.remote.run(config, command)
 
-    for host, stdout in zip(hosts, stdouts):
+    def parse_stdout(stdout: str) -> Iterable[Dict]:
+        envs = []
+
         for line in stdout.splitlines():
             eid, user, name, creation, pids = line.split(",")
 
-            envs[host].append(
+            envs.append(
                 dict(
                     eid=eid,
                     user=user,
@@ -99,26 +84,23 @@ async def query_envs(hosts: Iterable[str], root: str) -> Dict[str, Dict]:
                 )
             )
 
-    return dict(envs)
+        return envs
+
+    return {host.hostname: parse_stdout(stdout) for host, stdout in zip(hosts, stdouts)}
 
 
-async def find_available_host(
-    hosts: Iterable[str], root: str, gpus: Optional[int]
-) -> str:
+async def find_available_host(config: genv.remote.Config, gpus: Optional[int]) -> str:
     """
     Finds a host with enough available resources.
-
     Raises 'RuntimeError' if cannot find such host.
 
-    :param hosts: Hostnames or IP addresses
-    :param root: Genv installation root directory
     :param gpus: Device count specification
 
     :return: Hostname with enough available resources
     """
-    host_to_devices = await query_devices(hosts, root)
+    hostname_to_devices = await query_devices(config)
 
-    for host, devices in host_to_devices.items():
+    for hostname, devices in hostname_to_devices.items():
         available = len(
             [idx for idx, attachments in devices.items() if len(attachments) == 0]
         )
@@ -127,13 +109,13 @@ async def find_available_host(
             if available < gpus:
                 continue
 
-        return host
+        return hostname
 
     raise RuntimeError("Cannot find a host with enough available resources")
 
 
 def enforce_non_env_processes(
-    hosts: Iterable[str],
+    hosts: Iterable[genv.remote.Host],
     snapshots: Iterable[genv.Snapshot],
     surveys: Iterable[genv.enforce.Survey],
 ) -> None:
@@ -143,7 +125,7 @@ def enforce_non_env_processes(
                 continue
 
             print(
-                f"Process {process.pid} on host {host} is not running in a GPU environment"
+                f"Process {process.pid} on host {host.hostname} is not running in a GPU environment"
             )
 
             survey.terminate(process)
@@ -185,7 +167,7 @@ def enforce_max_devices_for_user(
 
 
 def enforce_max_devices_per_user(
-    hosts: Iterable[str],
+    hosts: Iterable[genv.remote.Host],
     snapshots: Iterable[genv.Snapshot],
     surveys: Iterable[genv.enforce.Survey],
     maximum: int,
@@ -204,8 +186,7 @@ def enforce_max_devices_per_user(
 
 
 async def do_activate(
-    hosts: Iterable[str],
-    root: str,
+    config: genv.remote.Config,
     gpus: Optional[int],
     name: Optional[str],
     prompt: bool,
@@ -214,15 +195,13 @@ async def do_activate(
     Finds a remote host with enough available resources, connects to it using SSH
     and activates an environment inside with the given specification.
 
-    :param hosts: Hostnames or IP addresses
-    :param root: Genv installation root directory
     :param gpus: Device count specification
     :param name: Environment name specification
     :param prompt: Change the remote shell prompt
 
     :return: Does not return
     """
-    host = await find_available_host(hosts, root, gpus)
+    hostname = await find_available_host(config, gpus)
 
     env = {"GENV_PREACTIVATE": 1, "GENV_PREACTIVATE_PROMPT": "1" if prompt else "0"}
 
@@ -236,7 +215,7 @@ async def do_activate(
     args = (
         [path]
         + list(itertools.chain(*(["-o", f"SendEnv={variable}"] for variable in env)))
-        + [host]
+        + [hostname]
     )
     env = dict(os.environ, **{k: str(v) for k, v in env.items()})
 
@@ -244,8 +223,7 @@ async def do_activate(
 
 
 async def do_devices(
-    hosts: Iterable[str],
-    root: str,
+    config: genv.remote.Config,
     format: str,
     header: bool,
     summary: bool,
@@ -253,15 +231,13 @@ async def do_devices(
     """
     Prints information about devices on multiple hosts.
 
-    :param hosts: Hostnames or IP addresses
-    :param root: Genv installation root directory
     :param format: Output format
     :param header: Print a header as part of the output
     :param summary: Print a summary as part of the output
 
     :return: None
     """
-    host_to_devices = await query_devices(hosts, root)
+    hostname_to_devices = await query_devices(config)
 
     if header:
         if format == "csv":
@@ -272,7 +248,7 @@ async def do_devices(
     total = 0
     available = 0
 
-    for host, devices in host_to_devices.items():
+    for hostname, devices in hostname_to_devices.items():
         host_total = len(devices)
         host_available = len(
             [idx for idx, attachments in devices.items() if len(attachments) == 0]
@@ -282,19 +258,18 @@ async def do_devices(
         available += host_available
 
         if format == "csv":
-            print(f"{host},{host_total},{host_available}")
+            print(f"{hostname},{host_total},{host_available}")
         elif format == "tui":
-            print(f"{host:<25}{host_total:<9}{host_available}")
+            print(f"{hostname:<25}{host_total:<9}{host_available}")
 
     if summary:
         print(
-            f"\nTotal {total} devices with {available} available on {len(hosts)} hosts"
+            f"\nTotal {total} devices with {available} available on {len(hostname_to_devices)} hosts"
         )
 
 
 async def do_enforce(
-    hosts: Iterable[str],
-    root: str,
+    config: genv.remote.Config,
     interval: int,
     non_env_processes: bool,
     max_devices_per_user: Optional[int],
@@ -302,13 +277,12 @@ async def do_enforce(
     """
     Enforce GPU usage on multiple hosts.
 
-    :param hosts: Hostnames or IP addresses
-    :param root: Genv installation root directory
+    :param interval: Interval in seconds; 0 means run once.
 
     :return: None
     """
     while True:
-        snapshots = await genv.remote.snapshot(hosts, root)
+        hosts, snapshots = await genv.remote.snapshot(config)
         surveys = [genv.enforce.Survey() for _ in hosts]
 
         if non_env_processes:
@@ -325,7 +299,13 @@ async def do_enforce(
             survey.report(snapshot) for snapshot, survey in zip(snapshots, surveys)
         ]
 
-        await genv.remote.enforce.execute(hosts, root, reports)
+        await genv.remote.enforce.execute(
+            config=genv.remote.Config(
+                hosts=[host for host, report in zip(hosts, reports) if report],
+                throw_on_error=config.throw_on_error,
+            ),
+            reports=[report for report in reports if report],
+        )
 
         if interval == 0:
             break
@@ -334,8 +314,7 @@ async def do_enforce(
 
 
 async def do_envs(
-    hosts: Iterable[str],
-    root: str,
+    config: genv.remote.Config,
     format: str,
     header: bool,
     summary: bool,
@@ -344,15 +323,13 @@ async def do_envs(
     """
     Prints information about active environments on multiple hosts.
 
-    :param hosts: Hostnames or IP addresses
-    :param root: Genv installation root directory
     :param format: Output format
     :param header: Print a header as part of the output
     :param summary: Print a summary as part of the output
 
     :return: None
     """
-    host_to_envs = await query_envs(hosts, root)
+    hostname_to_envs = await query_envs(config)
 
     if header:
         if format == "csv":
@@ -362,7 +339,7 @@ async def do_envs(
                 "HOST                     ID      USER            NAME            CREATED"
             )
 
-    for host, envs in host_to_envs.items():
+    for hostname, envs in hostname_to_envs.items():
         for env in envs:
             eid = env["eid"]
             user = env["user"]
@@ -372,37 +349,35 @@ async def do_envs(
             )
 
             if format == "csv":
-                print(f"{host},{eid},{user},{name},{created}")
+                print(f"{hostname},{eid},{user},{name},{created}")
             elif format == "tui":
-                print(f"{host:<25}{eid:<8}{user:<16}{name:<16}{created}")
+                print(f"{hostname:<25}{eid:<8}{user:<16}{name:<16}{created}")
 
     if summary:
         print(
-            f"\nTotal {sum([len(envs) for envs in host_to_envs.values()])} environments on {len(hosts)} hosts"
+            f"\nTotal {sum([len(envs) for envs in hostname_to_envs.values()])} environments on {len(hostname_to_envs)} hosts"
         )
 
 
 async def do_query(
-    hosts: Iterable[str], root: str, name: str, queries: Iterable[str]
+    config: genv.remote.Config, name: str, queries: Iterable[str]
 ) -> None:
     """
     Query environment data using a query string and print the results to the string.
 
-    :param hosts: Hostnames or IP addresses
-    :param root: Genv installation root directory
     :param name: Environment name
     :param queries: List of query names
 
     :return: None
     """
-    host_to_envs = await query_envs(hosts, root)
+    hostname_to_envs = await query_envs(config)
 
-    for host, envs in host_to_envs.items():
+    for hostname, envs in hostname_to_envs.items():
         for env in envs:
             if env["name"] != name:
                 continue
 
-            query = lambda name: str(QUERIES[name](host, env) or "")
+            query = lambda name: str(QUERIES[name](hostname, env) or "")
 
             print(",".join(query(name) for name in queries))
 
@@ -530,7 +505,7 @@ def parse_args() -> argparse.Namespace:
         "-H",
         "-host",
         "--host",
-        dest="hosts",
+        dest="hostnames",
         help="Comma-separated hostnames or IP addresses",
     )
     group.add_argument(
@@ -543,6 +518,21 @@ def parse_args() -> argparse.Namespace:
         "--root",
         default="$HOME/genv",
         help="Genv installation root on remote hosts (default: %(default)s)",
+    )
+
+    parser.add_argument(
+        "-t",
+        "--timeout",
+        type=int,
+        help="SSH connection timeout",
+    )
+
+    parser.add_argument(
+        "-e",
+        "--exit-on-error",
+        dest="throw_on_error",
+        action="store_true",
+        help="Exit on SSH error to one or more hosts (default: %(default)s)",
     )
 
     subparsers = parser.add_subparsers(dest="command")
@@ -559,30 +549,33 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-async def main(args: argparse.Namespace, hosts: Iterable[str]) -> None:
+async def main(config: genv.remote.Config, args: argparse.Namespace) -> None:
     """
     Parses the arguments and runs the requested command.
 
     :return: None
     """
     if args.command == "activate":
-        await do_activate(hosts, args.root, args.gpus, args.name, args.prompt)
+        await do_activate(config, args.gpus, args.name, args.prompt)
     elif args.command == "devices":
-        await do_devices(hosts, args.root, args.format, args.header, args.summary)
+        await do_devices(config, args.format, args.header, args.summary)
     elif args.command == "enforce":
         await do_enforce(
-            hosts,
-            args.root,
+            config,
             args.interval,
             args.non_env_processes,
             args.max_devices_per_user,
         )
     elif args.command == "envs":
         await do_envs(
-            hosts, args.root, args.format, args.header, args.summary, args.timestamp
+            config,
+            args.format,
+            args.header,
+            args.summary,
+            args.timestamp,
         )
     elif args.command == "query":
-        await do_query(hosts, args.root, args.name, args.queries)
+        await do_query(config, args.name, args.queries)
 
 
 if __name__ == "__main__":
@@ -590,16 +583,22 @@ if __name__ == "__main__":
 
     if args.hostfile:
         with open(args.hostfile, "r") as f:
-            hosts = [
+            hostnames = [
                 line
                 for line in [line.strip() for line in f.readlines()]
                 if line and not line.startswith("#")
             ]
     else:
-        hosts = args.hosts.split(",")
+        hostnames = args.hostnames.split(",")
+
+    hosts = [
+        genv.remote.Host(hostname, args.root, args.timeout) for hostname in hostnames
+    ]
+
+    config = genv.remote.Config(hosts, args.throw_on_error)
 
     try:
-        asyncio.run(main(args, hosts))
+        asyncio.run(main(config, args))
     except RuntimeError as e:
         print(e, file=sys.stderr)
         exit(1)

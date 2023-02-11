@@ -5,37 +5,23 @@ from ...json_ import JSONEncoder
 from ...enforce import Report
 
 from ..utils import reprint
-from ..ssh import run
+from ..ssh import run, Config, Command
 
 
-async def execute(
-    hosts: Iterable[str],
-    root: str,
-    reports: Iterable[Report],
-    cleanup: bool = True,
-) -> None:
+async def execute(config: Config, reports: Iterable[Report]) -> None:
     """
     Executes reports on multiple hosts.
 
-    :param host: Hostname or IP address
-    :param root: Genv installation root directory
     :param reports: Reports to execute on each host
-    :param cleanup: Don't execute empty reports
-    """
-    # TODO(raz): should this really be here?
-    if cleanup:
-        filtered = [(host, report) for host, report in zip(hosts, reports) if report]
-        hosts = [_[0] for _ in filtered]
-        reports = [_[1] for _ in filtered]
 
-    stdouts = await run(
-        hosts,
-        root,
-        "exec",
-        "usage",
-        "execute",
+    :return: None
+    """
+    command = Command(["exec", "usage", "execute"], sudo=True)
+
+    hosts, stdouts = await run(
+        config,
+        command,
         stdins=[json.dumps(report, cls=JSONEncoder) for report in reports],
-        sudo=True,
     )
 
-    reprint(hosts, stdouts)
+    reprint([host.hostname for host in hosts], stdouts)
