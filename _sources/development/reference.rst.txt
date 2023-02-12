@@ -146,4 +146,4 @@ This shim passes the argument :code:`--id` to :code:`nvidia-smi` and specifies t
 
 It also filters out processes that are not from the current environment, and shows GPU memory information that is relevant only for this environment, by summing the used GPU memory of all processes in this environment.
 
-.. [#] https://en.wikipedia.org/wiki/Shim_(computing)
+.. [#] `Shim (computing) - Wikipedia <https://en.wikipedia.org/wiki/Shim_(computing)>`_
