@@ -4,7 +4,7 @@ set -e
 [ -n "$GENV_DEBUG" ] && set -x
 
 if [[ $1 = "--description" ]] ; then
-    echo "Query genv on remote hosts"
+    echo "Use Genv on remote hosts"
     exit 0
 fi
 

@@ -22,7 +22,7 @@ def enforce_non_env_processes(
 def enforce_max_devices_for_user(
     username: str, snapshot: genv.Snapshot, survey: genv.enforce.Survey, maximum: int
 ) -> None:
-    attached = len(snapshot.attached())
+    attached = len(snapshot.devices)
 
     if attached <= maximum:
         return
@@ -35,12 +35,13 @@ def enforce_max_devices_for_user(
 
     detached = 0
 
-    for device in snapshot.attached():
+    for device in snapshot.devices:
         if detached == over:
             break  # already detached enough devices
 
         survey.detach(
-            [env for env in snapshot.envs if env.eid in device.eids], device.index
+            [env for env in snapshot.envs.filter(deep=False, eids=device.eids)],
+            device.index,
         )
 
         detached += 1
@@ -53,7 +54,7 @@ def enforce_max_devices_per_user(
 
     for username in usernames:
         enforce_max_devices_for_user(
-            username, snapshot.filter(username), survey, maximum
+            username, snapshot.filter(username=username), survey, maximum
         )
 
 
@@ -99,7 +100,7 @@ def parse_args() -> argparse.Namespace:
 
     add_enforcement(
         "non-env-processes",
-        dest="terminate_non_env_processes",
+        dest="non_env_processes",
         help="terminate processes that are not running in a GPU environment",
         default=False,
     )
@@ -125,7 +126,7 @@ async def main() -> None:
         snapshot = await genv.snapshot()
         survey = genv.enforce.Survey()
 
-        if args.terminate_non_env_processes:
+        if args.non_env_processes:
             enforce_non_env_processes(snapshot, survey)
 
         if args.max_devices_per_user is not None:

@@ -35,7 +35,8 @@ indices = range(int(os.environ.get("GENV_MOCK_DEVICE_COUNT", "2")))
 
 for i in range(len(args)):
     if args[i].startswith("--id="):
-        indices = [int(index) for index in args[i].split("--id=")[1].split(",")]
+        value = args[i].split("--id=")[1]
+        indices = [] if value == "-1" else [int(index) for index in value.split(",")]
         del args[i]
         break
 
@@ -65,7 +66,9 @@ processes = [
 ]
 
 
-if args == []:
+if indices == []:
+    print("No devices were found")
+elif args == []:
     print(
         """\
 Fri Dec 23 23:11:41 2022

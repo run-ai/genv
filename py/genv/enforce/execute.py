@@ -13,7 +13,7 @@ def _terminate(processes: Iterable[Process]) -> None:
     for process in processes:
         try:
             print(
-                f"Terminating process {process.pid} from environment {process.eid or 'N/A'} that is running on GPU(s) {','.join([str(usage.index) for usage in process.used_gpu_memory])}"
+                f"Terminating process {process.pid} from environment {process.eid or 'N/A'} that is running on GPU(s) {','.join([str(index) for index in process.indices])}"
             )
 
             os_.terminate(process.pid)

@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 import subprocess
-from typing import Dict, Iterable
+from typing import Dict, Iterable, Optional
 
 
 # NOTE(raz): This should be the layer that queries and controls the state of Genv regarding devices.
@@ -18,9 +18,87 @@ class Device:
     index: int
     eids: Iterable[str]
 
+    @property
+    def attached(self) -> bool:
+        return len(self.eids) > 0
 
-def snapshot() -> Iterable[Device]:
-    return [Device(index, d["eids"]) for index, d in ps().items()]
+    @property
+    def detached(self) -> bool:
+        return len(self.eids) == 0
+
+    def filter(self, *, eids: Iterable[str]):
+        """
+        Returns a new device with only the given environment identifiers.
+        """
+        return Device(self.index, [eid for eid in self.eids if eid in eids])
+
+
+@dataclass
+class Snapshot:
+    """
+    A snapshot of devices.
+    """
+
+    devices: Iterable[Device]
+
+    @property
+    def indices(self) -> Iterable[int]:
+        return [device.index for device in self.devices]
+
+    def __iter__(self):
+        return self.devices.__iter__()
+
+    def __len__(self):
+        return self.devices.__len__()
+
+    def filter(
+        self,
+        deep: bool = True,
+        *,
+        eid: Optional[str] = None,
+        eids: Optional[Iterable[str]] = None,
+        attached: Optional[bool] = None,
+    ):
+        """
+        Returns a new filtered snapshot.
+
+        :param deep: Perform deep filtering
+        :param eid: Environment identifier to keep
+        :param eids: Environment identifiers to keep
+        :param attached: Keep only devices with environments attached or not
+        """
+        if eids:
+            eids = set(eids)
+
+        if eid:
+            if not eids:
+                eids = set()
+
+            eids.add(eid)
+
+        devices = self.devices
+
+        if eids is not None:
+            if deep:
+                devices = [device.filter(eids=eids) for device in devices]
+
+            devices = [
+                device
+                for device in devices
+                if any((eid in eids) for eid in device.eids)
+            ]
+
+        if attached is not None:
+            if attached:
+                devices = [device for device in devices if device.attached]
+            else:
+                devices = [device for device in devices if device.detached]
+
+        return Snapshot(devices)
+
+
+def snapshot() -> Snapshot:
+    return Snapshot([Device(index, d["eids"]) for index, d in ps().items()])
 
 
 def ps() -> Dict[int, Iterable[str]]:

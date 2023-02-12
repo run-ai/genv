@@ -4,8 +4,11 @@ import argparse
 import asyncio
 import json
 import sys
+from typing import Optional
 
 import genv
+
+# TODO(raz): should this executable be merged to genv-remote?
 
 
 async def do_execute() -> None:
@@ -14,8 +17,17 @@ async def do_execute() -> None:
     genv.enforce.execute(report)
 
 
-async def do_snapshot(format: str) -> None:
-    snapshot = await genv.snapshot()
+async def do_snapshot(format: str, type: Optional[str]) -> None:
+    if type is None:
+        snapshot = await genv.snapshot()
+    elif type == "devices":
+        snapshot = genv.devices.snapshot()
+    elif type == "envs":
+        snapshot = genv.envs.snapshot()
+    elif type == "processes":
+        snapshot = await genv.processes.snapshot()
+    else:
+        raise ValueError(f"Unsupported snapshot type ({type})")
 
     if format == "json":
         print(json.dumps(snapshot, cls=genv.JSONEncoder, indent=2))
@@ -39,6 +51,12 @@ def parse_args() -> argparse.Namespace:
             default="json",
         )
 
+        parser.add_argument(
+            "--type",
+            choices=["devices", "envs", "processes"],
+            help="Take a snapshot of specific information",
+        )
+
     parser = argparse.ArgumentParser()
 
     subparsers = parser.add_subparsers(dest="command", required=True)
@@ -58,7 +76,7 @@ async def main() -> None:
     if args.command == "execute":
         await do_execute()
     elif args.command == "snapshot":
-        await do_snapshot(args.format)
+        await do_snapshot(args.format, args.type)
 
 
 if __name__ == "__main__":

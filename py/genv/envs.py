@@ -2,6 +2,7 @@ from dataclasses import dataclass
 import subprocess
 from typing import Dict, Iterable, Optional, Union
 
+from . import utils
 
 # NOTE(raz): This should be the layer that queries and controls the state of Genv regarding active environments.
 # Currently, it relies on executing the environment manager executable of Genv, as this is where the logic is implemented.
@@ -16,18 +17,94 @@ from typing import Dict, Iterable, Optional, Union
 @dataclass
 class Env:
     eid: str
+    uid: int
+    creation: str
     username: Optional[str]
-    name: Optional[str]
+
+    @dataclass
+    class Config:
+        name: Optional[str]
+        gpu_memory: Optional[str]
+
+    config: Config
+
+    @property
+    def time_since(self) -> str:
+        return utils.time_since(self.creation)
 
     def __hash__(self) -> int:
         return self.eid.__hash__()
 
 
-def snapshot() -> Iterable[Env]:
-    return [
-        Env(eid, username or None, name or None)
-        for eid, username, name in query("eid", "username", "config.name")
-    ]
+@dataclass
+class Snapshot:
+    """
+    A snapshot of active environments.
+    """
+
+    envs: Iterable[Env]
+
+    @property
+    def eids(self) -> Iterable[str]:
+        return [env.eid for env in self.envs]
+
+    def __iter__(self):
+        return self.envs.__iter__()
+
+    def __len__(self):
+        return self.envs.__len__()
+
+    def filter(
+        self,
+        deep: bool = True,
+        *,
+        eid: Optional[str] = None,
+        eids: Optional[Iterable[str]] = None,
+        username: Optional[str] = None,
+    ):
+        """
+        Returns a new filtered snapshot.
+
+        :param deep: Perform deep filtering
+        :param eid: Environment identifier to keep
+        :param eids: Environment identifiers to keep
+        :param username: Username to keep
+        """
+        if eids:
+            eids = set(eids)
+
+        if eid:
+            if not eids:
+                eids = set()
+
+            eids.add(eid)
+
+        envs = self.envs
+
+        if eids is not None:
+            envs = [env for env in envs if env.eid in eids]
+
+        if username is not None:
+            envs = [env for env in envs if env.username == username]
+
+        return Snapshot(envs)
+
+
+def snapshot() -> Snapshot:
+    return Snapshot(
+        [
+            Env(
+                eid,
+                int(uid),
+                creation,
+                username or None,
+                Env.Config(name or None, gpu_memory or None),
+            )
+            for eid, uid, creation, username, name, gpu_memory in query(
+                "eid", "uid", "creation", "username", "config.name", "config.gpu_memory"
+            )
+        ]
+    )
 
 
 def query(
