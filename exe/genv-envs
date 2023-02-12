@@ -12,6 +12,7 @@ Envs = Dict[int, Env]
 QUERIES = {
     "eid": lambda env: env["eid"],
     "creation": lambda env: env["creation"],
+    "uid": lambda env: env["uid"],
     "username": lambda env: env.get("username"),
     "config.name": lambda env: env["config"].get("name"),
     "config.gpus": lambda env: env["config"].get("gpus"),
@@ -247,7 +248,10 @@ def do_query(envs: Envs, eid: Optional[str], queries: List[str]) -> None:
         if env is None:
             continue
 
-        query = lambda name: str(QUERIES[name](env) or "")
+        def query(name: str) -> str:
+            result = QUERIES[name](env)
+
+            return "" if result is None else str(result)
 
         print(",".join(query(name) for name in queries))
 

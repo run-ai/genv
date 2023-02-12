@@ -2,6 +2,7 @@ from dataclasses import dataclass
 import subprocess
 from typing import Dict, Iterable, Optional, Union
 
+from . import utils
 
 # NOTE(raz): This should be the layer that queries and controls the state of Genv regarding active environments.
 # Currently, it relies on executing the environment manager executable of Genv, as this is where the logic is implemented.
@@ -16,6 +17,8 @@ from typing import Dict, Iterable, Optional, Union
 @dataclass
 class Env:
     eid: str
+    uid: int
+    creation: str
     username: Optional[str]
 
     @dataclass
@@ -24,6 +27,10 @@ class Env:
         gpu_memory: Optional[str]
 
     config: Config
+
+    @property
+    def time_since(self) -> str:
+        return utils.time_since(self.creation)
 
     def __hash__(self) -> int:
         return self.eid.__hash__()
@@ -69,9 +76,15 @@ class Snapshot:
 def snapshot() -> Snapshot:
     return Snapshot(
         [
-            Env(eid, username or None, Env.Config(name or None, gpu_memory or None))
-            for eid, username, name, gpu_memory in query(
-                "eid", "username", "config.name", "config.gpu_memory"
+            Env(
+                eid,
+                int(uid),
+                creation,
+                username or None,
+                Env.Config(name or None, gpu_memory or None),
+            )
+            for eid, uid, creation, username, name, gpu_memory in query(
+                "eid", "uid", "creation", "username", "config.name", "config.gpu_memory"
             )
         ]
     )
