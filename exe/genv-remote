@@ -66,9 +66,7 @@ def enforce_max_devices_for_user(
     surveys: Iterable[genv.enforce.Survey],
     maximum: int,
 ) -> None:
-    attached = sum(
-        len(snapshot.devices.filter(attached=True)) for snapshot in snapshots
-    )
+    attached = sum(len(snapshot.devices) for snapshot in snapshots)
 
     if attached <= maximum:
         return
@@ -84,12 +82,12 @@ def enforce_max_devices_for_user(
     detached = 0
 
     for snapshot, survey in zip(snapshots, surveys):
-        for device in snapshot.devices.filter(attached=True):
+        for device in snapshot.devices:
             if detached == over:
                 break  # already detached enough devices
 
             survey.detach(
-                [env for env in snapshot.envs.filter(eids=device.eids)], device.index
+                [env for env in snapshot.envs.filter(deep=False, eids=device.eids)], device.index
             )
 
             detached += 1
@@ -108,7 +106,7 @@ def enforce_max_devices_per_user(
     for username in usernames:
         enforce_max_devices_for_user(
             username,
-            snapshots=[snapshot.filter(username) for snapshot in snapshots],
+            snapshots=[snapshot.filter(username=username) for snapshot in snapshots],
             surveys=surveys,
             maximum=maximum,
         )

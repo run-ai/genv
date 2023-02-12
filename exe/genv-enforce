@@ -22,9 +22,7 @@ def enforce_non_env_processes(
 def enforce_max_devices_for_user(
     username: str, snapshot: genv.Snapshot, survey: genv.enforce.Survey, maximum: int
 ) -> None:
-    devices = snapshot.devices.filter(attached=True)
-
-    attached = len(devices)
+    attached = len(snapshot.devices)
 
     if attached <= maximum:
         return
@@ -37,12 +35,13 @@ def enforce_max_devices_for_user(
 
     detached = 0
 
-    for device in devices:
+    for device in snapshot.devices:
         if detached == over:
             break  # already detached enough devices
 
         survey.detach(
-            [env for env in snapshot.envs.filter(eids=device.eids)], device.index
+            [env for env in snapshot.envs.filter(deep=False, eids=device.eids)],
+            device.index,
         )
 
         detached += 1
@@ -55,7 +54,7 @@ def enforce_max_devices_per_user(
 
     for username in usernames:
         enforce_max_devices_for_user(
-            username, snapshot.filter(username), survey, maximum
+            username, snapshot.filter(username=username), survey, maximum
         )
 
 

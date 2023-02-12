@@ -18,11 +18,19 @@ class Device:
     index: int
     eids: Iterable[str]
 
-    def filter(self, eids: Iterable[str]):
+    @property
+    def attached(self) -> bool:
+        return len(self.eids) > 0
+
+    @property
+    def detached(self) -> bool:
+        return len(self.eids) == 0
+
+    def filter(self, *, eids: Iterable[str]):
         """
         Returns a new device with only the given environment identifiers.
         """
-        return Device(self.index, [eid for eid in eids if eid in self.eids])
+        return Device(self.index, [eid for eid in self.eids if eid in eids])
 
 
 @dataclass
@@ -33,6 +41,10 @@ class Snapshot:
 
     devices: Iterable[Device]
 
+    @property
+    def indices(self) -> Iterable[int]:
+        return [device.index for device in self.devices]
+
     def __iter__(self):
         return self.devices.__iter__()
 
@@ -40,24 +52,47 @@ class Snapshot:
         return self.devices.__len__()
 
     def filter(
-        self, *, eids: Optional[Iterable[str]] = None, attached: Optional[bool] = None
+        self,
+        deep: bool = True,
+        *,
+        eid: Optional[str] = None,
+        eids: Optional[Iterable[str]] = None,
+        attached: Optional[bool] = None,
     ):
         """
         Returns a new filtered snapshot.
 
+        :param deep: Perform deep filtering
+        :param eid: Environment identifier to keep
         :param eids: Environment identifiers to keep
         :param attached: Keep only devices with environments attached or not
         """
+        if eids:
+            eids = set(eids)
+
+        if eid:
+            if not eids:
+                eids = set()
+
+            eids.add(eid)
 
         devices = self.devices
 
         if eids is not None:
-            devices = [device.filter(eids) for device in devices]
+            if deep:
+                devices = [device.filter(eids=eids) for device in devices]
+
+            devices = [
+                device
+                for device in devices
+                if any((eid in eids) for eid in device.eids)
+            ]
 
         if attached is not None:
-            pred = (lambda envs: envs > 0) if attached else (lambda envs: envs == 0)
-
-            devices = [device for device in devices if pred(len(device.eids))]
+            if attached:
+                devices = [device for device in devices if device.attached]
+            else:
+                devices = [device for device in devices if device.detached]
 
         return Snapshot(devices)
 

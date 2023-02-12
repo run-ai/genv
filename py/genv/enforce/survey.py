@@ -6,6 +6,8 @@ from ..snapshot import Snapshot
 
 from .report import Report
 
+# TODO(raz): pass entity identifiers as entities passed here can be filtered
+
 
 class Survey:
     def __init__(self) -> None:
@@ -29,7 +31,7 @@ class Survey:
                         process
                         for env, index in self._envs_to_detach
                         for process in snapshot.processes.filter(
-                            eid=env.eid, index=index
+                            deep=False, eid=env.eid, index=index
                         )
                     )
                 )

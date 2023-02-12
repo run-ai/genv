@@ -33,6 +33,16 @@ class Process:
     def __hash__(self) -> int:
         return self.pid.__hash__()
 
+    def filter(self, *, index: int):
+        """
+        Returns a new process with information only of the given device index.
+        """
+        return Process(
+            self.pid,
+            [usage for usage in self.used_gpu_memory if usage.index == index],
+            self.eid,
+        )
+
     @staticmethod
     def eid(pid: int) -> Optional[str]:
         """
@@ -70,6 +80,7 @@ class Snapshot:
 
     def filter(
         self,
+        deep: bool = True,
         *,
         eid: Optional[str] = None,
         eids: Optional[Iterable[str]] = None,
@@ -77,6 +88,11 @@ class Snapshot:
     ):
         """
         Returns a new filtered snapshot.
+
+        :param deep: Perform deep filtering
+        :param eid: Environment identifier to keep
+        :param eids: Environment identifiers to keep
+        :param username: Username to keep
         """
         if eids:
             eids = set(eids)
@@ -87,18 +103,18 @@ class Snapshot:
 
             eids.add(eid)
 
-        def pred(process: Process) -> bool:
-            if (eids is not None) and (process.eid not in eids):
-                return False
+        processes = self.processes
 
-            if (index is not None) and (index not in process.indices):
-                return False
+        if eids is not None:
+            processes = [process for process in processes if process.eid in eids]
 
-            return True
+        if index is not None:
+            if deep:
+                processes = [process.filter(index=index) for process in processes]
 
-        return Snapshot(
-            processes=[process for process in self.processes if pred(process)]
-        )
+            processes = [process for process in processes if index in process.indices]
+
+        return Snapshot(processes)
 
 
 async def snapshot() -> Snapshot:

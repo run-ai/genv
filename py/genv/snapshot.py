@@ -11,18 +11,19 @@ class Snapshot:
     envs: envs_.Snapshot
     devices: devices_.Snapshot
 
-    def filter(self, username: str):
+    def filter(self, deep: bool = True, *, username: str):
         """
-        Filters a snapshot by username.
+        Returns a new filtered snapshot.
 
-        :return: A new snapshot with information related only to the given username.
+        :param deep: Perform deep filtering
+        :param username: Username to keep
         """
-        envs = self.envs.filter(username=username)
+        envs = self.envs.filter(deep=deep, username=username)
 
         return Snapshot(
-            processes=self.processes.filter(eids=envs.eids),
+            processes=self.processes.filter(deep=deep, eids=envs.eids),
             envs=envs,
-            devices=self.devices.filter(eids=envs.eids),
+            devices=self.devices.filter(deep=deep, eids=envs.eids),
         )
 
 

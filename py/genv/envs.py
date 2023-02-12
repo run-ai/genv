@@ -55,22 +55,39 @@ class Snapshot:
         return self.envs.__len__()
 
     def filter(
-        self, *, eids: Optional[Iterable[str]] = None, username: Optional[str] = None
+        self,
+        deep: bool = True,
+        *,
+        eid: Optional[str] = None,
+        eids: Optional[Iterable[str]] = None,
+        username: Optional[str] = None,
     ):
         """
         Returns a new filtered snapshot.
+
+        :param deep: Perform deep filtering
+        :param eid: Environment identifier to keep
+        :param eids: Environment identifiers to keep
+        :param username: Username to keep
         """
+        if eids:
+            eids = set(eids)
 
-        def pred(env: Env) -> bool:
-            if (eids is not None) and (env.eid not in eids):
-                return False
+        if eid:
+            if not eids:
+                eids = set()
 
-            if (username is not None) and (env.username != username):
-                return False
+            eids.add(eid)
 
-            return True
+        envs = self.envs
 
-        return Snapshot(envs=[env for env in self.envs if pred(env)])
+        if eids is not None:
+            envs = [env for env in envs if env.eid in eids]
+
+        if username is not None:
+            envs = [env for env in envs if env.username == username]
+
+        return Snapshot(envs)
 
 
 def snapshot() -> Snapshot:
