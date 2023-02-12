@@ -6,110 +6,39 @@ import itertools
 import os
 import shutil
 import sys
-from typing import Dict, Iterable, NoReturn, Optional
+from typing import Iterable, NoReturn, Optional
 
 import genv
 
 QUERIES = {
-    "hostname": lambda hostname, env: hostname,
-    "eid": lambda hostname, env: env["eid"],
-    "creation": lambda hostname, env: env["creation"],
+    "hostname": lambda host, env: host.hostname,
+    "eid": lambda host, env: env.eid,
+    "creation": lambda host, env: env.creation,
 }
 
 
-# TODO(raz): remove this entirely and use remote snapshots and devices.Device objects
-async def query_devices(config: genv.remote.Config) -> Dict[str, Dict]:
-    """
-    Query devices on multiple hosts.
-
-    :return: A mapping from host to its devices information
-    """
-    command = genv.remote.Command(
-        ["exec", "devices", "ps", "--format csv", "--no-header", "--timestamp"]
-    )
-
-    hosts, stdouts = await genv.remote.run(config, command)
-
-    def parse_stdout(stdout: str) -> Dict[int, Iterable[Dict]]:
-        attachments = dict()
-
-        for line in stdout.splitlines():
-            idx, eid, env_name, attached = line.split(",")
-
-            if idx not in attachments:
-                attachments[idx] = list()
-
-            if not eid:
-                continue
-
-            attachments[idx].append(
-                dict(
-                    eid=eid,
-                    env_name=env_name,
-                    attached=attached,
-                )
-            )
-
-        return attachments
-
-    return {host.hostname: parse_stdout(stdout) for host, stdout in zip(hosts, stdouts)}
-
-
-# TODO(raz): remove this entirely and use remote snapshots and envs.Env objects
-async def query_envs(config: genv.remote.Config) -> Dict[str, Dict]:
-    """
-    Query environments on multiple hosts.
-
-    :return: A mapping from host to its active environments
-    """
-    command = genv.remote.Command(
-        ["exec", "envs", "ps", "--format csv", "--no-header", "--timestamp"]
-    )
-
-    hosts, stdouts = await genv.remote.run(config, command)
-
-    def parse_stdout(stdout: str) -> Iterable[Dict]:
-        envs = []
-
-        for line in stdout.splitlines():
-            eid, user, name, creation, pids = line.split(",")
-
-            envs.append(
-                dict(
-                    eid=eid,
-                    user=user,
-                    name=name,
-                    creation=creation,
-                    pids=[int(pid) for pid in pids.split(" ")],
-                )
-            )
-
-        return envs
-
-    return {host.hostname: parse_stdout(stdout) for host, stdout in zip(hosts, stdouts)}
-
-
-async def find_available_host(config: genv.remote.Config, gpus: Optional[int]) -> str:
+async def find_available_host(
+    config: genv.remote.Config, gpus: Optional[int]
+) -> genv.remote.Host:
     """
     Finds a host with enough available resources.
     Raises 'RuntimeError' if cannot find such host.
 
     :param gpus: Device count specification
 
-    :return: Hostname with enough available resources
+    :return: Host with enough available resources
     """
-    hostname_to_devices = await query_devices(config)
+    # TODO(raz): avoid taking snapshots if not needed when 'gpus' is None
+    hosts, snapshots = await genv.remote.devices.snapshot(config)
 
-    for hostname, devices in hostname_to_devices.items():
-        available = len(
-            [idx for idx, attachments in devices.items() if len(attachments) == 0]
-        )
-
+    for host, snapshot in zip(hosts, snapshots):
         if gpus is not None:
+            available = len(snapshot.filter(attached=False))
+
             if available < gpus:
                 continue
 
-        return hostname
+        return host
 
     raise RuntimeError("Cannot find a host with enough available resources")
 
@@ -201,7 +130,7 @@ async def do_activate(
 
     :return: Does not return
     """
-    hostname = await find_available_host(config, gpus)
+    host = await find_available_host(config, gpus)
 
     env = {"GENV_PREACTIVATE": 1, "GENV_PREACTIVATE_PROMPT": "1" if prompt else "0"}
 
@@ -215,7 +144,7 @@ async def do_activate(
     args = (
         [path]
         + list(itertools.chain(*(["-o", f"SendEnv={variable}"] for variable in env)))
-        + [hostname]
+        + [host.hostname]
     )
     env = dict(os.environ, **{k: str(v) for k, v in env.items()})
 
@@ -237,7 +166,7 @@ async def do_devices(
 
     :return: None
     """
-    hostname_to_devices = await query_devices(config)
+    hosts, snapshots = await genv.remote.devices.snapshot(config)
 
     if header:
         if format == "csv":
@@ -248,23 +177,21 @@ async def do_devices(
     total = 0
     available = 0
 
-    for hostname, devices in hostname_to_devices.items():
-        host_total = len(devices)
-        host_available = len(
-            [idx for idx, attachments in devices.items() if len(attachments) == 0]
-        )
+    for host, snapshot in zip(hosts, snapshots):
+        host_total = len(snapshot)
+        host_available = len(snapshot.filter(attached=False))
 
         total += host_total
         available += host_available
 
         if format == "csv":
-            print(f"{hostname},{host_total},{host_available}")
+            print(f"{host.hostname},{host_total},{host_available}")
         elif format == "tui":
-            print(f"{hostname:<25}{host_total:<9}{host_available}")
+            print(f"{host.hostname:<25}{host_total:<9}{host_available}")
 
     if summary:
         print(
-            f"\nTotal {total} devices with {available} available on {len(hostname_to_devices)} hosts"
+            f"\nTotal {total} devices with {available} available on {len(hosts)} hosts"
         )
 
 
@@ -330,7 +257,7 @@ async def do_envs(
 
     :return: None
     """
-    hostname_to_envs = await query_envs(config)
+    hosts, snapshots = await genv.remote.envs.snapshot(config)
 
     if header:
         if format == "csv":
@@ -340,23 +267,20 @@ async def do_envs(
                 "HOST                     ID      USER            NAME            CREATED"
             )
 
-    for hostname, envs in hostname_to_envs.items():
-        for env in envs:
-            eid = env["eid"]
-            user = env["user"]
-            name = env["name"]
-            created = (
-                env["creation"] if timestamp else genv.utils.time_since(env["creation"])
-            )
+    for host, snapshot in zip(hosts, snapshots):
+        for env in snapshot:
+            user = env.username or ""
+            name = env.config.name or ""
+            created = env.creation if timestamp else env.time_since
 
             if format == "csv":
-                print(f"{hostname},{eid},{user},{name},{created}")
+                print(f"{host.hostname},{env.eid},{user},{name},{created}")
             elif format == "tui":
-                print(f"{hostname:<25}{eid:<8}{user:<16}{name:<16}{created}")
+                print(f"{host.hostname:<25}{env.eid:<8}{user:<16}{name:<16}{created}")
 
     if summary:
         print(
-            f"\nTotal {sum([len(envs) for envs in hostname_to_envs.values()])} environments on {len(hostname_to_envs)} hosts"
+            f"\nTotal {sum([len(snapshot) for snapshot in snapshots])} environments on {len(hosts)} hosts"
         )
 
 
@@ -371,14 +295,17 @@ async def do_query(
 
     :return: None
     """
-    hostname_to_envs = await query_envs(config)
+    hosts, snapshots = await genv.remote.envs.snapshot(config)
 
-    for hostname, envs in hostname_to_envs.items():
-        for env in envs:
-            if env["name"] != name:
+    for host, snapshot in zip(hosts, snapshots):
+        for env in snapshot:
+            if env.config.name != name:
                 continue
 
-            query = lambda name: str(QUERIES[name](hostname, env) or "")
+            def query(name: str) -> str:
+                result = QUERIES[name](host, env)
+
+                return "" if result is None else str(result)
 
             print(",".join(query(name) for name in queries))
 
