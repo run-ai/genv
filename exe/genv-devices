@@ -254,7 +254,7 @@ def do_attach(
     :return: None
     """
     attached = query(devices, eid)
-    env_gpu_memory = genv.envs.gpu_memory(args.eid)
+    env_gpu_memory = genv.envs.gpu_memory(eid)
 
     def ensure_count():
         """
