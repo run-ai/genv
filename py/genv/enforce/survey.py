@@ -14,8 +14,11 @@ class Survey:
         self._processes_to_terminate = set()
         self._envs_to_detach = set()
 
-    def terminate(self, process: Process) -> None:
-        self._processes_to_terminate.add(process)
+    def terminate(self, processes: Union[Process, Iterable[Process]]) -> None:
+        if isinstance(processes, Process):
+            processes = [processes]
+
+        self._processes_to_terminate.update(processes)
 
     def detach(self, envs: Union[Env, Iterable[Env]], index: int) -> None:
         if isinstance(envs, Env):
