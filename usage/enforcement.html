@@ -64,6 +64,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#architecture">Architecture</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#enforcement-rules">Enforcement Rules</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#id4">Non-environment Processes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#environment-devices">Environment Devices</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#environment-memory-capacity">Environment Memory Capacity</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#id5">Max Devices per User</a></li>
 </ul>
@@ -131,8 +132,9 @@
 <li><p><a class="reference internal" href="#enforcement-rules" id="id15">Enforcement Rules</a></p>
 <ul>
 <li><p><a class="reference internal" href="#id4" id="id16">Non-environment Processes</a></p></li>
-<li><p><a class="reference internal" href="#environment-memory-capacity" id="id17">Environment Memory Capacity</a></p></li>
-<li><p><a class="reference internal" href="#id5" id="id18">Max Devices per User</a></p></li>
+<li><p><a class="reference internal" href="#environment-devices" id="id17">Environment Devices</a></p></li>
+<li><p><a class="reference internal" href="#environment-memory-capacity" id="id18">Environment Memory Capacity</a></p></li>
+<li><p><a class="reference internal" href="#id5" id="id19">Max Devices per User</a></p></li>
 </ul>
 </li>
 </ul>
@@ -270,6 +272,11 @@ You can also run <code class="code docutils literal notranslate"><span class="pr
 <p>Use the flag <code class="code docutils literal notranslate"><span class="pre">--non-env-processes</span></code> to terminate running processes that access a GPU and are not running within an environment.</p>
 <p>This is mostly used for ensuring that no one runs GPU applications that are not managed by Genv on a machine.</p>
 <p>This ensures that Genv is the only way that GPU resources are being provisioned in the system.</p>
+</div>
+<div class="section" id="environment-devices">
+<h3>Environment Devices<a class="headerlink" href="#environment-devices" title="Permalink to this headline">¶</a></h3>
+<p>Enabled by default.
+Use the flag <code class="code docutils literal notranslate"><span class="pre">--env-devices</span></code> to terminate processes that are using devices which are not attached to their environments.</p>
 </div>
 <div class="section" id="environment-memory-capacity">
 <h3>Environment Memory Capacity<a class="headerlink" href="#environment-memory-capacity" title="Permalink to this headline">¶</a></h3>
