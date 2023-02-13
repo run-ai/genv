@@ -7,48 +7,6 @@ import sys
 import genv
 
 
-def enforce_non_env_processes(
-    snapshot: genv.Snapshot, survey: genv.enforce.Survey
-) -> None:
-    for process in snapshot.processes:
-        if process.eid is not None:
-            continue
-
-        print(f"Process {process.pid} is not running in a GPU environment")
-
-        survey.terminate(process.pid)
-
-
-def enforce_env_memory(snapshot: genv.Snapshot, survey: genv.enforce.Survey) -> None:
-    for env in snapshot.envs:
-        if env.config.gpu_memory is None:
-            continue
-
-        for device in snapshot.devices.filter(eid=env.eid):
-            processes = snapshot.processes.filter(eid=env.eid, index=device.index)
-
-            used_bytes = sum(process.total_bytes for process in processes)
-
-            over_bytes = used_bytes - genv.utils.memory_to_bytes(env.config.gpu_memory)
-
-            if not over_bytes > 0:
-                continue
-
-            print(
-                f"Environment {env.eid} is using {genv.utils.bytes_to_memory(used_bytes, 'm')} on device {device.index} which is {genv.utils.bytes_to_memory(over_bytes, 'm')} over its capacity of {env.config.gpu_memory}"
-            )
-
-            freed_bytes = 0
-
-            for process in processes:
-                survey.terminate(process.pid)
-
-                freed_bytes += process.total_bytes
-
-                if freed_bytes >= over_bytes:
-                    break
-
-
 def enforce_max_devices_for_user(
     username: str, snapshot: genv.Snapshot, survey: genv.enforce.Survey, maximum: int
 ) -> None:
@@ -161,10 +119,10 @@ async def main() -> None:
         survey = genv.enforce.Survey()
 
         if args.non_env_processes:
-            enforce_non_env_processes(snapshot, survey)
+            genv.enforce.rules.non_env_processes(snapshot, survey)
 
         if args.env_memory:
-            enforce_env_memory(snapshot, survey)
+            genv.enforce.rules.env_memory(snapshot, survey)
 
         if args.max_devices_per_user is not None:
             enforce_max_devices_per_user(
