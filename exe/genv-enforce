@@ -91,6 +91,13 @@ def parse_args() -> argparse.Namespace:
     )
 
     add_enforcement(
+        "env-devices",
+        dest="env_devices",
+        help="enforce environment attached devices",
+        default=True,
+    )
+
+    add_enforcement(
         "env-memory",
         dest="env_memory",
         help="enforce environment memory capacity if set",
@@ -120,6 +127,9 @@ async def main() -> None:
 
         if args.non_env_processes:
             genv.enforce.rules.non_env_processes(snapshot, survey)
+
+        if args.env_devices:
+            genv.enforce.rules.env_devices(snapshot, survey)
 
         if args.env_memory:
             genv.enforce.rules.env_memory(snapshot, survey)

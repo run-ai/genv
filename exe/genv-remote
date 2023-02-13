@@ -178,6 +178,7 @@ async def do_enforce(
     config: genv.remote.Config,
     interval: int,
     non_env_processes: bool,
+    env_devices: bool,
     env_memory: bool,
     max_devices_per_user: Optional[int],
 ) -> None:
@@ -195,6 +196,9 @@ async def do_enforce(
         if non_env_processes:
             genv.remote.enforce.rules.non_env_processes(hosts, snapshots, surveys)
 
+        if env_devices:
+            genv.remote.enforce.rules.env_devices(hosts, snapshots, surveys)
+
         if env_memory:
             genv.remote.enforce.rules.env_memory(hosts, snapshots, surveys)
 
@@ -202,8 +206,6 @@ async def do_enforce(
             enforce_max_devices_per_user(
                 hosts, snapshots, surveys, maximum=max_devices_per_user
             )
-
-        # TODO(raz): terminate processes that run in environments but on devices that are not attached
 
         reports = [
             survey.report(snapshot) for snapshot, survey in zip(snapshots, surveys)
@@ -370,6 +372,13 @@ def parse_args() -> argparse.Namespace:
         )
 
         add_enforcement(
+            "env-devices",
+            dest="env_devices",
+            help="enforce environment attached devices",
+            default=True,
+        )
+
+        add_enforcement(
             "env-memory",
             dest="env_memory",
             help="enforce environment memory capacity if set",
@@ -489,6 +498,7 @@ async def main(config: genv.remote.Config, args: argparse.Namespace) -> None:
             config,
             args.interval,
             args.non_env_processes,
+            args.env_devices,
             args.env_memory,
             args.max_devices_per_user,
         )
