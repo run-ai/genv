@@ -78,6 +78,9 @@ class Snapshot:
     def __len__(self):
         return self.processes.__len__()
 
+    def __getitem__(self, pid: int) -> Process:
+        return next(process for process in self.processes if process.pid == pid)
+
     def filter(
         self,
         deep: bool = True,

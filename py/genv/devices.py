@@ -51,6 +51,9 @@ class Snapshot:
     def __len__(self):
         return self.devices.__len__()
 
+    def __getitem__(self, index: int) -> Device:
+        return next(device for device in self.devices if device.index == index)
+
     def filter(
         self,
         deep: bool = True,
