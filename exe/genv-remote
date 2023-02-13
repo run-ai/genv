@@ -60,6 +60,43 @@ def enforce_non_env_processes(
             survey.terminate(process.pid)
 
 
+def enforce_env_memory(
+    hosts: Iterable[genv.remote.Host],
+    snapshots: Iterable[genv.Snapshot],
+    surveys: Iterable[genv.enforce.Survey],
+) -> None:
+    for host, snapshot, survey in zip(hosts, snapshots, surveys):
+        for env in snapshot.envs:
+            if env.config.gpu_memory is None:
+                continue
+
+            for device in snapshot.devices.filter(eid=env.eid):
+                processes = snapshot.processes.filter(eid=env.eid, index=device.index)
+
+                used_bytes = sum(process.total_bytes for process in processes)
+
+                over_bytes = used_bytes - genv.utils.memory_to_bytes(
+                    env.config.gpu_memory
+                )
+
+                if not over_bytes > 0:
+                    continue
+
+                print(
+                    f"Environment {env.eid} on host {host.hostname} is using {genv.utils.bytes_to_memory(used_bytes, 'm')} on device {device.index} which is {genv.utils.bytes_to_memory(over_bytes, 'm')} over its capacity of {env.config.gpu_memory}"
+                )
+
+                freed_bytes = 0
+
+                for process in processes:
+                    survey.terminate(process.pid)
+
+                    freed_bytes += process.total_bytes
+
+                    if freed_bytes >= over_bytes:
+                        break
+
+
 def enforce_max_devices_for_user(
     username: str,
     snapshots: Iterable[genv.Snapshot],
@@ -195,6 +232,7 @@ async def do_enforce(
     config: genv.remote.Config,
     interval: int,
     non_env_processes: bool,
+    env_memory: bool,
     max_devices_per_user: Optional[int],
 ) -> None:
     """
@@ -210,6 +248,9 @@ async def do_enforce(
 
         if non_env_processes:
             enforce_non_env_processes(hosts, snapshots, surveys)
+
+        if env_memory:
+            enforce_env_memory(hosts, snapshots, surveys)
 
         if max_devices_per_user is not None:
             enforce_max_devices_per_user(
@@ -382,6 +423,13 @@ def parse_args() -> argparse.Namespace:
             default=False,
         )
 
+        add_enforcement(
+            "env-memory",
+            dest="env_memory",
+            help="enforce environment memory capacity if set",
+            default=True,
+        )
+
         enforcements.add_argument(
             "--max-devices-per-user",
             type=int,
@@ -495,6 +543,7 @@ async def main(config: genv.remote.Config, args: argparse.Namespace) -> None:
             config,
             args.interval,
             args.non_env_processes,
+            args.env_memory,
             args.max_devices_per_user,
         )
     elif args.command == "envs":

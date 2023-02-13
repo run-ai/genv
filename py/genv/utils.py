@@ -75,6 +75,7 @@ def memory_to_bytes(cap: str) -> int:
     return int(cap)  # the value is already in bytes if no unit was specified
 
 
+# TODO(raz): support detecting the most suitable units automatically
 def bytes_to_memory(bytes: int, unit: str, suffix: bool = True) -> str:
     """
     Convert bytes to a memory string.
