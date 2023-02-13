@@ -57,7 +57,7 @@ def enforce_non_env_processes(
                 f"Process {process.pid} on host {host.hostname} is not running in a GPU environment"
             )
 
-            survey.terminate(process)
+            survey.terminate(process.pid)
 
 
 def enforce_max_devices_for_user(
@@ -86,9 +86,7 @@ def enforce_max_devices_for_user(
             if detached == over:
                 break  # already detached enough devices
 
-            survey.detach(
-                [env for env in snapshot.envs.filter(deep=False, eids=device.eids)], device.index
-            )
+            survey.detach(device.eids, device.index)
 
             detached += 1
 

@@ -1,43 +1,43 @@
-from typing import Iterable, Union
+from typing import Iterable, Set, Tuple, Union
 
-from ..envs import Env
-from ..processes import Process
 from ..snapshot import Snapshot
 
 from .report import Report
 
-# TODO(raz): pass entity identifiers as entities passed here can be filtered
-
 
 class Survey:
     def __init__(self) -> None:
-        self._processes_to_terminate = set()
-        self._envs_to_detach = set()
+        self._pids: Set[int] = set()
+        self._eids_indices: Set[Tuple[str, int]] = set()
 
-    def terminate(self, processes: Union[Process, Iterable[Process]]) -> None:
-        if isinstance(processes, Process):
-            processes = [processes]
+    def terminate(self, pids: Union[int, Iterable[int]]) -> None:
+        if isinstance(pids, int):
+            pids = [pids]
 
-        self._processes_to_terminate.update(processes)
+        self._pids.update(pids)
 
-    def detach(self, envs: Union[Env, Iterable[Env]], index: int) -> None:
-        if isinstance(envs, Env):
-            envs = [envs]
+    def detach(self, eids: Union[str, Iterable[str]], index: int) -> None:
+        if isinstance(eids, str):
+            eids = [eids]
 
-        self._envs_to_detach.update((env, index) for env in envs)
+        self._eids_indices.update((eid, index) for eid in eids)
 
     def report(self, snapshot: Snapshot) -> Report:
-        return Report(
-            list(
-                self._processes_to_terminate.union(
+        processes_to_terminate = list(
+            snapshot.processes.filter(
+                deep=False,
+                pids=self._pids.union(
                     set(
-                        process
-                        for env, index in self._envs_to_detach
-                        for process in snapshot.processes.filter(
-                            deep=False, eid=env.eid, index=index
-                        )
+                        process.pid
+                        for eid, index in self._eids_indices
+                        for process in snapshot.processes.filter(eid=eid, index=index)
                     )
-                )
-            ),
-            list(self._envs_to_detach),
+                ),
+            )
         )
+
+        envs_to_detach = [
+            (snapshot.envs[eid], index) for eid, index in self._eids_indices
+        ]
+
+        return Report(processes_to_terminate, envs_to_detach)
