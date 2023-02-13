@@ -43,110 +43,6 @@ async def find_available_host(
     raise RuntimeError("Cannot find a host with enough available resources")
 
 
-def enforce_non_env_processes(
-    hosts: Iterable[genv.remote.Host],
-    snapshots: Iterable[genv.Snapshot],
-    surveys: Iterable[genv.enforce.Survey],
-) -> None:
-    for host, snapshot, survey in zip(hosts, snapshots, surveys):
-        for process in snapshot.processes:
-            if process.eid is not None:
-                continue
-
-            print(
-                f"Process {process.pid} on host {host.hostname} is not running in a GPU environment"
-            )
-
-            survey.terminate(process.pid)
-
-
-def enforce_env_memory(
-    hosts: Iterable[genv.remote.Host],
-    snapshots: Iterable[genv.Snapshot],
-    surveys: Iterable[genv.enforce.Survey],
-) -> None:
-    for host, snapshot, survey in zip(hosts, snapshots, surveys):
-        for env in snapshot.envs:
-            if env.config.gpu_memory is None:
-                continue
-
-            for device in snapshot.devices.filter(eid=env.eid):
-                processes = snapshot.processes.filter(eid=env.eid, index=device.index)
-
-                used_bytes = sum(process.total_bytes for process in processes)
-
-                over_bytes = used_bytes - genv.utils.memory_to_bytes(
-                    env.config.gpu_memory
-                )
-
-                if not over_bytes > 0:
-                    continue
-
-                print(
-                    f"Environment {env.eid} on host {host.hostname} is using {genv.utils.bytes_to_memory(used_bytes, 'm')} on device {device.index} which is {genv.utils.bytes_to_memory(over_bytes, 'm')} over its capacity of {env.config.gpu_memory}"
-                )
-
-                freed_bytes = 0
-
-                for process in processes:
-                    survey.terminate(process.pid)
-
-                    freed_bytes += process.total_bytes
-
-                    if freed_bytes >= over_bytes:
-                        break
-
-
-def enforce_max_devices_for_user(
-    username: str,
-    snapshots: Iterable[genv.Snapshot],
-    surveys: Iterable[genv.enforce.Survey],
-    maximum: int,
-) -> None:
-    attached = sum(len(snapshot.devices) for snapshot in snapshots)
-
-    if attached <= maximum:
-        return
-
-    over = attached - maximum
-
-    hosts = len([snapshot for snapshot in snapshots if len(snapshot.envs) > 0])
-
-    print(
-        f"User {username} is using {attached} devices on {hosts} hosts which is {over} more than the maximum allowed"
-    )
-
-    detached = 0
-
-    for snapshot, survey in zip(snapshots, surveys):
-        for device in snapshot.devices:
-            if detached == over:
-                break  # already detached enough devices
-
-            survey.detach(device.eids, device.index)
-
-            detached += 1
-
-
-def enforce_max_devices_per_user(
-    hosts: Iterable[genv.remote.Host],
-    snapshots: Iterable[genv.Snapshot],
-    surveys: Iterable[genv.enforce.Survey],
-    maximum: int,
-) -> None:
-    usernames = set(
-        env.username for snapshot in snapshots for env in snapshot.envs if env.username
-    )
-
-    for username in usernames:
-        enforce_max_devices_for_user(
-            username,
-            snapshots=[snapshot.filter(username=username) for snapshot in snapshots],
-            surveys=surveys,
-            maximum=maximum,
-        )
-
-
 async def do_activate(
     config: genv.remote.Config,
     gpus: Optional[int],
@@ -232,6 +128,7 @@ async def do_enforce(
     config: genv.remote.Config,
     interval: int,
     non_env_processes: bool,
+    env_devices: bool,
     env_memory: bool,
     max_devices_per_user: Optional[int],
 ) -> None:
@@ -244,24 +141,27 @@ async def do_enforce(
     """
     while True:
         hosts, snapshots = await genv.remote.snapshot(config)
-        surveys = [genv.enforce.Survey() for _ in hosts]
+
+        surveys = [
+            genv.enforce.Survey(snapshot, host.hostname)
+            for host, snapshot in zip(hosts, snapshots)
+        ]
 
         if non_env_processes:
-            enforce_non_env_processes(hosts, snapshots, surveys)
+            genv.enforce.rules.non_env_processes(*surveys)
+
+        if env_devices:
+            genv.enforce.rules.env_devices(*surveys)
 
         if env_memory:
-            enforce_env_memory(hosts, snapshots, surveys)
+            genv.enforce.rules.env_memory(*surveys)
 
         if max_devices_per_user is not None:
-            enforce_max_devices_per_user(
-                hosts, snapshots, surveys, maximum=max_devices_per_user
+            genv.enforce.rules.max_devices_per_user(
+                *surveys, maximum=max_devices_per_user
             )
 
-        # TODO(raz): terminate processes that run in environments but on devices that are not attached
-
-        reports = [
-            survey.report(snapshot) for snapshot, survey in zip(snapshots, surveys)
-        ]
+        reports = [survey.report for survey in surveys]
 
         await genv.remote.enforce.execute(
             config=genv.remote.Config(
@@ -424,6 +324,13 @@ def parse_args() -> argparse.Namespace:
         )
 
         add_enforcement(
+            "env-devices",
+            dest="env_devices",
+            help="enforce environment attached devices",
+            default=True,
+        )
+
+        add_enforcement(
             "env-memory",
             dest="env_memory",
             help="enforce environment memory capacity if set",
@@ -543,6 +450,7 @@ async def main(config: genv.remote.Config, args: argparse.Namespace) -> None:
             config,
             args.interval,
             args.non_env_processes,
+            args.env_devices,
             args.env_memory,
             args.max_devices_per_user,
         )

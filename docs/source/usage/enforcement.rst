@@ -181,6 +181,11 @@ This is mostly used for ensuring that no one runs GPU applications that are not 
 
 This ensures that Genv is the only way that GPU resources are being provisioned in the system.
 
+Environment Devices
+~~~~~~~~~~~~~~~~~~~
+Enabled by default.
+Use the flag :code:`--env-devices` to terminate processes that are using devices which are not attached to their environments.
+
 Environment Memory Capacity
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Enabled by default.
