@@ -69,7 +69,7 @@ def enforce_max_devices_for_user(
             if detached == over:
                 break  # already detached enough devices
 
-            survey.detach(device.eids, device.index)
+            survey.detach(device.index, *device.eids)
 
             detached += 1
 
@@ -191,7 +191,8 @@ async def do_enforce(
     """
     while True:
         hosts, snapshots = await genv.remote.snapshot(config)
-        surveys = [genv.enforce.Survey() for _ in hosts]
+
+        surveys = [genv.enforce.Survey(snapshot) for snapshot in snapshots]
 
         if non_env_processes:
             genv.remote.enforce.rules.non_env_processes(hosts, snapshots, surveys)
@@ -207,9 +208,7 @@ async def do_enforce(
                 hosts, snapshots, surveys, maximum=max_devices_per_user
             )
 
-        reports = [
-            survey.report(snapshot) for snapshot, survey in zip(snapshots, surveys)
-        ]
+        reports = [survey.report for survey in surveys]
 
         await genv.remote.enforce.execute(
             config=genv.remote.Config(

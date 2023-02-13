@@ -1,15 +1,15 @@
 import sys
-from typing import Iterable, Tuple
+from typing import Dict
 
 from .. import os_
 from .. import devices
-from ..envs import Env
-from ..processes import Process
+from .. import envs
+from .. import processes
 
 from .report import Report
 
 
-def _terminate(processes: Iterable[Process]) -> None:
+def _terminate(processes: processes.Snapshot) -> None:
     for process in processes:
         try:
             print(
@@ -26,18 +26,19 @@ def _terminate(processes: Iterable[Process]) -> None:
             print(f"[DEBUG] Process {process.pid} already terminated", file=sys.stderr)
 
 
-def _detach(envs: Iterable[Tuple[Env, int]]) -> None:
-    for env, index in envs:
-        print(
-            f"Detaching environment {env.eid} of user {env.username or 'N/A'} from device {index}"
-        )
+def _detach(envs: Dict[int, envs.Snapshot]) -> None:
+    for index, envs in envs.items():
+        for env in envs:
+            print(
+                f"Detaching environment {env.eid} of user {env.username or 'N/A'} from device {index}"
+            )
 
-        devices.detach(env.eid, index)
+            devices.detach(env.eid, index)
 
 
 def execute(report: Report) -> None:
     """
     Terminates processes and detaches environments from devices according to the given report.
     """
-    _terminate(report.processes_to_terminate)
-    _detach(report.envs_to_detach)
+    _terminate(report.terminate)
+    _detach(report.detach)

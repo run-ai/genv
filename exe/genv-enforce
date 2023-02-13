@@ -27,7 +27,7 @@ def enforce_max_devices_for_user(
         if detached == over:
             break  # already detached enough devices
 
-        survey.detach(device.eids, device.index)
+        survey.detach(device.index, *device.eids)
 
         detached += 1
 
@@ -123,7 +123,8 @@ async def main() -> None:
 
     while True:
         snapshot = await genv.snapshot()
-        survey = genv.enforce.Survey()
+
+        survey = genv.enforce.Survey(snapshot)
 
         if args.non_env_processes:
             genv.enforce.rules.non_env_processes(snapshot, survey)
@@ -139,9 +140,7 @@ async def main() -> None:
                 snapshot, survey, maximum=args.max_devices_per_user
             )
 
-        report = survey.report(snapshot)
-
-        genv.enforce.execute(report)
+        genv.enforce.execute(survey.report)
 
         if args.interval == 0:
             break

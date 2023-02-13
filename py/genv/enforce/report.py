@@ -1,14 +1,14 @@
 from dataclasses import dataclass
-from typing import Iterable, Tuple
+from typing import Dict
 
-from ..envs import Env
-from ..processes import Process
+from .. import envs
+from .. import processes
 
 
 @dataclass
 class Report:
-    processes_to_terminate: Iterable[Process]
-    envs_to_detach: Iterable[Tuple[Env, int]]
+    terminate: processes.Snapshot
+    detach: Dict[int, envs.Snapshot]
 
     def __bool__(self) -> bool:
-        return bool(self.processes_to_terminate) or bool(self.envs_to_detach)
+        return len(self.terminate) > 0 or len(self.detach) > 0
