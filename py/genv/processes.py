@@ -85,6 +85,7 @@ class Snapshot:
         self,
         deep: bool = True,
         *,
+        pids: Optional[Iterable[int]] = None,
         eid: Optional[str] = None,
         eids: Optional[Iterable[str]] = None,
         index: Optional[int] = None,
@@ -93,6 +94,7 @@ class Snapshot:
         Returns a new filtered snapshot.
 
         :param deep: Perform deep filtering
+        :param pids: Process identifiers to keep
         :param eid: Environment identifier to keep
         :param eids: Environment identifiers to keep
         :param username: Username to keep
@@ -107,6 +109,9 @@ class Snapshot:
             eids.add(eid)
 
         processes = self.processes
+
+        if pids is not None:
+            processes = [process for process in processes if process.pid in pids]
 
         if eids is not None:
             processes = [process for process in processes if process.eid in eids]
