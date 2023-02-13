@@ -51,10 +51,14 @@ class Snapshot:
     def __len__(self):
         return self.devices.__len__()
 
+    def __getitem__(self, index: int) -> Device:
+        return next(device for device in self.devices if device.index == index)
+
     def filter(
         self,
         deep: bool = True,
         *,
+        indices: Optional[Iterable[int]] = None,
         eid: Optional[str] = None,
         eids: Optional[Iterable[str]] = None,
         attached: Optional[bool] = None,
@@ -63,6 +67,7 @@ class Snapshot:
         Returns a new filtered snapshot.
 
         :param deep: Perform deep filtering
+        :param indices: Device indices to keep
         :param eid: Environment identifier to keep
         :param eids: Environment identifiers to keep
         :param attached: Keep only devices with environments attached or not
@@ -77,6 +82,9 @@ class Snapshot:
             eids.add(eid)
 
         devices = self.devices
+
+        if indices is not None:
+            devices = [device for device in devices if device.index in indices]
 
         if eids is not None:
             if deep:

@@ -54,6 +54,9 @@ class Snapshot:
     def __len__(self):
         return self.envs.__len__()
 
+    def __getitem__(self, eid: str) -> Env:
+        return next(env for env in self.envs if env.eid == eid)
+
     def filter(
         self,
         deep: bool = True,
