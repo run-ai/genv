@@ -127,13 +127,13 @@ async def main() -> None:
         survey = genv.enforce.Survey(snapshot)
 
         if args.non_env_processes:
-            genv.enforce.rules.non_env_processes(snapshot, survey)
+            genv.enforce.rules.non_env_processes(survey)
 
         if args.env_devices:
-            genv.enforce.rules.env_devices(snapshot, survey)
+            genv.enforce.rules.env_devices(survey)
 
         if args.env_memory:
-            genv.enforce.rules.env_memory(snapshot, survey)
+            genv.enforce.rules.env_memory(survey)
 
         if args.max_devices_per_user is not None:
             enforce_max_devices_per_user(

@@ -1,6 +1,6 @@
 from collections import defaultdict
 from dataclasses import dataclass, field
-from typing import Dict, Set
+from typing import Dict, Optional, Set
 
 from ..snapshot import Snapshot
 
@@ -10,6 +10,7 @@ from .report import Report
 @dataclass
 class Survey:
     snapshot: Snapshot
+    hostname: Optional[str] = None
 
     _pids: Set[int] = field(default_factory=set, init=False)
     _eids: Dict[int, Set[str]] = field(

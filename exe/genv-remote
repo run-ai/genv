@@ -192,16 +192,19 @@ async def do_enforce(
     while True:
         hosts, snapshots = await genv.remote.snapshot(config)
 
-        surveys = [genv.enforce.Survey(snapshot) for snapshot in snapshots]
+        surveys = [
+            genv.enforce.Survey(snapshot, host.hostname)
+            for host, snapshot in zip(hosts, snapshots)
+        ]
 
         if non_env_processes:
-            genv.remote.enforce.rules.non_env_processes(hosts, snapshots, surveys)
+            genv.enforce.rules.non_env_processes(*surveys)
 
         if env_devices:
-            genv.remote.enforce.rules.env_devices(hosts, snapshots, surveys)
+            genv.enforce.rules.env_devices(*surveys)
 
         if env_memory:
-            genv.remote.enforce.rules.env_memory(hosts, snapshots, surveys)
+            genv.enforce.rules.env_memory(*surveys)
 
         if max_devices_per_user is not None:
             enforce_max_devices_per_user(
