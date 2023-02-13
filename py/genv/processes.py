@@ -5,6 +5,7 @@ from typing import Iterable, Optional
 
 from . import nvidia_smi
 from . import os_
+from . import utils
 
 
 @dataclass
@@ -22,6 +23,10 @@ class Process:
         index: int
         gpu_memory: str
 
+        @property
+        def bytes(self) -> int:
+            return utils.memory_to_bytes(self.gpu_memory)
+
     pid: int
     used_gpu_memory: Iterable[Usage]
     eid: Optional[str]
@@ -29,6 +34,10 @@ class Process:
     @property
     def indices(self) -> Iterable[int]:
         return [usage.index for usage in self.used_gpu_memory]
+
+    @property
+    def total_bytes(self) -> int:
+        return sum(usage.bytes for usage in self.used_gpu_memory)
 
     def __hash__(self) -> int:
         return self.pid.__hash__()
