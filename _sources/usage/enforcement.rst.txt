@@ -145,7 +145,7 @@ Therefore, you will probably need to execute the :code:`genv enforce` commands :
 
 Architecture
 ------------
-The command :code:`genv enforce` acts as a foreground daemon, that is running in a while-loop, and executes an enforcement cycle every once in a while.
+The command :code:`genv enforce` acts as a foreground daemon, that is running in a while-loop and executes an enforcement cycle every once in a while.
 
 .. figure:: enforcement-cycle.png
 
@@ -180,6 +180,14 @@ Use the flag :code:`--non-env-processes` to terminate running processes that acc
 This is mostly used for ensuring that no one runs GPU applications that are not managed by Genv on a machine.
 
 This ensures that Genv is the only way that GPU resources are being provisioned in the system.
+
+Environment Memory Capacity
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Enabled by default.
+Use the flag :code:`--env-memory` to terminate processes from environments that exceed their memory capacity.
+
+Processes are terminated only from devices on which the environment is exceeding its memory capacity.
+Not all processes are terminated, but a greedy algorithm terminates processes until enough memory was freed so that the environment does not exceed the capacity any more.
 
 Max Devices per User
 ~~~~~~~~~~~~~~~~~~~~

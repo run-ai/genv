@@ -64,6 +64,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#architecture">Architecture</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#enforcement-rules">Enforcement Rules</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#id4">Non-environment Processes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#environment-memory-capacity">Environment Memory Capacity</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#id5">Max Devices per User</a></li>
 </ul>
 </li>
@@ -130,7 +131,8 @@
 <li><p><a class="reference internal" href="#enforcement-rules" id="id15">Enforcement Rules</a></p>
 <ul>
 <li><p><a class="reference internal" href="#id4" id="id16">Non-environment Processes</a></p></li>
-<li><p><a class="reference internal" href="#id5" id="id17">Max Devices per User</a></p></li>
+<li><p><a class="reference internal" href="#environment-memory-capacity" id="id17">Environment Memory Capacity</a></p></li>
+<li><p><a class="reference internal" href="#id5" id="id18">Max Devices per User</a></p></li>
 </ul>
 </li>
 </ul>
@@ -242,7 +244,7 @@ Therefore, you will probably need to execute the <code class="code docutils lite
 </div>
 <div class="section" id="architecture">
 <span id="id2"></span><h2>Architecture<a class="headerlink" href="#architecture" title="Permalink to this headline">¶</a></h2>
-<p>The command <code class="code docutils literal notranslate"><span class="pre">genv</span> <span class="pre">enforce</span></code> acts as a foreground daemon, that is running in a while-loop, and executes an enforcement cycle every once in a while.</p>
+<p>The command <code class="code docutils literal notranslate"><span class="pre">genv</span> <span class="pre">enforce</span></code> acts as a foreground daemon, that is running in a while-loop and executes an enforcement cycle every once in a while.</p>
 <div class="figure align-default" id="id7">
 <img alt="../_images/enforcement-cycle1.png" src="../_images/enforcement-cycle1.png" />
 <p class="caption"><span class="caption-text">Genv enforcement cycle</span><a class="headerlink" href="#id7" title="Permalink to this image">¶</a></p>
@@ -268,6 +270,13 @@ You can also run <code class="code docutils literal notranslate"><span class="pr
 <p>Use the flag <code class="code docutils literal notranslate"><span class="pre">--non-env-processes</span></code> to terminate running processes that access a GPU and are not running within an environment.</p>
 <p>This is mostly used for ensuring that no one runs GPU applications that are not managed by Genv on a machine.</p>
 <p>This ensures that Genv is the only way that GPU resources are being provisioned in the system.</p>
+</div>
+<div class="section" id="environment-memory-capacity">
+<h3>Environment Memory Capacity<a class="headerlink" href="#environment-memory-capacity" title="Permalink to this headline">¶</a></h3>
+<p>Enabled by default.
+Use the flag <code class="code docutils literal notranslate"><span class="pre">--env-memory</span></code> to terminate processes from environments that exceed their memory capacity.</p>
+<p>Processes are terminated only from devices on which the environment is exceeding its memory capacity.
+Not all processes are terminated, but a greedy algorithm terminates processes until enough memory was freed so that the environment does not exceed the capacity any more.</p>
 </div>
 <div class="section" id="id5">
 <h3>Max Devices per User<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h3>
