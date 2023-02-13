@@ -43,56 +43,6 @@ async def find_available_host(
     raise RuntimeError("Cannot find a host with enough available resources")
 
 
-def enforce_max_devices_for_user(
-    username: str,
-    snapshots: Iterable[genv.Snapshot],
-    surveys: Iterable[genv.enforce.Survey],
-    maximum: int,
-) -> None:
-    attached = sum(len(snapshot.devices) for snapshot in snapshots)
-
-    if attached <= maximum:
-        return
-
-    over = attached - maximum
-
-    hosts = len([snapshot for snapshot in snapshots if len(snapshot.envs) > 0])
-
-    print(
-        f"User {username} is using {attached} devices on {hosts} hosts which is {over} more than the maximum allowed"
-    )
-
-    detached = 0
-
-    for snapshot, survey in zip(snapshots, surveys):
-        for device in snapshot.devices:
-            if detached == over:
-                break  # already detached enough devices
-
-            survey.detach(device.index, *device.eids)
-
-            detached += 1
-
-
-def enforce_max_devices_per_user(
-    hosts: Iterable[genv.remote.Host],
-    snapshots: Iterable[genv.Snapshot],
-    surveys: Iterable[genv.enforce.Survey],
-    maximum: int,
-) -> None:
-    usernames = set(
-        env.username for snapshot in snapshots for env in snapshot.envs if env.username
-    )
-
-    for username in usernames:
-        enforce_max_devices_for_user(
-            username,
-            snapshots=[snapshot.filter(username=username) for snapshot in snapshots],
-            surveys=surveys,
-            maximum=maximum,
-        )
-
-
 async def do_activate(
     config: genv.remote.Config,
     gpus: Optional[int],
@@ -207,8 +157,8 @@ async def do_enforce(
             genv.enforce.rules.env_memory(*surveys)
 
         if max_devices_per_user is not None:
-            enforce_max_devices_per_user(
-                hosts, snapshots, surveys, maximum=max_devices_per_user
+            genv.enforce.rules.max_devices_per_user(
+                *surveys, maximum=max_devices_per_user
             )
 
         reports = [survey.report for survey in surveys]

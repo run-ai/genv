@@ -7,42 +7,6 @@ import sys
 import genv
 
 
-def enforce_max_devices_for_user(
-    username: str, snapshot: genv.Snapshot, survey: genv.enforce.Survey, maximum: int
-) -> None:
-    attached = len(snapshot.devices)
-
-    if attached <= maximum:
-        return
-
-    over = attached - maximum
-
-    print(
-        f"User {username} is using {attached} devices which is {over} more than the maximum allowed"
-    )
-
-    detached = 0
-
-    for device in snapshot.devices:
-        if detached == over:
-            break  # already detached enough devices
-
-        survey.detach(device.index, *device.eids)
-
-        detached += 1
-
-
-def enforce_max_devices_per_user(
-    snapshot: genv.Snapshot, survey: genv.enforce.Survey, maximum: int
-) -> None:
-    usernames = set(env.username for env in snapshot.envs if env.username)
-
-    for username in usernames:
-        enforce_max_devices_for_user(
-            username, snapshot.filter(username=username), survey, maximum
-        )
-
-
 def parse_args() -> argparse.Namespace:
     """
     Parses the arguments passed to this executable.
@@ -136,8 +100,8 @@ async def main() -> None:
             genv.enforce.rules.env_memory(survey)
 
         if args.max_devices_per_user is not None:
-            enforce_max_devices_per_user(
-                snapshot, survey, maximum=args.max_devices_per_user
+            genv.enforce.rules.max_devices_per_user(
+                survey, maximum=args.max_devices_per_user
             )
 
         genv.enforce.execute(survey.report)
