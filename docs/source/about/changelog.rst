@@ -1,6 +1,31 @@
 Changelog
 =========
 
+Version 0.6.0
+-------------
+**Date:** February 14, 2023
+
+Added
+~~~~~
+* Added enforcement rule :code:`env-devices`
+* Added enforcement rule :code:`env-memory`
+* Added command :code:`genv remote query`
+* Added flag :code:`-t --timeout` to :code:`genv remote` to set SSH connection timeout
+* Added flag :code:`-e --exit-on-error` to :code:`genv remote` to exit on SSH connection issues
+* Added flag :code:`-q --quiet` to :code:`genv remote` to ignore SSH connection issues
+* Added flag :code:`--no-prompt` to :code:`genv remote activate` to not change shell prompt
+* Ignoring commented lines in hostfile used in :code:`genv remote`
+* Added query :code:`uid` to :code:`genv-envs query`
+* Set up Google Analytics for documentation site
+
+Changed
+~~~~~~~
+* :code:`genv remote` does not exit on SSH connection issues by default
+* Refactor entities and snapshots in :code:`genv` Python package
+* Refactor remote capabilities in :code:`genv.remote` Python subpackage
+* Combined enforcement rules code under :code:`genv.enforce.rules`
+* Improved development setup and in particular :code:`nvidia-smi` development shim and CPU-only setup for remote features
+
 Version 0.5.0
 -------------
 **Date:** January 27, 2023
