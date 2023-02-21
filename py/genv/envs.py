@@ -48,6 +48,10 @@ class Snapshot:
     def eids(self) -> Iterable[str]:
         return [env.eid for env in self.envs]
 
+    @property
+    def usernames(self) -> Iterable[str]:
+        return set(env.username for env in self.envs if env.username)
+
     def __iter__(self):
         return self.envs.__iter__()
 
