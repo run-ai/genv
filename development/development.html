@@ -81,6 +81,11 @@
 <li class="toctree-l3"><a class="reference internal" href="#build">Build</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="#python-package">Python Package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id4">Build</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#publish-to-pypi">Publish to PyPI</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="reference.html">Reference</a></li>
@@ -119,21 +124,27 @@
 <div class="contents topic" id="contents">
 <p class="topic-title">Contents</p>
 <ul class="simple">
-<li><p><a class="reference internal" href="#development" id="id4">Development</a></p>
+<li><p><a class="reference internal" href="#development" id="id5">Development</a></p>
 <ul>
-<li><p><a class="reference internal" href="#prerequisites" id="id5">Prerequisites</a></p></li>
-<li><p><a class="reference internal" href="#setup" id="id6">Setup</a></p>
+<li><p><a class="reference internal" href="#prerequisites" id="id6">Prerequisites</a></p></li>
+<li><p><a class="reference internal" href="#setup" id="id7">Setup</a></p>
 <ul>
-<li><p><a class="reference internal" href="#local" id="id7">Local</a></p></li>
-<li><p><a class="reference internal" href="#docker" id="id8">Docker</a></p></li>
-<li><p><a class="reference internal" href="#cpu-only-setup" id="id9">CPU-Only Setup</a></p></li>
-<li><p><a class="reference internal" href="#remote-features" id="id10">Remote Features</a></p></li>
+<li><p><a class="reference internal" href="#local" id="id8">Local</a></p></li>
+<li><p><a class="reference internal" href="#docker" id="id9">Docker</a></p></li>
+<li><p><a class="reference internal" href="#cpu-only-setup" id="id10">CPU-Only Setup</a></p></li>
+<li><p><a class="reference internal" href="#remote-features" id="id11">Remote Features</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#docs" id="id11">Docs</a></p>
+<li><p><a class="reference internal" href="#docs" id="id12">Docs</a></p>
 <ul>
-<li><p><a class="reference internal" href="#id3" id="id12">Setup</a></p></li>
-<li><p><a class="reference internal" href="#build" id="id13">Build</a></p></li>
+<li><p><a class="reference internal" href="#id3" id="id13">Setup</a></p></li>
+<li><p><a class="reference internal" href="#build" id="id14">Build</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#python-package" id="id15">Python Package</a></p>
+<ul>
+<li><p><a class="reference internal" href="#id4" id="id16">Build</a></p></li>
+<li><p><a class="reference internal" href="#publish-to-pypi" id="id17">Publish to PyPI</a></p></li>
 </ul>
 </li>
 </ul>
@@ -298,6 +309,30 @@ python -m pip install -r docs/requirements.txt
 <h3>Build<a class="headerlink" href="#build" title="Permalink to this headline">¶</a></h3>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>make -C docs/ html
 </pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="python-package">
+<h2>Python Package<a class="headerlink" href="#python-package" title="Permalink to this headline">¶</a></h2>
+<p>Run the following from the directory <code class="code docutils literal notranslate"><span class="pre">py</span></code>.</p>
+<div class="section" id="id4">
+<h3>Build<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python setup.py sdist bdist_wheel
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>You might need to upgrade <code class="code docutils literal notranslate"><span class="pre">wheel</span></code> using <code class="code docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">wheel==0.31.0</span></code></p>
+</div>
+</div>
+<div class="section" id="publish-to-pypi">
+<h3>Publish to PyPI<a class="headerlink" href="#publish-to-pypi" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python -m twine upload dist/*
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>You might need to <code class="code docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">twine</span></code></p>
 </div>
 </div>
 </div>
