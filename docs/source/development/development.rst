@@ -214,3 +214,28 @@ Build
 .. code-block:: shell
 
     make -C docs/ html
+
+Python Package
+--------------
+
+Run the following from the directory :code:`py`.
+
+Build
+~~~~~
+.. code-block:: shell
+
+    python setup.py sdist bdist_wheel
+
+.. note::
+
+    You might need to upgrade :code:`wheel` using :code:`pip install wheel==0.31.0`
+
+Publish to PyPI
+~~~~~~~~~~~~~~~
+.. code-block:: shell
+
+    python -m twine upload dist/*
+
+.. note::
+
+    You might need to :code:`pip install twine`
