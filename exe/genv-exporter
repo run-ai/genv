@@ -32,17 +32,15 @@ def parse_args() -> argparse.Namespace:
 
 
 def system(snapshot: genv.Snapshot) -> None:
-    metrics.ENVIRONMENTS.set(len(snapshot.envs))
-    metrics.PROCESSES.set(len(snapshot.processes))
-    metrics.ATTACHED_DEVICES.set(len(snapshot.devices.filter(attached=True)))
-    metrics.USERS.set(len(snapshot.envs.usernames))
+    for metric in metrics.SYSTEM:
+        metric.set(snapshot)
 
 
 def environment(env: genv.envs.Env, snapshot: genv.Snapshot) -> None:
     labels = dict(eid=env.eid)
 
-    metrics.ENVIRONMENT_PROCESSES.labels(**labels).set(len(snapshot.processes))
-    metrics.ENVIRONMENT_ATTACHED_DEVICES.labels(**labels).set(len(snapshot.devices))
+    for metric in metrics.ENVIRONMENT:
+        metric.labels(**labels).set(snapshot)
 
 
 def process(process: genv.processes.Process) -> None:
@@ -59,9 +57,8 @@ def process(process: genv.processes.Process) -> None:
 def username(username: str, snapshot: genv.Snapshot) -> None:
     labels = dict(username=username)
 
-    metrics.USER_ENVIRONMENTS.labels(**labels).set(len(snapshot.envs))
-    metrics.USER_PROCESSES.labels(**labels).set(len(snapshot.processes))
-    metrics.USER_ATTACHED_DEVICES.labels(**labels).set(len(snapshot.devices))
+    for metric in metrics.USER:
+        metric.labels(**labels).set(snapshot)
 
 
 async def main(args: argparse.Namespace) -> None:
@@ -74,6 +71,9 @@ async def main(args: argparse.Namespace) -> None:
 
     while True:
         snapshot = await genv.snapshot()
+
+        for metric in metrics.ALL:
+            metric.cleanup(snapshot)
 
         system(snapshot)
 

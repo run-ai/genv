@@ -1,77 +1,196 @@
 import prometheus_client
+from typing import Callable, Iterable, Optional, Tuple, TypeVar, Union
 
-# system
+import genv
 
-ENVIRONMENTS = prometheus_client.Gauge(
+T = TypeVar("T", bound="Metric")
+
+
+class Metric(prometheus_client.Gauge):
+    def __init__(
+        self,
+        name: str,
+        documentation: str,
+        convert: Optional[Callable[[genv.Snapshot], float]] = None,
+        labelnames: Tuple[str] = (),
+        *args,
+        **kwargs,
+    ):
+        super().__init__(name, documentation, labelnames, *args, **kwargs)
+        self._kwargs["convert"] = self.convert = convert
+
+    def labelvalues(self: T) -> Iterable[str]:
+        with self._lock:
+            return list(self._metrics.keys())
+
+    def set(self, value: Union[float, genv.Snapshot]) -> None:
+        """
+        Sets the gague value.
+        This could be explicit or using the provided conversion function on the given snapshot.
+        Note that some metrics expect the snapshot to be already filtered.
+        """
+        if isinstance(value, genv.Snapshot):
+            if self.convert is None:
+                raise RuntimeError(
+                    "Conversion function must be provided for metric when using snapshots"
+                )
+
+            value = self.convert(value)
+
+        super().set(value)
+
+    def cleanup(self, snapshot: genv.Snapshot) -> None:
+        """
+        Cleans up outdated metric labels.
+        """
+        pass
+
+
+class System(Metric):
+    pass
+
+
+ENVIRONMENTS = System(
     "genv_environments_total",
     "Number of active environments",
+    lambda snapshot: len(snapshot.envs),
 )
 
-PROCESSES = prometheus_client.Gauge(
+PROCESSES = System(
     "genv_processes_total",
     "Number of running processes",
+    lambda snapshot: len(snapshot.processes),
 )
 
-ATTACHED_DEVICES = prometheus_client.Gauge(
+ATTACHED_DEVICES = System(
     "genv_attached_devices_total",
     "Number of attached devices",
+    lambda snapshot: len(snapshot.devices.filter(attached=True)),
 )
 
-USERS = prometheus_client.Gauge(
+USERS = System(
     "genv_users_total",
     "Number of active users",
+    lambda snapshot: len(snapshot.envs.usernames),
 )
 
-# per environment
+SYSTEM = [ENVIRONMENTS, PROCESSES, ATTACHED_DEVICES, USERS]
 
-DEFAULT_ENVIRONMENT_LABELS = ["eid"]
 
-ENVIRONMENT_PROCESSES = prometheus_client.Gauge(
+class Environment(Metric):
+    def __init__(
+        self,
+        name: str,
+        documentation: str,
+        convert: Optional[Callable[[genv.Snapshot], float]] = None,
+        labelnames: Tuple[str] = (),
+        *args,
+        **kwargs,
+    ):
+        super().__init__(
+            name, documentation, convert, ("eid",) + labelnames, *args, **kwargs
+        )
+
+    def cleanup(self, snapshot: genv.Snapshot) -> None:
+        for labels in self.labelvalues():
+            eid = labels[0]
+
+            if eid not in snapshot.envs.eids:
+                self.remove(*labels)
+
+
+ENVIRONMENT_PROCESSES = Environment(
     "genv_environment_processes_total",
     "Number of running processes in an environment",
-    DEFAULT_ENVIRONMENT_LABELS,
+    lambda snapshot: len(snapshot.processes),
 )
 
-ENVIRONMENT_ATTACHED_DEVICES = prometheus_client.Gauge(
+ENVIRONMENT_ATTACHED_DEVICES = Environment(
     "genv_environment_attached_devices_total",
     "Number of attached devices of an environment",
-    DEFAULT_ENVIRONMENT_LABELS,
+    lambda snapshot: len(snapshot.devices),
 )
 
-# per process
+ENVIRONMENT = [ENVIRONMENT_PROCESSES, ENVIRONMENT_ATTACHED_DEVICES]
 
-DEFAULT_PROCESS_LABELS = ["pid", "eid"]
 
-PROCESS_DEVICES = prometheus_client.Gauge(
+class Process(Metric):
+    def __init__(
+        self,
+        name: str,
+        documentation: str,
+        convert: Optional[Callable[[genv.Snapshot], float]] = None,
+        labelnames: Tuple[str] = (),
+        *args,
+        **kwargs,
+    ):
+        super().__init__(
+            name, documentation, convert, ("pid", "eid") + labelnames, *args, **kwargs
+        )
+
+    def cleanup(self, snapshot: genv.Snapshot) -> None:
+        for labels in self.labelvalues():
+            pid = int(labels[0])
+
+            if pid not in snapshot.processes.pids:
+                self.remove(*labels)
+
+
+PROCESS_DEVICES = Process(
     "genv_process_devices_total",
     "Number of devices used by a process",
-    DEFAULT_PROCESS_LABELS,
 )
 
-PROCESS_USED_GPU_MEMORY = prometheus_client.Gauge(
+PROCESS_USED_GPU_MEMORY = Process(
     "genv_process_used_gpu_memory_bytes",
     "Used GPU memory by a process",
-    DEFAULT_PROCESS_LABELS + ["device"],
+    labelnames=("device",),
 )
 
-# per user
 
-DEFAULT_USER_LABELS = ["username"]
+PROCESS = [PROCESS_DEVICES, PROCESS_USED_GPU_MEMORY]
 
-USER_ENVIRONMENTS = prometheus_client.Gauge(
+
+class User(Metric):
+    def __init__(
+        self,
+        name: str,
+        documentation: str,
+        convert: Optional[Callable[[genv.Snapshot], float]] = None,
+        labelnames: Tuple[str] = (),
+        *args,
+        **kwargs,
+    ):
+        super().__init__(
+            name, documentation, convert, ("username",) + labelnames, *args, **kwargs
+        )
+
+    def cleanup(self, snapshot: genv.Snapshot) -> None:
+        for labels in self.labelvalues():
+            username = labels[0]
+
+            if username not in snapshot.envs.usernames:
+                self.remove(*labels)
+
+
+USER_ENVIRONMENTS = User(
     "genv_user_environments_total",
     "Number of active environments of a user",
-    DEFAULT_USER_LABELS,
+    lambda snapshot: len(snapshot.envs),
 )
 
-USER_PROCESSES = prometheus_client.Gauge(
+USER_PROCESSES = User(
     "genv_user_processes_total",
     "Number of running processes of a user",
-    DEFAULT_USER_LABELS,
+    lambda snapshot: len(snapshot.processes),
 )
 
-USER_ATTACHED_DEVICES = prometheus_client.Gauge(
+USER_ATTACHED_DEVICES = User(
     "genv_user_attached_devices_total",
     "Number of attached devices of a user",
-    DEFAULT_USER_LABELS,
+    lambda snapshot: len(snapshot.devices),
 )
+
+USER = [USER_ENVIRONMENTS, USER_PROCESSES, USER_ATTACHED_DEVICES]
+
+ALL = SYSTEM + ENVIRONMENT + PROCESS + USER
