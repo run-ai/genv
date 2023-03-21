@@ -9,6 +9,7 @@ import genv
 
 try:
     from genv.prometheus import metrics
+    from genv.prometheus.utils import create_prometheus_config_file
     import prometheus_client
 except ModuleNotFoundError as e:
     if e.name != "prometheus_client":
@@ -20,6 +21,12 @@ except ModuleNotFoundError as e:
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
+
+    parser.add_argument(
+        "--config-file",
+        default=genv.utils.get_temp_file_path("prometheus.yml"),
+        help="Path to create a Prometheus config file at (default: %(default)s)",
+    )
 
     parser.add_argument(
         "-p",
@@ -77,6 +84,8 @@ async def main(args: argparse.Namespace) -> None:
     prometheus_client.REGISTRY.unregister(prometheus_client.PROCESS_COLLECTOR)
 
     prometheus_client.start_http_server(args.port)
+
+    create_prometheus_config_file(args.port, args.config_file)
 
     while True:
         snapshot = await genv.snapshot()

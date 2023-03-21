@@ -19,6 +19,13 @@ MEMORY_TO_BYTES_MULTIPLIERS_DICT = {
 }
 
 
+def get_temp_file_path(filename: str) -> str:
+    """
+    Returns the path of a file with the provided name in the Genv temporary directory.
+    """
+    return os.path.join(os.environ.get("GENV_TMPDIR", "/var/tmp/genv"), filename)
+
+
 @contextmanager
 def access_json(
     filename: str,
@@ -41,7 +48,7 @@ def access_json(
     :param reset: If the reset flag is on,
     :return:
     """
-    path = os.path.join(os.environ.get("GENV_TMPDIR", "/var/tmp/genv"), filename)
+    path = get_temp_file_path(filename)
 
     with Umask(0):
         Path(path).parent.mkdir(parents=True, exist_ok=True, mode=0o777)
