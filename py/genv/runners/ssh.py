@@ -1,7 +1,7 @@
 import asyncio
 import os
 from asyncio.subprocess import Process
-from typing import Dict, Optional, Iterable, List, Tuple
+from typing import Dict, Optional, List, Tuple
 
 from .runner import Runner
 
@@ -52,7 +52,7 @@ class SshRunner(Runner):
         return f"Failed to run a command using ssh on {self.host_name}: command: '{command}' ({stderr})"
 
     @staticmethod
-    def _add_environment_vars(command: str, process_env: Optional[Dict[str, str]] = None):
+    def _add_environment_vars(command: str, process_env: Dict[str, str]):
         env_str = " ".join([f'{var_key}={var_value}' for var_key, var_value in process_env.items()])
         command = f'env {env_str} {command}'
         return command
