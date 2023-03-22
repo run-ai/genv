@@ -75,9 +75,9 @@ async def run(
         )
     )
 
-    processes = [process for process, _, _, _ in ssh_outputs]
-    stdouts = [stdout for _, stdout, _, _ in ssh_outputs]
-    stderrs = [stderr for _, _, stderr, _ in ssh_outputs]
+    processes = [process for process, _, _ in ssh_outputs]
+    stdouts = [stdout for _, stdout, _ in ssh_outputs]
+    stderrs = [stderr for _, _, stderr in ssh_outputs]
 
     def filter(
         objs: Iterable[Any], pred: Callable[[asyncio.subprocess.Process], bool]
