@@ -1,10 +1,10 @@
 import asyncio
 from dataclasses import dataclass
-import os
 import sys
 from typing import Any, Callable, Iterable, Optional, Tuple
 
 from .utils import reprint
+from ..runners.ssh import SshRunner
 
 
 @dataclass
@@ -49,45 +49,6 @@ class Command:
     sudo: bool = False
 
 
-async def start(host: Host, command: Command, stdin: int) -> asyncio.subprocess.Process:
-    """
-    Starts a background process that runs a Genv command on a remote host over SSH.
-
-    :param host: Host configuration
-    :param command: Genv command specification
-    :param stdin: Standard input
-
-    :return: Returns the SSH process
-    """
-    args = []
-
-    if host.timeout is not None:
-        args.append(f"-o ConnectTimeout={host.timeout}")
-
-    path = f"$PATH:{host.root}/bin"
-
-    # add development shims to remote $PATH if in the local $PATH
-    if os.path.realpath(os.path.join(os.environ["GENV_ROOT"], "devel/shims")) in [
-        os.path.realpath(path) for path in os.environ["PATH"].split(":")
-    ]:
-        path = f"{path}:{host.root}/devel/shims"
-
-    cmd = f'env PATH="{path}" genv {" ".join(command.args)}'
-
-    if command.sudo:
-        cmd = f"sudo {cmd}"
-
-    return await asyncio.create_subprocess_exec(
-        "ssh",
-        *args,
-        host.hostname,
-        cmd,
-        stdin=stdin,
-        stdout=asyncio.subprocess.PIPE,
-        stderr=asyncio.subprocess.PIPE,
-    )
-
-
 async def run(
     config: Config, command: Command, stdins: Optional[Iterable[str]] = None
 ) -> Tuple[Iterable[Host], Iterable[str]]:
@@ -102,24 +63,21 @@ async def run(
 
     :return: Returns the hosts that succeeded and their standard outputs
     """
-    processes = [
-        await start(
-            host,
-            command,
-            asyncio.subprocess.PIPE if stdins else asyncio.subprocess.DEVNULL,
-        )
-        for host in config.hosts
-    ]
+    ssh_runners_and_inputs = []
+    for host, stdin in zip(config.hosts, stdins or [None for _ in config.hosts]):
+        ssh_runner = SshRunner(host.hostname, host.timeout, {'PATH': SshRunner.calc_remote_path_env(host.root)})
+        ssh_runners_and_inputs.append((ssh_runner, stdin))
 
-    outputs = await asyncio.gather(
+    ssh_outputs = await asyncio.gather(
         *(
-            process.communicate(stdin.encode("utf-8") if stdin else None)
-            for process, stdin in zip(processes, stdins or [None for _ in config.hosts])
+            ssh_runner.run("genv", *command.args, stdin=stdin, sudo=command.sudo)
+            for ssh_runner, stdin in ssh_runners_and_inputs
         )
     )
 
-    stdouts = [stdout.decode("utf-8").strip() for stdout, _ in outputs]
-    stderrs = [stderr.decode("utf-8").strip() for _, stderr in outputs]
+    processes = [process for process, _, _ in ssh_outputs]
+    stdouts = [stdout for _, stdout, _ in ssh_outputs]
+    stderrs = [stderr for _, _, stderr in ssh_outputs]
 
     def filter(
         objs: Iterable[Any], pred: Callable[[asyncio.subprocess.Process], bool]
