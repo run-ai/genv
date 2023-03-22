@@ -16,7 +16,6 @@ class Runner(ABC):
         stdin_fd = asyncio.subprocess.PIPE if stdin else asyncio.subprocess.DEVNULL
         process = await self._open_process(*args,
                                            stdin_fd=stdin_fd,
-                                           process_env=self._process_env,
                                            sudo=sudo)
 
         stdout, stderr = await process.communicate(stdin.encode(Runner.DEFAULT_STD_ENCODING) if stdin else None)
@@ -30,8 +29,7 @@ class Runner(ABC):
         raise NotImplementedError('This should be implemented in subclasses')
 
     @abstractmethod
-    async def _open_process(self, *args: str, stdin_fd: int, process_env: Optional[Dict[str, str]],
-                            sudo: bool) -> Process:
+    async def _open_process(self, *args: str, stdin_fd: int, sudo: bool) -> Process:
         raise NotImplementedError('This should be implemented in subclasses')
 
     @abstractmethod
