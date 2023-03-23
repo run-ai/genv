@@ -8,14 +8,13 @@ import time
 import genv
 
 try:
-    from genv.prometheus import metrics
-    from genv.prometheus.utils import create_prometheus_config_file
+    from genv.metrics import metrics, publisher
     import prometheus_client
 except ModuleNotFoundError as e:
     if e.name != "prometheus_client":
         raise
 
-    print(f"ERROR: Python package '{e.name}' is required")
+    print(f"ERROR: Python package '{e.name}' is required", file=sys.stderr)
     exit(1)
 
 
@@ -23,9 +22,9 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
 
     parser.add_argument(
-        "--config-file",
-        default=genv.utils.get_temp_file_path("prometheus.yml"),
-        help="Path to create a Prometheus config file at (default: %(default)s)",
+        "--config-dir",
+        default=genv.utils.get_temp_file_path("metrics"),
+        help="Directory to create Prometheus and Grafana config files at (default: %(default)s)",
     )
 
     parser.add_argument(
@@ -85,7 +84,7 @@ async def main(args: argparse.Namespace) -> None:
 
     prometheus_client.start_http_server(args.port)
 
-    create_prometheus_config_file(args.port, args.config_file)
+    publisher.publish_config_files(args.config_dir, prometheus_exporter_port=args.port)
 
     while True:
         snapshot = await genv.snapshot()
