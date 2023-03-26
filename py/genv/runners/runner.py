@@ -25,7 +25,7 @@ class Runner(ABC):
         return process, stdout, stderr
 
     async def run_to_success(self, *args: str, stdin: Optional[str] = None, sudo: bool = False) -> str:
-        process, stdout, stderr = self.run(*args, stdin=stdin, sudo=sudo)
+        process, stdout, stderr = await self.run(*args, stdin=stdin, sudo=sudo)
 
         if process.returncode != 0:
             command = " ".join(args)
