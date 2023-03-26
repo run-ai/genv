@@ -24,6 +24,17 @@ class Runner(ABC):
 
         return process, stdout, stderr
 
+    async def run_to_success(self, *args: str, stdin: Optional[str] = None, sudo: bool = False) -> str:
+        process, stdout, stderr = self.run(*args, stdin=stdin, sudo=sudo)
+
+        if process.returncode != 0:
+            command = " ".join(args)
+            raise RuntimeError(
+                f"Failed running '{command}' ({stderr})"
+            )
+        else:
+            return stdout
+
     @abstractmethod
     def name(self) -> str:
         raise NotImplementedError('This should be implemented in subclasses')
