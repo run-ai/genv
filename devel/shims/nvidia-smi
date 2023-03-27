@@ -138,7 +138,7 @@ Fri Dec 23 23:11:41 2022
         "+-----------------------------------------------------------------------------+"
     )
 
-elif args == ["--query-gpu=uuid,index", "--format=csv,noheader"]:
+elif args == ["--query-gpu=uuid,index", "--format=csv,noheader,nounits"]:
     for device in devices:
         print(f"{device.uuid}, {device.index}")
 elif args == [
