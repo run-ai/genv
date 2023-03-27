@@ -18,7 +18,7 @@ async def device_uuids(runner: Runner = DEFAULT_LOCAL_RUNNER) -> Dict[str, int]:
 
     :return: A mapping from device UUID to its index
     """
-    stdout = await runner.run_to_success(NVIDIA_SMI, "--query-gpu=uuid,index", CSV_FORMAT_PARAM)
+    stdout = (await runner.run(NVIDIA_SMI, "--query-gpu=uuid,index", CSV_FORMAT_PARAM, check=True)).stdout
 
     mapping = dict()
 
@@ -33,11 +33,13 @@ async def compute_apps(runner: Runner = DEFAULT_LOCAL_RUNNER) -> Iterable[Dict]:
     """
     Queries the running compute apps.
     """
-    output = await runner.run_to_success(
-        NVIDIA_SMI,
-        "--query-compute-apps=gpu_uuid,pid,used_gpu_memory",
-        CSV_FORMAT_PARAM,
-    )
+    output = (
+        await runner.run(
+            NVIDIA_SMI,
+            "--query-compute-apps=gpu_uuid,pid,used_gpu_memory",
+            CSV_FORMAT_PARAM,
+            check=True)
+    ).stdout
 
     apps = []
 
