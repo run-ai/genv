@@ -8,7 +8,7 @@ import time
 import genv
 
 try:
-    from genv.metrics import metrics, publisher
+    from genv.metrics import Collection, Metric, Type, publish_config_files, SPECS
     import prometheus_client
 except ModuleNotFoundError as e:
     if e.name != "prometheus_client":
@@ -46,25 +46,40 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
+METRICS = Collection(
+    {
+        name: Metric(
+            spec.name,
+            spec.documentation,
+            spec.labelnames,
+            type=spec.type,
+            convert=spec.convert,
+            filter=spec.filter,
+        )
+        for name, spec in SPECS.items()
+    }
+)
+
+
 def system(snapshot: genv.Snapshot) -> None:
-    for metric in metrics.SYSTEM:
+    for metric in METRICS.filter(Type.System):
         metric.set(snapshot)
 
 
 def environment(env: genv.envs.Env, snapshot: genv.Snapshot) -> None:
     labels = dict(eid=env.eid)
 
-    for metric in metrics.ENVIRONMENT:
+    for metric in METRICS.filter(Type.Environment):
         metric.labels(**labels).set(snapshot)
 
 
 def process(process: genv.processes.Process) -> None:
     labels = dict(pid=process.pid, eid=process.eid or "")
 
-    metrics.PROCESS_DEVICES.labels(**labels).set(len(process.indices))
+    METRICS["PROCESS_DEVICES"].labels(**labels).set(len(process.indices))
 
     for usage in process.used_gpu_memory:
-        metrics.PROCESS_USED_GPU_MEMORY.labels(**labels, device=usage.index).set(
+        METRICS["PROCESS_USED_GPU_MEMORY"].labels(**labels, device=usage.index).set(
             usage.bytes
         )
 
@@ -72,7 +87,7 @@ def process(process: genv.processes.Process) -> None:
 def username(username: str, snapshot: genv.Snapshot) -> None:
     labels = dict(username=username)
 
-    for metric in metrics.USER:
+    for metric in METRICS.filter(Type.User):
         metric.labels(**labels).set(snapshot)
 
 
@@ -84,12 +99,12 @@ async def main(args: argparse.Namespace) -> None:
 
     prometheus_client.start_http_server(args.port)
 
-    publisher.publish_config_files(args.config_dir, prometheus_exporter_port=args.port)
+    publish_config_files(args.config_dir, prometheus_exporter_port=args.port)
 
     while True:
         snapshot = await genv.snapshot()
 
-        for metric in metrics.ALL:
+        for metric in METRICS:
             metric.cleanup(snapshot)
 
         system(snapshot)
