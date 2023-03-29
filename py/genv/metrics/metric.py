@@ -1,4 +1,4 @@
-from typing import Callable, Iterable, Optional, Tuple, Union
+from typing import Callable, Iterable, Optional, Tuple
 
 import prometheus_client
 
@@ -27,21 +27,30 @@ class Metric(prometheus_client.Gauge):
         self._kwargs["convert"] = self.convert = convert
         self._kwargs["filter"] = self.filter = filter
 
-    def set(self, value: Union[float, Snapshot]) -> None:
+    @property
+    def name(self) -> str:
+        return self._name
+
+    def update(self, snapshot: Snapshot) -> None:
         """
-        Sets the gague value.
-        This could be explicit or using the provided conversion function on the given snapshot.
+        Update the metric value according to the given snapshot.
         Note that some metrics expect the snapshot to be already filtered.
         """
-        if isinstance(value, Snapshot):
-            if self.convert is None:
-                raise RuntimeError(
-                    "Conversion function must be provided for metric when using snapshots"
-                )
+        if self.convert is None:
+            raise RuntimeError(
+                "Conversion function must be provided when using snapshots"
+            )
 
-            value = self.convert(value)
+        self.set(self.convert(snapshot))
 
-        super().set(value)
+    def labels(self, *labelvalues, **labelkwargs):
+        """
+        Sets metric label values if passed.
+        """
+        if labelvalues or labelkwargs:
+            return super().labels(*labelvalues, **labelkwargs)
+
+        return self
 
     def cleanup(self, snapshot: Snapshot) -> None:
         """

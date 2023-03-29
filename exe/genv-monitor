@@ -8,7 +8,7 @@ import time
 import genv
 
 try:
-    from genv.metrics import Collection, Metric, Type, publish_config_files, SPECS
+    from genv.metrics import Collection, Metric, publish_config_files, SPECS
     import prometheus_client
 except ModuleNotFoundError as e:
     if e.name != "prometheus_client":
@@ -46,21 +46,6 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-METRICS = Collection(
-    {
-        name: Metric(
-            spec.name,
-            spec.documentation,
-            spec.labelnames,
-            type=spec.type,
-            convert=spec.convert,
-            filter=spec.filter,
-        )
-        for name, spec in SPECS.items()
-    }
-)
-
-
 async def main(args: argparse.Namespace) -> None:
     # https://github.com/prometheus/client_python#disabling-default-collector-metrics
     prometheus_client.REGISTRY.unregister(prometheus_client.GC_COLLECTOR)
@@ -71,39 +56,27 @@ async def main(args: argparse.Namespace) -> None:
 
     publish_config_files(args.config_dir, prometheus_exporter_port=args.port)
 
+    collection = Collection(
+        [
+            Metric(
+                spec.name,
+                spec.documentation,
+                spec.labelnames,
+                type=spec.type,
+                convert=spec.convert,
+                filter=spec.filter,
+            )
+            for spec in SPECS
+        ]
+    )
+
     while True:
         snapshot = await genv.snapshot()
 
-        for metric in METRICS:
+        for metric in collection:
             metric.cleanup(snapshot)
 
-        for metric in METRICS.filter(Type.System):
-            metric.set(snapshot)
-
-        for env in snapshot.envs:
-            env_snapshot = snapshot.filter(eid=env.eid)
-
-            for metric in METRICS.filter(Type.Environment):
-                metric.labels(eid=env.eid).set(env_snapshot)
-
-        for process in snapshot.processes:
-            labels = dict(
-                pid=process.pid,
-                eid=process.eid or "",
-            )
-
-            METRICS["PROCESS_DEVICES"].labels(**labels).set(len(process.indices))
-
-            for usage in process.used_gpu_memory:
-                METRICS["PROCESS_USED_GPU_MEMORY"].labels(
-                    **labels, device=usage.index
-                ).set(usage.bytes)
-
-        for username in snapshot.envs.usernames:
-            user_snapshot = snapshot.filter(username=username)
-
-            for metric in METRICS.filter(Type.User):
-                metric.labels(username=username).set(user_snapshot)
+        collection.update(snapshot)
 
         time.sleep(args.interval)
 

@@ -150,9 +150,9 @@ USER_ATTACHED_DEVICES = User(
 )
 
 
-ALL = {
-    name: spec
-    for name, spec in inspect.getmembers(
+ALL = [
+    spec
+    for _, spec in inspect.getmembers(
         sys.modules[__name__], lambda o: isinstance(o, Spec)
     )
-}
+]
