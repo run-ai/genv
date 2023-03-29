@@ -1,37 +1,54 @@
-from dataclasses import dataclass
-from typing import Generic, Iterable, TypeVar
+from typing import Iterable
 
 from genv.metrics.metric import Metric
+from genv.metrics.spec import Spec
 from genv.metrics.type import Type
 from genv.snapshot import Snapshot
 
 
-T = TypeVar("T", bound=Metric)
-
-
-@dataclass
-class Collection(Generic[T]):
+class Collection:
     """
     A metric collection.
     """
 
-    metrics: Iterable[T]
-
-    def filter(self, type: Type):
-        """
-        Returns a new filtered collection.
-        """
-        return Collection([metric for metric in self.metrics if metric.type == type])
+    def __init__(self, specs: Iterable[Spec]) -> None:
+        self._metrics = [
+            Metric(
+                spec.name,
+                spec.documentation,
+                spec.labelnames,
+                type=spec.type,
+                convert=spec.convert,
+                filter=spec.filter,
+            )
+            for spec in specs
+        ]
 
     def __iter__(self):
-        return self.metrics.__iter__()
+        return self._metrics.__iter__()
 
-    def __getitem__(self, name: str) -> T:
-        return next(metric for metric in self.metrics if metric.name == name)
+    def __getitem__(self, name: str) -> Metric:
+        return next(metric for metric in self if metric.name == name)
 
-    def update(self, snapshot: Snapshot, labels: dict = {}):
+    def _find(self, type: Type) -> Iterable[Metric]:
         """
-        Updates metics according to the given snapshot.
+        Returns all metrics of the given type.
+        """
+        return [metric for metric in self if metric.type == type]
+
+    def cleanup(self, snapshot: Snapshot) -> None:
+        """
+        Cleans up metric label values.
+        """
+        for metric in self:
+            if not metric.filter:
+                continue
+
+            metric.cleanup(lambda label_set: metric.filter(label_set, snapshot))
+
+    def update(self, snapshot: Snapshot, labels: dict = {}) -> None:
+        """
+        Updates metrics according to the given snapshot.
         """
         for group in [
             self._system,
@@ -45,7 +62,7 @@ class Collection(Generic[T]):
         """
         Updates system-wide metrics.
         """
-        for metric in self.filter(Type.System):
+        for metric in self._find(Type.System):
             metric.labels(**labels).update(snapshot)
 
     def _env(self, snapshot: Snapshot, labels: dict) -> None:
@@ -55,7 +72,7 @@ class Collection(Generic[T]):
         for env in snapshot.envs:
             env_snapshot = snapshot.filter(eid=env.eid)
 
-            for metric in self.filter(Type.Environment):
+            for metric in self._find(Type.Environment):
                 metric.labels(eid=env.eid, **labels).update(env_snapshot)
 
     def _device(self, snapshot: Snapshot, labels: dict) -> None:
@@ -82,5 +99,5 @@ class Collection(Generic[T]):
         for username in snapshot.envs.usernames:
             user_snapshot = snapshot.filter(username=username)
 
-            for metric in self.filter(Type.User):
+            for metric in self._find(Type.User):
                 metric.labels(username=username, **labels).update(user_snapshot)

@@ -8,7 +8,7 @@ import time
 import genv
 
 try:
-    from genv.metrics import Collection, Metric, publish_config_files, SPECS
+    from genv.metrics import Collection, publish_config_files, SPECS
     import prometheus_client
 except ModuleNotFoundError as e:
     if e.name != "prometheus_client":
@@ -56,26 +56,12 @@ async def main(args: argparse.Namespace) -> None:
 
     publish_config_files(args.config_dir, prometheus_exporter_port=args.port)
 
-    collection = Collection(
-        [
-            Metric(
-                spec.name,
-                spec.documentation,
-                spec.labelnames,
-                type=spec.type,
-                convert=spec.convert,
-                filter=spec.filter,
-            )
-            for spec in SPECS
-        ]
-    )
+    collection = Collection(SPECS)
 
     while True:
         snapshot = await genv.snapshot()
 
-        for metric in collection:
-            metric.cleanup(snapshot)
-
+        collection.cleanup(snapshot)
         collection.update(snapshot)
 
         time.sleep(args.interval)

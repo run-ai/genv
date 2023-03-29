@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Callable, Optional, Tuple
+from typing import Callable, Iterable, Optional, Tuple
 from genv.metrics.type import Type
 
 from genv.snapshot import Snapshot
@@ -16,4 +16,4 @@ class Spec:
     documentation: str
     labelnames: Tuple[str] = ()
     convert: Optional[Callable[[Snapshot], float]] = None
-    filter: Optional[Callable[[Tuple[str], Snapshot], bool]] = None
+    filter: Optional[Callable[[Iterable[str], Snapshot], bool]] = None
