@@ -53,7 +53,7 @@ class Collection:
         for group in [
             self._system,
             self._env,
-            self._device,
+            self._process,
             self._user,
         ]:
             group(snapshot, labels)
@@ -75,9 +75,9 @@ class Collection:
             for metric in self._find(Type.Environment):
                 metric.labels(eid=env.eid, **labels).update(env_snapshot)
 
-    def _device(self, snapshot: Snapshot, labels: dict) -> None:
+    def _process(self, snapshot: Snapshot, labels: dict) -> None:
         """
-        Updates per-device metrics.
+        Updates per-process metrics.
         """
         for process in snapshot.processes:
             pid = process.pid
