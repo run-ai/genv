@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-9BRBX45HVB"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-9BRBX45HVB');
+    </script>
+    
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Monitoring &mdash; genv 0.6.0 documentation</title><link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Overview" href="../remote/overview.html" />
+    <link rel="prev" title="Enforcement" href="enforcement.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            genv
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption"><span class="caption-text">Usage</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="advanced-usage.html">Advanced Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="enforcement.html">Enforcement</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Monitoring</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#overview">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#quick-start">Quick start</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#prerequisites">Prerequisites</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#running-the-monitoring-service">Running the monitoring service</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#prometheus">Prometheus</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#grafana">Grafana</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#reference">Reference</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption"><span class="caption-text">Remote Usage</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../remote/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../remote/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../remote/usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../remote/enforcement.html">Enforcement</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../remote/monitoring.html">Monitoring</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../development/development.html">Development</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../development/reference.html">Reference</a></li>
+</ul>
+<p class="caption"><span class="caption-text">About</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../about/changelog.html">Changelog</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">genv</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Monitoring</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/usage/monitoring.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <div class="section" id="monitoring">
+<h1>Monitoring<a class="headerlink" href="#monitoring" title="Permalink to this headline">¶</a></h1>
+<div class="contents topic" id="contents">
+<p class="topic-title">Contents</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#monitoring" id="id3">Monitoring</a></p>
+<ul>
+<li><p><a class="reference internal" href="#overview" id="id4">Overview</a></p></li>
+<li><p><a class="reference internal" href="#quick-start" id="id5">Quick start</a></p>
+<ul>
+<li><p><a class="reference internal" href="#prerequisites" id="id6">Prerequisites</a></p></li>
+<li><p><a class="reference internal" href="#running-the-monitoring-service" id="id7">Running the monitoring service</a></p></li>
+<li><p><a class="reference internal" href="#prometheus" id="id8">Prometheus</a></p></li>
+<li><p><a class="reference internal" href="#grafana" id="id9">Grafana</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#reference" id="id10">Reference</a></p></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This article talks about monitoring the local machine only.
+For more information about how to monitor multiple machines, see <a class="reference internal" href="../remote/monitoring.html"><span class="doc">here</span></a>.</p>
+</div>
+<div class="section" id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h2>
+<p>Genv supports system and resource monitoring using <a class="reference external" href="https://prometheus.io/">Prometheus</a> and <a class="reference external" href="https://grafana.com/">Grafana</a>.</p>
+<div class="figure align-default" id="id1">
+<img alt="../_images/monitoring-overview1.png" src="../_images/monitoring-overview1.png" />
+<p class="caption"><span class="caption-text">Genv monitoring overview</span><a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>
+</div>
+<p>This is done with the Genv monitoring service that collects metrics about the system and resources and exports it in Prometheus format.</p>
+<p>The monitoring service provides default configuration files for Prometheus and Grafana as well as a default Grafana dashboard.
+This means that everything works as plug-and-play right out of the box.</p>
+</div>
+<div class="section" id="quick-start">
+<h2>Quick start<a class="headerlink" href="#quick-start" title="Permalink to this headline">¶</a></h2>
+<p>This is a guide to get started with monitoring features in Genv.</p>
+<div class="section" id="prerequisites">
+<h3>Prerequisites<a class="headerlink" href="#prerequisites" title="Permalink to this headline">¶</a></h3>
+<p>First, you will need to install the <code class="code docutils literal notranslate"><span class="pre">prometheus-client</span></code> <a class="reference external" href="https://pypi.org/project/prometheus-client">PyPI package</a>:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>pip install prometheus-client
+</pre></div>
+</div>
+</div>
+<div class="section" id="running-the-monitoring-service">
+<h3>Running the monitoring service<a class="headerlink" href="#running-the-monitoring-service" title="Permalink to this headline">¶</a></h3>
+<p>Now, start the monitoring service using the following command:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>genv monitor
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><code class="code docutils literal notranslate"><span class="pre">genv</span> <span class="pre">monitor</span></code> acts as a foreground daemon and runs until a <code class="code docutils literal notranslate"><span class="pre">Ctrl+C</span></code> is received.
+Therefore, you will need to keep the terminal running while monitoring the system.</p>
+</div>
+</div>
+<div class="section" id="prometheus">
+<span id="monitoring-prometheus"></span><h3>Prometheus<a class="headerlink" href="#prometheus" title="Permalink to this headline">¶</a></h3>
+<p>First, <a class="reference external" href="https://prometheus.io/download/">download</a> the Prometheus precompiled binaries.</p>
+<p>Then, open another terminal and unzip the archive file using the command:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>tar xvfz prometheus-*.tar.gz
+<span class="nb">cd</span> prometheus-*/
+</pre></div>
+</div>
+<p>The Genv monitoring service publishes a configuration file for Prometheus.
+By default, it is published at <code class="code docutils literal notranslate"><span class="pre">/var/tmp/genv/metrics/prometheus/prometheus.yml</span></code>.</p>
+<p>You can see its contents using <code class="code docutils literal notranslate"><span class="pre">cat</span></code>:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$ cat /var/tmp/genv/metrics/prometheus/prometheus.yml
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+- job_name: genv
+  static_configs:
+    - targets: <span class="o">[</span><span class="s1">&#39;localhost:8000&#39;</span><span class="o">]</span>
+</pre></div>
+</div>
+<p>This essentially tells Prometheus to scrape the Genv exporter which is available at port 8000 thanks to the monitoring service we ran using the command <code class="code docutils literal notranslate"><span class="pre">genv</span> <span class="pre">monitor</span></code>.</p>
+<p>Now, let’s run Prometheus and specify the configuration file path:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>./prometheus --config.file<span class="o">=</span>/var/tmp/genv/metrics/prometheus/prometheus.yml
+</pre></div>
+</div>
+<p>Now, you can open your browser at <a class="reference external" href="http://localhost:9090">http://localhost:9090</a> and access Genv metrics.</p>
+</div>
+<div class="section" id="grafana">
+<span id="monitoring-grafana"></span><h3>Grafana<a class="headerlink" href="#grafana" title="Permalink to this headline">¶</a></h3>
+<p>First, open another terminal and <a class="reference external" href="https://grafana.com/grafana/download">download and extract</a> the Grafana precompiled binaries.
+Then, enter the directory:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span> grafana-*/
+</pre></div>
+</div>
+<p>The Genv monitoring service publishes a configuration file for Grafana.
+By default, it is published at <code class="code docutils literal notranslate"><span class="pre">/var/tmp/genv/metrics/grafana/grafana.ini</span></code>.</p>
+<p>You can see its contents using <code class="code docutils literal notranslate"><span class="pre">cat</span></code>:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$ cat /var/tmp/genv/metrics/grafana/grafana.ini
+<span class="o">[</span>auth.anonymous<span class="o">]</span>
+<span class="nv">enabled</span> <span class="o">=</span> <span class="nb">true</span>
+<span class="nv">org_name</span> <span class="o">=</span> Main Org.
+<span class="nv">org_role</span> <span class="o">=</span> Viewer
+
+<span class="o">[</span>paths<span class="o">]</span>
+<span class="nv">provisioning</span> <span class="o">=</span> /var/tmp/genv/metrics/grafana/provisioning
+
+<span class="o">[</span>dashboards<span class="o">]</span>
+<span class="nv">default_home_dashboard_path</span><span class="o">=</span>/var/tmp/genv/metrics/grafana/dashboards/overview.json
+</pre></div>
+</div>
+<p>This essentially tells Grafana where its datasources and dashboards are, as well as configures the default dashboard.</p>
+<p>As mentioned before, the Genv monitoring service also provides a Prometheus data source as well as dashboards.
+You can see the contents of <code class="code docutils literal notranslate"><span class="pre">/var/tmp/genv/metrics/grafana</span></code> using <code class="code docutils literal notranslate"><span class="pre">find</span></code>:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>find /var/tmp/genv/metrics/grafana
+/var/tmp/genv/metrics/grafana
+/var/tmp/genv/metrics/grafana/dashboards
+/var/tmp/genv/metrics/grafana/dashboards/overview.json
+/var/tmp/genv/metrics/grafana/provisioning
+/var/tmp/genv/metrics/grafana/provisioning/datasources
+/var/tmp/genv/metrics/grafana/provisioning/datasources/default.yml
+/var/tmp/genv/metrics/grafana/provisioning/dashboards
+/var/tmp/genv/metrics/grafana/provisioning/dashboards/default.yml
+/var/tmp/genv/metrics/grafana/grafana.ini
+</pre></div>
+</div>
+<p>Now, let’s run Grafana and specify the configuration file path:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>./bin/grafana-server --config /var/tmp/genv/metrics/grafana/grafana.ini web
+</pre></div>
+</div>
+<p>Now, you can open your browser at <a class="reference external" href="http://localhost:3000">http://localhost:3000</a> and see the Genv dashboard.
+You should now see a dashboard similar to the following:</p>
+<div class="figure align-default" id="id2">
+<img alt="../_images/monitoring-dashboard.png" src="../_images/monitoring-dashboard.png" />
+<p class="caption"><span class="caption-text">Genv monitoring dashboard</span><a class="headerlink" href="#id2" title="Permalink to this image">¶</a></p>
+</div>
+</div>
+</div>
+<div class="section" id="reference">
+<span id="metrics-reference"></span><h2>Reference<a class="headerlink" href="#reference" title="Permalink to this headline">¶</a></h2>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Metric</p></th>
+<th class="head"><p>Labels</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="code docutils literal notranslate"><span class="pre">genv_device_utilization</span></code>*</p></td>
+<td><p><code class="code docutils literal notranslate"><span class="pre">index</span></code></p></td>
+<td><p>Device utilization</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="code docutils literal notranslate"><span class="pre">genv_device_memory_used_bytes</span></code>*</p></td>
+<td><p><code class="code docutils literal notranslate"><span class="pre">index</span></code></p></td>
+<td><p>Device used memory in bytes</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="code docutils literal notranslate"><span class="pre">genv_environments_total</span></code></p></td>
+<td></td>
+<td><p>Number of active environments</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="code docutils literal notranslate"><span class="pre">genv_processes_total</span></code></p></td>
+<td></td>
+<td><p>Number of running processes</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="code docutils literal notranslate"><span class="pre">genv_attached_devices_total</span></code></p></td>
+<td></td>
+<td><p>Number of attached devices</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="code docutils literal notranslate"><span class="pre">genv_users_total</span></code></p></td>
+<td></td>
+<td><p>Number of active users</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="code docutils literal notranslate"><span class="pre">genv_environment_processes_total</span></code></p></td>
+<td><p><code class="code docutils literal notranslate"><span class="pre">eid</span></code></p></td>
+<td><p>Number of running processes in an environment</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="code docutils literal notranslate"><span class="pre">genv_environment_attached_devices_total</span></code></p></td>
+<td><p><code class="code docutils literal notranslate"><span class="pre">eid</span></code></p></td>
+<td><p>Number of attached devices of an environment</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="code docutils literal notranslate"><span class="pre">genv_process_devices_total</span></code></p></td>
+<td><p><code class="code docutils literal notranslate"><span class="pre">pid</span></code>, <code class="code docutils literal notranslate"><span class="pre">eid</span></code></p></td>
+<td><p>Number of devices used by a process</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="code docutils literal notranslate"><span class="pre">genv_process_used_gpu_memory_bytes</span></code></p></td>
+<td><p><code class="code docutils literal notranslate"><span class="pre">pid</span></code>, <code class="code docutils literal notranslate"><span class="pre">eid</span></code>, <code class="code docutils literal notranslate"><span class="pre">device</span></code></p></td>
+<td><p>Used GPU memory by a process</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="code docutils literal notranslate"><span class="pre">genv_user_environments_total</span></code></p></td>
+<td><p><code class="code docutils literal notranslate"><span class="pre">username</span></code></p></td>
+<td><p>Number of active environments of a user</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="code docutils literal notranslate"><span class="pre">genv_user_processes_total</span></code></p></td>
+<td><p><code class="code docutils literal notranslate"><span class="pre">username</span></code></p></td>
+<td><p>Number of running processes of a user</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="code docutils literal notranslate"><span class="pre">genv_user_attached_devices_total</span></code></p></td>
+<td><p><code class="code docutils literal notranslate"><span class="pre">username</span></code></p></td>
+<td><p>Number of attached devices of a user</p></td>
+</tr>
+</tbody>
+</table>
+<p>* <em>Not yet exported</em></p>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="enforcement.html" class="btn btn-neutral float-left" title="Enforcement" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../remote/overview.html" class="btn btn-neutral float-right" title="Overview" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022-2023, Run.ai.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
