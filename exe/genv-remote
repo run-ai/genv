@@ -221,6 +221,43 @@ async def do_envs(
         )
 
 
+async def do_monitor(
+    config: genv.remote.Config, config_dir: str, port: int, interval: int
+) -> None:
+    """
+    Runs a Prometheus exporter in the foreground and publishes Prometheus and Grafana config files.
+    """
+    try:
+        from genv.metrics import publish_config_files, SPECS
+        from genv.remote.metrics import Collection
+        import prometheus_client
+    except ModuleNotFoundError as e:
+        if e.name != "prometheus_client":
+            raise
+
+        print(f"ERROR: Python package '{e.name}' is required", file=sys.stderr)
+        exit(1)
+
+    # https://github.com/prometheus/client_python#disabling-default-collector-metrics
+    prometheus_client.REGISTRY.unregister(prometheus_client.GC_COLLECTOR)
+    prometheus_client.REGISTRY.unregister(prometheus_client.PLATFORM_COLLECTOR)
+    prometheus_client.REGISTRY.unregister(prometheus_client.PROCESS_COLLECTOR)
+
+    prometheus_client.start_http_server(port)
+
+    publish_config_files(config_dir, prometheus_exporter_port=port)
+
+    collection = Collection(SPECS)
+
+    while True:
+        hosts, snapshots = await genv.remote.snapshot(config)
+
+        collection.cleanup(hosts, snapshots)
+        collection.update(hosts, snapshots)
+
+        await asyncio.sleep(interval)
+
+
 async def do_query(
     config: genv.remote.Config, name: str, queries: Iterable[str]
 ) -> None:
@@ -366,6 +403,29 @@ def parse_args() -> argparse.Namespace:
             default="tui",
         )
 
+    def monitor(parser):
+        parser.add_argument(
+            "--config-dir",
+            default=genv.utils.get_temp_file_path("metrics"),
+            help="Directory to create Prometheus and Grafana config files at (default: %(default)s)",
+        )
+
+        parser.add_argument(
+            "-p",
+            "--port",
+            type=int,
+            default=8000,
+            help="Port for Prometheus exporter to listen on (default: %(default)s)",
+        )
+
+        parser.add_argument(
+            "-i",
+            "--interval",
+            type=int,
+            default=10,
+            help="Interval in seconds between collections (default: %(default)s)",
+        )
+
     def query(parser):
         parser.add_argument("--name", required=True, help="Environment name")
         parser.add_argument(
@@ -428,6 +488,7 @@ def parse_args() -> argparse.Namespace:
         (devices, "Show device information from all hosts"),
         (enforce, "Enforce GPU usage on all hosts"),
         (envs, "List all active environments"),
+        (monitor, "Monitor remote hosts using Prometheus and Grafana"),
         (query, "Query environments or a specific one"),
     ]:
         command(subparsers.add_parser(command.__name__, help=help))
@@ -462,6 +523,8 @@ async def main(config: genv.remote.Config, args: argparse.Namespace) -> None:
             args.summary,
             args.timestamp,
         )
+    elif args.command == "monitor":
+        await do_monitor(config, args.config_dir, args.port, args.interval)
     elif args.command == "query":
         await do_query(config, args.name, args.queries)
 
@@ -491,5 +554,5 @@ if __name__ == "__main__":
         print(e, file=sys.stderr)
         exit(1)
     except KeyboardInterrupt:
-        if args.command != "enforce":
+        if args.command not in ["enforce", "monitor"]:
             raise
