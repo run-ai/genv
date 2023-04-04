@@ -171,7 +171,7 @@ While the following command would clear the entire configuration:
 
 Managing Configuration as Infrastructure-as-Code
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-genv lets you manage the GPU resources as infrastructure-as-code by letting you save and load environment configurations to and from the disk.
+Genv lets you manage the GPU resources as infrastructure-as-code by letting you save and load environment configurations to and from the disk.
 
 In your project root, create a directory named :code:`.genv` using the command:
 
@@ -183,7 +183,7 @@ In your project root, create a directory named :code:`.genv` using the command:
 
    The :code:`-p` argument just causes the command to not fail in case the directory already exists
 
-You can verify genv recognizes the directory by running:
+You can verify Genv recognizes the directory by running:
 
 .. code-block:: shell
 
@@ -211,7 +211,7 @@ You can load the configuration from the disk by running:
 
    genv config --load
 
-Note that genv will automatically load the saved configuration when you activate an environment from your project root directory (as long as you don't pass :code:`--no-load` to :code:`genv activate`).
+Note that Genv will automatically load the saved configuration when you activate an environment from your project root directory (as long as you don't pass :code:`--no-load` to :code:`genv activate`).
 
 Using Devices in an Environment
 -------------------------------
@@ -235,16 +235,16 @@ Then, attach GPUs to it using the command:
 
    genv attach
 
-genv will look for available GPUs for your environment.
+Genv will look for available GPUs for your environment.
 
 If there are not enough GPUs available, or the configured device count is greater than the number of devices in the machine, an error message will be printed to the screen and your environment will be detached.
 
-If there are enough GPUs available, genv will attach them to the environment and make them unavailable for other environments.
+If there are enough GPUs available, Genv will attach them to the environment and make them unavailable for other environments.
 
 You can verify that the environment is attached to GPUs by checking the environment :ref:`status <Environment Status>` using the command :code:`genv status`.
 You can also run :code:`nvidia-smi` which will show information only about the GPUs that are attached to your environment.
 
-Note that in case your environment configuration gets :ref:`loaded <Loading Configuration>` upon activation, genv will also automatically try to attach devices to your environment (as long as you don't pass :code:`--no-attach` to :code:`genv activate`).
+Note that in case your environment configuration gets :ref:`loaded <Loading Configuration>` upon activation, Genv will also automatically try to attach devices to your environment (as long as you don't pass :code:`--no-attach` to :code:`genv activate`).
 
 If you want to use a specific device, you can pass its index in the argument :code:`--index`.
 For example:

@@ -3,9 +3,9 @@
   <img src="images/genv blade landscape white@4x.png#gh-dark-mode-only" width="600" alt="genv"/>
 </p>
 
-# genv (GPU Environment Management) [![Join the community at (https://discord.gg/zN3Q9pQAuT)](https://img.shields.io/badge/Discord-genv-7289da?logo=discord)](https://discord.gg/zN3Q9pQAuT) 
+# Genv (GPU Environment Management) [![Join the community at (https://discord.gg/zN3Q9pQAuT)](https://img.shields.io/badge/Discord-genv-7289da?logo=discord)](https://discord.gg/zN3Q9pQAuT)
 
-*genv* lets you easily control, configure and monitor the GPU resources that you are using.
+Genv lets you easily control, configure and monitor the GPU resources that you are using.
 
 It is intendend to ease up the process of GPU allocation for data scientists without code changes 💪🏻
 
@@ -13,7 +13,7 @@ This project was highly inspired by [pyenv](https://github.com/pyenv/pyenv) and 
 
 ![Example](images/example.png)
 
-## 🔥 Why *genv*?
+## 🔥 Why Genv?
 
 - Easily share GPUs with your teammates
 - Find available GPUs for you to use - on-prem or on cloud via remote access
@@ -27,19 +27,19 @@ Plus, it's 100% free and gets installed before you can say Jack Robinson.
 
 ## Documentation
 
-Check out the genv [documentation site](https://run-ai.github.io/genv).
+Check out the Genv [documentation site](https://docs.genv.dev).
 
 
 ## 🏃🏻 Join us in the AI Infrastructure Club!
 
 [<img src="https://img.shields.io/badge/Discord-Join%20the%20community!-7289da?style=for-the-badge&logo=discord&logoColor=7289da" height="30" />](https://discord.gg/zN3Q9pQAuT)
 
-Looking for a place to discuss best practices, discover new tools, and exchange ideas about how to make the most out of our GPUs without losing time? Join the Discord server with the creators of *genv* and [*rntop*](https://github.com/run-ai/rntop) - start building your models faster!
+Looking for a place to discuss best practices, discover new tools, and exchange ideas about how to make the most out of our GPUs without losing time? Join the Discord server with the creators of Genv and [*rntop*](https://github.com/run-ai/rntop) - start building your models faster!
 
 - Installation and setup support as well as best practice tips and tricks directly for your use-case
 - Discuss possible features
 - Monthly Beers with Engineers sessions with amazing guests
-- Networking events 
+- Networking events
 - and many more...
 
 ## 🎉 Simple Integration & Usage with your fav IDE
@@ -61,7 +61,7 @@ A PyCharm integration is also in our roadmap so stay tuned!
 
 
 ## License
-The genv software is Copyright 2022 [Run.ai Labs, Ltd.].
+The Genv software is Copyright 2022 [Run.ai Labs, Ltd.].
 The software is licensed by Run.ai under the AGPLv3 license.
 Please note that Run.ai’s intention in licensing the software are that the obligations of licensee pursuant to the AGPLv3 license should be interpreted broadly.
 For example, Run.ai’s intention is that the terms “work based on the Program” in Section 0 of the AGPLv3 license, and “Corresponding Source” in Section 1 of the AGPLv3 license, should be interpreted as broadly as possible to the extent permitted under applicable law.
