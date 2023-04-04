@@ -146,7 +146,7 @@ You could verify it by running <code class="code docutils literal notranslate"><
 <div class="section" id="genv-commands">
 <h3>Genv Commands<a class="headerlink" href="#genv-commands" title="Permalink to this headline">¶</a></h3>
 <p>To run <code class="code docutils literal notranslate"><span class="pre">genv</span></code> commands as root using <code class="code docutils literal notranslate"><span class="pre">sudo</span></code>, use a command similar to the following:</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>sudo <span class="k">$(</span>which genv<span class="k">)</span> ...
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>sudo -E env <span class="nv">PATH</span><span class="o">=</span><span class="nv">$PATH</span> genv ...
 </pre></div>
 </div>
 <div class="admonition warning">

@@ -52,13 +52,18 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Usage</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#environment-status">Environment Status</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#nvidia-smi">nvidia-smi</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#using-environments">Using Environments</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#activating-an-environment">Activating an Environment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#deactivating-an-environment">Deactivating an Environment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#environment-status">Environment Status</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#nvidia-smi">nvidia-smi</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#activating-an-environment">Activating an Environment</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="#configuring-an-environment">Configuring an Environment</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#configure-the-device-count">Configure the Device Count</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#configure-the-gpu-memory-capacity">Configure the GPU Memory Capacity</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#configure-the-name">Configure the Name</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#printing-the-current-configuration">Printing the Current Configuration</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#clearing-the-current-configuration">Clearing the Current Configuration</a></li>
@@ -67,6 +72,10 @@
 <li class="toctree-l4"><a class="reference internal" href="#loading-configuration">Loading Configuration</a></li>
 </ul>
 </li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#using-devices-in-an-environment">Using Devices in an Environment</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#attach-an-environment-to-devices">Attach an Environment to Devices</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#detaching-an-environment">Detaching an Environment</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#reattaching-an-environment">Reattaching an Environment</a></li>
 </ul>
@@ -126,35 +135,70 @@
 <div class="contents topic" id="contents">
 <p class="topic-title">Contents</p>
 <ul class="simple">
-<li><p><a class="reference internal" href="#usage" id="id6">Usage</a></p>
+<li><p><a class="reference internal" href="#usage" id="id8">Usage</a></p>
 <ul>
-<li><p><a class="reference internal" href="#environment-status" id="id7">Environment Status</a></p>
+<li><p><a class="reference internal" href="#using-environments" id="id9">Using Environments</a></p>
 <ul>
-<li><p><a class="reference internal" href="#nvidia-smi" id="id8">nvidia-smi</a></p></li>
+<li><p><a class="reference internal" href="#activating-an-environment" id="id10">Activating an Environment</a></p></li>
+<li><p><a class="reference internal" href="#deactivating-an-environment" id="id11">Deactivating an Environment</a></p></li>
+<li><p><a class="reference internal" href="#environment-status" id="id12">Environment Status</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#activating-an-environment" id="id9">Activating an Environment</a></p></li>
-<li><p><a class="reference internal" href="#configuring-an-environment" id="id10">Configuring an Environment</a></p>
+<li><p><a class="reference internal" href="#configuring-an-environment" id="id13">Configuring an Environment</a></p>
 <ul>
-<li><p><a class="reference internal" href="#configure-the-device-count" id="id11">Configure the Device Count</a></p></li>
-<li><p><a class="reference internal" href="#configure-the-name" id="id12">Configure the Name</a></p></li>
-<li><p><a class="reference internal" href="#printing-the-current-configuration" id="id13">Printing the Current Configuration</a></p></li>
-<li><p><a class="reference internal" href="#clearing-the-current-configuration" id="id14">Clearing the Current Configuration</a></p></li>
-<li><p><a class="reference internal" href="#managing-configuration-as-infrastructure-as-code" id="id15">Managing Configuration as Infrastructure-as-Code</a></p></li>
-<li><p><a class="reference internal" href="#detaching-an-environment" id="id16">Detaching an Environment</a></p></li>
-<li><p><a class="reference internal" href="#reattaching-an-environment" id="id17">Reattaching an Environment</a></p></li>
+<li><p><a class="reference internal" href="#configure-the-device-count" id="id14">Configure the Device Count</a></p></li>
+<li><p><a class="reference internal" href="#configure-the-gpu-memory-capacity" id="id15">Configure the GPU Memory Capacity</a></p></li>
+<li><p><a class="reference internal" href="#configure-the-name" id="id16">Configure the Name</a></p></li>
+<li><p><a class="reference internal" href="#printing-the-current-configuration" id="id17">Printing the Current Configuration</a></p></li>
+<li><p><a class="reference internal" href="#clearing-the-current-configuration" id="id18">Clearing the Current Configuration</a></p></li>
+<li><p><a class="reference internal" href="#managing-configuration-as-infrastructure-as-code" id="id19">Managing Configuration as Infrastructure-as-Code</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#list-environments" id="id18">List Environments</a></p></li>
-<li><p><a class="reference internal" href="#list-devices" id="id19">List Devices</a></p></li>
+<li><p><a class="reference internal" href="#using-devices-in-an-environment" id="id20">Using Devices in an Environment</a></p>
+<ul>
+<li><p><a class="reference internal" href="#attach-an-environment-to-devices" id="id21">Attach an Environment to Devices</a></p></li>
+<li><p><a class="reference internal" href="#detaching-an-environment" id="id22">Detaching an Environment</a></p></li>
+<li><p><a class="reference internal" href="#reattaching-an-environment" id="id23">Reattaching an Environment</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#list-environments" id="id24">List Environments</a></p></li>
+<li><p><a class="reference internal" href="#list-devices" id="id25">List Devices</a></p></li>
 </ul>
 </li>
 </ul>
 </div>
+<div class="section" id="using-environments">
+<h2>Using Environments<a class="headerlink" href="#using-environments" title="Permalink to this headline">¶</a></h2>
+<p>Genv manages, monitors and provisions resources to GPU environments.</p>
+<p>If you are not familiar with the concept of environments, you can check out the documentation of projects like <a class="reference external" href="https://docs.python.org/3/library/venv.html">venv</a>, <a class="reference external" href="https://github.com/pyenv/pyenv">pyenv</a> and <a class="reference external" href="https://docs.conda.io/projects/conda/en/stable/">Conda</a> as reference.</p>
+<div class="section" id="activating-an-environment">
+<span id="id1"></span><h3>Activating an Environment<a class="headerlink" href="#activating-an-environment" title="Permalink to this headline">¶</a></h3>
+<p>To activate an environment use the following command:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>genv activate
+</pre></div>
+</div>
+<p>When activating an environment, it first gets detached from all GPUs on the machine.</p>
+<p>You could see this by running <code class="code docutils literal notranslate"><span class="pre">nvidia-smi</span></code> and seeing the following output:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$ nvidia-smi
+No devices were found
+</pre></div>
+</div>
+<p>You will later be able to <a class="reference internal" href="#configuring-an-environment"><span class="std std-ref">configure</span></a> the environment device count and <a class="reference internal" href="#attach-an-environment-to-devices"><span class="std std-ref">attach</span></a> devices to it.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>To see all available options run <code class="code docutils literal notranslate"><span class="pre">genv</span> <span class="pre">activate</span> <span class="pre">--help</span></code> from a non-activated terminal</p>
+</div>
+</div>
+<div class="section" id="deactivating-an-environment">
+<h3>Deactivating an Environment<a class="headerlink" href="#deactivating-an-environment" title="Permalink to this headline">¶</a></h3>
+<p>To deactivate an environment use the following command:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>genv deactivate
+</pre></div>
+</div>
+</div>
 <div class="section" id="environment-status">
-<h2>Environment Status<a class="headerlink" href="#environment-status" title="Permalink to this headline">¶</a></h2>
-<p>When using genv, you will be running inside environments.</p>
-<p>You can see the status of your environment using the command:</p>
+<span id="id2"></span><h3>Environment Status<a class="headerlink" href="#environment-status" title="Permalink to this headline">¶</a></h3>
+<p>At any point, you can see the status of your environment using the command:</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>genv status
 </pre></div>
 </div>
@@ -175,53 +219,44 @@ Configuration
 </pre></div>
 </div>
 <div class="section" id="nvidia-smi">
-<h3>nvidia-smi<a class="headerlink" href="#nvidia-smi" title="Permalink to this headline">¶</a></h3>
+<h4>nvidia-smi<a class="headerlink" href="#nvidia-smi" title="Permalink to this headline">¶</a></h4>
 <p>When running <code class="code docutils literal notranslate"><span class="pre">nvidia-smi</span></code> from an activated environment, you will see information relevant only to the environment.</p>
 <p>You will see information only about devices that are attached to the environment.
-Their used GPU memory will show the GPU memory that is used only by processes from the environment.</p>
+Their used GPU memory will show the GPU memory that is used only by processes from the environment.
+Their total GPU memory will show the <a class="reference internal" href="#configure-the-gpu-memory-capacity"><span class="std std-ref">GPU memory capacity</span></a> of the environment.</p>
 <p>You will also see only processes from the environment.</p>
 </div>
 </div>
-<div class="section" id="activating-an-environment">
-<span id="id1"></span><h2>Activating an Environment<a class="headerlink" href="#activating-an-environment" title="Permalink to this headline">¶</a></h2>
-<p>In order to use genv, you need to activate the environment using the command:</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>genv activate
-</pre></div>
-</div>
-<p>When activating an environment, it first gets detached from all GPUs on the machine.</p>
-<p>You could see this by running <code class="code docutils literal notranslate"><span class="pre">nvidia-smi</span></code> and seeing the following output:</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$ nvidia-smi
-No devices were found
-</pre></div>
-</div>
-<p>You will later <a class="reference internal" href="#configuring-an-environment"><span class="std std-ref">configure</span></a> the environment device count and <a class="reference internal" href="#attach-an-environment-to-devices"><span class="std std-ref">attach</span></a> devices to it.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>To see all available options run <code class="code docutils literal notranslate"><span class="pre">genv</span> <span class="pre">activate</span> <span class="pre">--help</span></code> from a non-activated terminal</p>
-</div>
-<p>To deactivate an environment use the following command:</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>genv deactivate
-</pre></div>
-</div>
 </div>
 <div class="section" id="configuring-an-environment">
-<span id="id2"></span><h2>Configuring an Environment<a class="headerlink" href="#configuring-an-environment" title="Permalink to this headline">¶</a></h2>
-<p>After <a class="reference internal" href="#activating-an-environment"><span class="std std-ref">activing</span></a> your environment, you need to configure it.</p>
+<span id="id3"></span><h2>Configuring an Environment<a class="headerlink" href="#configuring-an-environment" title="Permalink to this headline">¶</a></h2>
+<p>After <a class="reference internal" href="#activating-an-environment"><span class="std std-ref">activing</span></a> your environment, you can configure it.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>To see all available options and configuration fields run <code class="code docutils literal notranslate"><span class="pre">genv</span> <span class="pre">config</span> <span class="pre">--help</span></code></p>
 </div>
 <div class="section" id="configure-the-device-count">
-<span id="id3"></span><h3>Configure the Device Count<a class="headerlink" href="#configure-the-device-count" title="Permalink to this headline">¶</a></h3>
+<span id="id4"></span><h3>Configure the Device Count<a class="headerlink" href="#configure-the-device-count" title="Permalink to this headline">¶</a></h3>
 <p>Configuring the environment device count determines how many GPUs should be accessible to it when attaching devices.</p>
 <p>This is done with the following command:</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>genv config gpus &lt;count&gt;
 </pre></div>
 </div>
 </div>
+<div class="section" id="configure-the-gpu-memory-capacity">
+<span id="id5"></span><h3>Configure the GPU Memory Capacity<a class="headerlink" href="#configure-the-gpu-memory-capacity" title="Permalink to this headline">¶</a></h3>
+<p>Configuring the environment GPU memory determines the GPU memory capacity of an environment.</p>
+<p>This is done with the following command:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>genv config gpu-memory &lt;amount&gt;
+</pre></div>
+</div>
+<p>The amount should be specified as a number and an optional unit which is one of <code class="code docutils literal notranslate"><span class="pre">b</span></code>, <code class="code docutils literal notranslate"><span class="pre">k</span></code>, <code class="code docutils literal notranslate"><span class="pre">m</span></code>, <code class="code docutils literal notranslate"><span class="pre">g</span></code>, <code class="code docutils literal notranslate"><span class="pre">ki</span></code>, <code class="code docutils literal notranslate"><span class="pre">mi</span></code>, <code class="code docutils literal notranslate"><span class="pre">gi</span></code>.
+If no unit is specified, it is assumed to be in bytes (i.e. <code class="code docutils literal notranslate"><span class="pre">b</span></code>).</p>
+<p>Here are a few examples for amount values: <code class="code docutils literal notranslate"><span class="pre">42mi</span></code>, <code class="code docutils literal notranslate"><span class="pre">4g</span></code>, <code class="code docutils literal notranslate"><span class="pre">44040192</span></code>.</p>
+</div>
 <div class="section" id="configure-the-name">
 <h3>Configure the Name<a class="headerlink" href="#configure-the-name" title="Permalink to this headline">¶</a></h3>
-<p>Configuring the environment name is not mandatory, but it helps a lot when querying the active environments and devices, and is considered a good practice.</p>
+<p>Configuring the environment name helps a lot when querying the active environments and devices, and is considered a good practice.</p>
 <p>This is done with the following command:</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>genv config name &lt;name&gt;
 </pre></div>
@@ -276,26 +311,39 @@ No devices were found
 <p>You can also keep your saved configuration up to date by adding the argument <code class="code docutils literal notranslate"><span class="pre">--save</span></code> whenever you reconfigure the environment or clear the configuration.</p>
 </div>
 <div class="section" id="loading-configuration">
-<span id="id4"></span><h4>Loading Configuration<a class="headerlink" href="#loading-configuration" title="Permalink to this headline">¶</a></h4>
+<span id="id6"></span><h4>Loading Configuration<a class="headerlink" href="#loading-configuration" title="Permalink to this headline">¶</a></h4>
 <p>You can load the configuration from the disk by running:</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>genv config --load
 </pre></div>
 </div>
 <p>Note that genv will automatically load the saved configuration when you activate an environment from your project root directory (as long as you don’t pass <code class="code docutils literal notranslate"><span class="pre">--no-load</span></code> to <code class="code docutils literal notranslate"><span class="pre">genv</span> <span class="pre">activate</span></code>).</p>
+</div>
+</div>
+</div>
+<div class="section" id="using-devices-in-an-environment">
+<h2>Using Devices in an Environment<a class="headerlink" href="#using-devices-in-an-environment" title="Permalink to this headline">¶</a></h2>
+<p>An environment starts detached from GPUs when it is first gets activated.
+To use GPUs, it needs to get attached to them.</p>
+<p>Over its lifetime, an environment could get detached from any attached devices, and reattached to any number of devices.</p>
+<p>The GPU indices that an environment gets attached to could either be picked by Genv or explicitly specified by the user.</p>
 <div class="section" id="attach-an-environment-to-devices">
-<span id="id5"></span><h5>Attach an Environment to Devices<a class="headerlink" href="#attach-an-environment-to-devices" title="Permalink to this headline">¶</a></h5>
-<p>After <a class="reference internal" href="#activating-an-environment"><span class="std std-ref">activing</span></a> an environment and <a class="reference internal" href="#configuring-an-environment"><span class="std std-ref">configuring</span></a> its device count, you need to attach GPUs to it.</p>
-<p>This is done using the command:</p>
+<span id="id7"></span><h3>Attach an Environment to Devices<a class="headerlink" href="#attach-an-environment-to-devices" title="Permalink to this headline">¶</a></h3>
+<p>The best way to attach GPUs to your environment is by letting Genv pick the indices for you.</p>
+<p>To do so, you first need to <a class="reference internal" href="#configure-the-device-count"><span class="std std-ref">configure</span></a> its device count.
+Then, attach GPUs to it using the command:</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>genv attach
 </pre></div>
 </div>
 <p>genv will look for available GPUs for your environment.</p>
 <p>If there are not enough GPUs available, or the configured device count is greater than the number of devices in the machine, an error message will be printed to the screen and your environment will be detached.</p>
 <p>If there are enough GPUs available, genv will attach them to the environment and make them unavailable for other environments.</p>
-<p>You can verify that the environment is attached to GPUs by running <code class="code docutils literal notranslate"><span class="pre">nvidia-smi</span></code>.
-It will show information only about the GPUs that are attached to your environment.</p>
+<p>You can verify that the environment is attached to GPUs by checking the environment <a class="reference internal" href="#environment-status"><span class="std std-ref">status</span></a> using the command <code class="code docutils literal notranslate"><span class="pre">genv</span> <span class="pre">status</span></code>.
+You can also run <code class="code docutils literal notranslate"><span class="pre">nvidia-smi</span></code> which will show information only about the GPUs that are attached to your environment.</p>
 <p>Note that in case your environment configuration gets <a class="reference internal" href="#loading-configuration"><span class="std std-ref">loaded</span></a> upon activation, genv will also automatically try to attach devices to your environment (as long as you don’t pass <code class="code docutils literal notranslate"><span class="pre">--no-attach</span></code> to <code class="code docutils literal notranslate"><span class="pre">genv</span> <span class="pre">activate</span></code>).</p>
-</div>
+<p>If you want to use a specific device, you can pass its index in the argument <code class="code docutils literal notranslate"><span class="pre">--index</span></code>.
+For example:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>genv attach --index <span class="m">2</span>
+</pre></div>
 </div>
 </div>
 <div class="section" id="detaching-an-environment">
@@ -305,15 +353,21 @@ It will show information only about the GPUs that are attached to your environme
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>genv detach
 </pre></div>
 </div>
-<p>You can verify that your environment is detached by running <code class="code docutils literal notranslate"><span class="pre">nvidia-smi</span></code> and seeing the following output:</p>
+<p>You can verify that your environment is detached with <code class="code docutils literal notranslate"><span class="pre">genv</span> <span class="pre">status</span></code> or by running <code class="code docutils literal notranslate"><span class="pre">nvidia-smi</span></code> and seeing the following output:</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$ nvidia-smi
 No devices were found
+</pre></div>
+</div>
+<p>If you want to detach from a specific device, you can pass its index in the argument <code class="code docutils literal notranslate"><span class="pre">--index</span></code>.
+For example:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>genv detach --index <span class="m">2</span>
 </pre></div>
 </div>
 </div>
 <div class="section" id="reattaching-an-environment">
 <h3>Reattaching an Environment<a class="headerlink" href="#reattaching-an-environment" title="Permalink to this headline">¶</a></h3>
 <p>In case you <a class="reference internal" href="#configure-the-device-count"><span class="std std-ref">reconfigure</span></a> the device count of your environment, you need to reattach your environment by rerunning the <code class="code docutils literal notranslate"><span class="pre">genv</span> <span class="pre">attach</span></code> command.</p>
+<p>Attaching to an already attached device, for example by specifying its index, has no effect.</p>
 </div>
 </div>
 <div class="section" id="list-environments">

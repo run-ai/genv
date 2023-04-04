@@ -44,7 +44,7 @@ To run :code:`genv` commands as root using :code:`sudo`, use a command similar t
 
 .. code-block:: shell
 
-   sudo $(which genv) ...
+   sudo -E env PATH=$PATH genv ...
 
 .. warning::
 

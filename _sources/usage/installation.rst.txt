@@ -60,7 +60,7 @@ You should be able to see all the available genv commands.
 ^^^^^^^^^^^^
 Dependencies
 ^^^^^^^^^^^^
-genv uses Python 3 so make sure you have it also installed.
+genv uses Python 3.7 so make sure you have it also installed.
 
 ^^^^^^^^^^^^
 Uninstalling
