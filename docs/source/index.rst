@@ -7,6 +7,17 @@ It was highly inspired by `PyEnv <https://github.com/pyenv/pyenv>`_ and other ve
 
 Genv lets you easily control, configure and monitor the GPU resources that you are using.
 
+.. note::
+
+   You can jump directly to the quick start :doc:`tutorial <overview/quickstart>` and start using Genv in less than two minutes.
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Start Here
+
+   overview/overview
+   overview/quickstart
+
 .. toctree::
    :maxdepth: 2
    :caption: Usage
