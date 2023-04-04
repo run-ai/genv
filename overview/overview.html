@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-9BRBX45HVB"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-9BRBX45HVB');
+    </script>
+    
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Overview &mdash; Genv 0.6.0 documentation</title><link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Quick start" href="quickstart.html" />
+    <link rel="prev" title="GPU Environment Management" href="../index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Genv
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption"><span class="caption-text">Start Here</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Overview</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#what-is-genv">What is Genv</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#architectures">Architectures</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#local">Local</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#remote">Remote</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#where-to-go-next">Where to Go Next</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quick start</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Usage</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../usage/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/advanced-usage.html">Advanced Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/enforcement.html">Enforcement</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/monitoring.html">Monitoring</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Remote Usage</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../remote/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../remote/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../remote/usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../remote/enforcement.html">Enforcement</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../remote/monitoring.html">Monitoring</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../development/development.html">Development</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../development/reference.html">Reference</a></li>
+</ul>
+<p class="caption"><span class="caption-text">About</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../about/changelog.html">Changelog</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Genv</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Overview</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/overview/overview.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <div class="section" id="overview">
+<h1>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h1>
+<div class="contents topic" id="contents">
+<p class="topic-title">Contents</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#overview" id="id4">Overview</a></p>
+<ul>
+<li><p><a class="reference internal" href="#what-is-genv" id="id5">What is Genv</a></p></li>
+<li><p><a class="reference internal" href="#architectures" id="id6">Architectures</a></p></li>
+<li><p><a class="reference internal" href="#where-to-go-next" id="id7">Where to Go Next</a></p></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section" id="what-is-genv">
+<h2>What is Genv<a class="headerlink" href="#what-is-genv" title="Permalink to this headline">¶</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>You can jump directly to the quick start toturial <a class="reference internal" href="quickstart.html"><span class="doc">here</span></a>.</p>
+</div>
+<p>Genv is an open-source project that brings environment management to GPUs.</p>
+<p>If you are not familiar with the concept of environments, you can check out the documentation of projects like <a class="reference external" href="https://docs.python.org/3/library/venv.html">venv</a>, <a class="reference external" href="https://github.com/pyenv/pyenv">pyenv</a> and <a class="reference external" href="https://docs.conda.io/projects/conda/en/stable/">Conda</a> as a reference.</p>
+<p>At its core, Genv is a <a class="reference external" href="https://pypi.org/project/genv">Python package</a> that manages GPUs and keeps its state as <a class="reference internal" href="../development/reference.html#files"><span class="std std-ref">files</span></a>.</p>
+<p>On top of this core layer, Genv has <a class="reference internal" href="../usage/installation.html"><span class="doc">integrations</span></a> with many common tools and environments such as terminal, Visual Studio Code, JupyterLab and PyCharm.</p>
+<div class="figure align-default" id="id1">
+<img alt="../_images/overview.png" src="../_images/overview.png" />
+<p class="caption"><span class="caption-text">GPU environments with Genv</span><a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>
+</div>
+</div>
+<div class="section" id="architectures">
+<h2>Architectures<a class="headerlink" href="#architectures" title="Permalink to this headline">¶</a></h2>
+<p>Genv supports two main architectures: local and <a class="reference internal" href="../remote/overview.html"><span class="doc">remote</span></a>.</p>
+<div class="section" id="local">
+<h3>Local<a class="headerlink" href="#local" title="Permalink to this headline">¶</a></h3>
+<div class="figure align-default" id="id2">
+<img alt="../_images/architecture-local.png" src="../_images/architecture-local.png" />
+<p class="caption"><span class="caption-text">Genv local architecture</span><a class="headerlink" href="#id2" title="Permalink to this image">¶</a></p>
+</div>
+<p>When running in local mode, Genv manages the GPUs on the local machine where Genv is running.
+This is mostly relevant for the case of a single user with GPUs in his or her machine, or the case of multiple users that share a single GPU machine.</p>
+</div>
+<div class="section" id="remote">
+<h3>Remote<a class="headerlink" href="#remote" title="Permalink to this headline">¶</a></h3>
+<div class="figure align-default" id="id3">
+<img alt="../_images/architecture-remote.png" src="../_images/architecture-remote.png" />
+<p class="caption"><span class="caption-text">Genv remote architecture</span><a class="headerlink" href="#id3" title="Permalink to this image">¶</a></p>
+</div>
+<p>When running in remote mode, Genv manages the GPUs on one or more remote machines over SSH.
+This is mostly relevant for the case when multiple users share multiple GPU machines.</p>
+<p>For more information, see <a class="reference internal" href="../remote/overview.html"><span class="doc">here</span></a>.</p>
+</div>
+</div>
+<div class="section" id="where-to-go-next">
+<h2>Where to Go Next<a class="headerlink" href="#where-to-go-next" title="Permalink to this headline">¶</a></h2>
+<p>If you are not familiar with Genv, it is recommended to follow the <a class="reference internal" href="quickstart.html"><span class="doc">quick start tutorial</span></a>.</p>
+<p>If you are looking for how to install Genv, visit the <a class="reference internal" href="../usage/installation.html"><span class="doc">installation page</span></a>, and if you want to know how to do specific things, check out the <a class="reference internal" href="../usage/usage.html"><span class="doc">usage guide</span></a>.</p>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../index.html" class="btn btn-neutral float-left" title="GPU Environment Management" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="quickstart.html" class="btn btn-neutral float-right" title="Quick start" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022-2023, Run.ai.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
