@@ -1,6 +1,14 @@
 Changelog
 =========
 
+Version 0.7.0
+-------------
+**Date:** April 4, 2023
+
+Added
+~~~~~
+* Added monitoring features with Prometheus and Grafana using :code:`genv monitor` and :code:`genv remote monitor`
+
 Version 0.6.0
 -------------
 **Date:** February 14, 2023
