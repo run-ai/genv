@@ -6,7 +6,7 @@
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
-project = "genv"
+project = "Genv"
 copyright = "2022-2023, Run.ai"
 author = "Raz Rotenberg"
 release = "0.6.0"
