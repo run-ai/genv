@@ -5,7 +5,7 @@ with open("../README.md", "r") as f:
 
 setuptools.setup(
     name="genv",
-    version="0.6.0",
+    version="0.7.0",
     author="Run:AI",
     author_email="pypi@run.ai",
     description="GPU Environment Management",
