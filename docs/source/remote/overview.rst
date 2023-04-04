@@ -18,8 +18,8 @@ Users can list all active environments and see information about all devices in 
 Users can also use Genv to activate a GPU environment on a remote host.
 They can specify GPU resource requirements and Genv will look for a device on a remote host with enough available resources, connect to it with SSH and automatically create and configure an environment there.
 
-Quickstart
-----------
+Quick start
+-----------
 This is a guide to help you get started with remote features in Genv.
 
 First, you will need to :doc:`install <installation>` Genv on your local machine and one or more remote hosts.

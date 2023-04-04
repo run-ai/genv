@@ -5,11 +5,50 @@ Usage
    :depth: 3
    :backlinks: none
 
-Environment Status
+Using Environments
 ------------------
-When using genv, you will be running inside environments.
+Genv manages, monitors and provisions resources to GPU environments.
 
-You can see the status of your environment using the command:
+If you are not familiar with the concept of environments, you can check out the documentation of projects like `venv <https://docs.python.org/3/library/venv.html>`__, `pyenv <https://github.com/pyenv/pyenv>`__ and `Conda <https://docs.conda.io/projects/conda/en/stable/>`__ as reference.
+
+.. _Activating an Environment:
+
+Activating an Environment
+~~~~~~~~~~~~~~~~~~~~~~~~~
+To activate an environment use the following command:
+
+.. code-block:: shell
+
+   genv activate
+
+When activating an environment, it first gets detached from all GPUs on the machine.
+
+You could see this by running :code:`nvidia-smi` and seeing the following output:
+
+.. code-block:: shell
+
+   $ nvidia-smi
+   No devices were found
+
+You will later be able to :ref:`configure <Configuring an Environment>` the environment device count and :ref:`attach <Attach an Environment to Devices>` devices to it.
+
+.. note::
+
+   To see all available options run :code:`genv activate --help` from a non-activated terminal
+
+Deactivating an Environment
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+To deactivate an environment use the following command:
+
+.. code-block:: shell
+
+   genv deactivate
+
+.. _Environment Status:
+
+Environment Status
+~~~~~~~~~~~~~~~~~~
+At any point, you can see the status of your environment using the command:
 
 .. code-block:: shell
 
@@ -36,50 +75,22 @@ Here's an example:
       Name: my-environment
       Device count: 2
 
+~~~~~~~~~~
 nvidia-smi
 ~~~~~~~~~~
 When running :code:`nvidia-smi` from an activated environment, you will see information relevant only to the environment.
 
 You will see information only about devices that are attached to the environment.
 Their used GPU memory will show the GPU memory that is used only by processes from the environment.
+Their total GPU memory will show the :ref:`GPU memory capacity <Configure the GPU Memory Capacity>` of the environment.
 
 You will also see only processes from the environment.
-
-.. _Activating an Environment:
-
-Activating an Environment
--------------------------
-In order to use genv, you need to activate the environment using the command:
-
-.. code-block:: shell
-
-   genv activate
-
-When activating an environment, it first gets detached from all GPUs on the machine.
-
-You could see this by running :code:`nvidia-smi` and seeing the following output:
-
-.. code-block:: shell
-
-   $ nvidia-smi
-   No devices were found
-
-You will later :ref:`configure <Configuring an Environment>` the environment device count and :ref:`attach <Attach an Environment to Devices>` devices to it.
-
-.. note::
-   To see all available options run :code:`genv activate --help` from a non-activated terminal
-
-To deactivate an environment use the following command:
-
-.. code-block:: shell
-
-   genv deactivate
 
 .. _Configuring an Environment:
 
 Configuring an Environment
 --------------------------
-After :ref:`activing <Activating an Environment>` your environment, you need to configure it.
+After :ref:`activing <Activating an Environment>` your environment, you can configure it.
 
 .. note::
 
@@ -97,9 +108,26 @@ This is done with the following command:
 
    genv config gpus <count>
 
+.. _Configure the GPU Memory Capacity:
+
+Configure the GPU Memory Capacity
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Configuring the environment GPU memory determines the GPU memory capacity of an environment.
+
+This is done with the following command:
+
+.. code-block:: shell
+
+   genv config gpu-memory <amount>
+
+The amount should be specified as a number and an optional unit which is one of :code:`b`, :code:`k`, :code:`m`, :code:`g`, :code:`ki`, :code:`mi`, :code:`gi`.
+If no unit is specified, it is assumed to be in bytes (i.e. :code:`b`).
+
+Here are a few examples for amount values: :code:`42mi`, :code:`4g`, :code:`44040192`.
+
 Configure the Name
 ~~~~~~~~~~~~~~~~~~
-Configuring the environment name is not mandatory, but it helps a lot when querying the active environments and devices, and is considered a good practice.
+Configuring the environment name helps a lot when querying the active environments and devices, and is considered a good practice.
 
 This is done with the following command:
 
@@ -185,14 +213,23 @@ You can load the configuration from the disk by running:
 
 Note that genv will automatically load the saved configuration when you activate an environment from your project root directory (as long as you don't pass :code:`--no-load` to :code:`genv activate`).
 
+Using Devices in an Environment
+-------------------------------
+An environment starts detached from GPUs when it is first gets activated.
+To use GPUs, it needs to get attached to them.
+
+Over its lifetime, an environment could get detached from any attached devices, and reattached to any number of devices.
+
+The GPU indices that an environment gets attached to could either be picked by Genv or explicitly specified by the user.
+
 .. _Attach an Environment to Devices:
 
---------------------------------
 Attach an Environment to Devices
---------------------------------
-After :ref:`activing <Activating an Environment>` an environment and :ref:`configuring <Configuring an Environment>` its device count, you need to attach GPUs to it.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The best way to attach GPUs to your environment is by letting Genv pick the indices for you.
 
-This is done using the command:
+To do so, you first need to :ref:`configure <Configure the Device Count>` its device count.
+Then, attach GPUs to it using the command:
 
 .. code-block:: shell
 
@@ -204,10 +241,17 @@ If there are not enough GPUs available, or the configured device count is greate
 
 If there are enough GPUs available, genv will attach them to the environment and make them unavailable for other environments.
 
-You can verify that the environment is attached to GPUs by running :code:`nvidia-smi`.
-It will show information only about the GPUs that are attached to your environment.
+You can verify that the environment is attached to GPUs by checking the environment :ref:`status <Environment Status>` using the command :code:`genv status`.
+You can also run :code:`nvidia-smi` which will show information only about the GPUs that are attached to your environment.
 
 Note that in case your environment configuration gets :ref:`loaded <Loading Configuration>` upon activation, genv will also automatically try to attach devices to your environment (as long as you don't pass :code:`--no-attach` to :code:`genv activate`).
+
+If you want to use a specific device, you can pass its index in the argument :code:`--index`.
+For example:
+
+.. code-block:: shell
+
+   genv attach --index 2
 
 Detaching an Environment
 ~~~~~~~~~~~~~~~~~~~~~~~~
@@ -219,16 +263,25 @@ In case you want to stop using the attached devices, and release them for someon
 
    genv detach
 
-You can verify that your environment is detached by running :code:`nvidia-smi` and seeing the following output:
+You can verify that your environment is detached with :code:`genv status` or by running :code:`nvidia-smi` and seeing the following output:
 
 .. code-block:: shell
 
    $ nvidia-smi
    No devices were found
 
+If you want to detach from a specific device, you can pass its index in the argument :code:`--index`.
+For example:
+
+.. code-block:: shell
+
+   genv detach --index 2
+
 Reattaching an Environment
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 In case you :ref:`reconfigure <Configure the Device Count>` the device count of your environment, you need to reattach your environment by rerunning the :code:`genv attach` command.
+
+Attaching to an already attached device, for example by specifying its index, has no effect.
 
 List Environments
 -----------------

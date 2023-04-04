@@ -26,8 +26,8 @@ However, all processes still technically have access to all devices and all thei
 
 Genv supports enforcement features to allow users and system administrators to ensure that only the resources provisioned by Genv are being used by processes and environments using the command :code:`genv enforce`.
 
-Quickstart
-----------
+Quick start
+-----------
 This is a guide to get started with enforcement features in Genv.
 
 Follow this tutorial and run the commands on a GPU machine with Genv installed.
