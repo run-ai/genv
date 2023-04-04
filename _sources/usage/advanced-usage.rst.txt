@@ -11,7 +11,7 @@ When you activate an environment by running :code:`genv activate` in your termin
 
 Every activated terminal runs within an environment.
 
-genv supports running multiple terminals within the same environment.
+Genv supports running multiple terminals within the same environment.
 This could be useful in many ways.
 For example, when running an application in one terminal, and monitoring its GPU resources using :code:`nvidia-smi` in another terminal.
 
@@ -31,7 +31,7 @@ For example:
 Your terminal should now be activated in the same environment.
 You could verify it by running :code:`nvidia-smi` and seeing information about the GPUs of your environment.
 
-genv automatically configures the terminal with the environment configuration and attaches the terminal to the devices that are attached to the environment.
+Genv automatically configures the terminal with the environment configuration and attaches the terminal to the devices that are attached to the environment.
 
 .. _Using sudo:
 
@@ -52,7 +52,7 @@ To run :code:`genv` commands as root using :code:`sudo`, use a command similar t
 
 Other Commands
 ~~~~~~~~~~~~~~
-Much of genv functionality is based on environment variables.
+Much of Genv functionality is based on environment variables.
 You can see this by running the following command from an activated environment:
 
 .. code-block:: shell
@@ -75,9 +75,9 @@ For example:
 
    sudo -E env | grep GENV_
 
-In addition to that, some genv functionality is implemented as :ref:`shims <Shims>`.
+In addition to that, some Genv functionality is implemented as :ref:`shims <Shims>`.
 When applications such as :code:`nvidia-smi` and :code:`docker` are being executed inside an activated environment, their respective shims get called instead.
-genv modifies the environment variable :code:`PATH` to do so.
+Genv modifies the environment variable :code:`PATH` to do so.
 
 You can see this by running the following command from an activated environment:
 
@@ -110,13 +110,13 @@ For example:
 
 .. note::
 
-   Make sure that you also pass :code:`-E` to preserve all genv environment variables
+   Make sure that you also pass :code:`-E` to preserve all Genv environment variables
 
 Running Containers
 ------------------
 When running containers using a :code:`docker run` command from an active environment, the :code:`docker` :ref:`shim <Shims>` is executed.
 
-It is responsible for making the container accessible to devices attached to the environment, as well as propagating some of genv environment variables.
+It is responsible for making the container accessible to devices attached to the environment, as well as propagating some of Genv environment variables.
 
 Thanks to these environment variables, processes running in such containers are marked as part of the active environment.
 This is necessary when running :code:`nvidia-smi` in an active environment, as the :code:`nvidia-smi` :ref:`shim <Shims>` queries the environment variables of GPU consuming processes in order to identify the ones running in the same environment.

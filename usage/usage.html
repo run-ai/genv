@@ -289,7 +289,7 @@ If no unit is specified, it is assumed to be in bytes (i.e. <code class="code do
 </div>
 <div class="section" id="managing-configuration-as-infrastructure-as-code">
 <h3>Managing Configuration as Infrastructure-as-Code<a class="headerlink" href="#managing-configuration-as-infrastructure-as-code" title="Permalink to this headline">¶</a></h3>
-<p>genv lets you manage the GPU resources as infrastructure-as-code by letting you save and load environment configurations to and from the disk.</p>
+<p>Genv lets you manage the GPU resources as infrastructure-as-code by letting you save and load environment configurations to and from the disk.</p>
 <p>In your project root, create a directory named <code class="code docutils literal notranslate"><span class="pre">.genv</span></code> using the command:</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>mkdir -p .genv
 </pre></div>
@@ -298,7 +298,7 @@ If no unit is specified, it is assumed to be in bytes (i.e. <code class="code do
 <p class="admonition-title">Note</p>
 <p>The <code class="code docutils literal notranslate"><span class="pre">-p</span></code> argument just causes the command to not fail in case the directory already exists</p>
 </div>
-<p>You can verify genv recognizes the directory by running:</p>
+<p>You can verify Genv recognizes the directory by running:</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>genv home
 </pre></div>
 </div>
@@ -316,7 +316,7 @@ If no unit is specified, it is assumed to be in bytes (i.e. <code class="code do
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>genv config --load
 </pre></div>
 </div>
-<p>Note that genv will automatically load the saved configuration when you activate an environment from your project root directory (as long as you don’t pass <code class="code docutils literal notranslate"><span class="pre">--no-load</span></code> to <code class="code docutils literal notranslate"><span class="pre">genv</span> <span class="pre">activate</span></code>).</p>
+<p>Note that Genv will automatically load the saved configuration when you activate an environment from your project root directory (as long as you don’t pass <code class="code docutils literal notranslate"><span class="pre">--no-load</span></code> to <code class="code docutils literal notranslate"><span class="pre">genv</span> <span class="pre">activate</span></code>).</p>
 </div>
 </div>
 </div>
@@ -334,12 +334,12 @@ Then, attach GPUs to it using the command:</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>genv attach
 </pre></div>
 </div>
-<p>genv will look for available GPUs for your environment.</p>
+<p>Genv will look for available GPUs for your environment.</p>
 <p>If there are not enough GPUs available, or the configured device count is greater than the number of devices in the machine, an error message will be printed to the screen and your environment will be detached.</p>
-<p>If there are enough GPUs available, genv will attach them to the environment and make them unavailable for other environments.</p>
+<p>If there are enough GPUs available, Genv will attach them to the environment and make them unavailable for other environments.</p>
 <p>You can verify that the environment is attached to GPUs by checking the environment <a class="reference internal" href="#environment-status"><span class="std std-ref">status</span></a> using the command <code class="code docutils literal notranslate"><span class="pre">genv</span> <span class="pre">status</span></code>.
 You can also run <code class="code docutils literal notranslate"><span class="pre">nvidia-smi</span></code> which will show information only about the GPUs that are attached to your environment.</p>
-<p>Note that in case your environment configuration gets <a class="reference internal" href="#loading-configuration"><span class="std std-ref">loaded</span></a> upon activation, genv will also automatically try to attach devices to your environment (as long as you don’t pass <code class="code docutils literal notranslate"><span class="pre">--no-attach</span></code> to <code class="code docutils literal notranslate"><span class="pre">genv</span> <span class="pre">activate</span></code>).</p>
+<p>Note that in case your environment configuration gets <a class="reference internal" href="#loading-configuration"><span class="std std-ref">loaded</span></a> upon activation, Genv will also automatically try to attach devices to your environment (as long as you don’t pass <code class="code docutils literal notranslate"><span class="pre">--no-attach</span></code> to <code class="code docutils literal notranslate"><span class="pre">genv</span> <span class="pre">activate</span></code>).</p>
 <p>If you want to use a specific device, you can pass its index in the argument <code class="code docutils literal notranslate"><span class="pre">--index</span></code>.
 For example:</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>genv attach --index <span class="m">2</span>

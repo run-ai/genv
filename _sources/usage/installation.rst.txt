@@ -12,7 +12,7 @@ Terminal
 
 Conda
 ^^^^^
-If you are using `Conda <https://docs.conda.io/en/latest/>`__, the best way to install genv is using the `genv <https://anaconda.org/conda-forge/genv>`__ package from the channel `conda-forge <https://conda-forge.org/>`__:
+If you are using `Conda <https://docs.conda.io/en/latest/>`__, the best way to install Genv is using the `genv <https://anaconda.org/conda-forge/genv>`__ package from the channel `conda-forge <https://conda-forge.org/>`__:
 
 .. code-block:: shell
 
@@ -22,7 +22,7 @@ If you are using `Conda <https://docs.conda.io/en/latest/>`__, the best way to i
 
 From Source
 ^^^^^^^^^^^
-If you are not using Conda, it is still super easy to get genv as everything you need is to clone its `repository <https://www.github.com/run-ai/genv>`__.
+If you are not using Conda, it is still super easy to get Genv as everything you need is to clone its `repository <https://www.github.com/run-ai/genv>`__.
 Your home directory is a great place to keep it:
 
 .. code-block:: shell
@@ -34,7 +34,7 @@ Your home directory is a great place to keep it:
 ^^^^^^^^^^^^^^^^^^^^^
 Setting Up Your Shell
 ^^^^^^^^^^^^^^^^^^^^^
-In order to use genv you need to set up your shell environment with the following commands:
+In order to use Genv you need to set up your shell environment with the following commands:
 
 .. code-block:: shell
 
@@ -55,17 +55,17 @@ To verify the installation worked, run the following command:
 
    genv
 
-You should be able to see all the available genv commands.
+You should be able to see all the available Genv commands.
 
 ^^^^^^^^^^^^
 Dependencies
 ^^^^^^^^^^^^
-genv uses Python 3.7 so make sure you have it also installed.
+Genv uses Python 3.7 so make sure you have it also installed.
 
 ^^^^^^^^^^^^
 Uninstalling
 ^^^^^^^^^^^^
-To uninstall genv simply remove the genv directory:
+To uninstall Genv simply remove its root directory:
 
 .. code-block:: shell
 
@@ -87,9 +87,9 @@ For more information please refer to the project `repository <https://github.com
 
 PyCharm
 -------
-Currently, there is no PyCharm plugin for genv.
+Currently, there is no PyCharm plugin for Genv.
 This is however part of the project roadmap.
 
 In case you use PyCharm, please open an `issue <https://github.com/run-ai/genv/issues>`__ in the project repository.
 
-This will help us prioritize this as well as suggest other ways to work with genv in PyCharm in the meantime.
+This will help us prioritize this as well as suggest other ways to work with Genv in PyCharm in the meantime.

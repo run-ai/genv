@@ -125,7 +125,7 @@
 <h2>Multiple Terminals<a class="headerlink" href="#multiple-terminals" title="Permalink to this headline">¶</a></h2>
 <p>When you activate an environment by running <code class="code docutils literal notranslate"><span class="pre">genv</span> <span class="pre">activate</span></code> in your terminal, a new environment gets created and registered.</p>
 <p>Every activated terminal runs within an environment.</p>
-<p>genv supports running multiple terminals within the same environment.
+<p>Genv supports running multiple terminals within the same environment.
 This could be useful in many ways.
 For example, when running an application in one terminal, and monitoring its GPU resources using <code class="code docutils literal notranslate"><span class="pre">nvidia-smi</span></code> in another terminal.</p>
 <p>If you have an activated terminal and you want to open another terminal in the same environment, you need to first query the environment identifier using the command:</p>
@@ -139,7 +139,7 @@ For example:</p>
 </div>
 <p>Your terminal should now be activated in the same environment.
 You could verify it by running <code class="code docutils literal notranslate"><span class="pre">nvidia-smi</span></code> and seeing information about the GPUs of your environment.</p>
-<p>genv automatically configures the terminal with the environment configuration and attaches the terminal to the devices that are attached to the environment.</p>
+<p>Genv automatically configures the terminal with the environment configuration and attaches the terminal to the devices that are attached to the environment.</p>
 </div>
 <div class="section" id="using-sudo">
 <span id="id1"></span><h2>Using <code class="code docutils literal notranslate"><span class="pre">sudo</span></code><a class="headerlink" href="#using-sudo" title="Permalink to this headline">¶</a></h2>
@@ -156,7 +156,7 @@ You could verify it by running <code class="code docutils literal notranslate"><
 </div>
 <div class="section" id="other-commands">
 <h3>Other Commands<a class="headerlink" href="#other-commands" title="Permalink to this headline">¶</a></h3>
-<p>Much of genv functionality is based on environment variables.
+<p>Much of Genv functionality is based on environment variables.
 You can see this by running the following command from an activated environment:</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>env <span class="p">|</span> grep GENV_
 </pre></div>
@@ -172,9 +172,9 @@ For example:</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>sudo -E env <span class="p">|</span> grep GENV_
 </pre></div>
 </div>
-<p>In addition to that, some genv functionality is implemented as <a class="reference internal" href="../development/reference.html#shims"><span class="std std-ref">shims</span></a>.
+<p>In addition to that, some Genv functionality is implemented as <a class="reference internal" href="../development/reference.html#shims"><span class="std std-ref">shims</span></a>.
 When applications such as <code class="code docutils literal notranslate"><span class="pre">nvidia-smi</span></code> and <code class="code docutils literal notranslate"><span class="pre">docker</span></code> are being executed inside an activated environment, their respective shims get called instead.
-genv modifies the environment variable <code class="code docutils literal notranslate"><span class="pre">PATH</span></code> to do so.</p>
+Genv modifies the environment variable <code class="code docutils literal notranslate"><span class="pre">PATH</span></code> to do so.</p>
 <p>You can see this by running the following command from an activated environment:</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">echo</span> <span class="nv">$PATH</span>
 </pre></div>
@@ -197,14 +197,14 @@ For example:</p>
 </div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>Make sure that you also pass <code class="code docutils literal notranslate"><span class="pre">-E</span></code> to preserve all genv environment variables</p>
+<p>Make sure that you also pass <code class="code docutils literal notranslate"><span class="pre">-E</span></code> to preserve all Genv environment variables</p>
 </div>
 </div>
 </div>
 <div class="section" id="running-containers">
 <h2>Running Containers<a class="headerlink" href="#running-containers" title="Permalink to this headline">¶</a></h2>
 <p>When running containers using a <code class="code docutils literal notranslate"><span class="pre">docker</span> <span class="pre">run</span></code> command from an active environment, the <code class="code docutils literal notranslate"><span class="pre">docker</span></code> <a class="reference internal" href="../development/reference.html#shims"><span class="std std-ref">shim</span></a> is executed.</p>
-<p>It is responsible for making the container accessible to devices attached to the environment, as well as propagating some of genv environment variables.</p>
+<p>It is responsible for making the container accessible to devices attached to the environment, as well as propagating some of Genv environment variables.</p>
 <p>Thanks to these environment variables, processes running in such containers are marked as part of the active environment.
 This is necessary when running <code class="code docutils literal notranslate"><span class="pre">nvidia-smi</span></code> in an active environment, as the <code class="code docutils literal notranslate"><span class="pre">nvidia-smi</span></code> <a class="reference internal" href="../development/reference.html#shims"><span class="std std-ref">shim</span></a> queries the environment variables of GPU consuming processes in order to identify the ones running in the same environment.</p>
 <p>The problem is that containers can run as a different user than the shell they are executed in, and they typically run as root.</p>
