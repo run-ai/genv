@@ -187,3 +187,13 @@ def gpu_memory(eid: str) -> Optional[str]:
     :return: The configured amount of GPU memory or None if not configured
     """
     return query("config.gpu_memory", eid=eid) or None
+
+
+def activate(eid: str, uid: int, pid: int) -> None:
+    """
+    Activates an environment
+    """
+    subprocess.check_output(
+        f"genv exec envs activate --eid {eid} --uid {uid} --pid {pid}",
+        shell=True,
+    )
