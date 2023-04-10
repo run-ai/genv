@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-from contextlib import contextmanager
 import os
 import shutil
 import sys
@@ -20,21 +19,6 @@ def find_container_runtime() -> str:
             return path
 
     raise RuntimeError("Cannot find any container runtime")
-
-
-@contextmanager
-def mutate_config() -> dict:
-    """
-    A context manager for mutating the configuration.
-    """
-
-    with open("config.json") as f:
-        config = json.load(f)
-
-    yield config
-
-    with open("config.json", "w") as f:
-        json.dump(config, f)
 
 
 def append_env(config: dict, name: str, value: str) -> None:
@@ -76,21 +60,30 @@ def append_hook(
     hooks[type].append(hook)
 
 
-def create(environment_id: str) -> None:
+def do_create(environment_id: str) -> None:
     """
     Performs the command 'create'.
     """
 
-    with mutate_config() as config:
-        append_env(config, "GENV_ENVIRONMENT_ID", environment_id)
+    with open("config.json") as f:
+        config = json.load(f)
 
-        append_hook(
-            config,
-            "createRuntime",
-            os.path.join(os.path.dirname(__file__), "genv-container-runtime-hook.py"),
-        )
+    # TODO(raz): should we support the case where an eid is explicitly specified, or should we
+    # overwrite it like we do now?
+    append_env(config, "GENV_ENVIRONMENT_ID", environment_id)
 
-        # TODO(raz): clean up environment on 'poststop'
+    # NOTE(raz): even though the hook "prestart" is deprecated, we are using it because the
+    # nvidia container runtime still uses it itself and we need to make sure we will run before.
+    append_hook(
+        config,
+        "prestart",
+        os.path.join(os.path.dirname(__file__), "genv-container-runtime-hook.py"),
+    )
+
+    # TODO(raz): clean up environment on 'poststop'
+
+    with open("config.json", "w") as f:
+        json.dump(config, f)
 
 
 if __name__ == "__main__":
@@ -103,6 +96,6 @@ if __name__ == "__main__":
         # hostname then it might be ok.
         environment_id = container_id
 
-        create(environment_id)
+        do_create(environment_id)
 
     subprocess.check_call([find_container_runtime()] + sys.argv[1:])
