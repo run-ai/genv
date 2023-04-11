@@ -152,7 +152,7 @@ def attach(eid: str, count: int) -> Iterable[int]:
         .strip()
     )
 
-    return [int(index) for index in output.split(",")]
+    return [int(index) for index in output.split(",") if index]
 
 
 def detach(eid: str, index: int) -> None:
