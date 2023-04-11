@@ -1,3 +1,3 @@
-from . import runner
-from . import local
-from . import ssh
+from .runner import Runner
+from .local import LocalRunner
+from .ssh import SshRunner

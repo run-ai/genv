@@ -4,7 +4,7 @@ import sys
 from typing import Any, Callable, Iterable, Optional, Tuple
 
 from .utils import reprint
-from ..runners.ssh import SshRunner
+from ..runners import SshRunner
 
 
 @dataclass
