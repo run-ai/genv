@@ -6,6 +6,7 @@ from typing import Iterable, Optional
 from . import nvidia_smi
 from . import os_
 from . import utils
+from .runners import Runner
 
 
 @dataclass
@@ -134,12 +135,12 @@ class Snapshot:
         return Snapshot(processes)
 
 
-async def snapshot() -> Snapshot:
+async def snapshot(runner: Optional[Runner] = None) -> Snapshot:
     """
     Returns a snapshot of all running compute processes.
     """
     uuids, apps = await asyncio.gather(
-        nvidia_smi.devices(), nvidia_smi.compute_apps()
+        nvidia_smi.nvidia_devices(runner), nvidia_smi.compute_apps(runner)
     )
 
     pid_to_apps = {

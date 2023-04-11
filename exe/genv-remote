@@ -9,6 +9,7 @@ import sys
 from typing import Iterable, NoReturn, Optional
 
 import genv
+from genv import SnapshotMode
 
 QUERIES = {
     "hostname": lambda host, env: host.hostname,
@@ -257,6 +258,10 @@ async def do_monitor(
 
         await asyncio.sleep(interval)
 
+async def do_csv_monitor(config: genv.remote.Config):
+    hosts, snapshots = await genv.remote.snapshot(config, SnapshotMode.Partial)
+    print(snapshots)
+
 
 async def do_query(
     config: genv.remote.Config, name: str, queries: Iterable[str]
@@ -437,6 +442,9 @@ def parse_args() -> argparse.Namespace:
             required=True,
         )
 
+    def nvidia_smi_monitor(parser):
+        parser
+
     parser = argparse.ArgumentParser(description="Genv remote")
 
     group = parser.add_mutually_exclusive_group(required=True)
@@ -490,6 +498,7 @@ def parse_args() -> argparse.Namespace:
         (envs, "List all active environments"),
         (monitor, "Monitor remote hosts using Prometheus and Grafana"),
         (query, "Query environments or a specific one"),
+        (nvidia_smi_monitor, "David test")
     ]:
         command(subparsers.add_parser(command.__name__, help=help))
 
@@ -527,6 +536,8 @@ async def main(config: genv.remote.Config, args: argparse.Namespace) -> None:
         await do_monitor(config, args.config_dir, args.port, args.interval)
     elif args.command == "query":
         await do_query(config, args.name, args.queries)
+    elif args.command == "nvidia_smi_monitor":
+        await do_csv_monitor(config)
 
 
 if __name__ == "__main__":

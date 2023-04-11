@@ -6,5 +6,5 @@ class DeviceInfo:
     uuid: str
     index: int
     utilization: int
-    used_memory_bytes: int
+    used_memory_bytes: str
     memory_utilization: int

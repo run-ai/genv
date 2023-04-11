@@ -1,6 +1,10 @@
 from dataclasses import dataclass
 import subprocess
-from typing import Dict, Iterable, Optional
+from typing import Dict, Iterable, Optional, List
+
+import genv.nvidia_smi as nvidia_smi
+from .snapshot_mode import SnapshotMode
+from .runners import Runner
 
 
 # NOTE(raz): This should be the layer that queries and controls the state of Genv regarding devices.
@@ -15,8 +19,15 @@ from typing import Dict, Iterable, Optional
 
 @dataclass
 class Device:
+    @dataclass
+    class Status:
+        utilization: int
+        memory_used_bytes: str
+        memory_utilization: int
+
     index: int
     eids: Iterable[str]
+    status: Status
 
     @property
     def attached(self) -> bool:
@@ -105,11 +116,29 @@ class Snapshot:
         return Snapshot(devices)
 
 
-def snapshot() -> Snapshot:
-    return Snapshot([Device(index, d["eids"]) for index, d in ps().items()])
+async def snapshot(mode: SnapshotMode = SnapshotMode.Full, runner: Optional[Runner] = None) -> Snapshot:
+    nvidia_smi_info = await nvidia_smi.nvidia_devices(runner)
+
+    devices = []
+    if mode == SnapshotMode.Full:
+        def get_matching_smi_info(device_index):
+            return next(filter(lambda x: x.index == device_index, nvidia_smi_info.values()), None)
+
+        for index, d in ps().items():
+            smi_info = get_matching_smi_info(index)
+            dev_status = Device.Status(smi_info.utilization, smi_info.used_memory_bytes, smi_info.memory_utilization)
+            # TODO(david): fix json serialization so it will be able to handle internal objects
+            device = Device(index, d["eids"], None)
+            devices.append(device)
+    else:
+        for smi_info in nvidia_smi_info.values():
+            dev_status = Device.Status(smi_info.utilization, smi_info.used_memory_bytes, smi_info.memory_utilization)
+            device = Device(smi_info.index, [], dev_status)
+            devices.append(device)
+    return Snapshot(devices)
 
 
-def ps() -> Dict[int, Iterable[str]]:
+def ps() -> Dict[int, Dict[str, List[str]]]:
     """
     Returns information about device and active attachments.
 

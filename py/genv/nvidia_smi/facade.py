@@ -1,7 +1,8 @@
 import os
 from typing import Dict, Iterable, Optional
 
-from . import DeviceInfo, AppInfo
+from .device_info import DeviceInfo
+from .app_info import AppInfo
 from ..runners import Runner, LocalRunner
 
 DEFAULT_NVIDIA_SMI_ENV_VARS = {"GENV_BYPASS": "1", **os.environ}
@@ -12,7 +13,7 @@ CSV_FORMAT_PARAM = "--format=csv,noheader,nounits"
 NVIDIA_CSV_SPLITTER = ", "
 
 
-async def devices(runner: Optional[Runner] = None) -> Dict[str, DeviceInfo]:
+async def nvidia_devices(runner: Optional[Runner] = None) -> Dict[str, DeviceInfo]:
     """
     Queries device UUIDs.
 
@@ -33,7 +34,7 @@ async def devices(runner: Optional[Runner] = None) -> Dict[str, DeviceInfo]:
 
     for line in stdout.splitlines():
         uuid, index, utilization, used_memory, memory_utilization = line.split(NVIDIA_CSV_SPLITTER)
-        dev_info = DeviceInfo(uuid, int(index), int(utilization), int(used_memory), int(memory_utilization))
+        dev_info = DeviceInfo(uuid, int(index), int(utilization), used_memory, int(memory_utilization))
         mapping[uuid] = dev_info
 
     return mapping

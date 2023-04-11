@@ -1,7 +1,7 @@
 import asyncio
 from abc import ABC, abstractmethod
 from asyncio.subprocess import Process
-from subprocess import CalledProcessError
+from subprocess import SubprocessError
 from typing import Dict, Optional
 
 
@@ -37,7 +37,7 @@ class Runner(ABC):
         if check and process.returncode != 0:
             command = " ".join(args)
             stdin_str = ' with stdin ' + str(stdin)
-            raise CalledProcessError(
+            raise SubprocessError(
                 f"Failed running '{command}' {' with sudo ' if sudo else ''} { stdin_str if stdin else '' } ({stderr})"
             )
 

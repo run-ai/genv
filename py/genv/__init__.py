@@ -6,5 +6,5 @@ from . import os_
 from . import poll
 from . import processes
 from . import remote
-from .snapshot import Snapshot, snapshot
+from .snapshot import Snapshot, snapshot, SnapshotMode
 from . import utils

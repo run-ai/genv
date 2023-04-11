@@ -15,6 +15,8 @@ class Device:
     uuid: str
     total_memory: str
     used_memory: str
+    utilization: int
+    memory_utilization: int
 
     @staticmethod
     def uuid_(index: int) -> str:
@@ -48,6 +50,8 @@ devices = [
         used_memory=os.environ.get(
             "GENV_MOCK_DEVICE_USED_MEMORY", "10mi"
         ),  # TODO(raz): calculate used memory by summing all processes
+        utilization=42,
+        memory_utilization=5,
     )
     for index in indices
 ]
@@ -141,6 +145,9 @@ Fri Dec 23 23:11:41 2022
 elif args == ["--query-gpu=uuid,index", "--format=csv,noheader,nounits"]:
     for device in devices:
         print(f"{device.uuid}, {device.index}")
+elif args == ["--query-gpu=uuid,index,utilization.gpu,memory.used,utilization.memory", "--format=csv,noheader,nounits"]:
+    for device in devices:
+        print(f"{device.uuid}, {device.index}, {device.utilization}, {device.used_memory}, {device.memory_utilization}")
 elif args == [
     "--query-compute-apps=gpu_uuid,pid,used_gpu_memory",
     "--format=csv,noheader,nounits",

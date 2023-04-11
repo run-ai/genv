@@ -23,6 +23,7 @@ class SshRunner(Runner):
     async def _open_process(self, *args: str, stdin_fd: int, sudo: bool) -> Process:
         ssh_parameters = self.calc_ssh_params()
         remote_command = self.calc_command_on_remote_machine(args, sudo)
+        print(remote_command)
 
         return await asyncio.create_subprocess_exec(
             SshRunner.__SSH_COMMAND_PREFIX,
