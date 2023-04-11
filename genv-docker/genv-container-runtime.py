@@ -21,6 +21,16 @@ def find_container_runtime() -> str:
     raise RuntimeError("Cannot find any container runtime")
 
 
+def get_env(config: dict, name: str) -> Optional[str]:
+    """
+    Returns the value of an environment variable if set.
+    """
+
+    for env in config["process"]["env"]:
+        if env.startswith(f"{name}="):
+            return env.split("=")[-1]
+
+
 def append_env(config: dict, name: str, value: str) -> None:
     """
     Appends an environment variable to the configuration.
@@ -86,8 +96,9 @@ def do_create(environment_id: str) -> None:
     # overwrite it like we do now?
     append_env(config, "GENV_ENVIRONMENT_ID", environment_id)
 
-    # TODO(raz): make the shim-injection configurable using env var "GENV_BYPASS"
-    update_env(config, "PATH", lambda value: f"/opt/genv/shims:{value}")
+    if not (get_env(config, "GENV_BYPASS") == "1"):
+        # TODO(raz): make the shim-injection configurable using env var "GENV_BYPASS"
+        update_env(config, "PATH", lambda value: f"/opt/genv/shims:{value}")
 
     # NOTE(raz): even though the hook "prestart" is deprecated, we are using it because the
     # nvidia container runtime still uses it itself and we need to make sure we will run before.

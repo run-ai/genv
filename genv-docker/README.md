@@ -60,6 +60,9 @@ This argument is converted to environment variable [`GENV_GPUS`](#genv_gpus).
 #### `--gpu-memory`
 This argument is converted to environment variable [`GENV_GPU_MEMORY`](#genv_gpu_memory).
 
+#### `--[no-]shims`
+`--no-shims` is converted to environment variable [`GENV_BYPASS`](#genv_bypass).
+
 ## Using the container runtime directly
 You can directly use the container runtime even without `genv-docker` by specifying it in the argument `--runtime` to `docker run`.
 
@@ -78,6 +81,9 @@ The attached devices are picked by Genv with respect to the device count specifi
 
 #### `GENV_GPU_MEMORY`
 Configures the container environment GPU memory capacity.
+
+#### `GENV_BYPASS`
+Do not mount Genv shims to the container.
 
 ## References
 1. https://github.com/opencontainers/runtime-spec/blob/main/config.md

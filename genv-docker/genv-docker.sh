@@ -10,6 +10,9 @@ print_error_and_exit()
     exit 1
 }
 
+# default arguments
+shims="1"
+
 print_run_usage()
 {
     echo "Genv Usage: genv-docker run [OPTIONS] ..."
@@ -21,6 +24,9 @@ print_run_usage()
     echo "                    k - kilobytes, ki - kibibytes"
     echo "                    m - megabytes, mi - mebibytes"
     echo "                    g - gigabytes, gi - gibibytes"
+    echo
+    echo "Configuration"
+    echo "  --[no-]shims    Mount Genv shims; default: $shims"
     echo
     echo "Extra Options:"
     echo "  --help          Show this help message and exit"
@@ -37,6 +43,7 @@ while [[ $# -gt 0 ]] ; do
     shift
 
     if [[ $args_command = "run" ]] ; then
+        # options
         if [[ $arg = "--gpus" ]] ; then
             gpus=$1
             shift
@@ -53,6 +60,11 @@ while [[ $# -gt 0 ]] ; do
             if ! [[ $gpu_memory =~ $re ]] ; then
                 print_error_and_exit "Invalid value for '--gpu-memory' ($gpu_memory)"
             fi
+
+        # configuration
+        elif [ $arg = "--shims" ] ; then shims="1" ; elif [ $arg = "--no-shims" ] ; then shims="0"
+
+        # extra options
         elif [[ $arg = "--dry-run" ]] ; then
             dry_run="1"
         else
@@ -90,6 +102,10 @@ if [[ $args_command = "run" ]] ; then
 
     if [[ "$gpu_memory" != "" ]]; then
         args_middle+=("-e GENV_GPU_MEMORY=$gpu_memory")
+    fi
+
+    if [ "$shims" = "0" ]; then
+        args_middle+=("-e GENV_BYPASS=1")
     fi
 fi
 
