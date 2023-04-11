@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 
 import os
-from subprocess import CalledProcessError
+from pathlib import Path
+import subprocess
 import sys
 import json
 from typing import Optional
@@ -67,7 +68,7 @@ if __name__ == "__main__":
 
         try:  # this could fail if for example there are no available devices
             indices = genv.devices.attach(eid, gpus)
-        except CalledProcessError as e:
+        except subprocess.CalledProcessError as e:
             print(e.stdout, file=sys.stderr)
             exit(1)
 
@@ -84,3 +85,26 @@ if __name__ == "__main__":
 
         with open("config.json", "w") as f:
             json.dump(config, f)
+
+    # TODO(raz): make the shim-injection configurable using env var "GENV_BYPASS"
+    container_root = config["root"]["path"]
+    container_genv_root = f"{container_root}/opt/genv"
+    container_shims = f"{container_genv_root}/shims"
+    container_nvidia_smi_shim = f"{container_shims}/nvidia-smi"
+
+    host_nvidia_smi_shim = os.path.join(GENV_ROOT, "shims", "nvidia-smi")
+
+    # the following is inspired by libnvidia-container:
+    # https://github.com/NVIDIA/libnvidia-container/blob/v1.13.0/src/nvc_mount.c#L99-L151
+
+    # TODO(raz): the file and directory are not created with the correct uid and gid.
+    Path(container_shims).mkdir(mode=0o755, parents=True, exist_ok=True)
+    Path(container_nvidia_smi_shim).touch(mode=0o755, exist_ok=True)
+    subprocess.check_call(
+        f"nsenter --mount --target {pid} mount --bind {host_nvidia_smi_shim} {container_nvidia_smi_shim}",
+        shell=True,
+    )
+    subprocess.check_call(
+        f"nsenter --mount --target {pid} mount --bind -o remount,ro,nosuid {container_nvidia_smi_shim}",
+        shell=True,
+    )

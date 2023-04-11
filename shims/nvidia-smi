@@ -12,9 +12,10 @@ from typing import Dict, Iterable, Optional
 # TODO(raz): move some of the following functions to a common library
 
 
-def which(cmd: str) -> Optional[str]:
+def which(cmd: str) -> str:
     """
     Find the original path of a genv shim.
+    Raises 'RuntimeError' if not found.
     """
     shims = os.path.realpath(os.path.dirname(__file__))
     path = os.pathsep.join(
@@ -23,7 +24,12 @@ def which(cmd: str) -> Optional[str]:
         if os.path.realpath(dir) != shims
     )
 
-    return shutil.which(cmd, path=path)
+    result = shutil.which(cmd, path=path)
+
+    if not result:
+        raise RuntimeError(f"Could not find the path of '{cmd}'")
+
+    return result
 
 
 # TODO(raz): use this method from genv.os_
@@ -190,9 +196,12 @@ def run(args: Iterable[str], bypass: bool = False) -> int:
 
 bypass = int(os.environ.get("GENV_BYPASS", 0)) != 0
 
-# TODO(raz): handle modes of nvidia-smi where '--id' is not supported like 'pmon'
-args = (
-    [] if bypass else [f'--id={os.environ.get("CUDA_VISIBLE_DEVICES")}']
-) + sys.argv[1:]
+# NOTE(raz): the environment variable "CUDA_VISIBLE_DEVICES" will always be set for shell environments.
+# however, it might not be set for other environment types like containers.
+if "CUDA_VISIBLE_DEVICES" in os.environ and not bypass:
+    # TODO(raz): handle modes of nvidia-smi where '--id' is not supported like 'pmon'
+    args = [f'--id={os.environ.get("CUDA_VISIBLE_DEVICES")}']
+else:
+    args = []
 
-sys.exit(run(args, bypass))
+sys.exit(run(args + sys.argv[1:], bypass))

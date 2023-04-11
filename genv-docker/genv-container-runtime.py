@@ -5,7 +5,7 @@ import shutil
 import sys
 import json
 import subprocess
-from typing import Iterable, Optional
+from typing import Callable, Iterable, Optional
 
 
 def find_container_runtime() -> str:
@@ -27,6 +27,20 @@ def append_env(config: dict, name: str, value: str) -> None:
     """
 
     config["process"]["env"].append(f"{name}={value}")
+
+
+def update_env(config: dict, name: str, mutator: Callable[[str], str]) -> None:
+    """
+    Updates an environment variable.
+    """
+
+    for index, env in enumerate(config["process"]["env"]):
+        if env.startswith(f"{name}="):
+            value = env.split("=")[-1]
+            config["process"]["env"][index] = f"{name}={mutator(value)}"
+            return
+
+    raise RuntimeError(f"Cannot update environment variable '{name}'")
 
 
 def append_hook(
@@ -71,6 +85,9 @@ def do_create(environment_id: str) -> None:
     # TODO(raz): should we support the case where an eid is explicitly specified, or should we
     # overwrite it like we do now?
     append_env(config, "GENV_ENVIRONMENT_ID", environment_id)
+
+    # TODO(raz): make the shim-injection configurable using env var "GENV_BYPASS"
+    update_env(config, "PATH", lambda value: f"/opt/genv/shims:{value}")
 
     # NOTE(raz): even though the hook "prestart" is deprecated, we are using it because the
     # nvidia container runtime still uses it itself and we need to make sure we will run before.
