@@ -11,7 +11,7 @@ from . import utils
 @dataclass
 class Process:
     """
-    A compute running process either from an environment or not.
+    A running process either from an environment or not.
     """
 
     @dataclass
@@ -106,7 +106,7 @@ class Snapshot:
         :param pids: Process identifiers to keep
         :param eid: Environment identifier to keep
         :param eids: Environment identifiers to keep
-        :param username: Username to keep
+        :param index:
         """
         if eids:
             eids = set(eids)
@@ -139,12 +139,12 @@ async def snapshot() -> Snapshot:
     Returns a snapshot of all running compute processes.
     """
     uuids, apps = await asyncio.gather(
-        nvidia_smi.device_uuids(), nvidia_smi.compute_apps()
+        nvidia_smi.devices(), nvidia_smi.compute_apps()
     )
 
     pid_to_apps = {
-        pid: [app for app in apps if app["pid"] == pid]
-        for pid in set(app["pid"] for app in apps)
+        pid: [app for app in apps if app.pid == pid]
+        for pid in set(app.pid for app in apps)
     }
 
     return Snapshot(
@@ -153,7 +153,7 @@ async def snapshot() -> Snapshot:
                 pid=pid,
                 used_gpu_memory=[
                     Process.Usage(
-                        index=uuids[app["gpu_uuid"]], gpu_memory=app["used_gpu_memory"]
+                        index=uuids[app.gpu_uuid].index, gpu_memory=app.used_gpu_memory
                     )
                     for app in apps
                 ],
