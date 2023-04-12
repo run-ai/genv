@@ -254,10 +254,8 @@ def do_attach(
     :return: None
     """
     if count is None and index is None:
+        # use the environment device count configuration if set
         count = genv.envs.gpus(eid)
-
-        if count is None:
-            raise RuntimeError(f"Environment {eid} has no configured device count")
 
     attached = query(devices, eid)
     env_gpu_memory = genv.envs.gpu_memory(eid)
