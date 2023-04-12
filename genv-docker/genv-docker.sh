@@ -11,23 +11,27 @@ print_error_and_exit()
 }
 
 # default arguments
+activate="1"
+attach="1"
 shims="1"
 
 print_run_usage()
 {
-    echo "Genv Usage: genv-docker run [OPTIONS] ..."
+    echo "Genv Usage: genv-docker run ..."
     echo
-    echo "Options:"
-    echo "  --gpus          Configure the environment device count and attach devices using Genv"
+    echo "Configuration:"
+    echo "  --gpus          Configure the environment device count"
     echo "  --gpu-memory    Configure the environment memory capacity (e.g. 3g, 42mi, 44040192)"
     echo "                    b - bytes (default)"
-    echo "                    k - kilobytes, ki - kibibytes"
-    echo "                    m - megabytes, mi - mebibytes"
-    echo "                    g - gigabytes, gi - gibibytes"
+    echo "                    k - kilobytes    ki - kibibytes"
+    echo "                    m - megabytes    mi - mebibytes"
+    echo "                    g - gigabytes    gi - gibibytes"
+    echo "  --eid           Configure the environment identifier"
     echo
-    echo "Configuration"
-    echo "  --eid           Controls the Genv environment identifier of the container"
-    echo "  --[no-]shims    Mount Genv shims; default: $shims"
+    echo "Options:"
+    echo "  --[no-]activate     Activate environment for the container; default: $activate"
+    echo "  --[no-]attach       Attach devices to the environment; default: $attach"
+    echo "  --[no-]shims        Mount shims to the container; default: $shims"
     echo
     echo "Extra Options:"
     echo "  --help          Show this help message and exit"
@@ -44,7 +48,7 @@ while [[ $# -gt 0 ]] ; do
     shift
 
     if [[ $args_command = "run" ]] ; then
-        # options
+        # configuration
         if [[ $arg = "--gpus" ]] ; then
             gpus=$1
             shift
@@ -61,14 +65,15 @@ while [[ $# -gt 0 ]] ; do
             if ! [[ $gpu_memory =~ $re ]] ; then
                 print_error_and_exit "Invalid value for '--gpu-memory' ($gpu_memory)"
             fi
-
-        # configuration
         elif [ $arg = "--eid" ] ; then eid=$1 ; shift
+
+        # options
+        elif [ $arg = "--activate" ] ; then activate="1" ; elif [ $arg = "--no-activate" ] ; then activate="0"
+        elif [ $arg = "--attach" ] ; then attach="1" ; elif [ $arg = "--no-attach" ] ; then attach="0"
         elif [ $arg = "--shims" ] ; then shims="1" ; elif [ $arg = "--no-shims" ] ; then shims="0"
 
         # extra options
-        elif [[ $arg = "--dry-run" ]] ; then
-            dry_run="1"
+        elif [[ $arg = "--dry-run" ]] ; then dry_run="1"
         else
             if [[ $arg = "--help" ]] ; then
                 # here we print the help message of genv-docker and then pass to the `docker` command
@@ -98,6 +103,7 @@ done
 if [[ $args_command = "run" ]] ; then
     args_middle+=("--runtime=genv")
 
+    # configuration
     if [[ "$gpus" != "" ]]; then
         args_middle+=("-e GENV_GPUS=$gpus")
     fi
@@ -110,8 +116,17 @@ if [[ $args_command = "run" ]] ; then
         args_middle+=("-e GENV_ENVIRONMENT_ID=$eid")
     fi
 
+    # options
+    if [ "$activate" = "0" ]; then
+        args_middle+=("-e GENV_ACTIVATE=0")
+    fi
+
+    if [ "$attach" = "0" ]; then
+        args_middle+=("-e GENV_ATTACH=0")
+    fi
+
     if [ "$shims" = "0" ]; then
-        args_middle+=("-e GENV_BYPASS=1")
+        args_middle+=("-e GENV_MOUNT_SHIMS=0")
     fi
 fi
 

@@ -38,13 +38,11 @@ def get_env(config: dict, name: str, *, check: bool = False) -> Optional[str]:
         raise RuntimeError(f"Cannot find the environment variable '{name}'")
 
 
-if __name__ == "__main__":
-    state = json.load(sys.stdin)
+def activate_environment(state: dict, eid: str):
+    """
+    Activates an environment for the container.
+    """
 
-    with open("config.json") as f:
-        config = json.load(f)
-
-    eid = get_env(config, "GENV_ENVIRONMENT_ID", check=True)
     pid = state["pid"]
 
     # NOTE(raz): this de-facto would always be uid 0 (root).
@@ -56,55 +54,95 @@ if __name__ == "__main__":
 
     genv.envs.activate(eid, uid, pid)
 
-    gpus = get_env(config, "GENV_GPUS")
-    gpu_memory = get_env(config, "GENV_GPU_MEMORY")
 
-    if gpu_memory:
-        # NOTE(raz): this must happen before attaching in order to take effect
-        genv.envs.configure(eid, "gpu-memory", gpu_memory)
+def configure_environment(config: dict, eid: str):
+    """
+    Configures the environment.
+    """
 
-    if gpus:
-        genv.envs.configure(eid, "gpus", gpus)
+    def _configure(field: str, env: str):
+        value = get_env(config, env)
+        if value:
+            genv.envs.configure(eid, field, value)
 
-        try:  # this could fail if for example there are no available devices
-            indices = genv.devices.attach(eid)
-        except subprocess.CalledProcessError as e:
-            print(e.stdout, file=sys.stderr)
-            exit(1)
+    _configure("gpus", "GENV_GPUS")
+    _configure("gpu-memory", "GENV_GPU_MEMORY")
 
-        # NOTE(raz): setting environment variables here will not have effect on the process
-        # environment as it is now too late in the container lifecycle.
-        # however, the nvidia container runtime hook, that will run after us, will respect this
-        # environment variable from the configuration.
-        #
-        # p.s. we saw that de-facto the last value is the one that matters.
-        # so appending "NVIDIA_VISIBLE_DEVICES" works even if it is already set.
-        config["process"]["env"].append(
-            f"NVIDIA_VISIBLE_DEVICES={','.join(str(index) for index in indices)}"
-        )
 
-        with open("config.json", "w") as f:
-            json.dump(config, f)
+def attach_environment(config: dict, eid: str):
+    """
+    Attaches the environment to devices.
+    """
 
-    if not (get_env(config, "GENV_BYPASS") == "1"):
-        container_root = config["root"]["path"]
-        container_genv_root = f"{container_root}/opt/genv"
-        container_shims = f"{container_genv_root}/shims"
-        container_nvidia_smi_shim = f"{container_shims}/nvidia-smi"
+    indices = genv.devices.attach(eid)
 
-        host_nvidia_smi_shim = os.path.join(GENV_ROOT, "shims", "nvidia-smi")
+    # NOTE(raz): setting environment variables here will not have effect on the process
+    # environment as it is now too late in the container lifecycle.
+    # however, the nvidia container runtime hook, that will run after us, will respect this
+    # environment variable from the configuration.
+    #
+    # p.s. we saw that de-facto the last value is the one that matters.
+    # so appending "NVIDIA_VISIBLE_DEVICES" works even if it is already set.
+    config["process"]["env"].append(
+        f"NVIDIA_VISIBLE_DEVICES={','.join(str(index) for index in indices)}"
+    )
 
-        # the following is inspired by libnvidia-container:
-        # https://github.com/NVIDIA/libnvidia-container/blob/v1.13.0/src/nvc_mount.c#L99-L151
 
-        # TODO(raz): the file and directory are not created with the correct uid and gid.
-        Path(container_shims).mkdir(mode=0o755, parents=True, exist_ok=True)
-        Path(container_nvidia_smi_shim).touch(mode=0o755, exist_ok=True)
+def mount_shims(state: dict, config: dict):
+    """
+    Mounts shims into the container.
+    """
+
+    # inspired by https://github.com/NVIDIA/libnvidia-container/blob/v1.13.0/src/nvc_mount.c#L99-L151
+    # TODO(raz): the file and directory are not created with the correct uid and gid.
+
+    container_root = config["root"]["path"]
+    container_genv = f"{container_root}/opt/genv"
+    container_shims = f"{container_genv}/shims"
+
+    host_genv = GENV_ROOT
+    host_shims = f"{host_genv}/shims"
+
+    Path(container_shims).mkdir(mode=0o755, parents=True, exist_ok=True)
+
+    for shim in ["nvidia-smi"]:
+        host_shim = f"{host_shims}/{shim}"
+        container_shim = f"{container_shims}/{shim}"
+
+        Path(container_shim).touch(mode=0o755, exist_ok=True)
+
+        # TODO(raz): can we do the following without shells and subprocesses?
+
         subprocess.check_call(
-            f"nsenter --mount --target {pid} mount --bind {host_nvidia_smi_shim} {container_nvidia_smi_shim}",
+            f"nsenter --mount --target {state['pid']} mount --bind {host_shim} {container_shim}",
             shell=True,
         )
         subprocess.check_call(
-            f"nsenter --mount --target {pid} mount --bind -o remount,ro,nosuid {container_nvidia_smi_shim}",
+            f"nsenter --mount --target {state['pid']} mount --bind -o remount,ro,nosuid {container_shim}",
             shell=True,
         )
+
+
+# TODO(raz): prettify error messages
+if __name__ == "__main__":
+    state = json.load(sys.stdin)
+
+    # TODO(raz): is it ok to assume that the current working directory is the bundle
+    # or should we respect state["bundle"]?
+    with open("config.json") as f:
+        config = json.load(f)
+
+    if not get_env(config, "GENV_ACTIVATE") == "0":
+        eid = get_env(config, "GENV_ENVIRONMENT_ID", check=True)
+
+        activate_environment(state, eid)
+        configure_environment(config, eid)
+
+        if not get_env(config, "GENV_ATTACH") == "0":
+            attach_environment(config, eid)
+
+    if not get_env(config, "GENV_MOUNT_SHIMS") == "0":
+        mount_shims(state, config)
+
+    with open("config.json", "w") as f:
+        json.dump(config, f)

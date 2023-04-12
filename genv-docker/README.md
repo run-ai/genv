@@ -55,16 +55,22 @@ It also provides additional options to the `genv-docker run` command with are no
 > You can see all the available options with `genv-docker run --help`
 
 #### `--gpus`
-This argument is converted to environment variable [`GENV_GPUS`](#genv_gpus).
+Equivalent to environment variable [`GENV_GPUS`](#genv_gpus).
 
 #### `--gpu-memory`
-This argument is converted to environment variable [`GENV_GPU_MEMORY`](#genv_gpu_memory).
+Equivalent to environment variable [`GENV_GPU_MEMORY`](#genv_gpu_memory).
 
 #### `--eid`
-This argument is converted to environment variable [`GENV_ENVIRONMENT_ID`](#genv_environment_id).
+Equivalent to environment variable [`GENV_ENVIRONMENT_ID`](#genv_environment_id).
+
+#### `--[no-]activate`
+Equivalent to environment variable [`GENV_ACTIVATE`](#genv_activate).
+
+#### `--[no-]attach`
+Equivalent to environment variable [`GENV_ATTACH`](#genv_attach).
 
 #### `--[no-]shims`
-`--no-shims` is converted to environment variable [`GENV_BYPASS`](#genv_bypass).
+Equivalent to environment variable [`GENV_MOUNT_SHIMS`](#GENV_MOUNT_SHIMS).
 
 ## Using the container runtime directly
 You can directly use the container runtime even without `genv-docker` by specifying it in the argument `--runtime` to `docker run`.
@@ -77,21 +83,24 @@ docker run --runtime genv -it --rm ubuntu
 ### Environment variables (OCI spec)
 The following environment variables are the API for passing arguments to the Genv container runtime when creating containers.
 
-#### `GENV_ENVIRONMENT_ID`
-The container environment identifier.
-
-If not set, the container identifier is used as the environment identifier.
-
 #### `GENV_GPUS`
-Configures the container environment device count and attaches devices to the container.
-
-The attached devices are picked by Genv with respect to the device count specified here.
+Configures the environment device count.
 
 #### `GENV_GPU_MEMORY`
-Configures the container environment GPU memory capacity.
+Configures the environment GPU memory capacity.
 
-#### `GENV_BYPASS`
-Do not mount Genv shims to the container.
+#### `GENV_ENVIRONMENT_ID`
+Configures the environment identifier.
+If not set, the container identifier is used.
+
+#### `GENV_ACTIVATE`
+Activates an environment for the container unless set to `0`.
+
+#### `GENV_ATTACH`
+Attaches devices to the environment unless set to `0`.
+
+#### `GENV_MOUNT_SHIMS`
+Mounts shims to the container unless set to `0`.
 
 ## References
 1. https://github.com/opencontainers/runtime-spec/blob/main/config.md

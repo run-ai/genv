@@ -92,15 +92,15 @@ def do_create(container_id: str) -> None:
     with open("config.json") as f:
         config = json.load(f)
 
-    if not get_env(config, "GENV_ENVIRONMENT_ID"):
-        # TODO(raz): consider generating an environment identifier which is different than
-        # the container identifier to avoid this kind of information leak.
-        # also note that a short version of the container identifier is set as the container
-        # hostname then it might be ok.
-        append_env(config, "GENV_ENVIRONMENT_ID", container_id)
+    if not get_env(config, "GENV_ACTIVATE") == "0":
+        if not get_env(config, "GENV_ENVIRONMENT_ID"):
+            # TODO(raz): consider generating an environment identifier which is different than
+            # the container identifier to avoid this kind of information leak.
+            # also note that a short version of the container identifier is set as the container
+            # hostname then it might be ok.
+            append_env(config, "GENV_ENVIRONMENT_ID", container_id)
 
-    if not (get_env(config, "GENV_BYPASS") == "1"):
-        # TODO(raz): make the shim-injection configurable using env var "GENV_BYPASS"
+    if not get_env(config, "GENV_MOUNT_SHIMS") == "0":
         update_env(config, "PATH", lambda value: f"/opt/genv/shims:{value}")
 
     # NOTE(raz): even though the hook "prestart" is deprecated, we are using it because the
@@ -117,6 +117,7 @@ def do_create(container_id: str) -> None:
         json.dump(config, f)
 
 
+# TODO(raz): prettify error messages
 if __name__ == "__main__":
     if "create" in sys.argv:
         do_create(container_id=sys.argv[-1])
