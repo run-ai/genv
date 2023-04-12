@@ -16,13 +16,13 @@ Genv lets you easily control, configure and monitor the GPU resources that you a
    :caption: Start Here
 
    overview/overview
+   overview/installation
    overview/quickstart
 
 .. toctree::
    :maxdepth: 2
    :caption: Usage
 
-   usage/installation
    usage/usage
    usage/advanced-usage
    usage/enforcement
@@ -37,6 +37,15 @@ Genv lets you easily control, configure and monitor the GPU resources that you a
    remote/usage
    remote/enforcement
    remote/monitoring
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Container Toolkit
+
+   docker/overview
+   docker/installation
+   docker/quickstart
+   docker/usage
 
 .. toctree::
    :maxdepth: 2

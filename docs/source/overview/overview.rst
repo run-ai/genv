@@ -17,7 +17,7 @@ If you are not familiar with the concept of environments, you can check out the 
 
 At its core, Genv is a `Python package <https://pypi.org/project/genv>`__ that manages GPUs and keeps its state as :ref:`files <Files>`.
 
-On top of this core layer, Genv has :doc:`integrations <../usage/installation>` with many common tools and environments such as terminal, Visual Studio Code, JupyterLab and PyCharm.
+On top of this core layer, Genv has :doc:`integrations <installation>` with many common tools and environments such as terminal, containers (e.g. :code:`docker`), Visual Studio Code, JupyterLab and PyCharm.
 
 .. figure:: overview.png
 
@@ -51,4 +51,4 @@ Where to Go Next
 ----------------
 If you are not familiar with Genv, it is recommended to follow the :doc:`quick start tutorial <quickstart>`.
 
-If you are looking for how to install Genv, visit the :doc:`installation page <../usage/installation>`, and if you want to know how to do specific things, check out the :doc:`usage guide <../usage/usage>`.
+If you are looking for how to install Genv, visit the :doc:`installation page <installation>`, and if you want to know how to do specific things, check out the :doc:`usage guide <../usage/usage>`.

@@ -105,6 +105,7 @@ if [[ $args_command = "run" ]] ; then
 
     # configuration
     if [[ "$gpus" != "" ]]; then
+        # TODO(raz): support explicit specification of devices and not only attaching using Genv
         args_middle+=("-e GENV_GPUS=$gpus")
     fi
 

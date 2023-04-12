@@ -40,7 +40,7 @@ If you don't want to install `genv-docker` in a system-wide location, you can ru
 ### Verify installation
 You can verify the installation with the following command:
 ```
-genv-docker run ubuntu bash -c "env | grep GENV_"
+genv-docker run --rm ubuntu env | grep GENV_
 ```
 
 You should then see that the environment variable `GENV_ENVIRONMENT_ID` is set.
