@@ -67,7 +67,7 @@ if __name__ == "__main__":
         genv.envs.configure(eid, "gpus", gpus)
 
         try:  # this could fail if for example there are no available devices
-            indices = genv.devices.attach(eid, gpus)
+            indices = genv.devices.attach(eid)
         except subprocess.CalledProcessError as e:
             print(e.stdout, file=sys.stderr)
             exit(1)

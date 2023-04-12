@@ -179,6 +179,15 @@ def names() -> Dict[str, Optional[str]]:
     }
 
 
+def gpus(eid: str) -> Optional[int]:
+    """
+    Returns the configured device count an environment.
+    """
+    s = query("config.gpus", eid=eid)
+
+    return int(s) if s else None
+
+
 def gpu_memory(eid: str) -> Optional[str]:
     """
     Returns the configured amount of GPU memory of an environment.
