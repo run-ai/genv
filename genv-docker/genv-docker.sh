@@ -26,6 +26,7 @@ print_run_usage()
     echo "                    g - gigabytes, gi - gibibytes"
     echo
     echo "Configuration"
+    echo "  --eid           Controls the Genv environment identifier of the container"
     echo "  --[no-]shims    Mount Genv shims; default: $shims"
     echo
     echo "Extra Options:"
@@ -62,6 +63,7 @@ while [[ $# -gt 0 ]] ; do
             fi
 
         # configuration
+        elif [ $arg = "--eid" ] ; then eid=$1 ; shift
         elif [ $arg = "--shims" ] ; then shims="1" ; elif [ $arg = "--no-shims" ] ; then shims="0"
 
         # extra options
@@ -102,6 +104,10 @@ if [[ $args_command = "run" ]] ; then
 
     if [[ "$gpu_memory" != "" ]]; then
         args_middle+=("-e GENV_GPU_MEMORY=$gpu_memory")
+    fi
+
+    if [ -n "$eid" ]; then
+        args_middle+=("-e GENV_ENVIRONMENT_ID=$eid")
     fi
 
     if [ "$shims" = "0" ]; then

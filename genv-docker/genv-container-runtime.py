@@ -84,7 +84,7 @@ def append_hook(
     hooks[type].append(hook)
 
 
-def do_create(environment_id: str) -> None:
+def do_create(container_id: str) -> None:
     """
     Performs the command 'create'.
     """
@@ -92,9 +92,12 @@ def do_create(environment_id: str) -> None:
     with open("config.json") as f:
         config = json.load(f)
 
-    # TODO(raz): should we support the case where an eid is explicitly specified, or should we
-    # overwrite it like we do now?
-    append_env(config, "GENV_ENVIRONMENT_ID", environment_id)
+    if not get_env(config, "GENV_ENVIRONMENT_ID"):
+        # TODO(raz): consider generating an environment identifier which is different than
+        # the container identifier to avoid this kind of information leak.
+        # also note that a short version of the container identifier is set as the container
+        # hostname then it might be ok.
+        append_env(config, "GENV_ENVIRONMENT_ID", container_id)
 
     if not (get_env(config, "GENV_BYPASS") == "1"):
         # TODO(raz): make the shim-injection configurable using env var "GENV_BYPASS"
@@ -116,14 +119,6 @@ def do_create(environment_id: str) -> None:
 
 if __name__ == "__main__":
     if "create" in sys.argv:
-        container_id = sys.argv[-1]
-
-        # TODO(raz): consider generating an environment identifier which is different than
-        # the container identifier to avoid this kind of information leak.
-        # also note that a short version of the container identifier is set as the container
-        # hostname then it might be ok.
-        environment_id = container_id
-
-        do_create(environment_id)
+        do_create(container_id=sys.argv[-1])
 
     subprocess.check_call([find_container_runtime()] + sys.argv[1:])

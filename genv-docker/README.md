@@ -60,6 +60,9 @@ This argument is converted to environment variable [`GENV_GPUS`](#genv_gpus).
 #### `--gpu-memory`
 This argument is converted to environment variable [`GENV_GPU_MEMORY`](#genv_gpu_memory).
 
+#### `--eid`
+This argument is converted to environment variable [`GENV_ENVIRONMENT_ID`](#genv_environment_id).
+
 #### `--[no-]shims`
 `--no-shims` is converted to environment variable [`GENV_BYPASS`](#genv_bypass).
 
@@ -73,6 +76,11 @@ docker run --runtime genv -it --rm ubuntu
 
 ### Environment variables (OCI spec)
 The following environment variables are the API for passing arguments to the Genv container runtime when creating containers.
+
+#### `GENV_ENVIRONMENT_ID`
+The container environment identifier.
+
+If not set, the container identifier is used as the environment identifier.
 
 #### `GENV_GPUS`
 Configures the container environment device count and attaches devices to the container.
