@@ -2,10 +2,9 @@ from contextlib import contextmanager
 from datetime import datetime
 import json
 import os
-from pathlib import Path
 from typing import Callable, Dict, Optional, Union
 
-from .os_ import Umask, Flock
+from .os_ import access_lock
 
 DATETIME_FMT = "%d/%m/%Y %H:%M:%S"
 MEMORY_TO_BYTES_MULTIPLIERS_DICT = {
@@ -50,25 +49,24 @@ def access_json(
     """
     path = get_temp_file_path(filename)
 
-    with Umask(0):
-        Path(path).parent.mkdir(parents=True, exist_ok=True, mode=0o777)
+    with access_lock(f"{path}.lock"):
+        if os.path.exists(path) and not reset:
+            with open(path) as f:
+                o = json.load(f)
 
-        with Flock(f"{path}.lock", 0o666):
-            if os.path.exists(path) and not reset:
-                with open(path) as f:
-                    o = json.load(f)
+                if convert:
+                    convert(o)
+        else:
+            o = factory()
 
-                    if convert:
-                        convert(o)
-            else:
-                o = factory()
+        yield o
 
-            yield o
-
-            with open(
-                path, "w", opener=lambda path, flags: os.open(path, flags, 0o666)
-            ) as f:
-                json.dump(o, f, indent=4)
+        # TODO(raz): are probably relying on the umask being set to 0 thanks to access_lock().
+        # this is not part of the API of the method so we probably need to do it here as well.
+        with open(
+            path, "w", opener=lambda path, flags: os.open(path, flags, 0o666)
+        ) as f:
+            json.dump(o, f, indent=4)
 
 
 def memory_to_bytes(cap: str) -> int:

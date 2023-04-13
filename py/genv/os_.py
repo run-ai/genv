@@ -1,6 +1,7 @@
 from contextlib import contextmanager
 import fcntl
 import os
+from pathlib import Path
 import platform
 import signal
 import subprocess
@@ -35,6 +36,27 @@ class Flock:
             fcntl.flock(self._fd, fcntl.LOCK_UN)
         finally:
             os.close(self._fd)
+
+
+@contextmanager
+def access_lock(path: str) -> None:
+    """
+    Locks an exclusive lock.
+    Creates the lock file and its parent directories if not exists.
+    """
+    with Umask(0):
+        Path(path).parent.mkdir(parents=True, exist_ok=True, mode=0o777)
+
+        with Flock(path, mode=0o666):
+            yield
+
+
+def create_lock(path: str) -> None:
+    """
+    Creates a lock file and its parent directories if not exists.
+    """
+    with access_lock(path):
+        pass  # TODO(raz): create the lock without waiting on it
 
 
 def get_process_environ(pid: int) -> Dict[str, str]:
