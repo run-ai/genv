@@ -1,6 +1,25 @@
 Changelog
 =========
 
+Version 0.8.0
+-------------
+**Date:** April 13, 2023
+
+Added
+~~~~~
+* Introduced Genv container toolkit: :code:`genv-docker` and the Genv container runtime
+* Flags :code:`--count` and :code:`--index` are optional in :code:`genv-devices attach`; if none passed, :code:`genv-devices attach` uses the configured device count if set
+* Added :code:`genv.devices.attach()`
+* Added :code:`genv.envs.gpus()`
+* Added :code:`genv.envs.activate()`
+* Added :code:`genv.envs.configure()`
+
+Changed
+~~~~~~~
+* :code:`nvidia-smi` shim prints warning message when missing information about processes
+* :code:`nvidia-smi` shim supports the case when environment variable :code:`CUDA_VISIBLE_DEVICES` is not set
+* :code:`nvidia-smi` shim fails if no other :code:`nvidia-smi` executable found
+
 Version 0.7.0
 -------------
 **Date:** April 4, 2023
