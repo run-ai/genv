@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 import subprocess
-from typing import Dict, Iterable, Optional, Union
+from typing import Any, Dict, Iterable, Optional, Union
 
 from . import utils
 
@@ -179,6 +179,15 @@ def names() -> Dict[str, Optional[str]]:
     }
 
 
+def gpus(eid: str) -> Optional[int]:
+    """
+    Returns the configured device count an environment.
+    """
+    s = query("config.gpus", eid=eid)
+
+    return int(s) if s else None
+
+
 def gpu_memory(eid: str) -> Optional[str]:
     """
     Returns the configured amount of GPU memory of an environment.
@@ -187,3 +196,28 @@ def gpu_memory(eid: str) -> Optional[str]:
     :return: The configured amount of GPU memory or None if not configured
     """
     return query("config.gpu_memory", eid=eid) or None
+
+
+def activate(eid: str, uid: int, pid: int) -> None:
+    """
+    Activates an environment.
+    """
+    subprocess.check_output(
+        f"genv exec envs activate --eid {eid} --uid {uid} --pid {pid}",
+        shell=True,
+    )
+
+
+def configure(eid: str, command: str, value: Any) -> None:
+    """
+    Configures an environment.
+    """
+    ARGUMENTS = {
+        "gpus": "--count",
+        "gpu-memory": "--gpu-memory",
+    }
+
+    subprocess.check_output(
+        f"genv exec envs config --eid {eid} {command} {ARGUMENTS[command]} {str(value)}",
+        shell=True,
+    )

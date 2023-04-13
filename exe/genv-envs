@@ -264,7 +264,9 @@ def parse_args() -> argparse.Namespace:
 
     def activate(parser):
         parser.add_argument("--eid", required=True, help="Environment identifier")
-        parser.add_argument("--uid", type=int, required=True, help="User identifier")
+        parser.add_argument(
+            "--uid", type=int, required=True, help="User identifier"
+        )  # TODO(raz): should we make this optional?
         parser.add_argument("--username", help="User name")
 
         group = parser.add_mutually_exclusive_group(required=True)

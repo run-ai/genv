@@ -12,9 +12,10 @@ from typing import Dict, Iterable, Optional
 # TODO(raz): move some of the following functions to a common library
 
 
-def which(cmd: str) -> Optional[str]:
+def which(cmd: str) -> str:
     """
     Find the original path of a genv shim.
+    Raises 'RuntimeError' if not found.
     """
     shims = os.path.realpath(os.path.dirname(__file__))
     path = os.pathsep.join(
@@ -23,7 +24,12 @@ def which(cmd: str) -> Optional[str]:
         if os.path.realpath(dir) != shims
     )
 
-    return shutil.which(cmd, path=path)
+    result = shutil.which(cmd, path=path)
+
+    if not result:
+        raise RuntimeError(f"Could not find the path of '{cmd}'")
+
+    return result
 
 
 # TODO(raz): use this method from genv.os_
@@ -76,6 +82,10 @@ def memory_cap_to_mib(cap: str) -> int:
     return _bytes(cap) // (1024 * 1024)
 
 
+def print_warning_message(message: str) -> None:
+    print("\n" + f"WARNING: {message}" + "\n")
+
+
 def proxy(process: subprocess.Popen) -> None:
     """
     Reprint the output of a running nvidia-smi process while manipulating it.
@@ -87,6 +97,7 @@ def proxy(process: subprocess.Popen) -> None:
             r"^\|\s*(\d+)\s+N/A\s+N/A\s+(\d+).*?(\d+)MiB \|$"
         ),  # TODO(raz): support MIG (i.e. non N/A values)
     ]
+    NO_PROCESSES_FOUND = re.compile(r"^\|\s*No running processes found\s*\|$")
 
     EID = os.environ.get("GENV_ENVIRONMENT_ID")
 
@@ -100,7 +111,7 @@ def proxy(process: subprocess.Popen) -> None:
     buffered = []
     env_processes = defaultdict(list)
     total_processes = 0
-    is_memory_usage_over_cap = False
+    no_running_processes_found = False
 
     while process.poll() is None:
         line = process.stdout.readline()
@@ -113,26 +124,37 @@ def proxy(process: subprocess.Popen) -> None:
         elif action == Action.Buffer:
             skip = False
 
-            for pattern in PROCESS:
-                match = pattern.match(line)
-                if match:
-                    index = int(match.group(1))
-                    pid = int(match.group(2))
-                    mib = int(match.group(3))
+            if NO_PROCESSES_FOUND.match(line):
+                no_running_processes_found = True
+            else:
+                for pattern in PROCESS:
+                    match = pattern.match(line)
+                    if match:
+                        index = int(match.group(1))
+                        pid = int(match.group(2))
+                        mib = int(match.group(3))
 
-                    total_processes += 1
+                        total_processes += 1
 
-                    if find_process_eid(pid) == EID:
-                        env_processes[index].append(mib)
-                    else:
-                        skip = True
+                        if find_process_eid(pid) == EID:
+                            env_processes[index].append(mib)
+                        else:
+                            skip = True
 
-                    break
+                        break
 
             if not skip:
                 buffered.append((line, previous))
 
         previous = line
+
+    is_missing_process_information = (
+        action == Action.Buffer  # this ensures we are in the default nvidia-smi view
+        and total_processes == 0
+        and not no_running_processes_found
+    )
+
+    is_memory_usage_over_cap = False
 
     for line, previous in buffered:
         match = DEVICE.match(line)
@@ -140,15 +162,18 @@ def proxy(process: subprocess.Popen) -> None:
             used = int(match.group(2))
             total = int(match.group(3))
 
-            index = int(re.match(r"^\|\s*(\d+)\s*.*\|$", previous).group(1))
-            used = sum(env_processes[index])
-
             gpu_memory_cap = os.environ.get("GENV_GPU_MEMORY")
             if gpu_memory_cap:
                 total = memory_cap_to_mib(gpu_memory_cap)
 
-            if used > total:
-                is_memory_usage_over_cap = True
+            if is_missing_process_information:
+                used = "N/A "
+            else:
+                index = int(re.match(r"^\|\s*(\d+)\s*.*\|$", previous).group(1))
+                used = sum(env_processes[index])
+
+                if used > total:
+                    is_memory_usage_over_cap = True
 
             line = DEVICE.sub(
                 f"\\1| {str(used).rjust(6)}MiB / {str(total).rjust(5)}MiB |\\4", line
@@ -163,11 +188,14 @@ def proxy(process: subprocess.Popen) -> None:
         ):
             print("|  " + "No running processes found".ljust(75) + "|")
 
+    if is_missing_process_information:
+        print_warning_message(
+            "Missing information about running processes. Cannot calculate GPU memory usage.\n\nIf you are running in a container, using the host pid namespace would solve this.\nThis could be done by passing '--pid host' to the 'docker run' command."
+        )
+
     if is_memory_usage_over_cap:
-        print(
-            "\nWARNING: The GPU memory usage for this environment has exceeded the set capacity of "
-            + str(os.environ.get("GENV_GPU_MEMORY"))
-            + "\n"
+        print_warning_message(
+            f"The GPU memory usage for this environment has exceeded the set capacity of {os.environ.get('GENV_GPU_MEMORY')}"
         )
 
 
@@ -190,9 +218,12 @@ def run(args: Iterable[str], bypass: bool = False) -> int:
 
 bypass = int(os.environ.get("GENV_BYPASS", 0)) != 0
 
-# TODO(raz): handle modes of nvidia-smi where '--id' is not supported like 'pmon'
-args = (
-    [] if bypass else [f'--id={os.environ.get("CUDA_VISIBLE_DEVICES")}']
-) + sys.argv[1:]
+# NOTE(raz): the environment variable "CUDA_VISIBLE_DEVICES" will always be set for shell environments.
+# however, it might not be set for other environment types like containers.
+if "CUDA_VISIBLE_DEVICES" in os.environ and not bypass:
+    # TODO(raz): handle modes of nvidia-smi where '--id' is not supported like 'pmon'
+    args = [f'--id={os.environ.get("CUDA_VISIBLE_DEVICES")}']
+else:
+    args = []
 
-sys.exit(run(args, bypass))
+sys.exit(run(args + sys.argv[1:], bypass))

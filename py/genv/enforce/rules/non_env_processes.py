@@ -8,6 +8,7 @@ def non_env_processes(*surveys: Survey) -> None:
     for survey in surveys:
         for process in survey.snapshot.processes:
             if process.eid is not None:
+                # TODO(raz): should we make sure that the environment actually exists in the snapshot?
                 continue
 
             print(

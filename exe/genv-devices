@@ -253,6 +253,10 @@ def do_attach(
      Cannot be used in conjunction with the 'count' parameter.
     :return: None
     """
+    if count is None and index is None:
+        # use the environment device count configuration if set
+        count = genv.envs.gpus(eid)
+
     attached = query(devices, eid)
     env_gpu_memory = genv.envs.gpu_memory(eid)
 
@@ -380,9 +384,13 @@ def do_query(devices: Devices, eid: str) -> None:
 def parse_args() -> argparse.Namespace:
     def attach(parser):
         parser.add_argument("--eid", required=True, help="Environment identifier")
-        group = parser.add_mutually_exclusive_group(required=True)
+        group = parser.add_mutually_exclusive_group()
         group.add_argument(
-            "--count", type=int, help="Total devices count to be attached"
+            # TODO(raz): remove this argument entirely.
+            # either attach an environment to devices based on its configuration or by specific index
+            "--count",
+            type=int,
+            help="Total devices count to be attached",
         )
         group.add_argument(
             "--index", type=int, help="Device index to attach specifically"

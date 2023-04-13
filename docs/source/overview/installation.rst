@@ -5,10 +5,19 @@ Installation
    :depth: 3
    :backlinks: none
 
-.. _Install in Terminal:
+.. note::
 
-Terminal
---------
+   This page talks about installing Genv on a single machine.
+   If you are interested in using Genv on a multi-machine cluster, check out the remote installation :doc:`guide <../remote/installation>`.
+
+.. _Install Core:
+
+Core
+----
+
+.. note::
+
+   Genv uses Python 3.7 or higher so make sure you have it also installed.
 
 Conda
 ^^^^^
@@ -18,7 +27,7 @@ If you are using `Conda <https://docs.conda.io/en/latest/>`__, the best way to i
 
    conda install -c conda-forge genv
 
-.. _Install in Terminal From Source:
+.. _Install Core From Source:
 
 From Source
 ^^^^^^^^^^^
@@ -29,12 +38,22 @@ Your home directory is a great place to keep it:
 
    git clone https://github.com/run-ai/genv.git ~/genv
 
-.. _Setting Up Your Shell:
+^^^^^^^^^^^^
+Uninstalling
+^^^^^^^^^^^^
+To uninstall Genv simply remove its root directory:
 
-^^^^^^^^^^^^^^^^^^^^^
-Setting Up Your Shell
-^^^^^^^^^^^^^^^^^^^^^
-In order to use Genv you need to set up your shell environment with the following commands:
+.. code-block:: shell
+
+   rm -rf $(genv root)
+
+.. _Install Terminal:
+
+Terminal
+--------
+First, install the :ref:`core <Install Core>` component of Genv.
+
+Then, in order to use Genv in the terminal, you will need to set up your shell environment with the following commands:
 
 .. code-block:: shell
 
@@ -57,21 +76,9 @@ To verify the installation worked, run the following command:
 
 You should be able to see all the available Genv commands.
 
-^^^^^^^^^^^^
-Dependencies
-^^^^^^^^^^^^
-Genv uses Python 3.7 so make sure you have it also installed.
-
-^^^^^^^^^^^^
 Uninstalling
 ^^^^^^^^^^^^
-To uninstall Genv simply remove its root directory:
-
-.. code-block:: shell
-
-   rm -rf $(genv root)
-
-You will also need to remove the commands you added to your :code:`~/.bashrc` or any other equivalent file.
+Remove the commands you added to your :code:`~/.bashrc` or any other equivalent file.
 
 Visual Studio Code
 ------------------

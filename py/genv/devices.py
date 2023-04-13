@@ -137,6 +137,25 @@ def ps() -> Dict[int, Iterable[str]]:
     return devices
 
 
+def attach(eid: str) -> Iterable[int]:
+    """
+    Attaches an environment to devices.
+
+    :param eid: Environment identifier
+    :return: Attached device indices
+    """
+    output = (
+        subprocess.check_output(
+            f"genv exec devices attach --eid {eid}",
+            shell=True,
+        )
+        .decode("utf-8")
+        .strip()
+    )
+
+    return [int(index) for index in output.split(",") if index]
+
+
 def detach(eid: str, index: int) -> None:
     """
     Detaches an environment from a device.

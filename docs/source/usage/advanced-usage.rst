@@ -114,6 +114,12 @@ For example:
 
 Running Containers
 ------------------
+
+.. note::
+
+   This section talks about using :code:`docker` commands from an active environment and the :code:`docker` :ref:`shim <Shims>`.
+   If you are interested in running containers as environments and not *from* environments, check out the :doc:`Genv container runtime <../docker/overview>`.
+
 When running containers using a :code:`docker run` command from an active environment, the :code:`docker` :ref:`shim <Shims>` is executed.
 
 It is responsible for making the container accessible to devices attached to the environment, as well as propagating some of Genv environment variables.
