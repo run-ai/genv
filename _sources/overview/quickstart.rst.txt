@@ -29,7 +29,7 @@ You can verify that by running the command:
    |-------------------------------+----------------------+----------------------+
    ...
 
-First, you will need to :doc:`install <../usage/installation>` Genv.
+First, you will need to :doc:`install <installation>` Genv.
 You can choose your preferred way of installation.
 
 Verify the installation by running the command:

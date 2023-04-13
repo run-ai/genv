@@ -26,7 +26,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Installation" href="installation.html" />
-    <link rel="prev" title="GPU Environment Management" href="../index.html" /> 
+    <link rel="prev" title="Monitoring" href="../remote/monitoring.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -49,19 +49,10 @@
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption"><span class="caption-text">Start Here</span></p>
-<ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Overview</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#what-is-genv">What is Genv</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#architectures">Architectures</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#local">Local</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#remote">Remote</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="#where-to-go-next">Where to Go Next</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quick start</a></li>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../overview/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../overview/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../overview/quickstart.html">Quick start</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Usage</span></p>
 <ul>
@@ -79,11 +70,16 @@
 <li class="toctree-l1"><a class="reference internal" href="../remote/monitoring.html">Monitoring</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Container Toolkit</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../docker/overview.html">Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../docker/installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../docker/quickstart.html">Quick start</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../docker/usage.html">Usage</a></li>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Overview</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#genv-container-toolkit">Genv Container Toolkit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#architecture">Architecture</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#where-to-go-next">Where to Go Next</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quick start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Development</span></p>
 <ul>
@@ -111,7 +107,7 @@
       <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
       <li class="breadcrumb-item active">Overview</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="../_sources/overview/overview.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../_sources/docker/overview.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -124,57 +120,29 @@
 <div class="contents topic" id="contents">
 <p class="topic-title">Contents</p>
 <ul class="simple">
-<li><p><a class="reference internal" href="#overview" id="id4">Overview</a></p>
+<li><p><a class="reference internal" href="#overview" id="id1">Overview</a></p>
 <ul>
-<li><p><a class="reference internal" href="#what-is-genv" id="id5">What is Genv</a></p></li>
-<li><p><a class="reference internal" href="#architectures" id="id6">Architectures</a></p></li>
-<li><p><a class="reference internal" href="#where-to-go-next" id="id7">Where to Go Next</a></p></li>
+<li><p><a class="reference internal" href="#genv-container-toolkit" id="id2">Genv Container Toolkit</a></p></li>
+<li><p><a class="reference internal" href="#architecture" id="id3">Architecture</a></p></li>
+<li><p><a class="reference internal" href="#where-to-go-next" id="id4">Where to Go Next</a></p></li>
 </ul>
 </li>
 </ul>
 </div>
-<div class="section" id="what-is-genv">
-<h2>What is Genv<a class="headerlink" href="#what-is-genv" title="Permalink to this headline">¶</a></h2>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>You can jump directly to the quick start toturial <a class="reference internal" href="quickstart.html"><span class="doc">here</span></a>.</p>
+<div class="section" id="genv-container-toolkit">
+<h2>Genv Container Toolkit<a class="headerlink" href="#genv-container-toolkit" title="Permalink to this headline">¶</a></h2>
+<p>The Genv container toolkit is the integration of Genv with containers and tools like <code class="code docutils literal notranslate"><span class="pre">docker</span></code>.
+It brings GPU environment capabilities to containers such as <a class="reference internal" href="../usage/usage.html#configure-the-gpu-memory-capacity"><span class="std std-ref">GPU memory capacity</span></a> (i.e. GPU fractions), <a class="reference internal" href="../usage/enforcement.html"><span class="doc">enforcement</span></a>, <a class="reference internal" href="../usage/monitoring.html"><span class="doc">monitoring</span></a> and more.</p>
 </div>
-<p>Genv is an open-source project that brings environment management to GPUs.</p>
-<p>If you are not familiar with the concept of environments, you can check out the documentation of projects like <a class="reference external" href="https://docs.python.org/3/library/venv.html">venv</a>, <a class="reference external" href="https://github.com/pyenv/pyenv">pyenv</a> and <a class="reference external" href="https://docs.conda.io/projects/conda/en/stable/">Conda</a> as a reference.</p>
-<p>At its core, Genv is a <a class="reference external" href="https://pypi.org/project/genv">Python package</a> that manages GPUs and keeps its state as <a class="reference internal" href="../development/reference.html#files"><span class="std std-ref">files</span></a>.</p>
-<p>On top of this core layer, Genv has <a class="reference internal" href="installation.html"><span class="doc">integrations</span></a> with many common tools and environments such as terminal, containers (e.g. <code class="code docutils literal notranslate"><span class="pre">docker</span></code>), Visual Studio Code, JupyterLab and PyCharm.</p>
-<div class="figure align-default" id="id1">
-<img alt="../_images/overview.png" src="../_images/overview.png" />
-<p class="caption"><span class="caption-text">GPU environments with Genv</span><a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>
-</div>
-</div>
-<div class="section" id="architectures">
-<h2>Architectures<a class="headerlink" href="#architectures" title="Permalink to this headline">¶</a></h2>
-<p>Genv supports two main architectures: local and <a class="reference internal" href="../remote/overview.html"><span class="doc">remote</span></a>.</p>
-<div class="section" id="local">
-<h3>Local<a class="headerlink" href="#local" title="Permalink to this headline">¶</a></h3>
-<div class="figure align-default" id="id2">
-<img alt="../_images/architecture-local.png" src="../_images/architecture-local.png" />
-<p class="caption"><span class="caption-text">Genv local architecture</span><a class="headerlink" href="#id2" title="Permalink to this image">¶</a></p>
-</div>
-<p>When running in local mode, Genv manages the GPUs on the local machine where Genv is running.
-This is mostly relevant for the case of a single user with GPUs in his or her machine, or the case of multiple users that share a single GPU machine.</p>
-</div>
-<div class="section" id="remote">
-<h3>Remote<a class="headerlink" href="#remote" title="Permalink to this headline">¶</a></h3>
-<div class="figure align-default" id="id3">
-<img alt="../_images/architecture-remote.png" src="../_images/architecture-remote.png" />
-<p class="caption"><span class="caption-text">Genv remote architecture</span><a class="headerlink" href="#id3" title="Permalink to this image">¶</a></p>
-</div>
-<p>When running in remote mode, Genv manages the GPUs on one or more remote machines over SSH.
-This is mostly relevant for the case when multiple users share multiple GPU machines.</p>
-<p>For more information, see <a class="reference internal" href="../remote/overview.html"><span class="doc">here</span></a>.</p>
-</div>
+<div class="section" id="architecture">
+<span id="container-toolkit-architecture"></span><h2>Architecture<a class="headerlink" href="#architecture" title="Permalink to this headline">¶</a></h2>
+<p>The container toolkit consists of two main components: a container runtime (i.e. <code class="code docutils literal notranslate"><span class="pre">genv-container-runtime.py</span></code>, <code class="code docutils literal notranslate"><span class="pre">genv-container-runtime-hook.py</span></code>) and a wrapper for <code class="code docutils literal notranslate"><span class="pre">docker</span></code> commands (i.e. <code class="code docutils literal notranslate"><span class="pre">genv-docker</span></code>).</p>
 </div>
 <div class="section" id="where-to-go-next">
 <h2>Where to Go Next<a class="headerlink" href="#where-to-go-next" title="Permalink to this headline">¶</a></h2>
-<p>If you are not familiar with Genv, it is recommended to follow the <a class="reference internal" href="quickstart.html"><span class="doc">quick start tutorial</span></a>.</p>
-<p>If you are looking for how to install Genv, visit the <a class="reference internal" href="installation.html"><span class="doc">installation page</span></a>, and if you want to know how to do specific things, check out the <a class="reference internal" href="../usage/usage.html"><span class="doc">usage guide</span></a>.</p>
+<p>If you are not familiar with Genv, it is recommended to go over the <a class="reference internal" href="../overview/overview.html"><span class="doc">overview</span></a> and follow the <a class="reference internal" href="../overview/quickstart.html"><span class="doc">quick start tutorial</span></a> before starting with containers.</p>
+<p>To install the container toolkit on your machine, visit the <a class="reference internal" href="installation.html"><span class="doc">installation page</span></a>.</p>
+<p>Then, follow the <a class="reference internal" href="quickstart.html"><span class="doc">quick start tutorial</span></a>, and if you want to know how to do specific things, check out the <a class="reference internal" href="usage.html"><span class="doc">usage guide</span></a>.</p>
 </div>
 </div>
 
@@ -182,7 +150,7 @@ This is mostly relevant for the case when multiple users share multiple GPU mach
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="../index.html" class="btn btn-neutral float-left" title="GPU Environment Management" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../remote/monitoring.html" class="btn btn-neutral float-left" title="Monitoring" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="installation.html" class="btn btn-neutral float-right" title="Installation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 

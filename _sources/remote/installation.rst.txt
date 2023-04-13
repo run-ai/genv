@@ -26,7 +26,7 @@ Those environment variables must be explicitly accepted on all remote hosts by m
 
 Local Hosts
 -----------
-On local hosts, :ref:`install <Install in Terminal>` the terminal component of Genv in your preferred way if not already installed.
+On local hosts, :ref:`install <Install Terminal>` the terminal component of Genv in your preferred way if not already installed.
 This is how you will run :code:`genv remote` commands.
 
 Then, make sure you have SSH access to all remote hosts and that the SSH configuration is set properly.
@@ -85,7 +85,7 @@ You can then test that everything is set up properly by running the following co
 
 Per-User Installation (recommended)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Every user should install Genv :ref:`from source <Install in Terminal From Source>` in his or her home directory (i.e. :code:`$HOME/genv`) on all remote hosts.
+Every user should install Genv core :ref:`from source <Install Core From Source>` in his or her home directory (i.e. :code:`$HOME/genv`) on all remote hosts.
 
 This is the recommended way to install Genv on remote hosts for a few reasons:
 
@@ -96,7 +96,7 @@ This is the recommended way to install Genv on remote hosts for a few reasons:
 
 System-Wide Installation
 ~~~~~~~~~~~~~~~~~~~~~~~~
-It is also possible to install Genv from source in a system-wide location such as :code:`/opt/genv` on all remote hosts.
+It is also possible to install Genv core from source in a system-wide location such as :code:`/opt/genv` on all remote hosts.
 
 This could be done with the following command:
 
@@ -106,7 +106,7 @@ This could be done with the following command:
 
 Note that when using system installation, users will need to specify the installation location by passing the argument :code:`--root` to :code:`genv remote` commands.
 
-Also, if Genv is not installed in the :ref:`login script <Setting Up Your Shell>` of a user on a remote host, some :code:`genv remote` commands like :code:`activate` will not work because the SSH shell will not be properly set up.
+Also, if Genv is not installed in the :ref:`login script <Install Terminal>` of a user on a remote host, some :code:`genv remote` commands like :code:`activate` will not work because the SSH shell will not be properly set up.
 
 .. note::
 

@@ -25,8 +25,8 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Usage" href="usage.html" />
-    <link rel="prev" title="Quick start" href="../overview/quickstart.html" /> 
+    <link rel="next" title="Quick start" href="quickstart.html" />
+    <link rel="prev" title="Overview" href="overview.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -49,21 +49,19 @@
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption"><span class="caption-text">Start Here</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../overview/overview.html">Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../overview/quickstart.html">Quick start</a></li>
-</ul>
-<p class="caption"><span class="caption-text">Usage</span></p>
 <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Installation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#terminal">Terminal</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#core">Core</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#conda">Conda</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#from-source">From Source</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#setting-up-your-shell">Setting Up Your Shell</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#dependencies">Dependencies</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#uninstalling">Uninstalling</a></li>
 </ul>
 </li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#terminal">Terminal</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id1">Uninstalling</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#visual-studio-code">Visual Studio Code</a></li>
@@ -71,10 +69,14 @@
 <li class="toctree-l2"><a class="reference internal" href="#pycharm">PyCharm</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
-<li class="toctree-l1"><a class="reference internal" href="advanced-usage.html">Advanced Usage</a></li>
-<li class="toctree-l1"><a class="reference internal" href="enforcement.html">Enforcement</a></li>
-<li class="toctree-l1"><a class="reference internal" href="monitoring.html">Monitoring</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quick start</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Usage</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../usage/usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/advanced-usage.html">Advanced Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/enforcement.html">Enforcement</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/monitoring.html">Monitoring</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Remote Usage</span></p>
 <ul>
@@ -83,6 +85,13 @@
 <li class="toctree-l1"><a class="reference internal" href="../remote/usage.html">Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../remote/enforcement.html">Enforcement</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../remote/monitoring.html">Monitoring</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Container Toolkit</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../docker/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../docker/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../docker/quickstart.html">Quick start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../docker/usage.html">Usage</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Development</span></p>
 <ul>
@@ -110,7 +119,7 @@
       <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
       <li class="breadcrumb-item active">Installation</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="../_sources/usage/installation.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../_sources/overview/installation.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -125,21 +134,35 @@
 <ul class="simple">
 <li><p><a class="reference internal" href="#installation" id="id2">Installation</a></p>
 <ul>
-<li><p><a class="reference internal" href="#terminal" id="id3">Terminal</a></p>
+<li><p><a class="reference internal" href="#core" id="id3">Core</a></p>
 <ul>
 <li><p><a class="reference internal" href="#conda" id="id4">Conda</a></p></li>
 <li><p><a class="reference internal" href="#from-source" id="id5">From Source</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#visual-studio-code" id="id6">Visual Studio Code</a></p></li>
-<li><p><a class="reference internal" href="#jupyterlab" id="id7">JupyterLab</a></p></li>
-<li><p><a class="reference internal" href="#pycharm" id="id8">PyCharm</a></p></li>
+<li><p><a class="reference internal" href="#terminal" id="id6">Terminal</a></p>
+<ul>
+<li><p><a class="reference internal" href="#id1" id="id7">Uninstalling</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#visual-studio-code" id="id8">Visual Studio Code</a></p></li>
+<li><p><a class="reference internal" href="#jupyterlab" id="id9">JupyterLab</a></p></li>
+<li><p><a class="reference internal" href="#pycharm" id="id10">PyCharm</a></p></li>
 </ul>
 </li>
 </ul>
 </div>
-<div class="section" id="terminal">
-<span id="install-in-terminal"></span><h2>Terminal<a class="headerlink" href="#terminal" title="Permalink to this headline">¶</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This page talks about installing Genv on a single machine.
+If you are interested in using Genv on a multi-machine cluster, check out the remote installation <a class="reference internal" href="../remote/installation.html"><span class="doc">guide</span></a>.</p>
+</div>
+<div class="section" id="core">
+<span id="install-core"></span><h2>Core<a class="headerlink" href="#core" title="Permalink to this headline">¶</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Genv uses Python 3.7 or higher so make sure you have it also installed.</p>
+</div>
 <div class="section" id="conda">
 <h3>Conda<a class="headerlink" href="#conda" title="Permalink to this headline">¶</a></h3>
 <p>If you are using <a class="reference external" href="https://docs.conda.io/en/latest/">Conda</a>, the best way to install Genv is using the <a class="reference external" href="https://anaconda.org/conda-forge/genv">genv</a> package from the channel <a class="reference external" href="https://conda-forge.org/">conda-forge</a>:</p>
@@ -148,15 +171,25 @@
 </div>
 </div>
 <div class="section" id="from-source">
-<span id="install-in-terminal-from-source"></span><h3>From Source<a class="headerlink" href="#from-source" title="Permalink to this headline">¶</a></h3>
+<span id="install-core-from-source"></span><h3>From Source<a class="headerlink" href="#from-source" title="Permalink to this headline">¶</a></h3>
 <p>If you are not using Conda, it is still super easy to get Genv as everything you need is to clone its <a class="reference external" href="https://www.github.com/run-ai/genv">repository</a>.
 Your home directory is a great place to keep it:</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>git clone https://github.com/run-ai/genv.git ~/genv
 </pre></div>
 </div>
-<div class="section" id="setting-up-your-shell">
-<span id="id1"></span><h4>Setting Up Your Shell<a class="headerlink" href="#setting-up-your-shell" title="Permalink to this headline">¶</a></h4>
-<p>In order to use Genv you need to set up your shell environment with the following commands:</p>
+<div class="section" id="uninstalling">
+<h4>Uninstalling<a class="headerlink" href="#uninstalling" title="Permalink to this headline">¶</a></h4>
+<p>To uninstall Genv simply remove its root directory:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>rm -rf <span class="k">$(</span>genv root<span class="k">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="terminal">
+<span id="install-terminal"></span><h2>Terminal<a class="headerlink" href="#terminal" title="Permalink to this headline">¶</a></h2>
+<p>First, install the <a class="reference internal" href="#install-core"><span class="std std-ref">core</span></a> component of Genv.</p>
+<p>Then, in order to use Genv in the terminal, you will need to set up your shell environment with the following commands:</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span> <span class="nv">PATH</span><span class="o">=</span><span class="nv">$HOME</span>/genv/bin:<span class="nv">$PATH</span>
 <span class="nb">eval</span> <span class="s2">&quot;</span><span class="k">$(</span>genv init -<span class="k">)</span><span class="s2">&quot;</span>
 </pre></div>
@@ -171,19 +204,9 @@ Your home directory is a great place to keep it:</p>
 </pre></div>
 </div>
 <p>You should be able to see all the available Genv commands.</p>
-</div>
-<div class="section" id="dependencies">
-<h4>Dependencies<a class="headerlink" href="#dependencies" title="Permalink to this headline">¶</a></h4>
-<p>Genv uses Python 3.7 so make sure you have it also installed.</p>
-</div>
-<div class="section" id="uninstalling">
-<h4>Uninstalling<a class="headerlink" href="#uninstalling" title="Permalink to this headline">¶</a></h4>
-<p>To uninstall Genv simply remove its root directory:</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>rm -rf <span class="k">$(</span>genv root<span class="k">)</span>
-</pre></div>
-</div>
-<p>You will also need to remove the commands you added to your <code class="code docutils literal notranslate"><span class="pre">~/.bashrc</span></code> or any other equivalent file.</p>
-</div>
+<div class="section" id="id1">
+<h3>Uninstalling<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
+<p>Remove the commands you added to your <code class="code docutils literal notranslate"><span class="pre">~/.bashrc</span></code> or any other equivalent file.</p>
 </div>
 </div>
 <div class="section" id="visual-studio-code">
@@ -209,8 +232,8 @@ This is however part of the project roadmap.</p>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="../overview/quickstart.html" class="btn btn-neutral float-left" title="Quick start" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="usage.html" class="btn btn-neutral float-right" title="Usage" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="overview.html" class="btn btn-neutral float-left" title="Overview" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="quickstart.html" class="btn btn-neutral float-right" title="Quick start" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
