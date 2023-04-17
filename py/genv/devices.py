@@ -173,7 +173,7 @@ def detach(eid: str, index: int) -> None:
     )
 
 
-def get_lock_path(index: int, create: bool = True) -> str:
+def get_lock_path(index: int, create: bool = False) -> str:
     """
     Returns the path of a device lock file.
     Creates the file if requested and it does not exist.
@@ -192,7 +192,7 @@ def lock(index: int) -> None:
     """
     Obtain exclusive access to a device.
     """
-    path = get_lock_path(index, create=False)
+    path = get_lock_path(index)
 
     # NOTE(raz): currently, we wait on the lock even if it is already taken by our environment.
     # we should think if this is the desired behavior and if it's possible to lock once per environment.
