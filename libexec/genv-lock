@@ -10,14 +10,16 @@ fi
 
 print_help()
 {
-  echo "Usage: genv lock <index> command [arguments]"
+  echo "Usage: genv lock command [arguments]"
   echo
-  echo "Execute a command under an exclusive lock of a device."
+  echo "Execute a command under the exclusive lock of the attached device."
   echo "This command works very similarly to flock(1)."
+  echo
+  echo "Note that this works only when a single device is attached to the environment."
   echo
   echo "Example:"
   echo
-  echo "  genv lock 0 bash -c \"echo using device; sleep 5; echo done using device\""
+  echo "  genv lock bash -c \"echo using device; sleep 5; echo done using device\""
   echo
 }
 
@@ -31,8 +33,16 @@ case "$command" in
   print_help
   ;;
 *)
-  index=$command
-  shift
+  index=$CUDA_VISIBLE_DEVICES
+
+  re='^[0-9]+$'
+  if [ "$CUDA_VISIBLE_DEVICES" = "-1" ]; then
+    echo "Environment is not attached to a device" >&2
+    exit 1
+  elif ! [[ "$index" =~ $re ]]; then
+    echo "Environment is attached to more than a single device" >&2
+    exit 1
+  fi
 
   # first, use the Python library to get the lock path.
   # this also create the file and its parent directories with the right permissions if needed.
