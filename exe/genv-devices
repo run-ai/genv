@@ -291,7 +291,7 @@ def do_attach(
         """
         if index not in attached:
             if int(
-                os.environ.get("GENV_ALLOW_DEVICE_OVER_ALLOCATION", 0)
+                os.environ.get("GENV_ALLOW_DEVICE_OVER_SUBSCRIPTION", 0)
             ) == 0 and not is_device_available(devices[index], env_gpu_memory):
                 raise RuntimeError(f"Device {index} is not available")
 
