@@ -12,6 +12,12 @@ import genv
 Device = Dict[Any, Any]
 Devices = Dict[int, Device]
 
+QUERIES = {
+    "index": lambda index, device: index,
+    "eids": lambda index, device: " ".join(device["eids"]),
+    "total_memory": lambda index, device: device["total_memory"],
+}
+
 """
 This module manages all genv devices. Each genv device represents a single Nvidia gpu.
 A device can be attached to 0, 1 or more environments.
@@ -382,6 +388,20 @@ def do_ps(devices: Devices, format: str, header: bool, timestamp: bool) -> None:
                 print_line(index, eid, name, attached)
 
 
+def do_query(devices: Devices, queries: Iterable[str]) -> None:
+    """
+    Queries devices.
+    """
+    for index, device in devices.items():
+
+        def query(name: str) -> str:
+            result = QUERIES[name](index, device)
+
+            return "" if result is None else str(result)
+
+        print(",".join(query(name) for name in queries))
+
+
 def parse_args() -> argparse.Namespace:
     def attach(parser):
         parser.add_argument("--eid", required=True, help="Environment identifier")
@@ -426,6 +446,16 @@ def parse_args() -> argparse.Namespace:
             default="tui",
         )
 
+    def query(parser):
+        parser.add_argument(
+            "--query",
+            "--queries",
+            dest="queries",
+            nargs="+",
+            choices=QUERIES.keys(),
+            required=True,
+        )
+
     parser = argparse.ArgumentParser(description="genv device manager")
     parser.add_argument(
         "--no-cleanup",
@@ -442,6 +472,7 @@ def parse_args() -> argparse.Namespace:
         (detach, "Detach devices from an environment"),
         (find, "Find the devices attached to an enviornment"),
         (ps, "Print information about devices"),
+        (query, "Query devices"),
     ]:
         command(subparsers.add_parser(command.__name__, help=help))
 
@@ -467,3 +498,5 @@ if __name__ == "__main__":
             do_find(devices, args.eid)
         elif args.command == "ps":
             do_ps(devices, args.format, args.header, args.timestamp)
+        elif args.command == "query":
+            do_query(devices, args.queries)
