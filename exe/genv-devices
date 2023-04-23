@@ -16,6 +16,10 @@ QUERIES = {
     "index": lambda index, device: index,
     "eids": lambda index, device: " ".join(device["eids"]),
     "total_memory": lambda index, device: device["total_memory"],
+    "attachments": lambda index, device: " ".join(
+        f"{env['eid']}+{env.get('gpu_memory', '')}+{env['attached'].replace(' ', '_')}"
+        for env in device["eids"].values()
+    ),
 }
 
 """

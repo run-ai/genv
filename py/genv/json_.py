@@ -10,6 +10,7 @@ from .enforce import Report
 # TODO(raz): test here that all types have a different set of keys for creation
 Types = [
     devices.Device,
+    devices.Device.Attachement,
     devices.Snapshot,
     envs.Env,
     envs.Env.Config,

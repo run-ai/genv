@@ -18,9 +18,19 @@ from genv.utils import get_temp_file_path
 
 @dataclass
 class Device:
+    @dataclass
+    class Attachement:
+        eid: str
+        gpu_memory: Optional[str]
+        time: str
+
     index: int
-    eids: Iterable[str]
     total_memory: str
+    attachments: Iterable[Attachement]
+
+    @property
+    def eids(self) -> Iterable[str]:
+        return [attachment.eid for attachment in self.attachments]
 
     @property
     def attached(self) -> bool:
@@ -34,7 +44,11 @@ class Device:
         """
         Returns a new device with only the given environment identifiers.
         """
-        return Device(self.index, [eid for eid in self.eids if eid in eids])
+        return Device(
+            self.index,
+            self.total_memory,
+            [attachment for attachment in self.attachments if attachment.eid in eids],
+        )
 
 
 @dataclass
@@ -126,19 +140,34 @@ def snapshot() -> Snapshot:
 
     lines = (
         subprocess.check_output(
-            "genv exec devices query --query index eids total_memory", shell=True
+            "genv exec devices query --query index total_memory attachments", shell=True
         )
         .decode("utf-8")
         .strip()
         .splitlines()
     )
 
-    def convert(line: str) -> Device:
-        index, eids, total_memory = line.split(",")
+    def parse_attachment(s: str) -> Device.Attachement:
+        eid, gpu_memory, time = s.split("+")
 
-        return Device(int(index), eids.split(" ") if eids else [], total_memory)
+        return Device.Attachement(
+            eid,
+            gpu_memory or None,
+            time.replace("_", " "),
+        )
 
-    return Snapshot([convert(line) for line in lines])
+    def parse_device(s: str) -> Device:
+        index, total_memory, attachments = s.split(",")
+
+        return Device(
+            int(index),
+            total_memory,
+            [parse_attachment(attachment) for attachment in attachments.split(" ")]
+            if attachments
+            else [],
+        )
+
+    return Snapshot([parse_device(line) for line in lines])
 
 
 def attach(eid: str) -> Iterable[int]:
