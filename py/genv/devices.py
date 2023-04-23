@@ -1,7 +1,7 @@
 from contextlib import contextmanager
 from dataclasses import dataclass
 import subprocess
-from typing import Dict, Iterable, Optional
+from typing import Iterable, Optional
 
 from genv.os_ import access_lock, create_lock
 from genv.utils import get_temp_file_path
@@ -20,6 +20,7 @@ from genv.utils import get_temp_file_path
 class Device:
     index: int
     eids: Iterable[str]
+    total_memory: str
 
     @property
     def attached(self) -> bool:
@@ -109,35 +110,25 @@ class Snapshot:
 
 
 def snapshot() -> Snapshot:
-    return Snapshot([Device(index, d["eids"]) for index, d in ps().items()])
-
-
-def ps() -> Dict[int, Iterable[str]]:
     """
-    Returns information about device and active attachments.
-
-    :return: A mapping between device index and all attached environment identifiers
+    Returns a devices snapshot.
     """
-    devices = dict()
 
-    for line in (
+    lines = (
         subprocess.check_output(
-            "genv exec devices ps --no-header --format csv", shell=True
+            "genv exec devices query --query index eids total_memory", shell=True
         )
         .decode("utf-8")
         .strip()
         .splitlines()
-    ):
-        index, eid, _, _ = line.split(",")
-        index = int(index)
+    )
 
-        if index not in devices:
-            devices[index] = {"eids": []}
+    def convert(line: str) -> Device:
+        index, eids, total_memory = line.split(",")
 
-        if eid:
-            devices[index]["eids"].append(eid)
+        return Device(int(index), eids.split(" ") if eids else [], total_memory)
 
-    return devices
+    return Snapshot([convert(line) for line in lines])
 
 
 def attach(eid: str) -> Iterable[int]:
