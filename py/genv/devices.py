@@ -4,7 +4,7 @@ import subprocess
 from typing import Callable, Iterable, Optional
 
 from genv.os_ import access_lock, create_lock
-from genv.utils import get_temp_file_path
+from genv.utils import get_temp_file_path, memory_to_bytes
 
 # NOTE(raz): This should be the layer that queries and controls the state of Genv regarding devices.
 # Currently, it relies on executing the device manager executable of Genv, as this is where the logic is implemented.
@@ -39,6 +39,38 @@ class Device:
     @property
     def detached(self) -> bool:
         return len(self.eids) == 0
+
+    @property
+    def total_memory_bytes(self) -> int:
+        """
+        Returns the device total memory in bytes.
+        """
+        return memory_to_bytes(self.total_memory)
+
+    @property
+    def available_memory_bytes(self) -> int:
+        """
+        Returns the device available memory in bytes.
+        """
+        available_bytes = memory_to_bytes(self.total_memory)
+
+        for attachment in self.attachments:
+            available_bytes -= memory_to_bytes(
+                attachment.gpu_memory or self.total_memory
+            )
+
+        return max(available_bytes, 0)
+
+    def available(self, gpu_memory: Optional[str]) -> bool:
+        """
+        Returns is the device is available with respect to the given memory specification.
+        If memory is specified, checks if this amount is available.
+        Otherwise, checks if the device is detached.
+        """
+        if gpu_memory is None:
+            return self.detached
+
+        return self.available_memory_bytes >= memory_to_bytes(gpu_memory)
 
     def filter(self, *, eids: Iterable[str]):
         """
