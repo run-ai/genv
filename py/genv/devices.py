@@ -1,7 +1,7 @@
 from contextlib import contextmanager
 from dataclasses import dataclass
 import subprocess
-from typing import Iterable, Optional
+from typing import Callable, Iterable, Optional
 
 from genv.os_ import access_lock, create_lock
 from genv.utils import get_temp_file_path
@@ -63,18 +63,22 @@ class Snapshot:
         deep: bool = True,
         *,
         indices: Optional[Iterable[int]] = None,
+        not_indices: Optional[Iterable[int]] = None,
         eid: Optional[str] = None,
         eids: Optional[Iterable[str]] = None,
         attached: Optional[bool] = None,
+        function: Optional[Callable[[Device], bool]] = None,
     ):
         """
         Returns a new filtered snapshot.
 
         :param deep: Perform deep filtering
         :param indices: Device indices to keep
+        :param not_indices: Device indices to remove
         :param eid: Environment identifier to keep
         :param eids: Environment identifiers to keep
         :param attached: Keep only devices with environments attached or not
+        :param function: Keep devices on which the lambda returns True
         """
         if eids:
             eids = set(eids)
@@ -89,6 +93,9 @@ class Snapshot:
 
         if indices is not None:
             devices = [device for device in devices if device.index in indices]
+
+        if not_indices is not None:
+            devices = [device for device in devices if device.index not in not_indices]
 
         if eids is not None:
             if deep:
@@ -105,6 +112,9 @@ class Snapshot:
                 devices = [device for device in devices if device.attached]
             else:
                 devices = [device for device in devices if device.detached]
+
+        if function is not None:
+            devices = [device for device in devices if function(device)]
 
         return Snapshot(devices)
 
