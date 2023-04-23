@@ -229,12 +229,9 @@ def find_available_devices(
     return indices
 
 
-def query(devices: Devices, eid: str) -> List[int]:
+def find(devices: Devices, eid: str) -> List[int]:
     """
-    List all devices attached to an specific environment.
-    :param devices: dictionary describing all existing genv devices.
-    :param eid: queried environment id.
-    :return: list of all devices indices attached to the environment.
+    Finds devices attached to an environment.
     """
     return [index for index, device in devices.items() if eid in device["eids"]]
 
@@ -257,7 +254,7 @@ def do_attach(
         # use the environment device count configuration if set
         count = genv.envs.gpus(eid)
 
-    attached = query(devices, eid)
+    attached = find(devices, eid)
     env_gpu_memory = genv.envs.gpu_memory(eid)
 
     def ensure_count():
@@ -307,7 +304,7 @@ def do_attach(
         print(e, file=sys.stderr)
         exit(1)
 
-    do_query(devices, eid)  # print the up-to-date device indices
+    do_find(devices, eid)  # print the up-to-date device indices
 
 
 def do_detach(devices: Devices, eid: str, index: Optional[int], quiet: bool) -> None:
@@ -330,7 +327,21 @@ def do_detach(devices: Devices, eid: str, index: Optional[int], quiet: bool) -> 
         cleanup(devices, eid)
 
     if not quiet:
-        do_query(devices, eid)  # print the up-to-date device indices
+        do_find(devices, eid)  # print the up-to-date device indices
+
+
+def do_find(devices: Devices, eid: str) -> None:
+    """
+    Prints the indices of devices attached to the given environment.
+
+    :param devices:
+    :param eid: Environment identifier.
+
+    :return: None
+    """
+    indices = [index for index, device in devices.items() if eid in device["eids"]]
+
+    print(",".join(str(index) for index in indices))
 
 
 def do_ps(devices: Devices, format: str, header: bool, timestamp: bool) -> None:
@@ -371,16 +382,6 @@ def do_ps(devices: Devices, format: str, header: bool, timestamp: bool) -> None:
                 print_line(index, eid, name, attached)
 
 
-def do_query(devices: Devices, eid: str) -> None:
-    """
-    Print all the indices of devices attached to a specific environment
-    :param devices: dictionary describing all existing genv devices.
-    :param eid: eid for the environment we are working on.
-    :return: None
-    """
-    print(",".join(str(index) for index in query(devices, eid)))
-
-
 def parse_args() -> argparse.Namespace:
     def attach(parser):
         parser.add_argument("--eid", required=True, help="Environment identifier")
@@ -405,6 +406,9 @@ def parse_args() -> argparse.Namespace:
             help="Don't print updated device indexes",
         )
 
+    def find(parser):
+        parser.add_argument("--eid", required=True, help="Environment identifier")
+
     def ps(parser):
         parser.add_argument(
             "--no-header",
@@ -422,9 +426,6 @@ def parse_args() -> argparse.Namespace:
             default="tui",
         )
 
-    def query(parser):
-        parser.add_argument("--eid", required=True, help="Environment identifier")
-
     parser = argparse.ArgumentParser(description="genv device manager")
     parser.add_argument(
         "--no-cleanup",
@@ -439,8 +440,8 @@ def parse_args() -> argparse.Namespace:
     for command, help in [
         (attach, "Attach devices to an environment"),
         (detach, "Detach devices from an environment"),
+        (find, "Find the devices attached to an enviornment"),
         (ps, "Print information about devices"),
-        (query, "Query devices of an environment"),
     ]:
         command(subparsers.add_parser(command.__name__, help=help))
 
@@ -462,7 +463,7 @@ if __name__ == "__main__":
             do_attach(devices, args.eid, args.count, args.index)
         elif args.command == "detach":
             do_detach(devices, args.eid, args.index, args.quiet)
+        elif args.command == "find":
+            do_find(devices, args.eid)
         elif args.command == "ps":
             do_ps(devices, args.format, args.header, args.timestamp)
-        elif args.command == "query":
-            do_query(devices, args.eid)

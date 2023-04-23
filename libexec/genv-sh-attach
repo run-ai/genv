@@ -148,6 +148,6 @@ case $action in
     esac
   ;;
   refresh)
-    config_env $( exec genv exec devices query --eid $GENV_ENVIRONMENT_ID )
+    config_env $( exec genv exec devices find --eid $GENV_ENVIRONMENT_ID )
   ;;
 esac
