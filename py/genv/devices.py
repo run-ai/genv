@@ -1,10 +1,11 @@
 from contextlib import contextmanager
 from dataclasses import dataclass
+from datetime import datetime
 import subprocess
-from typing import Callable, Iterable, Optional
+from typing import Callable, Iterable, Optional, Union
 
 from genv.os_ import access_lock, create_lock
-from genv.utils import get_temp_file_path, memory_to_bytes
+from genv.utils import get_temp_file_path, memory_to_bytes, DATETIME_FMT
 
 # NOTE(raz): This should be the layer that queries and controls the state of Genv regarding devices.
 # Currently, it relies on executing the device manager executable of Genv, as this is where the logic is implemented.
@@ -81,6 +82,20 @@ class Device:
             self.total_memory,
             [attachment for attachment in self.attachments if attachment.eid in eids],
         )
+
+    def attach(self, eid: str, gpu_memory: Optional[str], time: str) -> None:
+        """
+        Attaches an environment.
+        """
+        self.attachments.append(Device.Attachement(eid, gpu_memory, time))
+
+    def detach(self, eid: str) -> None:
+        """
+        Detaches an environment.
+        """
+        for index, attachment in enumerate(self.attachments):
+            if attachment.eid == eid:
+                del self.attachments[index]
 
 
 @dataclass
@@ -163,6 +178,21 @@ class Snapshot:
             devices = [device for device in devices if function(device)]
 
         return Snapshot(devices)
+
+    def attach(
+        self, eid: str, indices: Union[Iterable[int], int], gpu_memory: Optional[str]
+    ) -> None:
+        """
+        Attaches devices to an environment.
+        """
+
+        if isinstance(indices, int):
+            indices = [indices]
+
+        time = datetime.now().strftime(DATETIME_FMT)
+
+        for index in indices:
+            self.devices[index].attach(eid, gpu_memory, time)
 
 
 def snapshot() -> Snapshot:

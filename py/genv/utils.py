@@ -2,7 +2,7 @@ from contextlib import contextmanager
 from datetime import datetime
 import json
 import os
-from typing import Callable, Dict, Optional, Union
+from typing import Any, Callable, Dict, Optional, Type, Union
 
 from .os_ import access_lock
 
@@ -30,8 +30,10 @@ def access_json(
     filename: str,
     factory: Callable[[], Dict],
     *,
-    convert: Optional[Callable[[Dict], None]] = None,
+    convert: Optional[Callable[[Any], Any]] = None,
     reset: bool = False,
+    json_decoder: Optional[Type[json.JSONDecoder]] = None,
+    json_encoder: Optional[Type[json.JSONEncoder]] = None,
 ):
     """
     This function returns a json object representing a genv state data.
@@ -52,10 +54,10 @@ def access_json(
     with access_lock(f"{path}.lock"):
         if os.path.exists(path) and not reset:
             with open(path) as f:
-                o = json.load(f)
+                o = json.load(f, cls=json_decoder)
 
                 if convert:
-                    convert(o)
+                    o = convert(o)
         else:
             o = factory()
 
@@ -66,7 +68,7 @@ def access_json(
         with open(
             path, "w", opener=lambda path, flags: os.open(path, flags, 0o666)
         ) as f:
-            json.dump(o, f, indent=4)
+            json.dump(o, f, cls=json_encoder, indent=2)
 
 
 def memory_to_bytes(cap: str) -> int:
