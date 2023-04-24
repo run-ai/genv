@@ -313,11 +313,14 @@ def do_find(devices: Devices, eid: str) -> None:
     print(",".join(str(index) for index in indices))
 
 
-def do_ps(devices: Devices, format: str, header: bool, timestamp: bool) -> None:
+def do_ps(
+    snapshot: genv.devices.Snapshot, format: str, header: bool, timestamp: bool
+) -> None:
     """
-    Print genv devices data in a human-readable fashion to the stdio.
-    :param devices: dictionary describing all existing genv devices.
-    :param format: Which format should be used to print the devices data - csv or tui.
+    Prints information in a human-readable fashion to the standard output.
+
+    :param snapshot:
+    :param format: Which format should be used to print the devices data - "csv" or "tui".
     :param header: a flag instructing if we should print a header as part of the output.
     :param timestamp: a flag instructing if we should print attachment time as is or relative duration (now - creation).
     :return: None
@@ -336,19 +339,19 @@ def do_ps(devices: Devices, format: str, header: bool, timestamp: bool) -> None:
 
     names = genv.envs.names()
 
-    for index, device in devices.items():
-        if len(device["eids"]) == 0:
-            print_line(index, "", "", "")
+    for device in snapshot:
+        if device.detached:
+            print_line(device.index, "", "", "")
         else:
-            for eid, info in device["eids"].items():
-                name = names.get(eid) or ""
+            for attachment in device.attachments:
+                name = names.get(attachment.eid) or ""
                 attached = (
-                    info["attached"]
+                    attachment.time
                     if timestamp
-                    else genv.utils.time_since(info["attached"])
+                    else genv.utils.time_since(attachment.time)
                 )
 
-                print_line(index, eid, name, attached)
+                print_line(device.index, attachment.eid, name, attached)
 
 
 def do_query(snapshot: genv.devices.Snapshot, queries: Iterable[str]) -> None:
@@ -492,6 +495,6 @@ if __name__ == "__main__":
         elif args.command == "find":
             do_find(devices, args.eid)
         elif args.command == "ps":
-            do_ps(devices, args.format, args.header, args.timestamp)
+            do_ps(snapshot, args.format, args.header, args.timestamp)
         elif args.command == "query":
             do_query(snapshot, args.queries)
