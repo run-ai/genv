@@ -12,12 +12,12 @@ Device = Dict[Any, Any]
 Devices = Dict[int, Device]
 
 QUERIES = {
-    "index": lambda index, device: index,
-    "eids": lambda index, device: " ".join(device["eids"]),
-    "total_memory": lambda index, device: device["total_memory"],
-    "attachments": lambda index, device: " ".join(
-        f"{env['eid']}+{env.get('gpu_memory', '')}+{env['attached'].replace(' ', '_')}"
-        for env in device["eids"].values()
+    "index": lambda device: device.index,
+    "eids": lambda device: " ".join(device.eids),
+    "total_memory": lambda device: device.total_memory,
+    "attachments": lambda device: " ".join(
+        f"{attachment.eid}+{attachment.gpu_memory or ''}+{attachment.time.replace(' ', '_')}"
+        for attachment in device.attachments
     ),
 }
 
@@ -351,14 +351,14 @@ def do_ps(devices: Devices, format: str, header: bool, timestamp: bool) -> None:
                 print_line(index, eid, name, attached)
 
 
-def do_query(devices: Devices, queries: Iterable[str]) -> None:
+def do_query(snapshot: genv.devices.Snapshot, queries: Iterable[str]) -> None:
     """
     Queries devices.
     """
-    for index, device in devices.items():
+    for device in snapshot:
 
         def query(name: str) -> str:
-            result = QUERIES[name](index, device)
+            result = QUERIES[name](device)
 
             return "" if result is None else str(result)
 
@@ -494,4 +494,4 @@ if __name__ == "__main__":
         elif args.command == "ps":
             do_ps(devices, args.format, args.header, args.timestamp)
         elif args.command == "query":
-            do_query(devices, args.queries)
+            do_query(snapshot, args.queries)
