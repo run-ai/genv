@@ -2,7 +2,6 @@
 
 import argparse
 from datetime import datetime
-import os
 import subprocess
 import sys
 from typing import Any, Callable, Dict, Iterable, List, Optional, Union
@@ -162,92 +161,53 @@ def attach_devices(
         devices[index]["eids"][eid] = env
 
 
-def find_available_device(
-    devices: Devices, ignore: List[int], gpu_memory: Optional[str]
-) -> int:
+def find_available_devices(
+    snapshot: genv.devices.Snapshot,
+    count: int,
+    gpu_memory: Optional[str],
+    allow_over_subscription: bool,
+) -> Iterable[int]:
     """
-    Finds an available device for attachment. Takes into account memory constraint and device blacklist.
-    :param devices: dictionary describing all existing genv devices.
-    :param ignore: devices blacklist. Ignore this devices when looking for an available one
-    :param gpu_memory: gpu memory constraint
-    :return: available device index. If no device can satisfy the requirements, raises a RuntimeError.
+    Finds available devices with respect to the optionally specified memory request.
+    When thare are not enough devices available, non available devices are also used if
+    over-subscription is allowed. Otherwise, RuntimeError is raised.
+
+    :param snapshot:
+    :param count: Amount of devices to find
+    :param gpu_memory: Optional memory request
+    :param allow_over_subscription: Use non available devices if needed
+
+    :return: A list of device indices
     """
-    for index, device in devices.items():
-        if index in ignore:
-            continue
 
-        if is_device_available(device, gpu_memory):
-            return index
-
-    raise RuntimeError("No available devices")
-
-
-def is_device_available(device: Device, gpu_memory: Optional[str]) -> bool:
-    """
-    Check for device availability.
-    If a memory consumption constraint is specified, check if this amount is available on the device.
-    Otherwise, a device must be non-attached to be considered "available".
-    :param device:
-    :param gpu_memory: memory constraint (optional)
-    :return: True iff the device is available
-    """
-    return (
-        len(device["eids"]) == 0
-        if gpu_memory is None
-        else get_device_unallocated_memory_bytes(device)
-        >= genv.utils.memory_to_bytes(gpu_memory)
+    available_devices = snapshot.filter(
+        function=lambda device: device.available(gpu_memory)
     )
 
+    indices = available_devices.indices
 
-def get_device_unallocated_memory_bytes(device) -> int:
-    """
-    Get the device unallocated memory in bytes.
-    If a device is attached without specifying memory consumption constraint,
-     then all of the devices memory is considered "allocated".
-    :param device:
-    :return: unallocated memory in bytes.
-    """
-    unallocated_memory_bytes = genv.utils.memory_to_bytes(device["total_memory"])
+    if allow_over_subscription and len(indices) < count:
+        not_available_devices = snapshot.filter(not_indices=available_devices.indices)
 
-    for env in device["eids"].values():
-        if "gpu_memory" not in env:
-            return 0  # the environment uses all the device memory
-        else:
-            unallocated_memory_bytes -= genv.utils.memory_to_bytes(env["gpu_memory"])
+        # we sort in order to use the least populated devices first
+        indices += sorted(
+            not_available_devices.indices,
+            key=lambda index: len(snapshot[index].eids),
+        )
 
-    return max(
-        unallocated_memory_bytes, 0
-    )  # convert negative values when device is overallocated
+    if len(indices) < count:
+        raise RuntimeError("No available devices")
 
-
-def find_available_devices(
-    devices: Devices, count: int, ignore: List[int], gpu_memory: Optional[str]
-) -> List[int]:
-    """
-    Find count available devices, considering blacklist and memory constraints.
-     If not enough devices are available, RuntimeError error will be raised.
-    :param devices: dictionary describing all existing genv devices.
-    :param count: max num of available devices to find
-    :param ignore: devices blacklist. all these devices will be ignored
-    :param gpu_memory: memory constraint (optional)
-    :return: a list of available device indices
-    """
-    indices = []
-    for _ in range(count):
-        indices.append(find_available_device(devices, ignore + indices, gpu_memory))
-
-    return indices
-
-
-def find(devices: Devices, eid: str) -> List[int]:
-    """
-    Finds devices attached to an environment.
-    """
-    return [index for index, device in devices.items() if eid in device["eids"]]
+    return indices[:count]
 
 
 def do_attach(
-    devices: Devices, eid: str, count: Optional[int], index: Optional[int]
+    devices: Devices,
+    snapshot: genv.devices.Snapshot,
+    eid: str,
+    count: Optional[int],
+    index: Optional[int],
+    allow_over_subscription: bool,
 ) -> None:
     """
     Attaches devices to an environment and print the device indices.
@@ -264,16 +224,15 @@ def do_attach(
         # use the environment device count configuration if set
         count = genv.envs.gpus(eid)
 
-    attached = find(devices, eid)
     env_gpu_memory = genv.envs.gpu_memory(eid)
+    attached_devices = snapshot.filter(eid=eid)
 
     def ensure_count():
         """
-        On attach command, attach or detach devices from the environment according to
-         the number of devices requested in the environment's configuration.
-        :return: None
+        Attach or detach devices from the environment according to the number of devices
+        set in the environment configuration.
         """
-        current = len(attached)
+        current = len(attached_devices)
 
         if current < count:
             if count > len(devices):
@@ -282,7 +241,10 @@ def do_attach(
                 )
 
             indices = find_available_devices(
-                devices, count - current, attached, env_gpu_memory
+                snapshot.filter(not_indices=attached_devices.indices),
+                count - current,
+                env_gpu_memory,
+                allow_over_subscription,
             )
 
             attach_devices(devices, eid, indices, env_gpu_memory)
@@ -291,15 +253,12 @@ def do_attach(
 
     def attach_by_index():
         """
-        Attach a specific device to our environment, as request by the attach command.
-        If the device is already attached to another environment, validate that device over-allocation is enabled
-         and the memory constrains will hold.
-        :return: None
+        Attach a specific device to the environment.
         """
-        if index not in attached:
-            if int(
-                os.environ.get("GENV_ALLOW_DEVICE_OVER_SUBSCRIPTION", 0)
-            ) == 0 and not is_device_available(devices[index], env_gpu_memory):
+        if index not in attached_devices.indices:
+            if not allow_over_subscription and not snapshot[index].available(
+                env_gpu_memory
+            ):
                 raise RuntimeError(f"Device {index} is not available")
 
             attach_devices(devices, eid, index, env_gpu_memory)
@@ -409,6 +368,11 @@ def do_query(devices: Devices, queries: Iterable[str]) -> None:
 def parse_args() -> argparse.Namespace:
     def attach(parser):
         parser.add_argument("--eid", required=True, help="Environment identifier")
+        parser.add_argument(
+            "--allow-over-subscription",
+            action="store_true",
+            help="Use unavailable devices if needed",
+        )
         group = parser.add_mutually_exclusive_group()
         group.add_argument(
             # TODO(raz): remove this argument entirely.
@@ -494,8 +458,35 @@ if __name__ == "__main__":
         if args.cleanup:
             cleanup(devices)
 
+        # convert from dictionary to the snapshot representation.
+        # this will be removed once the dictionary representation will no longer be used.
+        snapshot = genv.devices.Snapshot(
+            [
+                genv.devices.Device(
+                    index,
+                    device["total_memory"],
+                    [
+                        genv.devices.Device.Attachement(
+                            env["eid"],
+                            env.get("gpu_memory", None),
+                            env["attached"],
+                        )
+                        for env in device["eids"].values()
+                    ],
+                )
+                for index, device in devices.items()
+            ]
+        )
+
         if args.command == "attach":
-            do_attach(devices, args.eid, args.count, args.index)
+            do_attach(
+                devices,
+                snapshot,
+                args.eid,
+                args.count,
+                args.index,
+                args.allow_over_subscription,
+            )
         elif args.command == "detach":
             do_detach(devices, args.eid, args.index, args.quiet)
         elif args.command == "find":
