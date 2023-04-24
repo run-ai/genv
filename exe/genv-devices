@@ -117,6 +117,12 @@ def cleanup(
 
             device.detach(candidate)
 
+        # TODO(raz): we have a bug here when an environment is attached to multiple devices
+        # along with other environments.
+        # we don't properly check if the detachment took place as we check if the device
+        # is detached entirely.
+        # therefore, 'count' is not respected and all devices are detached.
+
         if device.detached and count is not None:
             count -= 1
 
