@@ -1,20 +1,19 @@
 from contextlib import contextmanager
 import os
-from typing import Iterable
+from typing import Iterable, Optional
 
 import genv.devices
 
 
-def attached() -> Iterable[int]:
+def attached() -> Optional[Iterable[int]]:
     """
-    Returns the attached device indices.
-    Raises RuntimeError if not running in an active environment.
+    Returns the attached device indices or None if not running in an active environment.
     """
 
     indices = os.environ.get("CUDA_VISIBLE_DEVICES")
 
     if indices is None:
-        raise RuntimeError("Not running in an active environment")
+        return None
 
     if indices == "-1":
         return []
@@ -26,17 +25,17 @@ def attached() -> Iterable[int]:
 def lock() -> None:
     """
     Obtains exclusive access to the attached device.
+    Does nothing ff not running in an active environment or not attached to devices.
+    Raises RuntimeError if attached to more than a single device.
     """
 
     indices = attached()
 
-    if len(indices) == 0:
-        raise RuntimeError("Environment is detached from devices")
-
-    if len(indices) > 1:
-        raise RuntimeError("Environment is attached to more than a single device")
-
-    index = indices[0]
-
-    with genv.devices.lock(index):
+    if indices is None or len(indices) == 0:
         yield
+    else:
+        if len(indices) > 1:
+            raise RuntimeError("Environment is attached to more than a single device")
+
+        with genv.devices.lock(index=indices[0]):
+            yield
