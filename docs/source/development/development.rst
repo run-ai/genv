@@ -72,6 +72,21 @@ To open another terminal inside the container use:
 
     docker exec -it genv bash
 
+Python SDK
+~~~~~~~~~~
+To test the Python SDK run the following command:
+
+.. code-block:: shell
+
+    export PYTHONPATH="$PWD/py:$PYTHONPATH"
+
+You can test it by running:
+
+.. code-block:: shell
+
+    python -c "import genv; print('ok')"
+
+
 CPU-Only Setup
 ~~~~~~~~~~~~~~
 Some Genv features rely on executing :code:`nvidia-smi` commands.
@@ -89,7 +104,7 @@ Set up your shell with the following command:
 
 .. code-block:: shell
 
-    export PATH=$PWD/devel/shims:$PATH
+    export PATH=$PATH:$PWD/devel/shims
 
 .. TODO(raz): consider adding a 'genv devel' command to set this
 

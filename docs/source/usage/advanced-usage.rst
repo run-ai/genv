@@ -138,7 +138,7 @@ The easiest way is to run :code:`nvidia-smi` with sufficient permissions :ref:`u
 
 .. code-block:: shell
 
-   sudo -E `which nvidia-smi`
+   sudo -E env PATH=$PATH nvidia-smi
 
 The other option is to run the container as non-root.
 You can do that by passing :code:`--user $(id -u):$(id -g)` to the :code:`docker run` command, or by editing the Dockerfile.

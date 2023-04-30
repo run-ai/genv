@@ -100,3 +100,7 @@ This is however part of the project roadmap.
 In case you use PyCharm, please open an `issue <https://github.com/run-ai/genv/issues>`__ in the project repository.
 
 This will help us prioritize this as well as suggest other ways to work with Genv in PyCharm in the meantime.
+
+Docker
+------
+To install the :code:`genv-docker` refer to the Genv container toolkit :doc:`installation <../docker/installation>` page.
