@@ -108,13 +108,6 @@ Default is :code:`10mi`.
 Path of the temp directory where all state JSON files are stored.
 Default is :code:`/var/tmp/genv`.
 
-----
-
-:code:`GENV_ALLOW_DEVICE_OVER_ALLOCATION`
-
-Support attaching environments to a device even if memory cannot be guaranteed.
-Default is :code:`0`.
-
 .. _Shims:
 
 Shims

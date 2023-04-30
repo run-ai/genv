@@ -30,7 +30,8 @@ print_help()
   echo "    --index    Attach to the device with the given index"
   echo
   echo "Options:"
-  echo "    --quiet    Don't fail if device count it not configured"
+  echo "    -o --over-subscribe   Use unavailable devices if needed"
+  echo "    --quiet               Don't fail if device count it not configured"
   echo
   echo "You can attach devices by a specifying a total amount or by index (see modes above)."
   echo
@@ -99,6 +100,9 @@ while [[ $# -gt 0 ]] ; do
         exit 1
       fi
     ;;
+    -o|--over-subscribe)
+      over_subscribe="--allow-over-subscription"
+    ;;
     --quiet)
       quiet="1"
     ;;
@@ -136,18 +140,18 @@ case $action in
             exit 1
           fi
         else
-          config_env $( exec genv exec devices attach --eid $GENV_ENVIRONMENT_ID --count $GENV_GPUS )
+          config_env $( exec genv exec devices attach --eid $GENV_ENVIRONMENT_ID --count $GENV_GPUS $over_subscribe )
         fi
       ;;
       count)
-        config_env $( exec genv exec devices attach --eid $GENV_ENVIRONMENT_ID --count $mode_value )
+        config_env $( exec genv exec devices attach --eid $GENV_ENVIRONMENT_ID --count $mode_value $over_subscribe )
       ;;
       index)
-        config_env $( exec genv exec devices attach --eid $GENV_ENVIRONMENT_ID --index $mode_value )
+        config_env $( exec genv exec devices attach --eid $GENV_ENVIRONMENT_ID --index $mode_value $over_subscribe )
       ;;
     esac
   ;;
   refresh)
-    config_env $( exec genv exec devices query --eid $GENV_ENVIRONMENT_ID )
+    config_env $( exec genv exec devices find --eid $GENV_ENVIRONMENT_ID )
   ;;
 esac

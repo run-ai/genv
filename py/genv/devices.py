@@ -1,7 +1,11 @@
+from contextlib import contextmanager
 from dataclasses import dataclass
+from datetime import datetime
 import subprocess
-from typing import Dict, Iterable, Optional
+from typing import Callable, Iterable, Optional, Union
 
+from genv.os_ import access_lock, create_lock
+from genv.utils import get_temp_file_path, memory_to_bytes, DATETIME_FMT
 
 # NOTE(raz): This should be the layer that queries and controls the state of Genv regarding devices.
 # Currently, it relies on executing the device manager executable of Genv, as this is where the logic is implemented.
@@ -15,8 +19,19 @@ from typing import Dict, Iterable, Optional
 
 @dataclass
 class Device:
+    @dataclass
+    class Attachement:
+        eid: str
+        gpu_memory: Optional[str]
+        time: str
+
     index: int
-    eids: Iterable[str]
+    total_memory: str
+    attachments: Iterable[Attachement]
+
+    @property
+    def eids(self) -> Iterable[str]:
+        return [attachment.eid for attachment in self.attachments]
 
     @property
     def attached(self) -> bool:
@@ -26,11 +41,61 @@ class Device:
     def detached(self) -> bool:
         return len(self.eids) == 0
 
+    @property
+    def total_memory_bytes(self) -> int:
+        """
+        Returns the device total memory in bytes.
+        """
+        return memory_to_bytes(self.total_memory)
+
+    @property
+    def available_memory_bytes(self) -> int:
+        """
+        Returns the device available memory in bytes.
+        """
+        available_bytes = memory_to_bytes(self.total_memory)
+
+        for attachment in self.attachments:
+            available_bytes -= memory_to_bytes(
+                attachment.gpu_memory or self.total_memory
+            )
+
+        return max(available_bytes, 0)
+
+    def available(self, gpu_memory: Optional[str]) -> bool:
+        """
+        Returns is the device is available with respect to the given memory specification.
+        If memory is specified, checks if this amount is available.
+        Otherwise, checks if the device is detached.
+        """
+        if gpu_memory is None:
+            return self.detached
+
+        return self.available_memory_bytes >= memory_to_bytes(gpu_memory)
+
     def filter(self, *, eids: Iterable[str]):
         """
         Returns a new device with only the given environment identifiers.
         """
-        return Device(self.index, [eid for eid in self.eids if eid in eids])
+        return Device(
+            self.index,
+            self.total_memory,
+            [attachment for attachment in self.attachments if attachment.eid in eids],
+        )
+
+    def attach(self, eid: str, gpu_memory: Optional[str], time: str) -> None:
+        """
+        Attaches an environment.
+        """
+        self.attachments.append(Device.Attachement(eid, gpu_memory, time))
+
+    def detach(self, eid: str) -> None:
+        """
+        Detaches an environment.
+        """
+        for index, attachment in enumerate(self.attachments):
+            if attachment.eid == eid:
+                del self.attachments[index]
 
 
 @dataclass
@@ -59,18 +124,22 @@ class Snapshot:
         deep: bool = True,
         *,
         indices: Optional[Iterable[int]] = None,
+        not_indices: Optional[Iterable[int]] = None,
         eid: Optional[str] = None,
         eids: Optional[Iterable[str]] = None,
         attached: Optional[bool] = None,
+        function: Optional[Callable[[Device], bool]] = None,
     ):
         """
         Returns a new filtered snapshot.
 
         :param deep: Perform deep filtering
         :param indices: Device indices to keep
+        :param not_indices: Device indices to remove
         :param eid: Environment identifier to keep
         :param eids: Environment identifiers to keep
         :param attached: Keep only devices with environments attached or not
+        :param function: Keep devices on which the lambda returns True
         """
         if eids:
             eids = set(eids)
@@ -85,6 +154,9 @@ class Snapshot:
 
         if indices is not None:
             devices = [device for device in devices if device.index in indices]
+
+        if not_indices is not None:
+            devices = [device for device in devices if device.index not in not_indices]
 
         if eids is not None:
             if deep:
@@ -102,39 +174,62 @@ class Snapshot:
             else:
                 devices = [device for device in devices if device.detached]
 
+        if function is not None:
+            devices = [device for device in devices if function(device)]
+
         return Snapshot(devices)
+
+    def attach(
+        self, eid: str, indices: Union[Iterable[int], int], gpu_memory: Optional[str]
+    ) -> None:
+        """
+        Attaches devices to an environment.
+        """
+
+        if isinstance(indices, int):
+            indices = [indices]
+
+        time = datetime.now().strftime(DATETIME_FMT)
+
+        for index in indices:
+            self.devices[index].attach(eid, gpu_memory, time)
 
 
 def snapshot() -> Snapshot:
-    return Snapshot([Device(index, d["eids"]) for index, d in ps().items()])
-
-
-def ps() -> Dict[int, Iterable[str]]:
     """
-    Returns information about device and active attachments.
-
-    :return: A mapping between device index and all attached environment identifiers
+    Returns a devices snapshot.
     """
-    devices = dict()
 
-    for line in (
+    lines = (
         subprocess.check_output(
-            "genv exec devices ps --no-header --format csv", shell=True
+            "genv exec devices query --query index total_memory attachments", shell=True
         )
         .decode("utf-8")
         .strip()
         .splitlines()
-    ):
-        index, eid, _, _ = line.split(",")
-        index = int(index)
+    )
 
-        if index not in devices:
-            devices[index] = {"eids": []}
+    def parse_attachment(s: str) -> Device.Attachement:
+        eid, gpu_memory, time = s.split("+")
 
-        if eid:
-            devices[index]["eids"].append(eid)
+        return Device.Attachement(
+            eid,
+            gpu_memory or None,
+            time.replace("_", " "),
+        )
 
-    return devices
+    def parse_device(s: str) -> Device:
+        index, total_memory, attachments = s.split(",")
+
+        return Device(
+            int(index),
+            total_memory,
+            [parse_attachment(attachment) for attachment in attachments.split(" ")]
+            if attachments
+            else [],
+        )
+
+    return Snapshot([parse_device(line) for line in lines])
 
 
 def attach(eid: str) -> Iterable[int]:
@@ -168,3 +263,34 @@ def detach(eid: str, index: int) -> None:
     subprocess.check_call(
         f"genv exec devices detach --quiet --eid {eid} --index {index}", shell=True
     )
+
+
+def get_lock_path(index: int, create: bool = False) -> str:
+    """
+    Returns the path of a device lock file.
+    Creates the file if requested and it does not exist.
+    """
+
+    path = get_temp_file_path(f"devices/{index}.lock")
+
+    if create:
+        create_lock(path)
+
+    return path
+
+
+@contextmanager
+def lock(index: int) -> None:
+    """
+    Obtain exclusive access to a device.
+    """
+    path = get_lock_path(index)
+
+    # NOTE(raz): currently, we wait on the lock even if it is already taken by our environment.
+    # we should think if this is the desired behavior and if it's possible to lock once per environment.
+    with access_lock(path):
+        yield
+
+    # TODO(raz): currently we wait for the entire device to become available.
+    # we should support fractional usage and allow multiple environments to
+    # access the device if the sum of their memory capacity fits.

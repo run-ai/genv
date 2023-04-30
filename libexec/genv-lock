@@ -1,0 +1,54 @@
+#!/bin/bash
+
+set -e
+[ -n "$GENV_DEBUG" ] && set -x
+
+if [[ $1 = "--description" ]] ; then
+  echo "Obtain exclusive access to a device"
+  exit 0
+fi
+
+print_help()
+{
+  echo "Usage: genv lock command [arguments]"
+  echo
+  echo "Execute a command under the exclusive lock of the attached device."
+  echo "This command works very similarly to flock(1)."
+  echo
+  echo "Note that this works only when a single device is attached to the environment."
+  echo
+  echo "Example:"
+  echo
+  echo "  genv lock bash -c \"echo using device; sleep 5; echo done using device\""
+  echo
+}
+
+command="$1"
+case "$command" in
+"")
+  print_help >&2
+  exit 1
+  ;;
+-h|--help)
+  print_help
+  ;;
+*)
+  index=$CUDA_VISIBLE_DEVICES
+
+  re='^[0-9]+$'
+  if [ "$CUDA_VISIBLE_DEVICES" = "-1" ]; then
+    echo "Environment is not attached to a device" >&2
+    exit 1
+  elif ! [[ "$index" =~ $re ]]; then
+    echo "Environment is attached to more than a single device" >&2
+    exit 1
+  fi
+
+  # first, use the Python library to get the lock path.
+  # this also create the file and its parent directories with the right permissions if needed.
+  path=$( exec /usr/bin/env python3 -c "import genv.devices; print(genv.devices.get_lock_path($index, create=True))" )
+
+  # now actually obtain an exclusive lock and run the command
+  exec flock "$path" "$@"
+  ;;
+esac

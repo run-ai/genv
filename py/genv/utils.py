@@ -2,10 +2,9 @@ from contextlib import contextmanager
 from datetime import datetime
 import json
 import os
-from pathlib import Path
-from typing import Callable, Dict, Optional, Union
+from typing import Any, Callable, Dict, Optional, Type, Union
 
-from .os_ import Umask, Flock
+from .os_ import access_lock
 
 DATETIME_FMT = "%d/%m/%Y %H:%M:%S"
 MEMORY_TO_BYTES_MULTIPLIERS_DICT = {
@@ -31,8 +30,10 @@ def access_json(
     filename: str,
     factory: Callable[[], Dict],
     *,
-    convert: Optional[Callable[[Dict], None]] = None,
+    convert: Optional[Callable[[Any], Any]] = None,
     reset: bool = False,
+    json_decoder: Optional[Type[json.JSONDecoder]] = None,
+    json_encoder: Optional[Type[json.JSONEncoder]] = None,
 ):
     """
     This function returns a json object representing a genv state data.
@@ -50,25 +51,24 @@ def access_json(
     """
     path = get_temp_file_path(filename)
 
-    with Umask(0):
-        Path(path).parent.mkdir(parents=True, exist_ok=True, mode=0o777)
+    with access_lock(f"{path}.lock"):
+        if os.path.exists(path) and not reset:
+            with open(path) as f:
+                o = json.load(f, cls=json_decoder)
 
-        with Flock(f"{path}.lock", 0o666):
-            if os.path.exists(path) and not reset:
-                with open(path) as f:
-                    o = json.load(f)
+                if convert:
+                    o = convert(o)
+        else:
+            o = factory()
 
-                    if convert:
-                        convert(o)
-            else:
-                o = factory()
+        yield o
 
-            yield o
-
-            with open(
-                path, "w", opener=lambda path, flags: os.open(path, flags, 0o666)
-            ) as f:
-                json.dump(o, f, indent=4)
+        # TODO(raz): are probably relying on the umask being set to 0 thanks to access_lock().
+        # this is not part of the API of the method so we probably need to do it here as well.
+        with open(
+            path, "w", opener=lambda path, flags: os.open(path, flags, 0o666)
+        ) as f:
+            json.dump(o, f, cls=json_encoder, indent=2)
 
 
 def memory_to_bytes(cap: str) -> int:
