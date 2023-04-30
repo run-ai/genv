@@ -83,6 +83,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#setup">Setup</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#local">Local</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#docker">Docker</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#python-sdk">Python SDK</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#cpu-only-setup">CPU-Only Setup</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#mock-devices">Mock Devices</a></li>
 </ul>
@@ -145,20 +146,21 @@
 <ul>
 <li><p><a class="reference internal" href="#local" id="id8">Local</a></p></li>
 <li><p><a class="reference internal" href="#docker" id="id9">Docker</a></p></li>
-<li><p><a class="reference internal" href="#cpu-only-setup" id="id10">CPU-Only Setup</a></p></li>
-<li><p><a class="reference internal" href="#remote-features" id="id11">Remote Features</a></p></li>
+<li><p><a class="reference internal" href="#python-sdk" id="id10">Python SDK</a></p></li>
+<li><p><a class="reference internal" href="#cpu-only-setup" id="id11">CPU-Only Setup</a></p></li>
+<li><p><a class="reference internal" href="#remote-features" id="id12">Remote Features</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#docs" id="id12">Docs</a></p>
+<li><p><a class="reference internal" href="#docs" id="id13">Docs</a></p>
 <ul>
-<li><p><a class="reference internal" href="#id3" id="id13">Setup</a></p></li>
-<li><p><a class="reference internal" href="#build" id="id14">Build</a></p></li>
+<li><p><a class="reference internal" href="#id3" id="id14">Setup</a></p></li>
+<li><p><a class="reference internal" href="#build" id="id15">Build</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#python-package" id="id15">Python Package</a></p>
+<li><p><a class="reference internal" href="#python-package" id="id16">Python Package</a></p>
 <ul>
-<li><p><a class="reference internal" href="#id4" id="id16">Build</a></p></li>
-<li><p><a class="reference internal" href="#publish-to-pypi" id="id17">Publish to PyPI</a></p></li>
+<li><p><a class="reference internal" href="#id4" id="id17">Build</a></p></li>
+<li><p><a class="reference internal" href="#publish-to-pypi" id="id18">Publish to PyPI</a></p></li>
 </ul>
 </li>
 </ul>
@@ -215,6 +217,17 @@ This is useful if you are using macOS as Genv is developed for Linux systems and
 </pre></div>
 </div>
 </div>
+<div class="section" id="python-sdk">
+<h3>Python SDK<a class="headerlink" href="#python-sdk" title="Permalink to this headline">¶</a></h3>
+<p>To test the Python SDK run the following command:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span> <span class="nv">PYTHONPATH</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$PWD</span><span class="s2">/py:</span><span class="nv">$PYTHONPATH</span><span class="s2">&quot;</span>
+</pre></div>
+</div>
+<p>You can test it by running:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python -c <span class="s2">&quot;import genv; print(&#39;ok&#39;)&quot;</span>
+</pre></div>
+</div>
+</div>
 <div class="section" id="cpu-only-setup">
 <h3>CPU-Only Setup<a class="headerlink" href="#cpu-only-setup" title="Permalink to this headline">¶</a></h3>
 <p>Some Genv features rely on executing <code class="code docutils literal notranslate"><span class="pre">nvidia-smi</span></code> commands.
@@ -226,7 +239,7 @@ bash: nvidia-smi: <span class="nb">command</span> not found
 </div>
 <p>In such cases, it is recommended to use the mock shim of <code class="code docutils literal notranslate"><span class="pre">nvidia-smi</span></code>.
 Set up your shell with the following command:</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span> <span class="nv">PATH</span><span class="o">=</span><span class="nv">$PWD</span>/devel/shims:<span class="nv">$PATH</span>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span> <span class="nv">PATH</span><span class="o">=</span><span class="nv">$PATH</span>:<span class="nv">$PWD</span>/devel/shims
 </pre></div>
 </div>
 <div class="admonition note">

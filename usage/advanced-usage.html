@@ -65,6 +65,15 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#running-containers">Running Containers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#over-subscription">Over-subscription</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#attach-with-over-subscription">Attach with Over-subscription</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#access-control">Access Control</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#python-sdk">Python SDK</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#shell">Shell</a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="enforcement.html">Enforcement</a></li>
@@ -124,11 +133,12 @@
 <div class="contents topic" id="contents">
 <p class="topic-title">Contents</p>
 <ul class="simple">
-<li><p><a class="reference internal" href="#advanced-usage" id="id2">Advanced Usage</a></p>
+<li><p><a class="reference internal" href="#advanced-usage" id="id8">Advanced Usage</a></p>
 <ul>
-<li><p><a class="reference internal" href="#multiple-terminals" id="id3">Multiple Terminals</a></p></li>
-<li><p><a class="reference internal" href="#using-sudo" id="id4">Using <code class="code docutils literal notranslate"><span class="pre">sudo</span></code></a></p></li>
-<li><p><a class="reference internal" href="#running-containers" id="id5">Running Containers</a></p></li>
+<li><p><a class="reference internal" href="#multiple-terminals" id="id9">Multiple Terminals</a></p></li>
+<li><p><a class="reference internal" href="#using-sudo" id="id10">Using <code class="code docutils literal notranslate"><span class="pre">sudo</span></code></a></p></li>
+<li><p><a class="reference internal" href="#running-containers" id="id11">Running Containers</a></p></li>
+<li><p><a class="reference internal" href="#over-subscription" id="id12">Over-subscription</a></p></li>
 </ul>
 </li>
 </ul>
@@ -229,11 +239,79 @@ This is necessary when running <code class="code docutils literal notranslate"><
 For example, when running <code class="code docutils literal notranslate"><span class="pre">nvidia-smi</span></code> from a non-root shell in an active environment, it will not be able to identify processes running in containers from the same environment if they run as root.</p>
 <p>There are two ways to handle this issue.</p>
 <p>The easiest way is to run <code class="code docutils literal notranslate"><span class="pre">nvidia-smi</span></code> with sufficient permissions <a class="reference internal" href="#using-sudo"><span class="std std-ref">using</span></a> <code class="code docutils literal notranslate"><span class="pre">sudo</span></code>:</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>sudo -E <span class="sb">`</span>which nvidia-smi<span class="sb">`</span>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>sudo -E env <span class="nv">PATH</span><span class="o">=</span><span class="nv">$PATH</span> nvidia-smi
 </pre></div>
 </div>
 <p>The other option is to run the container as non-root.
 You can do that by passing <code class="code docutils literal notranslate"><span class="pre">--user</span> <span class="pre">$(id</span> <span class="pre">-u):$(id</span> <span class="pre">-g)</span></code> to the <code class="code docutils literal notranslate"><span class="pre">docker</span> <span class="pre">run</span></code> command, or by editing the Dockerfile.</p>
+</div>
+<div class="section" id="over-subscription">
+<h2>Over-subscription<a class="headerlink" href="#over-subscription" title="Permalink to this headline">¶</a></h2>
+<p>Normally, the GPUs in the system are being provisioned to environments until they run out.</p>
+<p>A GPU could be provisioned to a single environment, or can be shared between a few environments by <a class="reference internal" href="usage.html#configure-the-gpu-memory-capacity"><span class="std std-ref">configuring</span></a> the environment memory capacity before attaching devices.</p>
+<div class="figure align-default" id="id6">
+<img alt="../_images/provisioning.png" src="../_images/provisioning.png" />
+<p class="caption"><span class="caption-text">Full- and shared-GPU provisioning with Genv</span><a class="headerlink" href="#id6" title="Permalink to this image">¶</a></p>
+</div>
+<p>However, this could be wasteful as the provisioned GPUs can be unused some of the time, and in some cases, this amount of time can be significant.</p>
+<p>For example, when writing GPU-consuming code (e.g. deep-learning model with PyTorch) using an IDE like Visual Studio Code, or PyCharm, the GPU resources are not being used in all the time that is spent on coding rather than running the application.</p>
+<p>For this use case and similar ones, it is recommended to over-subscribe <a class="footnote-reference brackets" href="#id4" id="id2">1</a> the GPU by provisioning it to more than a single environment <em>without</em> setting a memory capacity.
+Then, the entire GPU can be accessed by the different environments at different times, which will increase the resource utilization significantly.</p>
+<div class="figure align-default" id="id7">
+<img alt="../_images/over-provisioning.png" src="../_images/over-provisioning.png" />
+<p class="caption"><span class="caption-text">Over-provisioning with Genv</span><a class="headerlink" href="#id7" title="Permalink to this image">¶</a></p>
+</div>
+<div class="section" id="attach-with-over-subscription">
+<h3>Attach with Over-subscription<a class="headerlink" href="#attach-with-over-subscription" title="Permalink to this headline">¶</a></h3>
+<p>By default, Genv does not over-subscribe GPUs.
+This means that once a GPU is fully provisioned - either to a single environment or multiple ones - it cannot be attached anymore.</p>
+<p>To attach a GPU with over-subscription you will need to pass the argument <code class="code docutils literal notranslate"><span class="pre">-o</span></code> or <code class="code docutils literal notranslate"><span class="pre">--over-subscribe</span></code> to the <code class="code docutils literal notranslate"><span class="pre">genv</span> <span class="pre">attach</span></code> command.
+For example:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>genv attach --index <span class="m">0</span> -o
+</pre></div>
+</div>
+<p>Another example:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>genv attach --count <span class="m">2</span> --over-subscribe
+</pre></div>
+</div>
+</div>
+<div class="section" id="access-control">
+<h3>Access Control<a class="headerlink" href="#access-control" title="Permalink to this headline">¶</a></h3>
+<p>It is the responsibility of the users to access the over-subscribed GPU one at a time in order to avoid any OOM failures.</p>
+<p>For this reason, Genv provides an access control mechanism, which can be used by the users to achieve the desired behavior.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>All environments must cooperate and use the Genv access control mechanism.
+There will be no effect if only some of the environments will and you will be exposed to OOM failures.</p>
+</div>
+<div class="section" id="python-sdk">
+<h4>Python SDK<a class="headerlink" href="#python-sdk" title="Permalink to this headline">¶</a></h4>
+<p>Import the <code class="code docutils literal notranslate"><span class="pre">genv</span></code> module and wrap your Python code with a call to <code class="code docutils literal notranslate"><span class="pre">genv.env.lock_devices()</span></code>.
+For example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">genv</span>
+
+<span class="k">with</span> <span class="n">genv</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">lock_devices</span><span class="p">():</span>
+   <span class="n">main</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="shell">
+<h4>Shell<a class="headerlink" href="#shell" title="Permalink to this headline">¶</a></h4>
+<p>Use the <code class="code docutils literal notranslate"><span class="pre">genv</span> <span class="pre">lock</span></code> command which works similarly to <code class="code docutils literal notranslate"><span class="pre">flock</span></code> <a class="footnote-reference brackets" href="#id5" id="id3">2</a>.
+For example:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>genv lock python main.py
+</pre></div>
+</div>
+<dl class="footnote brackets">
+<dt class="label" id="id4"><span class="brackets"><a class="fn-backref" href="#id2">1</a></span></dt>
+<dd><p><a class="reference external" href="https://en.wikipedia.org/wiki/Thin_provisioning#Over-allocation">Over-allocation - Wikipedia</a></p>
+</dd>
+<dt class="label" id="id5"><span class="brackets"><a class="fn-backref" href="#id3">2</a></span></dt>
+<dd><p><a class="reference external" href="https://man7.org/linux/man-pages/man1/flock.1.html">flock(1) - Linux manual page</a></p>
+</dd>
+</dl>
+</div>
+</div>
 </div>
 </div>
 
