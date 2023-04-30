@@ -142,3 +142,79 @@ The easiest way is to run :code:`nvidia-smi` with sufficient permissions :ref:`u
 
 The other option is to run the container as non-root.
 You can do that by passing :code:`--user $(id -u):$(id -g)` to the :code:`docker run` command, or by editing the Dockerfile.
+
+Over-subscription
+-----------------
+Normally, the GPUs in the system are being provisioned to environments until they run out.
+
+A GPU could be provisioned to a single environment, or can be shared between a few environments by :ref:`configuring <Configure the GPU Memory Capacity>` the environment memory capacity before attaching devices.
+
+.. figure:: provisioning.png
+
+   Full- and shared-GPU provisioning with Genv
+
+However, this could be wasteful as the provisioned GPUs can be unused some of the time, and in some cases, this amount of time can be significant.
+
+For example, when writing GPU-consuming code (e.g. deep-learning model with PyTorch) using an IDE like Visual Studio Code, or PyCharm, the GPU resources are not being used in all the time that is spent on coding rather than running the application.
+
+For this use case and similar ones, it is recommended to over-subscribe [#]_ the GPU by provisioning it to more than a single environment *without* setting a memory capacity.
+Then, the entire GPU can be accessed by the different environments at different times, which will increase the resource utilization significantly.
+
+.. figure:: over-provisioning.png
+
+   Over-provisioning with Genv
+
+Attach with Over-subscription
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+By default, Genv does not over-subscribe GPUs.
+This means that once a GPU is fully provisioned - either to a single environment or multiple ones - it cannot be attached anymore.
+
+To attach a GPU with over-subscription you will need to pass the argument :code:`-o` or :code:`--over-subscribe` to the :code:`genv attach` command.
+For example:
+
+.. code-block:: shell
+
+   genv attach --index 0 -o
+
+Another example:
+
+.. code-block:: shell
+
+   genv attach --count 2 --over-subscribe
+
+Access Control
+~~~~~~~~~~~~~~
+It is the responsibility of the users to access the over-subscribed GPU one at a time in order to avoid any OOM failures.
+
+For this reason, Genv provides an access control mechanism, which can be used by the users to achieve the desired behavior.
+
+.. warning::
+
+   All environments must cooperate and use the Genv access control mechanism.
+   There will be no effect if only some of the environments will and you will be exposed to OOM failures.
+
+~~~~~~~~~~
+Python SDK
+~~~~~~~~~~
+Import the :code:`genv` module and wrap your Python code with a call to :code:`genv.env.lock_devices()`.
+For example:
+
+.. code-block:: python
+
+   import genv
+
+   with genv.env.lock_devices():
+      main()
+
+~~~~~
+Shell
+~~~~~
+Use the :code:`genv lock` command which works similarly to :code:`flock` [#]_.
+For example:
+
+.. code-block:: shell
+
+   genv lock python main.py
+
+.. [#] `Over-allocation - Wikipedia <https://en.wikipedia.org/wiki/Thin_provisioning#Over-allocation>`_
+.. [#] `flock(1) - Linux manual page <https://man7.org/linux/man-pages/man1/flock.1.html>`_
