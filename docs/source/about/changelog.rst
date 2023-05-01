@@ -1,6 +1,26 @@
 Changelog
 =========
 
+Version 0.9.0
+-------------
+**Date:** May 1, 2023
+
+Added
+~~~~~
+* Over-subscribe devices with new flag :code:`-o --over-subscribe` to :code:`genv attach`
+* New Python SDK at :code:`genv.env`
+* Control access to over-subscribed devices with :code:`genv lock` and :code:`genv.env.lock_devices()`
+* Added fields and actions to :code:`genv.devices.Device` and :code:`genv.devices.Snapshot`
+
+Changed
+~~~~~~~
+* Renamed previous command :code:`genv-devices query` to :code:`genv-devices find`
+* Using :code:`genv.devices.Snapshot` instead of plain JSON in :code:`genv-devices` and :code:`devices.json` (backwards compatible)
+
+Removed
+~~~~~~~
+* Removed environment variable :code:`GENV_ALLOW_DEVICE_OVER_ALLOCATION`
+
 Version 0.8.0
 -------------
 **Date:** April 13, 2023
