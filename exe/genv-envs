@@ -17,6 +17,10 @@ QUERIES = {
     "config.name": lambda env: env["config"].get("name"),
     "config.gpus": lambda env: env["config"].get("gpus"),
     "config.gpu_memory": lambda env: env["config"].get("gpu_memory"),
+    "pids": lambda env: " ".join(str(pid) for pid in env.get("pids", [])),
+    "kernel_ids": lambda env: " ".join(
+        kernel_id for kernel_id in env.get("kernel_ids", [])
+    ),
 }
 
 

@@ -16,17 +16,18 @@ from . import utils
 
 @dataclass
 class Env:
-    eid: str
-    uid: int
-    creation: str
-    username: Optional[str]
-
     @dataclass
     class Config:
         name: Optional[str]
         gpu_memory: Optional[str]
 
+    eid: str
+    uid: int
+    creation: str
+    username: Optional[str]
     config: Config
+    pids: Iterable[int]
+    kernel_ids: Iterable[str]
 
     @property
     def time_since(self) -> str:
@@ -106,9 +107,18 @@ def snapshot() -> Snapshot:
                 creation,
                 username or None,
                 Env.Config(name or None, gpu_memory or None),
+                [int(pid) for pid in pids.split(" ") if pid],
+                [kernel_id for kernel_id in kernel_ids.split(" ") if kernel_id],
             )
-            for eid, uid, creation, username, name, gpu_memory in query(
-                "eid", "uid", "creation", "username", "config.name", "config.gpu_memory"
+            for eid, uid, creation, username, name, gpu_memory, pids, kernel_ids in query(
+                "eid",
+                "uid",
+                "creation",
+                "username",
+                "config.name",
+                "config.gpu_memory",
+                "pids",
+                "kernel_ids",
             )
         ]
     )
