@@ -20,6 +20,7 @@ class Env:
     class Config:
         name: Optional[str]
         gpu_memory: Optional[str]
+        gpus: Optional[int]
 
     eid: str
     uid: int
@@ -106,17 +107,18 @@ def snapshot() -> Snapshot:
                 int(uid),
                 creation,
                 username or None,
-                Env.Config(name or None, gpu_memory or None),
+                Env.Config(name or None, gpu_memory or None, gpus or None),
                 [int(pid) for pid in pids.split(" ") if pid],
                 [kernel_id for kernel_id in kernel_ids.split(" ") if kernel_id],
             )
-            for eid, uid, creation, username, name, gpu_memory, pids, kernel_ids in query(
+            for eid, uid, creation, username, name, gpu_memory, gpus, pids, kernel_ids in query(
                 "eid",
                 "uid",
                 "creation",
                 "username",
                 "config.name",
                 "config.gpu_memory",
+                "config.gpus",
                 "pids",
                 "kernel_ids",
             )
