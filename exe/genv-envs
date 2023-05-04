@@ -2,7 +2,8 @@
 
 import argparse
 from datetime import datetime
-from typing import Any, List, Optional
+import os
+from typing import Any, List, Optional, Union
 
 import genv
 
@@ -19,19 +20,10 @@ QUERIES = {
 }
 
 
-def factory() -> genv.envs.Snapshot:
-    """
-    Creates an empty state object.
-    """
-
-    return genv.envs.Snapshot([])
-
-
-def convert(o: Any) -> genv.envs.Snapshot:
+def convert(o: Union[genv.envs.Snapshot, Any]) -> genv.envs.Snapshot:
     """
     Converts the loaded state object to a snapshot if it not already is.
     """
-
     def _get_field(obj, field, cls, *args):
         return (
             getattr(obj, field, *args)
@@ -345,20 +337,29 @@ def parse_args() -> argparse.Namespace:
 if __name__ == "__main__":
     args = parse_args()
 
-    with genv.utils.access_json(
-        "envs.json",
-        factory,
-        convert=convert,
-        reset=args.reset,
-        json_decoder=genv.json_.JSONDecoder,
-        json_encoder=genv.json_.JSONEncoder,
-    ) as snapshot:
+    path = genv.utils.get_temp_file_path("envs.json")
+
+    with genv.os_.access_lock(f"{path}.lock"):
+        if os.path.exists(path) and not args.reset:
+            snapshot = genv.utils.load_state(
+                path,
+                convert=convert,
+                json_decoder=genv.json_.JSONDecoder,
+            )
+        else:
+            snapshot = genv.envs.Snapshot([])
+
         if args.cleanup:
             snapshot.cleanup()
 
         if args.command == "activate":
             do_activate(
-                snapshot, args.eid, args.uid, args.username, args.pid, args.kernel_id
+                snapshot,
+                args.eid,
+                args.uid,
+                args.username,
+                args.pid,
+                args.kernel_id,
             )
         elif args.command == "config":
             do_config(snapshot, args.eid, command=args.config, args=args)
@@ -370,3 +371,9 @@ if __name__ == "__main__":
             do_ps(snapshot, args.format, args.header, args.timestamp)
         elif args.command == "query":
             do_query(snapshot, args.eid, args.queries)
+
+        genv.utils.save_state(
+            snapshot,
+            path,
+            json_encoder=genv.json_.JSONEncoder,
+        )

@@ -1,10 +1,9 @@
-from contextlib import contextmanager
 from datetime import datetime
 import json
 import os
-from typing import Any, Callable, Dict, Optional, Type, Union
+from typing import Any, Callable, Optional, Type, Union
 
-from .os_ import access_lock
+from .os_ import Umask
 
 DATETIME_FMT = "%d/%m/%Y %H:%M:%S"
 MEMORY_TO_BYTES_MULTIPLIERS_DICT = {
@@ -25,46 +24,34 @@ def get_temp_file_path(filename: str) -> str:
     return os.path.join(os.environ.get("GENV_TMPDIR", "/var/tmp/genv"), filename)
 
 
-@contextmanager
-def access_json(
-    filename: str,
-    factory: Callable[[], Dict],
+def load_state(
+    path: str,
     *,
     convert: Optional[Callable[[Any], Any]] = None,
-    reset: bool = False,
     json_decoder: Optional[Type[json.JSONDecoder]] = None,
+) -> Any:
+    """
+    Loads a state file.
+    """
+    with open(path) as f:
+        o = json.load(f, cls=json_decoder)
+
+    if convert:
+        o = convert(o)
+
+    return o
+
+
+def save_state(
+    o: Any,
+    path: str,
+    *,
     json_encoder: Optional[Type[json.JSONEncoder]] = None,
 ):
     """
-    This function returns a json object representing a genv state data.
-    The state object will either be created or loaded from a cache file, and updated with the correct data.
-    At the end of the caller process, the state object will be writen into the cache file.
-
-
-    :param filename: A filename of a cache file holding the relevant state object.
-            The base path of the file is either GENV_TMPDIR (if defined) or /var/tmp/genv.
-    :param factory: A function creating a "clean" instance of the state object
-    :param convert: A convertor function mutating the state object
-                     to the correct form (backward compatibility / updating)
-    :param reset: If the reset flag is on,
-    :return:
+    Saves a state file.
     """
-    path = get_temp_file_path(filename)
-
-    with access_lock(f"{path}.lock"):
-        if os.path.exists(path) and not reset:
-            with open(path) as f:
-                o = json.load(f, cls=json_decoder)
-
-                if convert:
-                    o = convert(o)
-        else:
-            o = factory()
-
-        yield o
-
-        # TODO(raz): are probably relying on the umask being set to 0 thanks to access_lock().
-        # this is not part of the API of the method so we probably need to do it here as well.
+    with Umask(0):
         with open(
             path, "w", opener=lambda path, flags: os.open(path, flags, 0o666)
         ) as f:
