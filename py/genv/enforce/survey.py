@@ -2,9 +2,8 @@ from collections import defaultdict
 from dataclasses import dataclass, field
 from typing import Dict, Optional, Set
 
-from ..snapshot import Snapshot
-
-from .report import Report
+from genv.snapshot.snapshot import Snapshot
+from genv.enforce.report import Report
 
 
 @dataclass

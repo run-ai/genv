@@ -1,7 +1,7 @@
 import asyncio
 from asyncio.subprocess import Process
 
-from .runner import Runner
+from genv.runners.runner import Runner
 
 
 class LocalRunner(Runner):

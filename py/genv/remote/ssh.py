@@ -3,8 +3,8 @@ from dataclasses import dataclass
 import sys
 from typing import Any, Callable, Iterable, Optional, Tuple
 
-from .utils import reprint
-from ..runners.ssh import SshRunner
+from genv.remote.utils import reprint
+from genv.runners.ssh import SshRunner
 
 
 @dataclass

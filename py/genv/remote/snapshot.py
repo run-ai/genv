@@ -1,10 +1,9 @@
 import json
 from typing import Iterable, Optional, Tuple
 
-from ..snapshot import Snapshot
-from ..json_ import JSONDecoder
-
-from .ssh import run, Host, Config, Command
+from genv.snapshot.snapshot import Snapshot
+from genv.json_ import JSONDecoder
+from genv.remote.ssh import run, Host, Config, Command
 
 # TODO(raz): should we support cases where 'sudo' is not an option?
 

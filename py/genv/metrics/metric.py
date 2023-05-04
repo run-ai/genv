@@ -2,7 +2,7 @@ from typing import Callable, Iterable, Optional
 
 import prometheus_client
 
-from genv.snapshot import Snapshot
+from genv.snapshot.snapshot import Snapshot
 from genv.metrics.spec import Type
 
 

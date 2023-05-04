@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from typing import Callable, Iterable, Optional, Tuple
 from genv.metrics.type import Type
 
-from genv.snapshot import Snapshot
+from genv.snapshot.snapshot import Snapshot
 
 
 @dataclass

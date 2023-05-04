@@ -1,15 +1,14 @@
 import sys
 from typing import Dict
 
-from .. import os_
-from .. import devices
-from .. import envs
-from .. import processes
+from genv import os_
+from genv import devices
+from genv.envs.snapshot import Snapshot as Envs
+from genv.processes.snapshot import Snapshot as Processes
+from genv.enforce.report import Report
 
-from .report import Report
 
-
-def _terminate(processes: processes.Snapshot) -> None:
+def _terminate(processes: Processes) -> None:
     for process in processes:
         try:
             print(
@@ -26,7 +25,7 @@ def _terminate(processes: processes.Snapshot) -> None:
             print(f"[DEBUG] Process {process.pid} already terminated", file=sys.stderr)
 
 
-def _detach(envs: Dict[int, envs.Snapshot]) -> None:
+def _detach(envs: Dict[int, Envs]) -> None:
     for index, envs in envs.items():
         for env in envs:
             print(

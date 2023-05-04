@@ -3,7 +3,7 @@ import json
 import os
 from typing import Any, Callable, Optional, Type, Union
 
-from .os_ import Umask
+from genv.os_ import Umask, access_lock
 
 DATETIME_FMT = "%d/%m/%Y %H:%M:%S"
 MEMORY_TO_BYTES_MULTIPLIERS_DICT = {

@@ -3,7 +3,7 @@ from typing import Iterable
 from genv.metrics.metric import Metric
 from genv.metrics.spec import Spec
 from genv.metrics.type import Type
-from genv.snapshot import Snapshot
+from genv.snapshot.snapshot import Snapshot
 
 
 class Collection:

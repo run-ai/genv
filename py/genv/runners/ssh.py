@@ -3,7 +3,7 @@ import os
 from asyncio.subprocess import Process
 from typing import Dict, Optional, List, Tuple
 
-from .runner import Runner
+from genv.runners.runner import Runner
 
 
 class SshRunner(Runner):

@@ -1,23 +1,26 @@
 import json
 from typing import Any, Dict
 
-from . import devices
-from . import envs
-from . import processes
-from .snapshot import Snapshot
-from .enforce import Report
+from genv.devices.device import Device
+from genv.devices.snapshot import Snapshot as Devices
+from genv.envs.env import Env
+from genv.envs.snapshot import Snapshot as Envs
+from genv.processes.process import Process
+from genv.processes.snapshot import Snapshot as Processes
+from genv.snapshot.snapshot import Snapshot
+from genv.enforce.report import Report
 
 # TODO(raz): test here that all types have a different set of keys for creation
 Types = [
-    devices.Device,
-    devices.Device.Attachement,
-    devices.Snapshot,
-    envs.Env,
-    envs.Env.Config,
-    envs.Snapshot,
-    processes.Process,
-    processes.Process.Usage,
-    processes.Snapshot,
+    Device,
+    Device.Attachement,
+    Devices,
+    Env,
+    Env.Config,
+    Envs,
+    Process,
+    Process.Usage,
+    Processes,
     Report,
     Snapshot,
 ]

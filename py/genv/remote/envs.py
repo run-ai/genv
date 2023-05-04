@@ -1,8 +1,7 @@
 from typing import Iterable, Tuple
 
-from ..envs import Snapshot
-
-from .snapshot import exec, Config, Host
+from genv.envs.snapshot import Snapshot
+from genv.remote.snapshot import exec, Config, Host
 
 
 async def snapshot(config: Config) -> Tuple[Iterable[Host], Iterable[Snapshot]]:
