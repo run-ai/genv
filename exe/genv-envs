@@ -2,95 +2,80 @@
 
 import argparse
 from datetime import datetime
-from typing import Any, Callable, Dict, List, Optional, Union
+from typing import Any, List, Optional
 
 import genv
 
-Env = Dict[Any, Any]
-Envs = Dict[int, Env]
-
 QUERIES = {
-    "eid": lambda env: env["eid"],
-    "creation": lambda env: env["creation"],
-    "uid": lambda env: env["uid"],
-    "username": lambda env: env.get("username"),
-    "config.name": lambda env: env["config"].get("name"),
-    "config.gpus": lambda env: env["config"].get("gpus"),
-    "config.gpu_memory": lambda env: env["config"].get("gpu_memory"),
-    "pids": lambda env: " ".join(str(pid) for pid in env.get("pids", [])),
-    "kernel_ids": lambda env: " ".join(
-        kernel_id for kernel_id in env.get("kernel_ids", [])
-    ),
+    "eid": lambda env: env.eid,
+    "creation": lambda env: env.creation,
+    "uid": lambda env: env.uid,
+    "username": lambda env: env.username,
+    "config.name": lambda env: env.config.name,
+    "config.gpus": lambda env: env.config.gpus,
+    "config.gpu_memory": lambda env: env.config.gpu_memory,
+    "pids": lambda env: " ".join(str(pid) for pid in env.pids),
+    "kernel_ids": lambda env: " ".join(kernel_id for kernel_id in env.kernel_ids),
 }
 
 
-def factory() -> Dict:
+def factory() -> genv.envs.Snapshot:
     """
-    Create a 'empty' state object for genv environments.
-    :return: The state object (dict of dicts)
+    Creates an empty state object.
     """
-    return dict(envs={})
+
+    return genv.envs.Snapshot([])
 
 
-def cleanup(
-    envs: Envs,
-    poll_pid: Callable[[int], bool] = genv.poll.poll_pid,
-    poll_kernel: Callable[[str], bool] = genv.poll.poll_jupyter_kernel,
-) -> None:
+def convert(o: Any) -> genv.envs.Snapshot:
     """
-    Clean up processes, kernels and environments.
-    :param envs: dictionary describing all existing environments.
-    :param poll_pid: a predicate which tells us which pids are still connected to an environment.
-    :param poll_kernel: a predicate which tells us which jupyter kernels are still connected to an environment.
-    :return:
+    Converts the loaded state object to a snapshot if it not already is.
     """
-    for env in envs.values():
-        if "pids" in env:
-            env["pids"] = [pid for pid in env["pids"] if poll_pid(pid)]
 
-        if "kernel_ids" in env:
-            env["kernel_ids"] = [
-                kernel_id for kernel_id in env["kernel_ids"] if poll_kernel(kernel_id)
+    def _get_field(obj, field, cls, *args):
+        return (
+            getattr(obj, field, *args)
+            if isinstance(obj, cls)
+            else obj.get(field, *args)
+        )
+
+    def _get_env_field(env, field, *args):
+        return _get_field(env, field, genv.envs.Env, *args)
+
+    def _get_config_field(env, field, *args):
+        config = _get_env_field(env, "config")
+
+        return _get_field(config, field, genv.envs.Env.Config, *args)
+
+    # the following logic converts state files from versions <= 0.9.0.
+    # note that the indicator is 'o.envs' and not 'o' itself because the structure of
+    # the state file from these versions was similar to the snapshot structure (a single
+    # key named "envs") so the JSON decoder parsed the object as a snapshot object.
+    if isinstance(o.envs, dict):
+        o = genv.envs.Snapshot(
+            [
+                genv.envs.Env(
+                    _get_env_field(env, "eid"),
+                    _get_env_field(env, "uid"),
+                    _get_env_field(env, "creation"),
+                    _get_env_field(env, "username", None),
+                    genv.envs.Env.Config(
+                        _get_config_field(env, "name", None),
+                        _get_config_field(env, "gpu_memory", None),
+                        _get_config_field(env, "gpus", None),
+                    ),
+                    _get_env_field(env, "pids", []),
+                    _get_env_field(env, "kernel_ids", []),
+                )
+                for env in o.envs.values()
             ]
+        )
 
-    def _should_cleanup_env(env):
-        for key in ["pids", "kernel_ids"]:
-            if key in env and len(env[key]) > 0:
-                return False
-
-        return True
-
-    for eid in [eid for eid, env in envs.items() if _should_cleanup_env(env)]:
-        del envs[eid]
-
-
-def find(envs: Envs, pid: Optional[int], kernel_id: Optional[str]) -> Union[int, None]:
-    """
-    Find the environment which is connected to the pid or kernel given
-    :param envs: dictionary describing all existing environments.
-    :param pid:
-    :param kernel_id:
-    :return: Return appropriate environments id
-    """
-    for query, field in [
-        (pid, "pids"),
-        (kernel_id, "kernel_ids"),
-    ]:
-        for eid, env in envs.items():
-            if query is None:
-                continue
-
-            if field not in env:
-                continue
-
-            if query not in env[field]:
-                continue
-
-            return eid
+    return o
 
 
 def do_activate(
-    envs: Envs,
+    snapshot: genv.envs.Snapshot,
     eid: str,
     uid: int,
     username: Optional[str],
@@ -98,92 +83,59 @@ def do_activate(
     kernel_id: Optional[str],
 ) -> None:
     """
-    Activates an environment - fill/update username, process ids and jupyter kernel ids.
-     If an appropriate environment doesn't exists, create one.
-    :param envs: dictionary describing all existing environments.
-    :param eid: environment id for the environment to activate.
-    :param uid:
-    :param username: Environment username.
-    :param pid:
-    :param kernel_id:
-    :return: None
+    Activates an environment.
+    Creates the environment if does not exist already.
+    Attaches the given process id or and jupyter kernel ids if exist.
     """
-    if eid not in envs:
-        envs[eid] = dict(
+    if eid not in snapshot:
+        snapshot.activate(
             eid=eid,
             uid=uid,
             creation=datetime.now().strftime(genv.utils.DATETIME_FMT),
-            config={},
+            username=username,
         )
 
-    env = envs[eid]
-
-    if username is not None:
-        envs[eid]["username"] = username
-
-    if pid is not None:
-        if "pids" not in env:
-            env["pids"] = []
-
-        env["pids"].append(pid)
-    elif kernel_id is not None:
-        if "kernel_ids" not in env:
-            env["kernel_ids"] = []
-
-        env["kernel_ids"].append(kernel_id)
+    snapshot[eid].attach(pid=pid, kernel_id=kernel_id)
 
 
-def do_find(envs: Envs, pid: Optional[int], kernel_id: Optional[str]) -> None:
-    """
-    Query genv environments to find which one is related to the given process/kernel. The result is printed to stdio.
-    :param envs: dictionary describing all existing environments.
-    :param pid: process id to query for (optional)
-    :param kernel_id: jupyter kernel id to query for (optional).
-    :return: None
-    """
-    eid = find(envs, pid, kernel_id)
-
-    if eid is not None:
-        print(eid)
-
-
-def do_config(envs: Envs, eid: str, command: str, args: argparse.Namespace) -> None:
+def do_config(
+    snapshot: genv.envs.Snapshot, eid: str, command: str, args: argparse.Namespace
+) -> None:
     """
     Update environment config variables - either set a specific variable or clear it.
-    :param envs: dictionary describing all existing environments.
-    :param eid: environment to change
+
     :param command: a string describing which variable in the environment config to change
     :param args: parameters for the config change.
                 For example - gpus count variable, clear/not clear config variable, etc.
     :return: None
     """
-    env: Env = envs.get(eid)
-
-    if env is None:
+    if eid not in snapshot:
         return
+
+    env = snapshot[eid]
 
     def gpus(count: Optional[int], clear: bool) -> None:
         if count is not None:
-            env["config"]["gpus"] = count
+            env.config.gpus = count
 
-        if clear and "gpus" in env["config"]:
-            del env["config"]["gpus"]
+        if clear:
+            env.config.gpus = None
 
     def name(name: Optional[str], clear: bool) -> None:
         if name is not None:
-            env["config"]["name"] = name
+            env.config.name = name
 
-        if clear and "name" in env["config"]:
-            del env["config"]["name"]
+        if clear:
+            env.config.name = None
 
     def gpu_memory(gpu_memory: Optional[str], clear: bool) -> None:
         # TODO(raz): validate the specification
 
         if gpu_memory is not None:
-            env["config"]["gpu_memory"] = gpu_memory
+            env.config.gpu_memory = gpu_memory
 
-        if clear and "gpu_memory" in env["config"]:
-            del env["config"]["gpu_memory"]
+        if clear:
+            env.config.gpu_memory = None
 
     if command == "gpus":
         gpus(args.count, args.clear)
@@ -193,21 +145,35 @@ def do_config(envs: Envs, eid: str, command: str, args: argparse.Namespace) -> N
         gpu_memory(args.gpu_memory, args.clear)
 
 
-def do_deactivate(envs: Envs, pid: int) -> None:
+def do_deactivate(snapshot: genv.envs.Snapshot, pid: int) -> None:
     """
-    Deactivate the genv environment with the current shell.
-    Removes the current shell connection to it's environment, and cleans all jupyter kernels.
-    :param envs: dictionary describing all existing environments.
-    :param pid: the pid of the current shell
-    :return: None
+    Detaches the given process identifier.
     """
-    cleanup(envs, poll_pid=lambda pid_: pid_ != pid)
+    snapshot.cleanup(poll_pid=lambda pid_: pid_ != pid)
 
 
-def do_ps(envs: Envs, format: str, header: bool, timestamp: bool) -> None:
+def do_find(
+    snapshot: genv.envs.Snapshot, pid: Optional[int], kernel_id: Optional[str]
+) -> None:
+    """
+    Prints the environment identifiers of the given process or kernel.
+    """
+    for env in snapshot:
+        if (pid is not None) and (pid not in env.pids):
+            continue
+
+        if (kernel_id is not None) and (kernel_id not in env.kernel_ids):
+            continue
+
+        print(env.eid)
+
+
+def do_ps(
+    snapshot: genv.envs.Snapshot, format: str, header: bool, timestamp: bool
+) -> None:
     """
     Print environments data in a human-readable fashion to the stdio.
-    :param envs: dictionary describing all existing environments.
+
     :param format: Which format should be used to print the environment data - csv or tui (default: tui).
     :param header: a flag instructing if we should print a header as part of the output (default: print header).
     :param timestamp: a flag instructing if we should print creation time as is or relative duration (now - creation).
@@ -220,14 +186,12 @@ def do_ps(envs: Envs, format: str, header: bool, timestamp: bool) -> None:
         elif format == "tui":
             print("ID      USER            NAME            CREATED              PID(S)")
 
-    for env in envs.values():
-        eid = env["eid"]
-        user = f'{env["username"]}({env["uid"]})' if "username" in env else env["uid"]
-        name = env["config"].get("name", "")
-        created = (
-            env["creation"] if timestamp else genv.utils.time_since(env["creation"])
-        )
-        pids = " ".join(str(pid) for pid in env.get("pids", []))
+    for env in snapshot:
+        eid = env.eid
+        user = f"{env.username}({env.uid})" if env.username else env.uid
+        name = env.config.name or ""
+        created = env.creation if timestamp else genv.utils.time_since(env.creation)
+        pids = " ".join(str(pid) for pid in env.pids)
         # TODO(raz): print kernel ids
 
         if format == "csv":
@@ -236,21 +200,19 @@ def do_ps(envs: Envs, format: str, header: bool, timestamp: bool) -> None:
             print(f"{eid:<8}{user:<16}{name:<16}{created:<21}{pids}")
 
 
-def do_query(envs: Envs, eid: Optional[str], queries: List[str]) -> None:
+def do_query(
+    snapshot: genv.envs.Snapshot, eid: Optional[str], queries: List[str]
+) -> None:
     """
-    Query environment data using a query string. The queries results will be printed into the stdio.
-    :param envs: dictionary describing all existing environments.
-    :param eid: eid pointing to the environment to query. If none, query all environments.
-    :param queries: list of data queries to run over the environment.
-    :return: None
+    Queries environment data using a query string. The queries results will be printed into the stdio.
     """
-    eids = [eid] if eid is not None else list(envs.keys())
+    eids = [eid] if eid is not None else snapshot.eids
 
     for eid in eids:
-        env = envs.get(eid)
-
-        if env is None:
+        if eid not in snapshot:
             continue
+
+        env = snapshot[eid]
 
         def query(name: str) -> str:
             result = QUERIES[name](env)
@@ -383,23 +345,28 @@ def parse_args() -> argparse.Namespace:
 if __name__ == "__main__":
     args = parse_args()
 
-    with genv.utils.access_json("envs.json", factory, reset=args.reset) as json:
-        envs: Envs = json["envs"]
-
+    with genv.utils.access_json(
+        "envs.json",
+        factory,
+        convert=convert,
+        reset=args.reset,
+        json_decoder=genv.json_.JSONDecoder,
+        json_encoder=genv.json_.JSONEncoder,
+    ) as snapshot:
         if args.cleanup:
-            cleanup(envs)
+            snapshot.cleanup()
 
         if args.command == "activate":
             do_activate(
-                envs, args.eid, args.uid, args.username, args.pid, args.kernel_id
+                snapshot, args.eid, args.uid, args.username, args.pid, args.kernel_id
             )
         elif args.command == "config":
-            do_config(envs, args.eid, command=args.config, args=args)
+            do_config(snapshot, args.eid, command=args.config, args=args)
         elif args.command == "deactivate":
-            do_deactivate(envs, args.pid)
+            do_deactivate(snapshot, args.pid)
         elif args.command == "find":
-            do_find(envs, args.pid, args.kernel_id)
+            do_find(snapshot, args.pid, args.kernel_id)
         elif args.command == "ps":
-            do_ps(envs, args.format, args.header, args.timestamp)
+            do_ps(snapshot, args.format, args.header, args.timestamp)
         elif args.command == "query":
-            do_query(envs, args.eid, args.queries)
+            do_query(snapshot, args.eid, args.queries)

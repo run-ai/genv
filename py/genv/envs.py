@@ -1,8 +1,9 @@
 from dataclasses import dataclass
 import subprocess
-from typing import Any, Dict, Iterable, Optional, Union
+from typing import Any, Callable, Dict, Iterable, Optional, Union
 
 from . import utils
+from . import poll
 
 # NOTE(raz): This should be the layer that queries and controls the state of Genv regarding active environments.
 # Currently, it relies on executing the environment manager executable of Genv, as this is where the logic is implemented.
@@ -34,8 +35,39 @@ class Env:
     def time_since(self) -> str:
         return utils.time_since(self.creation)
 
+    @property
+    def active(self) -> bool:
+        return len(self.pids) > 0 or len(self.kernel_ids) > 0
+
     def __hash__(self) -> int:
         return self.eid.__hash__()
+
+    def cleanup(
+        self,
+        *,
+        poll_pid: Callable[[int], bool] = poll.poll_pid,
+        poll_kernel: Callable[[str], bool] = poll.poll_jupyter_kernel,
+    ):
+        """
+        Cleans up in place.
+        """
+        self.pids = [pid for pid in self.pids if poll_pid(pid)]
+
+        self.kernel_ids = [
+            kernel_id for kernel_id in self.kernel_ids if poll_kernel(kernel_id)
+        ]
+
+    def attach(
+        self, *, pid: Optional[int] = None, kernel_id: Optional[str] = None
+    ) -> None:
+        """
+        Attaches a process or a Jupyter kernel to an environment.
+        """
+        if pid is not None:
+            self.pids.append(pid)
+
+        if kernel_id is not None:
+            self.kernel_ids.append(kernel_id)
 
 
 @dataclass
@@ -62,6 +94,31 @@ class Snapshot:
 
     def __getitem__(self, eid: str) -> Env:
         return next(env for env in self.envs if env.eid == eid)
+
+    def __contains__(self, eid: str) -> bool:
+        return any(env.eid == eid for env in self.envs)
+
+    def activate(
+        self,
+        eid: str,
+        uid: int,
+        creation: str,
+        username: Optional[str],
+    ) -> None:
+        """
+        Activates a new environment.
+        """
+        self.envs.append(
+            Env(
+                eid=eid,
+                uid=uid,
+                creation=creation,
+                username=username,
+                config=Env.Config(name=None, gpu_memory=None, gpus=None),
+                pids=[],
+                kernel_ids=[],
+            )
+        )
 
     def filter(
         self,
@@ -97,6 +154,20 @@ class Snapshot:
             envs = [env for env in envs if env.username == username]
 
         return Snapshot(envs)
+
+    def cleanup(
+        self,
+        *,
+        poll_pid: Callable[[int], bool] = poll.poll_pid,
+        poll_kernel: Callable[[str], bool] = poll.poll_jupyter_kernel,
+    ):
+        """
+        Cleans up the snapshot in place.
+        """
+        for env in self.envs:
+            env.cleanup(poll_pid=poll_pid, poll_kernel=poll_kernel)
+
+        self.envs = [env for env in self.envs if env.active]
 
 
 def snapshot() -> Snapshot:
