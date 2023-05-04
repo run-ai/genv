@@ -1,8 +1,10 @@
 from dataclasses import dataclass
+from datetime import datetime
 from typing import Callable, Iterable, Optional
 
 from genv.envs.env import Env
 from genv import poll
+from genv.utils import DATETIME_FMT
 
 
 @dataclass
@@ -37,8 +39,7 @@ class Snapshot:
         self,
         eid: str,
         uid: int,
-        creation: str,
-        username: Optional[str],
+        username: Optional[str] = None,
     ) -> None:
         """
         Activates a new environment.
@@ -47,7 +48,7 @@ class Snapshot:
             Env(
                 eid=eid,
                 uid=uid,
-                creation=creation,
+                creation=datetime.now().strftime(DATETIME_FMT),
                 username=username,
                 config=Env.Config(name=None, gpu_memory=None, gpus=None),
                 pids=[],
@@ -103,3 +104,21 @@ class Snapshot:
             env.cleanup(poll_pid=poll_pid, poll_kernel=poll_kernel)
 
         self.envs = [env for env in self.envs if env.active]
+
+    def find(
+        self, *, pid: Optional[int] = None, kernel_id: Optional[str] = None
+    ) -> Iterable[Env]:
+        """
+        Returns the environments of the given process or kernel.
+        """
+
+        def _pred(env: Env) -> bool:
+            if (pid is not None) and (pid in env.pids):
+                return True
+
+            if (kernel_id is not None) and (kernel_id in env.kernel_ids):
+                return True
+
+            return False
+
+        return [env for env in self.envs if _pred(env)]
