@@ -2,8 +2,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Callable, Iterable, Optional
 
-import genv.poll
-from genv.utils import DATETIME_FMT
+import genv.utils
 
 from .env import Env
 
@@ -49,7 +48,7 @@ class Envs:
             Env(
                 eid=eid,
                 uid=uid,
-                creation=datetime.now().strftime(DATETIME_FMT),
+                creation=datetime.now().strftime(genv.utils.DATETIME_FMT),
                 username=username,
                 config=Env.Config(name=None, gpu_memory=None, gpus=None),
                 pids=[],
@@ -95,8 +94,8 @@ class Envs:
     def cleanup(
         self,
         *,
-        poll_pid: Callable[[int], bool] = genv.poll.poll_pid,
-        poll_kernel: Callable[[str], bool] = genv.poll.poll_jupyter_kernel,
+        poll_pid: Callable[[int], bool] = genv.utils.poll_pid,
+        poll_kernel: Callable[[str], bool] = genv.utils.poll_jupyter_kernel,
     ):
         """
         Cleans up the collection in place.

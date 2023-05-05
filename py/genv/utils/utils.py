@@ -4,7 +4,7 @@ import json
 import os
 from typing import Any, Callable, Optional, Type, TypeVar, Union
 
-from genv.os_ import Umask, access_lock
+from .os_ import Umask, access_lock
 
 T = TypeVar("T")
 

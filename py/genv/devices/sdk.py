@@ -1,8 +1,7 @@
 from contextlib import contextmanager
 from typing import Iterable
 
-from genv.os_ import access_lock, create_lock
-from genv.utils import get_temp_file_path
+import genv.utils
 from genv.entities import Devices
 import genv.envs
 
@@ -57,10 +56,10 @@ def get_lock_path(index: int, create: bool = False) -> str:
     Creates the file if requested and it does not exist.
     """
 
-    path = get_temp_file_path(f"devices/{index}.lock")
+    path = genv.utils.get_temp_file_path(f"devices/{index}.lock")
 
     if create:
-        create_lock(path)
+        genv.utils.create_lock(path)
 
     return path
 
@@ -74,7 +73,7 @@ def lock(index: int) -> None:
 
     # NOTE(raz): currently, we wait on the lock even if it is already taken by our environment.
     # we should think if this is the desired behavior and if it's possible to lock once per environment.
-    with access_lock(path):
+    with genv.utils.access_lock(path):
         yield
 
     # TODO(raz): currently we wait for the entire device to become available.

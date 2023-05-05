@@ -1,7 +1,6 @@
 from dataclasses import dataclass
 from typing import Callable, Iterable, Optional
 
-import genv.poll
 import genv.utils
 
 
@@ -35,8 +34,8 @@ class Env:
     def cleanup(
         self,
         *,
-        poll_pid: Callable[[int], bool] = genv.poll.poll_pid,
-        poll_kernel: Callable[[str], bool] = genv.poll.poll_jupyter_kernel,
+        poll_pid: Callable[[int], bool] = genv.utils.poll_pid,
+        poll_kernel: Callable[[str], bool] = genv.utils.poll_jupyter_kernel,
     ):
         """
         Cleans up in place.

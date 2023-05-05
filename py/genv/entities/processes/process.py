@@ -1,9 +1,8 @@
 from dataclasses import dataclass
 import sys
 from typing import Iterable, Optional
-from genv import os_
 
-from genv.utils import memory_to_bytes
+import genv.utils
 
 
 @dataclass
@@ -23,7 +22,7 @@ class Process:
 
         @property
         def bytes(self) -> int:
-            return memory_to_bytes(self.gpu_memory)
+            return genv.utils.memory_to_bytes(self.gpu_memory)
 
     pid: int
     used_gpu_memory: Iterable[Usage]
@@ -57,7 +56,7 @@ class Process:
         Returns None if the process is not running in an environment or if it could not be queried.
         """
         try:
-            return os_.get_process_environ(pid).get("GENV_ENVIRONMENT_ID")
+            return genv.utils.get_process_environ(pid).get("GENV_ENVIRONMENT_ID")
         except PermissionError:
             print(
                 f"[WARNING] Not enough permissions to query environment of process {pid}",
