@@ -35,7 +35,8 @@ def cleanup(
     if eid is not None:
         pred = lambda _: _ == eid
     else:
-        pred = lambda eid: eid not in genv.envs.eids()
+        envs = genv.envs.snapshot()
+        pred = lambda eid: eid not in envs.eids
 
     for index in sorted(snapshot.indices, reverse=True):
         if count == 0:
@@ -120,11 +121,13 @@ def do_attach(
     :param index: Device index to attach
     :return: None
     """
+    envs = genv.envs.snapshot()
+
     if count is None and index is None:
         # use the environment device count configuration if set
-        count = genv.envs.gpus(eid)
+        count = envs[eid].config.gpus if eid in envs else None
 
-    gpu_memory = genv.envs.gpu_memory(eid)
+    gpu_memory = envs[eid].config.gpu_memory if eid in envs else None
     attached_devices = snapshot.filter(eid=eid)
 
     def ensure_count():
@@ -223,27 +226,32 @@ def do_ps(snapshot: genv.Devices, format: str, header: bool, timestamp: bool) ->
         elif format == "tui":
             print("ID      ENV ID      ENV NAME        ATTACHED")
 
-    def print_line(index, eid, name, attached):
+    def print_line(index, eid, name: Optional[str], attached):
+        name = name or ""
+
         if format == "csv":
             print(f"{index},{eid},{name},{attached}")
         elif format == "tui":
             print(f"{index:<8}{eid:<12}{name:<16}{attached}")
 
-    names = genv.envs.names()
+    envs = genv.envs.snapshot()
 
     for device in snapshot:
         if device.detached:
             print_line(device.index, "", "", "")
         else:
             for attachment in device.attachments:
-                name = names.get(attachment.eid) or ""
+                index = device.index
+                eid = attachment.eid
+                name = envs[eid].config.name if eid in envs else None
+
                 attached = (
                     attachment.time
                     if timestamp
                     else genv.utils.time_since(attachment.time)
                 )
 
-                print_line(device.index, attachment.eid, name, attached)
+                print_line(index, eid, name, attached)
 
 
 def do_query(snapshot: genv.Devices, queries: Iterable[str]) -> None:
@@ -345,20 +353,21 @@ def parse_args() -> argparse.Namespace:
 if __name__ == "__main__":
     args = parse_args()
 
-    with genv.devices.mutate(args.cleanup, args.reset) as devices:
-        if args.command == "attach":
-            do_attach(
-                devices,
-                args.eid,
-                args.count,
-                args.index,
-                args.allow_over_subscription,
-            )
-        elif args.command == "detach":
-            do_detach(devices, args.eid, args.index, args.quiet)
-        elif args.command == "find":
-            do_find(devices, args.eid)
-        elif args.command == "ps":
-            do_ps(devices, args.format, args.header, args.timestamp)
-        elif args.command == "query":
-            do_query(devices, args.queries)
+    with genv.utils.global_lock():
+        with genv.devices.mutate(args.cleanup, args.reset) as devices:
+            if args.command == "attach":
+                do_attach(
+                    devices,
+                    args.eid,
+                    args.count,
+                    args.index,
+                    args.allow_over_subscription,
+                )
+            elif args.command == "detach":
+                do_detach(devices, args.eid, args.index, args.quiet)
+            elif args.command == "find":
+                do_find(devices, args.eid)
+            elif args.command == "ps":
+                do_ps(devices, args.format, args.header, args.timestamp)
+            elif args.command == "query":
+                do_query(devices, args.queries)

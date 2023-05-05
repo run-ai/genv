@@ -1,89 +1,54 @@
 from contextlib import contextmanager
-import subprocess
 from typing import Iterable
 
-from genv.entities.devices import Device, Devices
 from genv.os_ import access_lock, create_lock
 from genv.utils import get_temp_file_path
+from genv.entities import Devices
+import genv.envs
 
-# NOTE(raz): This should be the layer that queries and controls the state of Genv regarding devices.
-# Currently, it relies on executing the device manager executable of Genv, as this is where the logic is implemented.
-# This however should be done oppositely.
-# The entire logic that queries and controls devices.json should be implemented here, and the device manager executable
-# should use methods from here.
-# It should take the Genv lock for the atomicity of the transaction, and print output as needed.
-# The current architecture has an inherent potential deadlock because each manager locks a different lock, and might
-# call the other manager.
-
-
-def snapshot() -> Devices:
-    """
-    Returns a devices snapshot.
-    """
-
-    lines = (
-        subprocess.check_output(
-            "genv exec devices query --query index total_memory attachments", shell=True
-        )
-        .decode("utf-8")
-        .strip()
-        .splitlines()
-    )
-
-    def parse_attachment(s: str) -> Device.Attachement:
-        eid, gpu_memory, time = s.split("+")
-
-        return Device.Attachement(
-            eid,
-            gpu_memory or None,
-            time.replace("_", " "),
-        )
-
-    def parse_device(s: str) -> Device:
-        index, total_memory, attachments = s.split(",")
-
-        return Device(
-            int(index),
-            total_memory,
-            [parse_attachment(attachment) for attachment in attachments.split(" ")]
-            if attachments
-            else [],
-        )
-
-    return Devices([parse_device(line) for line in lines])
+from .file import load, mutate
 
 
 def attach(eid: str) -> Iterable[int]:
     """
     Attaches an environment to devices.
+    The device count is taken from the environment configuration.
+    Does not detach devices if already attached to more devices.
 
-    :param eid: Environment identifier
     :return: Attached device indices
     """
-    output = (
-        subprocess.check_output(
-            f"genv exec devices attach --eid {eid}",
-            shell=True,
-        )
-        .decode("utf-8")
-        .strip()
-    )
+    with mutate() as devices:
+        envs = genv.envs.snapshot()
+        env_config = envs[eid].config
 
-    return [int(index) for index in output.split(",") if index]
+        if env_config.gpus is not None:
+            env_devices = devices.filter(eid=eid)
+
+            diff = env_config.gpus - len(env_devices)
+
+            if diff > 0:
+                available_devices = devices.filter(
+                    function=lambda device: device.available(env_config.gpu_memory)
+                )
+
+                if len(available_devices) < diff:
+                    raise RuntimeError("No available devices")
+
+                indices = available_devices.indices[:diff]
+
+                devices.attach(eid, indices, env_config.gpu_memory)
+            elif diff < 0:
+                pass  # TODO(raz): support detaching devices if already attached to more
+
+        return devices.filter(eid=eid).indices
 
 
 def detach(eid: str, index: int) -> None:
     """
     Detaches an environment from a device.
-
-    :param eid: Environment identifier
-    :param index: Device index
-    :return: None
     """
-    # TODO(raz): support detaching from multiple devices at the same time
-    subprocess.check_call(
-        f"genv exec devices detach --quiet --eid {eid} --index {index}", shell=True
-    )
+    with mutate() as devices:
+        devices[index].detach(eid)
 
 
 def get_lock_path(index: int, create: bool = False) -> str:
@@ -115,3 +80,10 @@ def lock(index: int) -> None:
     # TODO(raz): currently we wait for the entire device to become available.
     # we should support fractional usage and allow multiple environments to
     # access the device if the sum of their memory capacity fits.
+
+
+def snapshot() -> Devices:
+    """
+    Returns an environments snapshot.
+    """
+    return load()

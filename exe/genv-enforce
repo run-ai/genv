@@ -86,7 +86,8 @@ async def main() -> None:
     args = parse_args()
 
     while True:
-        snapshot = await genv.snapshot()
+        with genv.utils.global_lock():
+            snapshot = await genv.snapshot()
 
         survey = genv.enforce.Survey(snapshot)
 
@@ -104,7 +105,8 @@ async def main() -> None:
                 survey, maximum=args.max_devices_per_user
             )
 
-        genv.enforce.execute(survey.report)
+        with genv.utils.global_lock():
+            genv.enforce.execute(survey.report)
 
         if args.interval == 0:
             break

@@ -251,23 +251,24 @@ def parse_args() -> argparse.Namespace:
 if __name__ == "__main__":
     args = parse_args()
 
-    with genv.envs.mutate(args.cleanup, args.reset) as envs:
-        if args.command == "activate":
-            do_activate(
-                envs,
-                args.eid,
-                args.uid,
-                args.username,
-                args.pid,
-                args.kernel_id,
-            )
-        elif args.command == "config":
-            do_config(envs, args.eid, command=args.config, args=args)
-        elif args.command == "deactivate":
-            do_deactivate(envs, args.pid)
-        elif args.command == "find":
-            do_find(envs, args.pid, args.kernel_id)
-        elif args.command == "ps":
-            do_ps(envs, args.format, args.header, args.timestamp)
-        elif args.command == "query":
-            do_query(envs, args.eid, args.queries)
+    with genv.utils.global_lock():
+        with genv.envs.mutate(args.cleanup, args.reset) as envs:
+            if args.command == "activate":
+                do_activate(
+                    envs,
+                    args.eid,
+                    args.uid,
+                    args.username,
+                    args.pid,
+                    args.kernel_id,
+                )
+            elif args.command == "config":
+                do_config(envs, args.eid, command=args.config, args=args)
+            elif args.command == "deactivate":
+                do_deactivate(envs, args.pid)
+            elif args.command == "find":
+                do_find(envs, args.pid, args.kernel_id)
+            elif args.command == "ps":
+                do_ps(envs, args.format, args.header, args.timestamp)
+            elif args.command == "query":
+                do_query(envs, args.eid, args.queries)

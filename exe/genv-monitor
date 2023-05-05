@@ -59,7 +59,8 @@ async def main(args: argparse.Namespace) -> None:
     collection = Collection(SPECS)
 
     while True:
-        snapshot = await genv.snapshot()
+        with genv.utils.global_lock():
+            snapshot = await genv.snapshot()
 
         collection.cleanup(snapshot)
         collection.update(snapshot)

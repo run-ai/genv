@@ -1,3 +1,4 @@
+from contextlib import contextmanager
 from datetime import datetime
 import json
 import os
@@ -129,3 +130,12 @@ def time_since(dt: Union[str, datetime]) -> str:
         unit = f"{unit}s"
 
     return f"{value} {unit} ago"
+
+
+@contextmanager
+def global_lock() -> None:
+    """
+    Locks the global lock.
+    """
+    with access_lock(get_temp_file_path("genv.lock")):
+        yield
