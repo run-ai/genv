@@ -105,3 +105,16 @@ class Devices:
 
         for index in indices:
             self.devices[index].attach(eid, gpu_memory, time)
+
+    def cleanup(
+        self,
+        *,
+        poll_eid: Optional[Callable[[str], bool]] = None,
+    ):
+        """
+        Cleans up the collection in place.
+        """
+        for device in self.devices:
+            for eid in device.eids:
+                if (poll_eid is not None) and (not poll_eid(eid)):
+                    device.detach(eid)

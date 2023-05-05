@@ -1,18 +1,25 @@
-import os
+from contextlib import contextmanager
 from typing import Any, Union
 
 from genv import json_
 from genv import utils
 from genv.entities.envs import Env, Envs
 
-PATH = utils.get_temp_file_path("envs.json")
+
+_PATH = utils.get_temp_file_path("envs.json")
 
 
-def _convert(o: Union[Envs, Any]) -> Envs:
+def _creator() -> Envs:
+    """
+    Creates an empty state.
+    """
+    return Envs([])
+
+
+def _converter(o: Union[Envs, Any]) -> Envs:
     """
     Converts the loaded object if needed.
     """
-
     def _get_field(obj, field, cls, *args):
         return (
             getattr(obj, field, *args)
@@ -55,18 +62,26 @@ def _convert(o: Union[Envs, Any]) -> Envs:
     return o
 
 
-def load(reset: bool = False) -> Envs:
+def _cleaner(envs: Envs) -> None:
+    """
+    Cleans up inactive environments.
+    """
+    envs.cleanup()
+
+
+def load(cleanup: bool = True, reset: bool = False) -> Envs:
     """
     Loads from disk.
     """
-    if os.path.exists(PATH) and not reset:
-        return utils.load_state(
-            PATH,
-            convert=_convert,
-            json_decoder=json_.JSONDecoder,
-        )
-
-    return Envs([])
+    return utils.load_state(
+        _PATH,
+        creator=_creator,
+        cleaner=_cleaner,
+        converter=_converter,
+        json_decoder=json_.JSONDecoder,
+        cleanup=cleanup,
+        reset=reset,
+    )
 
 
 def save(snapshot: Envs) -> None:
@@ -75,6 +90,18 @@ def save(snapshot: Envs) -> None:
     """
     utils.save_state(
         snapshot,
-        PATH,
+        _PATH,
         json_encoder=json_.JSONEncoder,
     )
+
+
+@contextmanager
+def mutate(cleanup: bool = True, reset: bool = False) -> Envs:
+    """
+    Mutates state on disk.
+    """
+    envs = load(cleanup, reset)
+
+    yield envs
+
+    save(envs)

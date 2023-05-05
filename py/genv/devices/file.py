@@ -1,11 +1,13 @@
-import os
+from contextlib import contextmanager
 import subprocess
 from typing import Any, Iterable, Union
 from genv import json_, utils
 
 from genv.entities.devices import Device, Devices
+import genv.envs
 
-PATH = utils.get_temp_file_path("devices.json")
+
+_PATH = utils.get_temp_file_path("devices.json")
 
 
 def _get_devices_total_memory() -> Iterable[str]:
@@ -23,7 +25,20 @@ def _get_devices_total_memory() -> Iterable[str]:
     ]
 
 
-def _convert(o: Union[Devices, Any]) -> Devices:
+def _creator() -> Devices:
+    """
+    Creates an empty state.
+    """
+
+    return Devices(
+        [
+            Device(index, total_memory, [])
+            for index, total_memory in enumerate(_get_devices_total_memory())
+        ]
+    )
+
+
+def _converter(o: Union[Devices, Any]) -> Devices:
     """
     Converts the loaded object if needed.
     """
@@ -54,31 +69,49 @@ def _convert(o: Union[Devices, Any]) -> Devices:
     return o
 
 
-def load(reset: bool = False) -> Devices:
+def _cleaner(devices: Devices) -> None:
+    """
+    Cleans up device attachments from inactive environments.
+    """
+
+    envs = genv.envs.snapshot()
+
+    devices.cleanup(poll_eid=lambda eid: eid in envs.eids)
+
+
+def load(cleanup: bool = True, reset: bool = False) -> Devices:
     """
     Loads from disk.
     """
-    if os.path.exists(PATH) and not reset:
-        return utils.load_state(
-            PATH,
-            convert=_convert,
-            json_decoder=json_.JSONDecoder,
-        )
-
-    return Devices(
-        [
-            Device(index, total_memory, [])
-            for index, total_memory in enumerate(_get_devices_total_memory())
-        ]
+    return utils.load_state(
+        _PATH,
+        creator=_creator,
+        cleaner=_cleaner,
+        converter=_converter,
+        json_decoder=json_.JSONDecoder,
+        cleanup=cleanup,
+        reset=reset,
     )
 
 
-def save(snapshot: Devices) -> None:
+def save(devices: Devices) -> None:
     """
     Saves to disk.
     """
     utils.save_state(
-        snapshot,
-        PATH,
+        devices,
+        _PATH,
         json_encoder=json_.JSONEncoder,
     )
+
+
+@contextmanager
+def mutate(cleanup: bool = True, reset: bool = False) -> Devices:
+    """
+    Mutates state on disk.
+    """
+    devices = load(cleanup, reset)
+
+    yield devices
+
+    save(devices)

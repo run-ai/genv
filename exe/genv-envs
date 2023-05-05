@@ -70,9 +70,7 @@ def do_deactivate(snapshot: genv.Envs, pid: int) -> None:
     snapshot.cleanup(poll_pid=lambda pid_: pid_ != pid)
 
 
-def do_find(
-    snapshot: genv.Envs, pid: Optional[int], kernel_id: Optional[str]
-) -> None:
+def do_find(snapshot: genv.Envs, pid: Optional[int], kernel_id: Optional[str]) -> None:
     """
     Prints the environment identifiers of the given process or kernel.
     """
@@ -80,9 +78,7 @@ def do_find(
         print(env.eid)
 
 
-def do_ps(
-    snapshot: genv.Envs, format: str, header: bool, timestamp: bool
-) -> None:
+def do_ps(snapshot: genv.Envs, format: str, header: bool, timestamp: bool) -> None:
     """
     Print environments data in a human-readable fashion to the stdio.
 
@@ -112,9 +108,7 @@ def do_ps(
             print(f"{eid:<8}{user:<16}{name:<16}{created:<21}{pids}")
 
 
-def do_query(
-    snapshot: genv.Envs, eid: Optional[str], queries: Iterable[str]
-) -> None:
+def do_query(snapshot: genv.Envs, eid: Optional[str], queries: Iterable[str]) -> None:
     """
     Queries environment data using a query string. The queries results will be printed into the stdio.
     """
@@ -257,17 +251,10 @@ def parse_args() -> argparse.Namespace:
 if __name__ == "__main__":
     args = parse_args()
 
-    path = genv.utils.get_temp_file_path("envs.json")
-
-    with genv.os_.access_lock(f"{path}.lock"):
-        snapshot = genv.envs.file.load(args.reset)
-
-        if args.cleanup:
-            snapshot.cleanup()
-
+    with genv.envs.mutate(args.cleanup, args.reset) as envs:
         if args.command == "activate":
             do_activate(
-                snapshot,
+                envs,
                 args.eid,
                 args.uid,
                 args.username,
@@ -275,14 +262,12 @@ if __name__ == "__main__":
                 args.kernel_id,
             )
         elif args.command == "config":
-            do_config(snapshot, args.eid, command=args.config, args=args)
+            do_config(envs, args.eid, command=args.config, args=args)
         elif args.command == "deactivate":
-            do_deactivate(snapshot, args.pid)
+            do_deactivate(envs, args.pid)
         elif args.command == "find":
-            do_find(snapshot, args.pid, args.kernel_id)
+            do_find(envs, args.pid, args.kernel_id)
         elif args.command == "ps":
-            do_ps(snapshot, args.format, args.header, args.timestamp)
+            do_ps(envs, args.format, args.header, args.timestamp)
         elif args.command == "query":
-            do_query(snapshot, args.eid, args.queries)
-
-        genv.envs.file.save(snapshot)
+            do_query(envs, args.eid, args.queries)

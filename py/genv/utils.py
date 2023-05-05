@@ -1,9 +1,11 @@
 from datetime import datetime
 import json
 import os
-from typing import Any, Callable, Optional, Type, Union
+from typing import Any, Callable, Optional, Type, TypeVar, Union
 
 from genv.os_ import Umask, access_lock
+
+T = TypeVar("T")
 
 DATETIME_FMT = "%d/%m/%Y %H:%M:%S"
 MEMORY_TO_BYTES_MULTIPLIERS_DICT = {
@@ -27,17 +29,27 @@ def get_temp_file_path(filename: str) -> str:
 def load_state(
     path: str,
     *,
-    convert: Optional[Callable[[Any], Any]] = None,
+    creator: Callable[[], T],
+    cleaner: Callable[[T], None],
+    converter: Optional[Callable[[Any], T]] = None,
     json_decoder: Optional[Type[json.JSONDecoder]] = None,
-) -> Any:
+    cleanup: bool = True,
+    reset: bool = False,
+) -> T:
     """
     Loads a state file.
     """
-    with open(path) as f:
-        o = json.load(f, cls=json_decoder)
+    if os.path.exists(path) and not reset:
+        with open(path) as f:
+            o = json.load(f, cls=json_decoder)
 
-    if convert:
-        o = convert(o)
+        if converter:
+            o = converter(o)
+
+        if cleanup:
+            cleaner(o)
+    else:
+        o = creator()
 
     return o
 

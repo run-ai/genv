@@ -1,2 +1,2 @@
-from .sdk import snapshot, eids, names, gpus, gpu_memory, activate, configure
-from . import file
+from .file import load, mutate, save
+from .sdk import activate, configure, snapshot, eids, names, gpus, gpu_memory

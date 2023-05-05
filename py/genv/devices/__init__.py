@@ -1,2 +1,2 @@
-from .sdk import snapshot, attach, detach, get_lock_path, lock
-from . import file
+from .file import load, mutate, save
+from .sdk import attach, detach, get_lock_path, lock, snapshot
