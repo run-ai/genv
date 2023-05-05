@@ -1,11 +1,10 @@
 import os
 from typing import Dict, Iterable
 
-from genv.runners.runner import Runner
-from genv.runners.local import LocalRunner
+from genv.runners import Runner, Local
 
 DEFAULT_NVIDIA_SMI_ENV_VARS = {"GENV_BYPASS": "1", **os.environ}
-DEFAULT_LOCAL_RUNNER = LocalRunner(DEFAULT_NVIDIA_SMI_ENV_VARS)
+DEFAULT_LOCAL_RUNNER = Local(DEFAULT_NVIDIA_SMI_ENV_VARS)
 
 NVIDIA_SMI = "nvidia-smi"
 CSV_FORMAT_PARAM = "--format=csv,noheader,nounits"

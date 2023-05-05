@@ -1,10 +1,10 @@
 import asyncio
 from asyncio.subprocess import Process
 
-from genv.runners.runner import Runner
+from .runner import Runner as Base
 
 
-class LocalRunner(Runner):
+class Runner(Base):
     def name(self) -> str:
         return "local"
 

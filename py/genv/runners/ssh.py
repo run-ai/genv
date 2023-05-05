@@ -3,10 +3,10 @@ import os
 from asyncio.subprocess import Process
 from typing import Dict, Optional, List, Tuple
 
-from genv.runners.runner import Runner
+from .runner import Runner as Base
 
 
-class SshRunner(Runner):
+class Runner(Base):
     host_name: str
     timeout: Optional[int]
     __SSH_COMMAND_PREFIX = "ssh"
@@ -25,7 +25,7 @@ class SshRunner(Runner):
         remote_command = self.calc_command_on_remote_machine(args, sudo)
 
         return await asyncio.create_subprocess_exec(
-            SshRunner.__SSH_COMMAND_PREFIX,
+            Runner.__SSH_COMMAND_PREFIX,
             *ssh_parameters,
             remote_command,
             stdin=stdin_fd,
