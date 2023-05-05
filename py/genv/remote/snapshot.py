@@ -1,7 +1,7 @@
 import json
 from typing import Iterable, Optional, Tuple
 
-from genv.snapshot.snapshot import Snapshot
+from genv.entities import Snapshot
 from genv.json_ import JSONDecoder
 from genv.remote.ssh import run, Host, Config, Command
 

@@ -1,7 +1,9 @@
 from dataclasses import dataclass
 from typing import Iterable, Optional
 
-from genv.entities import Devices, Envs, Processes
+from .devices import Devices
+from .envs import Envs
+from .processes import Processes
 
 
 @dataclass

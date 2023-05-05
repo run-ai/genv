@@ -1,4 +1,4 @@
-from .entities import Device, Devices, Env, Envs, Process, Processes
+from .entities import Device, Devices, Env, Envs, Process, Processes, Snapshot
 from . import devices
 from . import sdk
 from . import envs
@@ -8,5 +8,5 @@ from . import os_
 from . import poll
 from . import processes
 from . import remote
-from .snapshot import Snapshot, snapshot
+from .snapshot import snapshot
 from . import utils
