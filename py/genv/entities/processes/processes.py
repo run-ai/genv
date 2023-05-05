@@ -1,13 +1,13 @@
 from dataclasses import dataclass
 from typing import Iterable, Optional
 
-from genv.processes.process import Process
+from .process import Process
 
 
 @dataclass
-class Snapshot:
+class Processes:
     """
-    A snapshot of running processes.
+    A collection of processes.
     """
 
     processes: Iterable[Process]
@@ -35,7 +35,7 @@ class Snapshot:
         index: Optional[int] = None,
     ):
         """
-        Returns a new filtered snapshot.
+        Returns a new filtered collection.
 
         :param deep: Perform deep filtering
         :param pids: Process identifiers to keep
@@ -66,4 +66,4 @@ class Snapshot:
 
             processes = [process for process in processes if index in process.indices]
 
-        return Snapshot(processes)
+        return Processes(processes)

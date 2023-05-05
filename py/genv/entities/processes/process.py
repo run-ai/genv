@@ -9,7 +9,7 @@ from genv.utils import memory_to_bytes
 @dataclass
 class Process:
     """
-    A compute running process either from an environment or not.
+    A compute running process.
     """
 
     @dataclass

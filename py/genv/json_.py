@@ -1,9 +1,7 @@
 import json
 from typing import Any, Dict
 
-from genv.entities import Device, Devices, Env, Envs
-from genv.processes.process import Process
-from genv.processes.snapshot import Snapshot as Processes
+from genv.entities import Device, Devices, Env, Envs, Process, Processes
 from genv.snapshot.snapshot import Snapshot
 from genv.enforce.report import Report
 

@@ -3,8 +3,7 @@ from typing import Dict
 
 from genv import os_
 from genv import devices
-from genv.entities import Envs
-from genv.processes.snapshot import Snapshot as Processes
+from genv.entities import Envs, Processes
 from genv.enforce.report import Report
 
 

@@ -1,11 +1,10 @@
 import asyncio
 
 from genv import nvidia_smi
-from genv.processes.process import Process
-from genv.processes.snapshot import Snapshot
+from genv.entities.processes import Process, Processes
 
 
-async def snapshot() -> Snapshot:
+async def snapshot() -> Processes:
     """
     Returns a snapshot of all running compute processes.
     """
@@ -18,7 +17,7 @@ async def snapshot() -> Snapshot:
         for pid in set(app["pid"] for app in apps)
     }
 
-    return Snapshot(
+    return Processes(
         [
             Process(
                 pid=pid,
