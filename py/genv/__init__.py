@@ -1,3 +1,4 @@
+from .entities import Device, Devices
 from . import devices
 from . import sdk
 from . import envs

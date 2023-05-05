@@ -2,8 +2,7 @@ from contextlib import contextmanager
 import subprocess
 from typing import Iterable
 
-from genv.devices.device import Device
-from genv.devices.snapshot import Snapshot
+from genv.entities.devices import Device, Devices
 from genv.os_ import access_lock, create_lock
 from genv.utils import get_temp_file_path
 
@@ -17,7 +16,7 @@ from genv.utils import get_temp_file_path
 # call the other manager.
 
 
-def snapshot() -> Snapshot:
+def snapshot() -> Devices:
     """
     Returns a devices snapshot.
     """
@@ -51,7 +50,7 @@ def snapshot() -> Snapshot:
             else [],
         )
 
-    return Snapshot([parse_device(line) for line in lines])
+    return Devices([parse_device(line) for line in lines])
 
 
 def attach(eid: str) -> Iterable[int]:

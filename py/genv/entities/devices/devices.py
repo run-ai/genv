@@ -2,14 +2,15 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Callable, Iterable, Optional, Union
 
-from genv.devices.device import Device
 from genv.utils import DATETIME_FMT
+
+from .device import Device
 
 
 @dataclass
-class Snapshot:
+class Devices:
     """
-    A snapshot of devices.
+    A collection of devices.
     """
 
     devices: Iterable[Device]
@@ -27,6 +28,9 @@ class Snapshot:
     def __getitem__(self, index: int) -> Device:
         return next(device for device in self.devices if device.index == index)
 
+    def __contains__(self, index: int) -> bool:
+        return index in self.indices
+
     def filter(
         self,
         deep: bool = True,
@@ -39,7 +43,7 @@ class Snapshot:
         function: Optional[Callable[[Device], bool]] = None,
     ):
         """
-        Returns a new filtered snapshot.
+        Returns a new filtered collection.
 
         :param deep: Perform deep filtering
         :param indices: Device indices to keep
@@ -85,7 +89,7 @@ class Snapshot:
         if function is not None:
             devices = [device for device in devices if function(device)]
 
-        return Snapshot(devices)
+        return Devices(devices)
 
     def attach(
         self, eid: str, indices: Union[Iterable[int], int], gpu_memory: Optional[str]

@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import Iterable, Optional
 
-from genv.devices.snapshot import Snapshot as Devices
+from genv.entities import Devices
 from genv.envs.snapshot import Snapshot as Envs
 from genv.processes.snapshot import Snapshot as Processes
 

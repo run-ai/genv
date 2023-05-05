@@ -3,8 +3,7 @@ import subprocess
 from typing import Any, Iterable, Union
 from genv import json_, utils
 
-from genv.devices.device import Device
-from genv.devices.snapshot import Snapshot
+from genv.entities.devices import Device, Devices
 
 PATH = utils.get_temp_file_path("devices.json")
 
@@ -24,9 +23,9 @@ def _get_devices_total_memory() -> Iterable[str]:
     ]
 
 
-def _convert(o: Union[Snapshot, Any]) -> Snapshot:
+def _convert(o: Union[Devices, Any]) -> Devices:
     """
-    Converts the loaded state object to a snapshot if it not already is.
+    Converts the loaded object if needed.
     """
 
     # the following logic converts state files from versions <= 0.8.0.
@@ -34,7 +33,7 @@ def _convert(o: Union[Snapshot, Any]) -> Snapshot:
     # the state file from these versions was similar to the snapshot structure (a single
     # key named "devices") so the JSON decoder parsed the object as a snapshot object.
     if isinstance(o.devices, dict):
-        o = Snapshot(
+        o = Devices(
             [
                 Device(
                     int(index),
@@ -55,7 +54,7 @@ def _convert(o: Union[Snapshot, Any]) -> Snapshot:
     return o
 
 
-def load(reset: bool = False) -> Snapshot:
+def load(reset: bool = False) -> Devices:
     """
     Loads from disk.
     """
@@ -66,7 +65,7 @@ def load(reset: bool = False) -> Snapshot:
             json_decoder=json_.JSONDecoder,
         )
 
-    return Snapshot(
+    return Devices(
         [
             Device(index, total_memory, [])
             for index, total_memory in enumerate(_get_devices_total_memory())
@@ -74,7 +73,7 @@ def load(reset: bool = False) -> Snapshot:
     )
 
 
-def save(snapshot: Snapshot) -> None:
+def save(snapshot: Devices) -> None:
     """
     Saves to disk.
     """

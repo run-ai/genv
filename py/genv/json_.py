@@ -1,8 +1,7 @@
 import json
 from typing import Any, Dict
 
-from genv.devices.device import Device
-from genv.devices.snapshot import Snapshot as Devices
+from genv.entities import Device, Devices
 from genv.envs.env import Env
 from genv.envs.snapshot import Snapshot as Envs
 from genv.processes.process import Process

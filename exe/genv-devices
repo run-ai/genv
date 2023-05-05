@@ -18,7 +18,7 @@ QUERIES = {
 
 
 def cleanup(
-    snapshot: genv.devices.Snapshot,
+    snapshot: genv.Devices,
     eid: Optional[str] = None,
     count: Optional[int] = None,
 ) -> None:
@@ -63,7 +63,7 @@ def cleanup(
 
 
 def find_available_devices(
-    snapshot: genv.devices.Snapshot,
+    snapshot: genv.Devices,
     count: int,
     gpu_memory: Optional[str],
     allow_over_subscription: bool,
@@ -103,7 +103,7 @@ def find_available_devices(
 
 
 def do_attach(
-    snapshot: genv.devices.Snapshot,
+    snapshot: genv.Devices,
     eid: str,
     count: Optional[int],
     index: Optional[int],
@@ -177,7 +177,7 @@ def do_attach(
 
 
 def do_detach(
-    snapshot: genv.devices.Snapshot, eid: str, index: Optional[int], quiet: bool
+    snapshot: genv.Devices, eid: str, index: Optional[int], quiet: bool
 ) -> None:
     """
     Detaches devices from an environment. After detaching, print environment-devices current relationship.
@@ -199,7 +199,7 @@ def do_detach(
         do_find(snapshot, eid)  # print the up-to-date device indices
 
 
-def do_find(snapshot: genv.devices.Snapshot, eid: str) -> None:
+def do_find(snapshot: genv.Devices, eid: str) -> None:
     """
     Prints the indices of devices attached to the given environment.
     """
@@ -208,7 +208,7 @@ def do_find(snapshot: genv.devices.Snapshot, eid: str) -> None:
 
 
 def do_ps(
-    snapshot: genv.devices.Snapshot, format: str, header: bool, timestamp: bool
+    snapshot: genv.Devices, format: str, header: bool, timestamp: bool
 ) -> None:
     """
     Prints information in a human-readable fashion to the standard output.
@@ -248,7 +248,7 @@ def do_ps(
                 print_line(device.index, attachment.eid, name, attached)
 
 
-def do_query(snapshot: genv.devices.Snapshot, queries: Iterable[str]) -> None:
+def do_query(snapshot: genv.Devices, queries: Iterable[str]) -> None:
     """
     Queries devices.
     """
