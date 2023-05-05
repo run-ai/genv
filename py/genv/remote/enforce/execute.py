@@ -1,8 +1,9 @@
 import json
 from typing import Iterable
 
+from genv.entities.enforce import Report
+
 from genv.json_ import JSONEncoder
-from genv.enforce.report import Report
 
 from genv.remote.utils import reprint
 from genv.remote.ssh import run, Config, Command

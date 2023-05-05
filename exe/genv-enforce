@@ -89,7 +89,7 @@ async def main() -> None:
         with genv.utils.global_lock():
             snapshot = await genv.snapshot()
 
-        survey = genv.enforce.Survey(snapshot)
+        survey = genv.entities.enforce.Survey(snapshot)
 
         if args.non_env_processes:
             genv.enforce.rules.non_env_processes(survey)

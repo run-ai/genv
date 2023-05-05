@@ -3,8 +3,8 @@ from typing import Dict
 
 import genv.utils
 from genv.entities import Envs, Processes
+from genv.entities.enforce import Report
 import genv.devices
-from genv.enforce.report import Report
 
 
 def _terminate(processes: Processes) -> None:
