@@ -1,7 +1,9 @@
 from dataclasses import dataclass
 from typing import Callable, Iterable, Optional
 
-from genv import poll, utils
+import genv.poll
+import genv.utils
+
 
 @dataclass
 class Env:
@@ -21,7 +23,7 @@ class Env:
 
     @property
     def time_since(self) -> str:
-        return utils.time_since(self.creation)
+        return genv.utils.time_since(self.creation)
 
     @property
     def active(self) -> bool:
@@ -33,8 +35,8 @@ class Env:
     def cleanup(
         self,
         *,
-        poll_pid: Callable[[int], bool] = poll.poll_pid,
-        poll_kernel: Callable[[str], bool] = poll.poll_jupyter_kernel,
+        poll_pid: Callable[[int], bool] = genv.poll.poll_pid,
+        poll_kernel: Callable[[str], bool] = genv.poll.poll_jupyter_kernel,
     ):
         """
         Cleans up in place.

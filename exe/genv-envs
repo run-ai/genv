@@ -19,7 +19,7 @@ QUERIES = {
 
 
 def do_activate(
-    snapshot: genv.envs.Snapshot,
+    snapshot: genv.Envs,
     eid: str,
     uid: int,
     username: Optional[str],
@@ -42,7 +42,7 @@ def do_activate(
 
 
 def do_config(
-    snapshot: genv.envs.Snapshot, eid: str, command: str, args: argparse.Namespace
+    snapshot: genv.Envs, eid: str, command: str, args: argparse.Namespace
 ) -> None:
     """
     Update environment config variables - either set a specific variable or clear it.
@@ -63,7 +63,7 @@ def do_config(
             env.config.gpu_memory = args.gpu_memory
 
 
-def do_deactivate(snapshot: genv.envs.Snapshot, pid: int) -> None:
+def do_deactivate(snapshot: genv.Envs, pid: int) -> None:
     """
     Detaches the given process identifier.
     """
@@ -71,7 +71,7 @@ def do_deactivate(snapshot: genv.envs.Snapshot, pid: int) -> None:
 
 
 def do_find(
-    snapshot: genv.envs.Snapshot, pid: Optional[int], kernel_id: Optional[str]
+    snapshot: genv.Envs, pid: Optional[int], kernel_id: Optional[str]
 ) -> None:
     """
     Prints the environment identifiers of the given process or kernel.
@@ -81,7 +81,7 @@ def do_find(
 
 
 def do_ps(
-    snapshot: genv.envs.Snapshot, format: str, header: bool, timestamp: bool
+    snapshot: genv.Envs, format: str, header: bool, timestamp: bool
 ) -> None:
     """
     Print environments data in a human-readable fashion to the stdio.
@@ -113,7 +113,7 @@ def do_ps(
 
 
 def do_query(
-    snapshot: genv.envs.Snapshot, eid: Optional[str], queries: Iterable[str]
+    snapshot: genv.Envs, eid: Optional[str], queries: Iterable[str]
 ) -> None:
     """
     Queries environment data using a query string. The queries results will be printed into the stdio.

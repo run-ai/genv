@@ -1,8 +1,7 @@
 import subprocess
 from typing import Any, Dict, Iterable, Optional, Union
 
-from genv.envs.env import Env
-from genv.envs.snapshot import Snapshot
+from genv.entities.envs import Env, Envs
 
 # NOTE(raz): This should be the layer that queries and controls the state of Genv regarding active environments.
 # Currently, it relies on executing the environment manager executable of Genv, as this is where the logic is implemented.
@@ -14,8 +13,8 @@ from genv.envs.snapshot import Snapshot
 # call the other manager.
 
 
-def snapshot() -> Snapshot:
-    return Snapshot(
+def snapshot() -> Envs:
+    return Envs(
         [
             Env(
                 eid,

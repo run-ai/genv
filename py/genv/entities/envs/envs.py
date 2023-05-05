@@ -2,15 +2,16 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Callable, Iterable, Optional
 
-from genv.envs.env import Env
-from genv import poll
+import genv.poll
 from genv.utils import DATETIME_FMT
+
+from .env import Env
 
 
 @dataclass
-class Snapshot:
+class Envs:
     """
-    A snapshot of active environments.
+    A collection of environments.
     """
 
     envs: Iterable[Env]
@@ -65,7 +66,7 @@ class Snapshot:
         username: Optional[str] = None,
     ):
         """
-        Returns a new filtered snapshot.
+        Returns a new filtered collection.
 
         :param deep: Perform deep filtering
         :param eid: Environment identifier to keep
@@ -89,16 +90,16 @@ class Snapshot:
         if username is not None:
             envs = [env for env in envs if env.username == username]
 
-        return Snapshot(envs)
+        return Envs(envs)
 
     def cleanup(
         self,
         *,
-        poll_pid: Callable[[int], bool] = poll.poll_pid,
-        poll_kernel: Callable[[str], bool] = poll.poll_jupyter_kernel,
+        poll_pid: Callable[[int], bool] = genv.poll.poll_pid,
+        poll_kernel: Callable[[str], bool] = genv.poll.poll_jupyter_kernel,
     ):
         """
-        Cleans up the snapshot in place.
+        Cleans up the collection in place.
         """
         for env in self.envs:
             env.cleanup(poll_pid=poll_pid, poll_kernel=poll_kernel)

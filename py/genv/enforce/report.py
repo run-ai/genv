@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import Dict
 
-from genv.envs.snapshot import Snapshot as Envs
+from genv.entities import Envs
 from genv.processes.snapshot import Snapshot as Processes
 
 

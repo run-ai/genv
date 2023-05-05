@@ -1,10 +1,10 @@
 from typing import Iterable, Tuple
 
-from genv.envs.snapshot import Snapshot
+from genv.entities.envs import Envs
 from genv.remote.snapshot import exec, Config, Host
 
 
-async def snapshot(config: Config) -> Tuple[Iterable[Host], Iterable[Snapshot]]:
+async def snapshot(config: Config) -> Tuple[Iterable[Host], Iterable[Envs]]:
     """
     Takes environment snapshots on multiple hosts.
 

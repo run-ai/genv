@@ -1,4 +1,4 @@
-from .entities import Device, Devices
+from .entities import Device, Devices, Env, Envs
 from . import devices
 from . import sdk
 from . import envs

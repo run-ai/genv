@@ -3,15 +3,14 @@ from typing import Any, Union
 
 from genv import json_
 from genv import utils
-from genv.envs.env import Env
-from genv.envs.snapshot import Snapshot
+from genv.entities.envs import Env, Envs
 
 PATH = utils.get_temp_file_path("envs.json")
 
 
-def _convert(o: Union[Snapshot, Any]) -> Snapshot:
+def _convert(o: Union[Envs, Any]) -> Envs:
     """
-    Converts the loaded state object to a snapshot if it not already is.
+    Converts the loaded object if needed.
     """
 
     def _get_field(obj, field, cls, *args):
@@ -34,7 +33,7 @@ def _convert(o: Union[Snapshot, Any]) -> Snapshot:
     # the state file from these versions was similar to the snapshot structure (a single
     # key named "envs") so the JSON decoder parsed the object as a snapshot object.
     if isinstance(o.envs, dict):
-        o = Snapshot(
+        o = Envs(
             [
                 Env(
                     _get_env_field(env, "eid"),
@@ -56,7 +55,7 @@ def _convert(o: Union[Snapshot, Any]) -> Snapshot:
     return o
 
 
-def load(reset: bool = False) -> Snapshot:
+def load(reset: bool = False) -> Envs:
     """
     Loads from disk.
     """
@@ -67,10 +66,10 @@ def load(reset: bool = False) -> Snapshot:
             json_decoder=json_.JSONDecoder,
         )
 
-    return Snapshot([])
+    return Envs([])
 
 
-def save(snapshot: Snapshot) -> None:
+def save(snapshot: Envs) -> None:
     """
     Saves to disk.
     """
