@@ -40,6 +40,16 @@ class JSONDecoder(json.JSONDecoder):
             varnames = cls.__init__.__code__.co_varnames[1:]  # ignore 'self'
 
             if set(varnames) == set(d.keys()):
-                return cls(*(d[varname] for varname in varnames))
+                o = cls(*(d[varname] for varname in varnames))
+
+                # NOTE(raz): serializing the class 'Report' is not properly supported because it has
+                # a dictionary field 'detach' which its keys are integers.
+                # these integers are converted to strings when serializing to JSON.
+                # therefore, we have to revert this conversion manuallu here.
+                if cls == Report:
+                    # TODO(raz): support this properly by refactoring 'Report'
+                    o.detach = {int(index): envs for index, envs in o.detach.items()}
+
+                return o
 
         return d
