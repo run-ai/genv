@@ -5,8 +5,7 @@ from genv.entities.enforce import Report
 
 from genv.serialization import JSONEncoder
 
-from genv.remote.utils import reprint
-from genv.remote.ssh import run, Config, Command
+from ..utils import reprint, run, Config, Command
 
 
 async def execute(config: Config, reports: Iterable[Report]) -> None:

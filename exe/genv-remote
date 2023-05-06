@@ -29,7 +29,7 @@ async def find_available_host(
     :return: Host with enough available resources
     """
     # TODO(raz): avoid taking snapshots if not needed when 'gpus' is None
-    hosts, snapshots = await genv.remote.devices.snapshot(config)
+    hosts, snapshots = await genv.remote.core.devices.snapshot(config)
 
     for host, snapshot in zip(hosts, snapshots):
         if gpus is not None:
@@ -95,7 +95,7 @@ async def do_devices(
 
     :return: None
     """
-    hosts, snapshots = await genv.remote.devices.snapshot(config)
+    hosts, snapshots = await genv.remote.core.devices.snapshot(config)
 
     if header:
         if format == "csv":
@@ -140,7 +140,7 @@ async def do_enforce(
     :return: None
     """
     while True:
-        hosts, snapshots = await genv.remote.snapshot(config)
+        hosts, snapshots = await genv.remote.core.snapshot(config)
 
         surveys = [
             genv.entities.enforce.Survey(snapshot, host.hostname)
@@ -194,7 +194,7 @@ async def do_envs(
 
     :return: None
     """
-    hosts, snapshots = await genv.remote.envs.snapshot(config)
+    hosts, snapshots = await genv.remote.core.envs.snapshot(config)
 
     if header:
         if format == "csv":
@@ -250,7 +250,7 @@ async def do_monitor(
     collection = Collection(SPECS)
 
     while True:
-        hosts, snapshots = await genv.remote.snapshot(config)
+        hosts, snapshots = await genv.remote.core.snapshot(config)
 
         collection.cleanup(hosts, snapshots)
         collection.update(hosts, snapshots)
@@ -269,7 +269,7 @@ async def do_query(
 
     :return: None
     """
-    hosts, snapshots = await genv.remote.envs.snapshot(config)
+    hosts, snapshots = await genv.remote.core.envs.snapshot(config)
 
     for host, snapshot in zip(hosts, snapshots):
         for env in snapshot:

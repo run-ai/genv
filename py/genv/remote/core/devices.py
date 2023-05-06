@@ -1,7 +1,8 @@
 from typing import Iterable, Tuple
 
 from genv.entities import Devices
-from genv.remote.snapshot import exec, Config, Host
+
+from .snapshot import exec, Config, Host
 
 
 async def snapshot(config: Config) -> Tuple[Iterable[Host], Iterable[Devices]]:

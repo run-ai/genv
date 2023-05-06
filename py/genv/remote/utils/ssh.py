@@ -4,7 +4,8 @@ import sys
 from typing import Any, Callable, Iterable, Optional, Tuple
 
 from genv.utils.runners import SSH as Runner
-from genv.remote.utils import reprint
+
+from .utils import reprint
 
 
 @dataclass
@@ -36,6 +37,7 @@ class Config:
     throw_on_error: bool
     quiet: bool
 
+
 @dataclass
 class Command:
     """
@@ -65,7 +67,11 @@ async def run(
     """
     ssh_runners_and_inputs = []
     for host, stdin in zip(config.hosts, stdins or [None for _ in config.hosts]):
-        ssh_runner = Runner(host.hostname, host.timeout, {'PATH': Runner.calc_remote_path_env(host.root)})
+        ssh_runner = Runner(
+            host.hostname,
+            host.timeout,
+            {"PATH": Runner.calc_remote_path_env(host.root)},
+        )
         ssh_runners_and_inputs.append((ssh_runner, stdin))
 
     ssh_outputs = await asyncio.gather(
