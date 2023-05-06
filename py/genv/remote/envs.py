@@ -1,6 +1,6 @@
 from typing import Iterable, Tuple
 
-from genv.entities.core.envs import Envs
+from genv.entities import Envs
 from genv.remote.snapshot import exec, Config, Host
 
 

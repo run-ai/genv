@@ -1,4 +1,4 @@
-from genv.entities.core.snapshot import Snapshot
+from genv.entities import Snapshot
 
 from genv.core.envs import snapshot as envs
 from genv.core.devices import snapshot as devices

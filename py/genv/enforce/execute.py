@@ -2,8 +2,7 @@ import sys
 from typing import Dict
 
 import genv.utils
-from genv.entities import Envs, Processes
-from genv.entities.enforce import Report
+from genv.entities import Envs, Processes, Report
 import genv.core.devices
 
 

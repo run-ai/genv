@@ -1,6 +1,6 @@
 from typing import Optional
 
-from genv.entities.core.envs import Envs
+from genv.entities import Envs
 
 from .file import load, mutate
 

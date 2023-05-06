@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import Dict
 
-from genv.entities.core import Envs, Processes
+from ..core import Envs, Processes
 
 
 @dataclass

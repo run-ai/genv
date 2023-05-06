@@ -1,6 +1,6 @@
 from typing import Iterable, Tuple
 
-from genv.entities.core.devices import Devices
+from genv.entities import Devices
 from genv.remote.snapshot import exec, Config, Host
 
 
