@@ -1,7 +1,7 @@
 import os
 from typing import Dict, Iterable
 
-from genv.runners import Runner, Local
+from genv.utils.runners import Runner, Local
 
 DEFAULT_NVIDIA_SMI_ENV_VARS = {"GENV_BYPASS": "1", **os.environ}
 DEFAULT_LOCAL_RUNNER = Local(DEFAULT_NVIDIA_SMI_ENV_VARS)

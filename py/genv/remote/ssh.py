@@ -3,7 +3,7 @@ from dataclasses import dataclass
 import sys
 from typing import Any, Callable, Iterable, Optional, Tuple
 
-from genv.runners import SSH as Runner
+from genv.utils.runners import SSH as Runner
 from genv.remote.utils import reprint
 
 
