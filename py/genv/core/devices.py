@@ -17,7 +17,7 @@ def _get_devices_total_memory() -> Iterable[str]:
     Gets total memory of all devices as string using nvidia-smi.
     """
 
-    # move to genv.core.nvidia_smi once async is supported here
+    # move to genv.utils.nvidia_smi once async is supported here
     return [
         f"{int(line)}mi"
         for line in subprocess.check_output(
