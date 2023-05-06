@@ -5,7 +5,8 @@ from typing import Any, Iterable, Union
 import genv.utils
 from genv.entities.devices import Device, Devices
 import genv.serialization
-import genv.envs
+
+import genv.core.envs
 
 
 _PATH = genv.utils.get_temp_file_path("devices.json")
@@ -16,7 +17,7 @@ def _get_devices_total_memory() -> Iterable[str]:
     Gets total memory of all devices as string using nvidia-smi.
     """
 
-    # move to genv.nvidia_smi once async is supported here
+    # move to genv.core.nvidia_smi once async is supported here
     return [
         f"{int(line)}mi"
         for line in subprocess.check_output(
@@ -75,7 +76,7 @@ def _cleaner(devices: Devices) -> None:
     Cleans up device attachments from inactive environments.
     """
 
-    envs = genv.envs.snapshot()
+    envs = genv.core.envs.snapshot()
 
     devices.cleanup(poll_eid=lambda eid: eid in envs.eids)
 

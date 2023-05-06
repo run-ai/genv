@@ -2,7 +2,7 @@ from contextlib import contextmanager
 import os
 from typing import Iterable, Optional
 
-import genv.devices
+import genv.core.devices
 
 
 def attached() -> Optional[Iterable[int]]:
@@ -37,5 +37,5 @@ def lock() -> None:
         if len(indices) > 1:
             raise RuntimeError("Environment is attached to more than a single device")
 
-        with genv.devices.lock(index=indices[0]):
+        with genv.core.devices.lock(index=indices[0]):
             yield

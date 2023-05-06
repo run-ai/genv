@@ -21,13 +21,13 @@ async def do_execute() -> None:
 async def do_snapshot(format: str, type: Optional[str]) -> None:
     with genv.utils.global_lock():
         if type is None:
-            snapshot = await genv.snapshot()
+            snapshot = await genv.core.snapshot()
         elif type == "devices":
-            snapshot = genv.devices.snapshot()
+            snapshot = genv.core.devices.snapshot()
         elif type == "envs":
-            snapshot = genv.envs.snapshot()
+            snapshot = genv.core.envs.snapshot()
         elif type == "processes":
-            snapshot = await genv.processes.snapshot()
+            snapshot = await genv.core.processes.snapshot()
         else:
             raise ValueError(f"Unsupported snapshot type ({type})")
 

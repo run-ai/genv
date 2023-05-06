@@ -3,7 +3,8 @@ from typing import Iterable
 
 import genv.utils
 from genv.entities import Devices
-import genv.envs
+
+import genv.core.envs
 
 from .file import load, mutate
 
@@ -17,7 +18,7 @@ def attach(eid: str) -> Iterable[int]:
     :return: Attached device indices
     """
     with mutate() as devices:
-        envs = genv.envs.snapshot()
+        envs = genv.core.envs.snapshot()
         env_config = envs[eid].config
 
         if env_config.gpus is not None:

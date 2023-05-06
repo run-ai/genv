@@ -46,7 +46,7 @@ def activate_environment(state: dict, eid: str):
     # 3. make uid optional for environments
     uid = os.getuid()
 
-    genv.envs.activate(eid, uid, pid=pid)
+    genv.core.envs.activate(eid, uid, pid=pid)
 
 
 def configure_environment(config: dict, eid: str):
@@ -56,7 +56,7 @@ def configure_environment(config: dict, eid: str):
     gpu_memory = get_env(config, "GENV_GPU_MEMORY")
     gpus = get_env(config, "GENV_GPUS")
 
-    genv.envs.configure(
+    genv.core.envs.configure(
         eid,
         gpu_memory=gpu_memory,
         gpus=int(gpus) if gpus else None,
@@ -68,7 +68,7 @@ def attach_environment(config: dict, eid: str):
     Attaches the environment to devices.
     """
 
-    indices = genv.devices.attach(eid)
+    indices = genv.core.devices.attach(eid)
 
     # NOTE(raz): setting environment variables here will not have effect on the process
     # environment as it is now too late in the container lifecycle.

@@ -87,7 +87,7 @@ async def main() -> None:
 
     while True:
         with genv.utils.global_lock():
-            snapshot = await genv.snapshot()
+            snapshot = await genv.core.snapshot()
 
         survey = genv.entities.enforce.Survey(snapshot)
 

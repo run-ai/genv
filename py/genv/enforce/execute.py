@@ -4,7 +4,7 @@ from typing import Dict
 import genv.utils
 from genv.entities import Envs, Processes
 from genv.entities.enforce import Report
-import genv.devices
+import genv.core.devices
 
 
 def _terminate(processes: Processes) -> None:
@@ -31,7 +31,7 @@ def _detach(envs: Dict[int, Envs]) -> None:
                 f"Detaching environment {env.eid} of user {env.username or 'N/A'} from device {index}"
             )
 
-            genv.devices.detach(env.eid, index)
+            genv.core.devices.detach(env.eid, index)
 
 
 def execute(report: Report) -> None:

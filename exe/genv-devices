@@ -35,7 +35,7 @@ def cleanup(
     if eid is not None:
         pred = lambda _: _ == eid
     else:
-        envs = genv.envs.snapshot()
+        envs = genv.core.envs.snapshot()
         pred = lambda eid: eid not in envs.eids
 
     for index in sorted(snapshot.indices, reverse=True):
@@ -121,7 +121,7 @@ def do_attach(
     :param index: Device index to attach
     :return: None
     """
-    envs = genv.envs.snapshot()
+    envs = genv.core.envs.snapshot()
 
     if count is None and index is None:
         # use the environment device count configuration if set
@@ -234,7 +234,7 @@ def do_ps(snapshot: genv.Devices, format: str, header: bool, timestamp: bool) ->
         elif format == "tui":
             print(f"{index:<8}{eid:<12}{name:<16}{attached}")
 
-    envs = genv.envs.snapshot()
+    envs = genv.core.envs.snapshot()
 
     for device in snapshot:
         if device.detached:
@@ -354,7 +354,7 @@ if __name__ == "__main__":
     args = parse_args()
 
     with genv.utils.global_lock():
-        with genv.devices.mutate(args.cleanup, args.reset) as devices:
+        with genv.core.devices.mutate(args.cleanup, args.reset) as devices:
             if args.command == "attach":
                 do_attach(
                     devices,
