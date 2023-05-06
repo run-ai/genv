@@ -1,12 +1,12 @@
 from contextlib import contextmanager
 from typing import Any, Union
 
-from genv import json_
-from genv import utils
+import genv.utils
 from genv.entities.envs import Env, Envs
+import genv.serialization
 
 
-_PATH = utils.get_temp_file_path("envs.json")
+_PATH = genv.utils.get_temp_file_path("envs.json")
 
 
 def _creator() -> Envs:
@@ -20,6 +20,7 @@ def _converter(o: Union[Envs, Any]) -> Envs:
     """
     Converts the loaded object if needed.
     """
+
     def _get_field(obj, field, cls, *args):
         return (
             getattr(obj, field, *args)
@@ -73,12 +74,12 @@ def load(cleanup: bool = True, reset: bool = False) -> Envs:
     """
     Loads from disk.
     """
-    return utils.load_state(
+    return genv.utils.load_state(
         _PATH,
         creator=_creator,
         cleaner=_cleaner,
         converter=_converter,
-        json_decoder=json_.JSONDecoder,
+        json_decoder=genv.serialization.JSONDecoder,
         cleanup=cleanup,
         reset=reset,
     )
@@ -88,10 +89,10 @@ def save(snapshot: Envs) -> None:
     """
     Saves to disk.
     """
-    utils.save_state(
+    genv.utils.save_state(
         snapshot,
         _PATH,
-        json_encoder=json_.JSONEncoder,
+        json_encoder=genv.serialization.JSONEncoder,
     )
 
 

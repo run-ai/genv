@@ -11,11 +11,11 @@ from .entities import (
     Snapshot,
     Survey,
 )
+from .serialization import JSONEncoder, JSONDecoder
 from . import devices
 from . import sdk
 from . import envs
 from . import enforce
-from .json_ import JSONEncoder, JSONDecoder
 from . import processes
 from . import remote
 from .snapshot import snapshot

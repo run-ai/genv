@@ -2,7 +2,7 @@ import json
 from typing import Iterable, Optional, Tuple
 
 from genv.entities import Snapshot
-from genv.json_ import JSONDecoder
+from genv.serialization import JSONDecoder
 from genv.remote.ssh import run, Host, Config, Command
 
 # TODO(raz): should we support cases where 'sudo' is not an option?

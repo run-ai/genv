@@ -1,13 +1,14 @@
 from contextlib import contextmanager
 import subprocess
 from typing import Any, Iterable, Union
-from genv import json_, utils
 
+import genv.utils
 from genv.entities.devices import Device, Devices
+import genv.serialization
 import genv.envs
 
 
-_PATH = utils.get_temp_file_path("devices.json")
+_PATH = genv.utils.get_temp_file_path("devices.json")
 
 
 def _get_devices_total_memory() -> Iterable[str]:
@@ -83,12 +84,12 @@ def load(cleanup: bool = True, reset: bool = False) -> Devices:
     """
     Loads from disk.
     """
-    return utils.load_state(
+    return genv.utils.load_state(
         _PATH,
         creator=_creator,
         cleaner=_cleaner,
         converter=_converter,
-        json_decoder=json_.JSONDecoder,
+        json_decoder=genv.serialization.JSONDecoder,
         cleanup=cleanup,
         reset=reset,
     )
@@ -98,10 +99,10 @@ def save(devices: Devices) -> None:
     """
     Saves to disk.
     """
-    utils.save_state(
+    genv.utils.save_state(
         devices,
         _PATH,
-        json_encoder=json_.JSONEncoder,
+        json_encoder=genv.serialization.JSONEncoder,
     )
 
 
