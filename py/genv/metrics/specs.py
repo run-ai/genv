@@ -1,7 +1,7 @@
 import inspect
 import sys
 
-from genv.metrics.spec import Spec, Type
+from .spec import Spec, Type
 
 
 def Device(*args, **kwargs) -> Spec:

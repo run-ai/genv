@@ -3,7 +3,8 @@ from typing import Callable, Iterable, Optional
 import prometheus_client
 
 from genv.entities import Snapshot
-from genv.metrics.spec import Type
+
+from .spec import Type
 
 
 class Metric(prometheus_client.Gauge):

@@ -1,9 +1,10 @@
 from typing import Iterable
 
-from genv.metrics.metric import Metric
-from genv.metrics.spec import Spec
-from genv.metrics.type import Type
 from genv.entities import Snapshot
+
+from .metric import Metric
+from .spec import Spec
+from .type import Type
 
 
 class Collection:
