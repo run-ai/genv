@@ -3,7 +3,7 @@ import subprocess
 from typing import Any, Iterable, Union
 
 import genv.utils
-from genv.entities.devices import Device, Devices
+from genv.entities.core.devices import Device, Devices
 import genv.serialization
 
 import genv.core.envs

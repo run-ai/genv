@@ -2,7 +2,7 @@ from collections import defaultdict
 from dataclasses import dataclass, field
 from typing import Dict, Optional, Set
 
-from .. import Snapshot
+from genv.entities.core import Snapshot
 
 from . import Report
 

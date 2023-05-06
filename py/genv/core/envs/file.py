@@ -2,7 +2,7 @@ from contextlib import contextmanager
 from typing import Any, Union
 
 import genv.utils
-from genv.entities.envs import Env, Envs
+from genv.entities.core.envs import Env, Envs
 import genv.serialization
 
 

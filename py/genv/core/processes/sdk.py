@@ -1,6 +1,6 @@
 import asyncio
 
-from genv.entities.processes import Process, Processes
+from genv.entities.core.processes import Process, Processes
 
 import genv.core.nvidia_smi
 
