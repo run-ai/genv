@@ -196,14 +196,14 @@ For this reason, Genv provides an access control mechanism, which can be used by
 ~~~~~~~~~~
 Python SDK
 ~~~~~~~~~~
-Import the :code:`genv` module and wrap your Python code with a call to :code:`genv.env.lock_devices()`.
+Import the :code:`genv` module and wrap your Python code with a call to :code:`genv.sdk.lock_devices()`.
 For example:
 
 .. code-block:: python
 
    import genv
 
-   with genv.env.lock_devices():
+   with genv.sdk.lock_devices():
       main()
 
 ~~~~~
