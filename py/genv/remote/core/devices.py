@@ -1,11 +1,11 @@
 from typing import Iterable, Tuple
 
-from ..devices import Snapshot
+from genv.entities import Devices
 
 from .snapshot import exec, Config, Host
 
 
-async def snapshot(config: Config) -> Tuple[Iterable[Host], Iterable[Snapshot]]:
+async def snapshot(config: Config) -> Tuple[Iterable[Host], Iterable[Devices]]:
     """
     Takes device snapshots on multiple hosts.
 

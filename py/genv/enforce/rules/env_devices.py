@@ -1,4 +1,4 @@
-from ..survey import Survey
+from genv.entities.enforce import Survey
 
 
 def env_devices(*surveys: Survey) -> None:

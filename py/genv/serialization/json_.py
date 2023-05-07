@@ -1,23 +1,19 @@
 import json
 from typing import Any, Dict
 
-from . import devices
-from . import envs
-from . import processes
-from .snapshot import Snapshot
-from .enforce import Report
+from genv.entities import Device, Devices, Env, Envs, Process, Processes, Snapshot, Report
 
 # TODO(raz): test here that all types have a different set of keys for creation
 Types = [
-    devices.Device,
-    devices.Device.Attachement,
-    devices.Snapshot,
-    envs.Env,
-    envs.Env.Config,
-    envs.Snapshot,
-    processes.Process,
-    processes.Process.Usage,
-    processes.Snapshot,
+    Device,
+    Device.Attachement,
+    Devices,
+    Env,
+    Env.Config,
+    Envs,
+    Process,
+    Process.Usage,
+    Processes,
     Report,
     Snapshot,
 ]
@@ -43,6 +39,16 @@ class JSONDecoder(json.JSONDecoder):
             varnames = cls.__init__.__code__.co_varnames[1:]  # ignore 'self'
 
             if set(varnames) == set(d.keys()):
-                return cls(*(d[varname] for varname in varnames))
+                o = cls(*(d[varname] for varname in varnames))
+
+                # NOTE(raz): serializing the class 'Report' is not properly supported because it has
+                # a dictionary field 'detach' which its keys are integers.
+                # these integers are converted to strings when serializing to JSON.
+                # therefore, we have to revert this conversion manuallu here.
+                if cls == Report:
+                    # TODO(raz): support this properly by refactoring 'Report'
+                    o.detach = {int(index): envs for index, envs in o.detach.items()}
+
+                return o
 
         return d

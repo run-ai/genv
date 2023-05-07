@@ -1,9 +1,9 @@
 from typing import Iterable
 
-from genv.metrics.collection import Collection as Base
-from genv.metrics.spec import Spec
-from genv.remote.ssh import Host
-from genv.snapshot import Snapshot
+from genv.entities import Snapshot
+from genv.metrics import Collection as Base, Spec
+
+from ..utils import Host
 
 
 class Collection(Base):

@@ -1,6 +1,6 @@
-from ...utils import memory_to_bytes, bytes_to_memory
+from genv.utils import memory_to_bytes, bytes_to_memory
 
-from ..survey import Survey
+from genv.entities.enforce import Survey
 
 
 def env_memory(*surveys: Survey) -> None:

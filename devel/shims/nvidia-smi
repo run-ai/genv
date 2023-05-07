@@ -59,7 +59,7 @@ processes = [
         pid=pid,
         gpu_memory=os.environ.get("GENV_MOCK_COMPUTE_APPS_GPU_MEMORY", "42mi"),
     )
-    for pid in genv.os_.pgrep(
+    for pid in genv.utils.pgrep(
         os.environ.get("GENV_MOCK_COMPUTE_APPS_PROCESS_NAME", "sleep")
     )
     for device in devices
@@ -119,7 +119,7 @@ Fri Dec 23 23:11:41 2022
         )
     else:
         for process in processes:
-            name = genv.os_.cmdline(process.pid)[0]
+            name = genv.utils.cmdline(process.pid)[0]
             if len(name) > 28:
                 name = f"...{name[-25:]}"
 

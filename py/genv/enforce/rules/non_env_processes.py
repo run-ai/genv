@@ -1,4 +1,4 @@
-from ..survey import Survey
+from genv.entities.enforce import Survey
 
 
 def non_env_processes(*surveys: Survey) -> None:

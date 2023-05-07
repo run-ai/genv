@@ -1,11 +1,11 @@
 import json
 from typing import Iterable
 
-from ...json_ import JSONEncoder
-from ...enforce import Report
+from genv.entities.enforce import Report
 
-from ..utils import reprint
-from ..ssh import run, Config, Command
+from genv.serialization import JSONEncoder
+
+from ..utils import reprint, run, Config, Command
 
 
 async def execute(config: Config, reports: Iterable[Report]) -> None:

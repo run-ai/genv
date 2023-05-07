@@ -1,16 +1,16 @@
 from dataclasses import dataclass
 from typing import Iterable, Optional
 
-from . import processes as processes_
-from . import envs as envs_
-from . import devices as devices_
+from .devices import Devices
+from .envs import Envs
+from .processes import Processes
 
 
 @dataclass
 class Snapshot:
-    processes: processes_.Snapshot
-    envs: envs_.Snapshot
-    devices: devices_.Snapshot
+    processes: Processes
+    envs: Envs
+    devices: Devices
 
     def filter(
         self,
@@ -35,14 +35,3 @@ class Snapshot:
             envs=envs,
             devices=self.devices.filter(deep=deep, eids=envs.eids),
         )
-
-
-# NOTE(raz): this method is not atomic because it runs manager executables in the background.
-# each manager locks its state file and for this reason the snapshot is not coherent by definition.
-# this should be done oppositely, by locking a single lock and querying all state files altogether.
-async def snapshot() -> Snapshot:
-    return Snapshot(
-        processes=await processes_.snapshot(),
-        envs=envs_.snapshot(),
-        devices=devices_.snapshot(),
-    )

@@ -1,22 +1,19 @@
 import sys
 from typing import Dict
 
-from .. import os_
-from .. import devices
-from .. import envs
-from .. import processes
-
-from .report import Report
+import genv.utils
+from genv.entities import Envs, Processes, Report
+import genv.core.devices
 
 
-def _terminate(processes: processes.Snapshot) -> None:
+def _terminate(processes: Processes) -> None:
     for process in processes:
         try:
             print(
                 f"Terminating process {process.pid} from environment {process.eid or 'N/A'} that is running on GPU(s) {','.join([str(index) for index in process.indices])}"
             )
 
-            os_.terminate(process.pid)
+            genv.utils.terminate(process.pid)
         except PermissionError:
             print(
                 f"[ERROR] Not enough permissions to terminate process {process.pid}",
@@ -26,14 +23,14 @@ def _terminate(processes: processes.Snapshot) -> None:
             print(f"[DEBUG] Process {process.pid} already terminated", file=sys.stderr)
 
 
-def _detach(envs: Dict[int, envs.Snapshot]) -> None:
+def _detach(envs: Dict[int, Envs]) -> None:
     for index, envs in envs.items():
         for env in envs:
             print(
                 f"Detaching environment {env.eid} of user {env.username or 'N/A'} from device {index}"
             )
 
-            devices.detach(env.eid, index)
+            genv.core.devices.detach(env.eid, index)
 
 
 def execute(report: Report) -> None:

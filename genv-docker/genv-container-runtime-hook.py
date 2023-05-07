@@ -16,12 +16,6 @@ GENV_ROOT = os.path.realpath(
 # once it will be installed, we could remove this.
 sys.path.append(os.path.join(GENV_ROOT, "py"))
 
-# NOTE(raz): we need to set $PATH only because the implementation of genv.envs is currently
-# based on running Genv executables (i.e. genv-envs) in subprocesses.
-# once the architecture will be reveresed, the Python package would be enough and this would
-# no longer be unnecessary.
-os.environ["PATH"] = f"{os.path.join(GENV_ROOT, 'bin')}:{os.environ['PATH']}"
-
 import genv
 
 
@@ -52,21 +46,21 @@ def activate_environment(state: dict, eid: str):
     # 3. make uid optional for environments
     uid = os.getuid()
 
-    genv.envs.activate(eid, uid, pid)
+    genv.core.envs.activate(eid, uid, pid=pid)
 
 
 def configure_environment(config: dict, eid: str):
     """
     Configures the environment.
     """
+    gpu_memory = get_env(config, "GENV_GPU_MEMORY")
+    gpus = get_env(config, "GENV_GPUS")
 
-    def _configure(field: str, env: str):
-        value = get_env(config, env)
-        if value:
-            genv.envs.configure(eid, field, value)
-
-    _configure("gpus", "GENV_GPUS")
-    _configure("gpu-memory", "GENV_GPU_MEMORY")
+    genv.core.envs.configure(
+        eid,
+        gpu_memory=gpu_memory,
+        gpus=int(gpus) if gpus else None,
+    )
 
 
 def attach_environment(config: dict, eid: str):
@@ -74,7 +68,7 @@ def attach_environment(config: dict, eid: str):
     Attaches the environment to devices.
     """
 
-    indices = genv.devices.attach(eid)
+    indices = genv.core.devices.attach(eid)
 
     # NOTE(raz): setting environment variables here will not have effect on the process
     # environment as it is now too late in the container lifecycle.
@@ -135,11 +129,12 @@ if __name__ == "__main__":
     if not get_env(config, "GENV_ACTIVATE") == "0":
         eid = get_env(config, "GENV_ENVIRONMENT_ID", check=True)
 
-        activate_environment(state, eid)
-        configure_environment(config, eid)
+        with genv.utils.global_lock():
+            activate_environment(state, eid)
+            configure_environment(config, eid)
 
-        if not get_env(config, "GENV_ATTACH") == "0":
-            attach_environment(config, eid)
+            if not get_env(config, "GENV_ATTACH") == "0":
+                attach_environment(config, eid)
 
     if not get_env(config, "GENV_MOUNT_SHIMS") == "0":
         mount_shims(state, config)

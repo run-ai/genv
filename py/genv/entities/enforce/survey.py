@@ -2,9 +2,9 @@ from collections import defaultdict
 from dataclasses import dataclass, field
 from typing import Dict, Optional, Set
 
-from ..snapshot import Snapshot
+from ..core import Snapshot
 
-from .report import Report
+from . import Report
 
 
 @dataclass

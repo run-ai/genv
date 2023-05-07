@@ -14,20 +14,22 @@ import genv
 async def do_execute() -> None:
     report = json.loads(sys.stdin.read(), cls=genv.JSONDecoder)
 
-    genv.enforce.execute(report)
+    with genv.utils.global_lock():
+        genv.enforce.execute(report)
 
 
 async def do_snapshot(format: str, type: Optional[str]) -> None:
-    if type is None:
-        snapshot = await genv.snapshot()
-    elif type == "devices":
-        snapshot = genv.devices.snapshot()
-    elif type == "envs":
-        snapshot = genv.envs.snapshot()
-    elif type == "processes":
-        snapshot = await genv.processes.snapshot()
-    else:
-        raise ValueError(f"Unsupported snapshot type ({type})")
+    with genv.utils.global_lock():
+        if type is None:
+            snapshot = await genv.core.snapshot()
+        elif type == "devices":
+            snapshot = genv.core.devices.snapshot()
+        elif type == "envs":
+            snapshot = genv.core.envs.snapshot()
+        elif type == "processes":
+            snapshot = await genv.core.processes.snapshot()
+        else:
+            raise ValueError(f"Unsupported snapshot type ({type})")
 
     if format == "json":
         print(json.dumps(snapshot, cls=genv.JSONEncoder, indent=2))

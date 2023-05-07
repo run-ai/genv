@@ -1,11 +1,11 @@
 from typing import Iterable, Tuple
 
-from ..processes import Snapshot
+from genv.entities import Processes
 
 from .snapshot import exec, Config, Host
 
 
-async def snapshot(config: Config) -> Tuple[Iterable[Host], Iterable[Snapshot]]:
+async def snapshot(config: Config) -> Tuple[Iterable[Host], Iterable[Processes]]:
     """
     Takes process snapshots on multiple hosts.
 

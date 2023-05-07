@@ -1,14 +1,13 @@
 from dataclasses import dataclass
 from typing import Dict
 
-from .. import envs
-from .. import processes
+from ..core import Envs, Processes
 
 
 @dataclass
 class Report:
-    terminate: processes.Snapshot
-    detach: Dict[int, envs.Snapshot]
+    terminate: Processes
+    detach: Dict[int, Envs]
 
     def __bool__(self) -> bool:
         return len(self.terminate) > 0 or len(self.detach) > 0

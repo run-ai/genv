@@ -1,4 +1,4 @@
-from ..survey import Survey
+from genv.entities.enforce import Survey
 
 
 def max_devices_per_user(*surveys: Survey, maximum: int) -> None:

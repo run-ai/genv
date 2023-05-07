@@ -32,7 +32,7 @@ def which(cmd: str) -> str:
     return result
 
 
-# TODO(raz): use this method from genv.os_
+# TODO(raz): use this method from genv.utils.os_
 def get_process_environ(pid: int) -> Dict[str, str]:
     """
     Returns the environment variables of the process with the given identifier.

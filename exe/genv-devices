@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
 
 import argparse
-import subprocess
 import sys
-from typing import Any, Callable, Iterable, Optional
+from typing import Callable, Iterable, Optional
 
 import genv
 
@@ -17,73 +16,9 @@ QUERIES = {
     ),
 }
 
-"""
-This module manages all genv devices. Each genv device represents a single Nvidia gpu.
-A device can be attached to 0, 1 or more environments.
-"""
-
-
-def get_devices_total_memory() -> Iterable[str]:
-    """
-    Gets total memory of all devices as string using nvidia-smi.
-    """
-
-    # move to genv.nvidia_smi once async is supported here
-    return [
-        f"{int(line)}mi"
-        for line in subprocess.check_output(
-            "GENV_BYPASS=1 nvidia-smi --query-gpu=memory.total --format=csv,noheader,nounits",
-            shell=True,
-        ).splitlines()
-    ]
-
-
-def factory() -> genv.devices.Snapshot:
-    """
-    Creates an empty state object.
-    """
-
-    return genv.devices.Snapshot(
-        [
-            genv.devices.Device(index, total_memory, [])
-            for index, total_memory in enumerate(get_devices_total_memory())
-        ]
-    )
-
-
-def convert(o: Any) -> genv.devices.Snapshot:
-    """
-    Converts the loaded state object to a snapshot if it not already is.
-    """
-
-    # the following logic converts state files from versions <= 0.8.0.
-    # note that the indicator is 'o.devices' and not 'o' itself because the structure of
-    # the state file from these versions was similar to the snapshot structure (a single
-    # key named "devices") so the JSON decoder parsed the object as a snapshot object.
-    if isinstance(o.devices, dict):
-        o = genv.devices.Snapshot(
-            [
-                genv.devices.Device(
-                    int(index),
-                    device["total_memory"],
-                    [
-                        genv.devices.Device.Attachement(
-                            env["eid"],
-                            env.get("gpu_memory", None),
-                            env["attached"],
-                        )
-                        for env in device["eids"].values()
-                    ],
-                )
-                for index, device in o.devices.items()
-            ]
-        )
-
-    return o
-
 
 def cleanup(
-    snapshot: genv.devices.Snapshot,
+    snapshot: genv.Devices,
     eid: Optional[str] = None,
     count: Optional[int] = None,
 ) -> None:
@@ -100,7 +35,8 @@ def cleanup(
     if eid is not None:
         pred = lambda _: _ == eid
     else:
-        pred = lambda eid: eid not in genv.envs.eids()
+        envs = genv.core.envs.snapshot()
+        pred = lambda eid: eid not in envs.eids
 
     for index in sorted(snapshot.indices, reverse=True):
         if count == 0:
@@ -128,7 +64,7 @@ def cleanup(
 
 
 def find_available_devices(
-    snapshot: genv.devices.Snapshot,
+    snapshot: genv.Devices,
     count: int,
     gpu_memory: Optional[str],
     allow_over_subscription: bool,
@@ -168,7 +104,7 @@ def find_available_devices(
 
 
 def do_attach(
-    snapshot: genv.devices.Snapshot,
+    snapshot: genv.Devices,
     eid: str,
     count: Optional[int],
     index: Optional[int],
@@ -185,11 +121,13 @@ def do_attach(
     :param index: Device index to attach
     :return: None
     """
+    envs = genv.core.envs.snapshot()
+
     if count is None and index is None:
         # use the environment device count configuration if set
-        count = genv.envs.gpus(eid)
+        count = envs[eid].config.gpus if eid in envs else None
 
-    gpu_memory = genv.envs.gpu_memory(eid)
+    gpu_memory = envs[eid].config.gpu_memory if eid in envs else None
     attached_devices = snapshot.filter(eid=eid)
 
     def ensure_count():
@@ -242,7 +180,7 @@ def do_attach(
 
 
 def do_detach(
-    snapshot: genv.devices.Snapshot, eid: str, index: Optional[int], quiet: bool
+    snapshot: genv.Devices, eid: str, index: Optional[int], quiet: bool
 ) -> None:
     """
     Detaches devices from an environment. After detaching, print environment-devices current relationship.
@@ -264,7 +202,7 @@ def do_detach(
         do_find(snapshot, eid)  # print the up-to-date device indices
 
 
-def do_find(snapshot: genv.devices.Snapshot, eid: str) -> None:
+def do_find(snapshot: genv.Devices, eid: str) -> None:
     """
     Prints the indices of devices attached to the given environment.
     """
@@ -272,9 +210,7 @@ def do_find(snapshot: genv.devices.Snapshot, eid: str) -> None:
     print(",".join(str(index) for index in snapshot.filter(eid=eid).indices))
 
 
-def do_ps(
-    snapshot: genv.devices.Snapshot, format: str, header: bool, timestamp: bool
-) -> None:
+def do_ps(snapshot: genv.Devices, format: str, header: bool, timestamp: bool) -> None:
     """
     Prints information in a human-readable fashion to the standard output.
 
@@ -290,30 +226,35 @@ def do_ps(
         elif format == "tui":
             print("ID      ENV ID      ENV NAME        ATTACHED")
 
-    def print_line(index, eid, name, attached):
+    def print_line(index, eid, name: Optional[str], attached):
+        name = name or ""
+
         if format == "csv":
             print(f"{index},{eid},{name},{attached}")
         elif format == "tui":
             print(f"{index:<8}{eid:<12}{name:<16}{attached}")
 
-    names = genv.envs.names()
+    envs = genv.core.envs.snapshot()
 
     for device in snapshot:
         if device.detached:
             print_line(device.index, "", "", "")
         else:
             for attachment in device.attachments:
-                name = names.get(attachment.eid) or ""
+                index = device.index
+                eid = attachment.eid
+                name = envs[eid].config.name if eid in envs else None
+
                 attached = (
                     attachment.time
                     if timestamp
                     else genv.utils.time_since(attachment.time)
                 )
 
-                print_line(device.index, attachment.eid, name, attached)
+                print_line(index, eid, name, attached)
 
 
-def do_query(snapshot: genv.devices.Snapshot, queries: Iterable[str]) -> None:
+def do_query(snapshot: genv.Devices, queries: Iterable[str]) -> None:
     """
     Queries devices.
     """
@@ -412,26 +353,21 @@ def parse_args() -> argparse.Namespace:
 if __name__ == "__main__":
     args = parse_args()
 
-    with genv.utils.access_json(
-        "devices.json",
-        factory,
-        convert=convert,
-        reset=args.reset,
-        json_decoder=genv.json_.JSONDecoder,
-        json_encoder=genv.json_.JSONEncoder,
-    ) as snapshot:
-        if args.cleanup:
-            cleanup(snapshot)
-
-        if args.command == "attach":
-            do_attach(
-                snapshot, args.eid, args.count, args.index, args.allow_over_subscription
-            )
-        elif args.command == "detach":
-            do_detach(snapshot, args.eid, args.index, args.quiet)
-        elif args.command == "find":
-            do_find(snapshot, args.eid)
-        elif args.command == "ps":
-            do_ps(snapshot, args.format, args.header, args.timestamp)
-        elif args.command == "query":
-            do_query(snapshot, args.queries)
+    with genv.utils.global_lock():
+        with genv.core.devices.State(args.cleanup, args.reset) as devices:
+            if args.command == "attach":
+                do_attach(
+                    devices,
+                    args.eid,
+                    args.count,
+                    args.index,
+                    args.allow_over_subscription,
+                )
+            elif args.command == "detach":
+                do_detach(devices, args.eid, args.index, args.quiet)
+            elif args.command == "find":
+                do_find(devices, args.eid)
+            elif args.command == "ps":
+                do_ps(devices, args.format, args.header, args.timestamp)
+            elif args.command == "query":
+                do_query(devices, args.queries)

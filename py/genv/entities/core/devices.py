@@ -1,20 +1,8 @@
-from contextlib import contextmanager
 from dataclasses import dataclass
 from datetime import datetime
-import subprocess
 from typing import Callable, Iterable, Optional, Union
 
-from genv.os_ import access_lock, create_lock
-from genv.utils import get_temp_file_path, memory_to_bytes, DATETIME_FMT
-
-# NOTE(raz): This should be the layer that queries and controls the state of Genv regarding devices.
-# Currently, it relies on executing the device manager executable of Genv, as this is where the logic is implemented.
-# This however should be done oppositely.
-# The entire logic that queries and controls devices.json should be implemented here, and the device manager executable
-# should use methods from here.
-# It should take the Genv lock for the atomicity of the transaction, and print output as needed.
-# The current architecture has an inherent potential deadlock because each manager locks a different lock, and might
-# call the other manager.
+from genv.utils import DATETIME_FMT, memory_to_bytes
 
 
 @dataclass
@@ -99,9 +87,9 @@ class Device:
 
 
 @dataclass
-class Snapshot:
+class Devices:
     """
-    A snapshot of devices.
+    A collection of devices.
     """
 
     devices: Iterable[Device]
@@ -119,6 +107,9 @@ class Snapshot:
     def __getitem__(self, index: int) -> Device:
         return next(device for device in self.devices if device.index == index)
 
+    def __contains__(self, index: int) -> bool:
+        return index in self.indices
+
     def filter(
         self,
         deep: bool = True,
@@ -131,7 +122,7 @@ class Snapshot:
         function: Optional[Callable[[Device], bool]] = None,
     ):
         """
-        Returns a new filtered snapshot.
+        Returns a new filtered collection.
 
         :param deep: Perform deep filtering
         :param indices: Device indices to keep
@@ -177,7 +168,7 @@ class Snapshot:
         if function is not None:
             devices = [device for device in devices if function(device)]
 
-        return Snapshot(devices)
+        return Devices(devices)
 
     def attach(
         self, eid: str, indices: Union[Iterable[int], int], gpu_memory: Optional[str]
@@ -194,103 +185,15 @@ class Snapshot:
         for index in indices:
             self.devices[index].attach(eid, gpu_memory, time)
 
-
-def snapshot() -> Snapshot:
-    """
-    Returns a devices snapshot.
-    """
-
-    lines = (
-        subprocess.check_output(
-            "genv exec devices query --query index total_memory attachments", shell=True
-        )
-        .decode("utf-8")
-        .strip()
-        .splitlines()
-    )
-
-    def parse_attachment(s: str) -> Device.Attachement:
-        eid, gpu_memory, time = s.split("+")
-
-        return Device.Attachement(
-            eid,
-            gpu_memory or None,
-            time.replace("_", " "),
-        )
-
-    def parse_device(s: str) -> Device:
-        index, total_memory, attachments = s.split(",")
-
-        return Device(
-            int(index),
-            total_memory,
-            [parse_attachment(attachment) for attachment in attachments.split(" ")]
-            if attachments
-            else [],
-        )
-
-    return Snapshot([parse_device(line) for line in lines])
-
-
-def attach(eid: str) -> Iterable[int]:
-    """
-    Attaches an environment to devices.
-
-    :param eid: Environment identifier
-    :return: Attached device indices
-    """
-    output = (
-        subprocess.check_output(
-            f"genv exec devices attach --eid {eid}",
-            shell=True,
-        )
-        .decode("utf-8")
-        .strip()
-    )
-
-    return [int(index) for index in output.split(",") if index]
-
-
-def detach(eid: str, index: int) -> None:
-    """
-    Detaches an environment from a device.
-
-    :param eid: Environment identifier
-    :param index: Device index
-    :return: None
-    """
-    # TODO(raz): support detaching from multiple devices at the same time
-    subprocess.check_call(
-        f"genv exec devices detach --quiet --eid {eid} --index {index}", shell=True
-    )
-
-
-def get_lock_path(index: int, create: bool = False) -> str:
-    """
-    Returns the path of a device lock file.
-    Creates the file if requested and it does not exist.
-    """
-
-    path = get_temp_file_path(f"devices/{index}.lock")
-
-    if create:
-        create_lock(path)
-
-    return path
-
-
-@contextmanager
-def lock(index: int) -> None:
-    """
-    Obtain exclusive access to a device.
-    """
-    path = get_lock_path(index)
-
-    # NOTE(raz): currently, we wait on the lock even if it is already taken by our environment.
-    # we should think if this is the desired behavior and if it's possible to lock once per environment.
-    with access_lock(path):
-        yield
-
-    # TODO(raz): currently we wait for the entire device to become available.
-    # we should support fractional usage and allow multiple environments to
-    # access the device if the sum of their memory capacity fits.
+    def cleanup(
+        self,
+        *,
+        poll_eid: Optional[Callable[[str], bool]] = None,
+    ):
+        """
+        Cleans up the collection in place.
+        """
+        for device in self.devices:
+            for eid in device.eids:
+                if (poll_eid is not None) and (not poll_eid(eid)):
+                    device.detach(eid)
