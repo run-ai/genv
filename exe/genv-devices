@@ -354,7 +354,7 @@ if __name__ == "__main__":
     args = parse_args()
 
     with genv.utils.global_lock():
-        with genv.core.devices.mutate(args.cleanup, args.reset) as devices:
+        with genv.core.devices.State(args.cleanup, args.reset) as devices:
             if args.command == "attach":
                 do_attach(
                     devices,

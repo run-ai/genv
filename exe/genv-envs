@@ -252,7 +252,7 @@ if __name__ == "__main__":
     args = parse_args()
 
     with genv.utils.global_lock():
-        with genv.core.envs.mutate(args.cleanup, args.reset) as envs:
+        with genv.core.envs.State(args.cleanup, args.reset) as envs:
             if args.command == "activate":
                 do_activate(
                     envs,
