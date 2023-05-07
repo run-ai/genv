@@ -1,6 +1,28 @@
 Changelog
 =========
 
+Version 0.10.0
+-------------
+**Date:** May 7, 2023
+
+Added
+~~~~~
+* Using global lock around critical sections instead of locking per module
+* Enriched core entities with more fields
+* Python package does not run executables in subprocesses anymore
+* Supporting cleaning up entities in place with :code:`.cleanup()`
+* Bug fix in serialization of :code:`Report` objects
+
+Changed
+~~~~~~~
+* Major restructure in project directory
+* Renamed :code:`Snapshot` entities
+* Renamed :code:`genv.env` to :code:`genv.sdk`
+
+Removed
+~~~~~~~
+* Removed methods from :code:`genv.envs` and :code:`genv.devices`
+
 Version 0.9.0
 -------------
 **Date:** May 1, 2023
