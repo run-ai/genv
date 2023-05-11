@@ -1,4 +1,4 @@
-from contextlib import contextmanager
+from contextlib import ExitStack, contextmanager
 import subprocess
 from typing import Any, Iterable, Union
 
@@ -132,15 +132,24 @@ def get_lock_path(index: int, create: bool = False) -> str:
 
 
 @contextmanager
-def lock(index: int) -> None:
+def lock(indices: Union[Iterable[int], int]) -> None:
     """
-    Obtain exclusive access to a device.
+    Obtain exclusive access to a device or a few devices.
     """
-    path = get_lock_path(index)
+    if isinstance(indices, int):
+        indices = [indices]
 
-    # NOTE(raz): currently, we wait on the lock even if it is already taken by our environment.
+    # we sort here to decrease the chance of deadlock when different processes
+    # try to lock the same devices in a different order.
+    indices = sorted(indices)
+
+    # NOTE(raz): currently, we wait on a lock even if it is already taken by our environment.
     # we should think if this is the desired behavior and if it's possible to lock once per environment.
-    with genv.utils.access_lock(path):
+
+    with ExitStack() as es:
+        for index in indices:
+            es.enter_context(genv.utils.access_lock(get_lock_path(index)))
+
         yield
 
     # TODO(raz): currently we wait for the entire device to become available.
