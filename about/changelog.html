@@ -12,7 +12,7 @@
     </script>
     
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Changelog &mdash; Genv 0.10.0 documentation</title><link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <title>Changelog &mdash; Genv 0.10.1 documentation</title><link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="../_static/js/html5shiv.min.js"></script>
@@ -83,6 +83,10 @@
 <p class="caption"><span class="caption-text">About</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Changelog</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#version-0-10-1">Version 0.10.1</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#fixed">Fixed</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="#version-0-10-0">Version 0.10.0</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#added">Added</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#changed">Changed</a></li>
@@ -122,16 +126,16 @@
 <li class="toctree-l2"><a class="reference internal" href="#version-0-3-0">Version 0.3.0</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#id13">Added</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#id14">Changed</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#fixed">Fixed</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id15">Fixed</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#version-0-2-0">Version 0.2.0</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#id15">Added</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#id16">Changed</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id16">Added</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id17">Changed</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#version-0-1-0">Version 0.1.0</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#id17">Added</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id18">Added</a></li>
 </ul>
 </li>
 </ul>
@@ -164,6 +168,16 @@
              
   <div class="section" id="changelog">
 <h1>Changelog<a class="headerlink" href="#changelog" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="version-0-10-1">
+<h2>Version 0.10.1<a class="headerlink" href="#version-0-10-1" title="Permalink to this headline">¶</a></h2>
+<p><strong>Date:</strong> May 11, 2023</p>
+<div class="section" id="fixed">
+<h3>Fixed<a class="headerlink" href="#fixed" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>Fixed <code class="code docutils literal notranslate"><span class="pre">genv</span> <span class="pre">lock</span></code></p></li>
+</ul>
+</div>
+</div>
 <div class="section" id="version-0-10-0">
 <h2>Version 0.10.0<a class="headerlink" href="#version-0-10-0" title="Permalink to this headline">¶</a></h2>
 <p><strong>Date:</strong> May 7, 2023</p>
@@ -344,8 +358,8 @@
 <li><p>Renamed environment variable <code class="code docutils literal notranslate"><span class="pre">GENV_DEVICES</span></code> to <code class="code docutils literal notranslate"><span class="pre">GENV_MOCK_DEVICE_COUNT</span></code></p></li>
 </ul>
 </div>
-<div class="section" id="fixed">
-<h3>Fixed<a class="headerlink" href="#fixed" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id15">
+<h3>Fixed<a class="headerlink" href="#id15" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li><p><code class="code docutils literal notranslate"><span class="pre">nvidia-smi</span></code> shim supports environment variables with <code class="code docutils literal notranslate"><span class="pre">=</span></code></p></li>
 <li><p><code class="code docutils literal notranslate"><span class="pre">docker</span></code> shim supports the case when argument <code class="code docutils literal notranslate"><span class="pre">--gpus</span></code> is not passed</p></li>
@@ -356,16 +370,16 @@
 <div class="section" id="version-0-2-0">
 <h2>Version 0.2.0<a class="headerlink" href="#version-0-2-0" title="Permalink to this headline">¶</a></h2>
 <p><strong>Date:</strong> November 3, 2022</p>
-<div class="section" id="id15">
-<h3>Added<a class="headerlink" href="#id15" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id16">
+<h3>Added<a class="headerlink" href="#id16" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li><p><code class="code docutils literal notranslate"><span class="pre">nvidia-smi</span></code> shim shows environment information only (i.e. memory, processes)</p></li>
 <li><p><code class="code docutils literal notranslate"><span class="pre">docker</span></code> shim that exposes containers to devices attached to the environment</p></li>
 <li><p>Environment variable <code class="code docutils literal notranslate"><span class="pre">GENV_BYPASS</span></code> bypasses shims</p></li>
 </ul>
 </div>
-<div class="section" id="id16">
-<h3>Changed<a class="headerlink" href="#id16" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id17">
+<h3>Changed<a class="headerlink" href="#id17" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li><p><code class="code docutils literal notranslate"><span class="pre">nvidia-smi</span></code> shim converted from Bash script to Python</p></li>
 </ul>
@@ -374,8 +388,8 @@
 <div class="section" id="version-0-1-0">
 <h2>Version 0.1.0<a class="headerlink" href="#version-0-1-0" title="Permalink to this headline">¶</a></h2>
 <p><strong>Date:</strong> September 22, 2022</p>
-<div class="section" id="id17">
-<h3>Added<a class="headerlink" href="#id17" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id18">
+<h3>Added<a class="headerlink" href="#id18" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li><p>Activating and deactivating environment</p></li>
 <li><p>Querying environment status</p></li>
