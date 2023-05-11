@@ -1,6 +1,14 @@
 Changelog
 =========
 
+Version 0.10.1
+-------------
+**Date:** May 11, 2023
+
+Fixed
+~~~~~
+* Fixed :code:`genv lock`
+
 Version 0.10.0
 -------------
 **Date:** May 7, 2023
