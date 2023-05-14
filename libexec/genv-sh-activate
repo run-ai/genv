@@ -172,6 +172,7 @@ EOS
 function setup()
 {
   cat <<EOS
+_genv_set_env GENV_SHELL 1
 _genv_replace_env PATH "$GENV_ROOT/shims:\$PATH"
 EOS
 

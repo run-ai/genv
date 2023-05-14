@@ -92,6 +92,8 @@ def do_create(container_id: str) -> None:
     with open("config.json") as f:
         config = json.load(f)
 
+    append_env(config, "GENV_CONTAINER", "1")
+
     if not get_env(config, "GENV_ACTIVATE") == "0":
         if not get_env(config, "GENV_ENVIRONMENT_ID"):
             # TODO(raz): consider generating an environment identifier which is different than

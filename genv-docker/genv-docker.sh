@@ -71,6 +71,7 @@ while [[ $# -gt 0 ]] ; do
         elif [ $arg = "--activate" ] ; then activate="1" ; elif [ $arg = "--no-activate" ] ; then activate="0"
         elif [ $arg = "--attach" ] ; then attach="1" ; elif [ $arg = "--no-attach" ] ; then attach="0"
         elif [ $arg = "--shims" ] ; then shims="1" ; elif [ $arg = "--no-shims" ] ; then shims="0"
+        elif [ $arg = "--device-locks" ] ; then device_locks="1" ; elif [ $arg = "--no-device-locks" ] ; then device_locks="0"
 
         # extra options
         elif [[ $arg = "--dry-run" ]] ; then dry_run="1"
@@ -128,6 +129,10 @@ if [[ $args_command = "run" ]] ; then
 
     if [ "$shims" = "0" ]; then
         args_middle+=("-e GENV_MOUNT_SHIMS=0")
+    fi
+
+    if [ "$device_locks" = "0" ]; then
+        args_middle+=("-e GENV_MOUNT_DEVICE_LOCKS=0")
     fi
 fi
 

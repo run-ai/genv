@@ -44,6 +44,8 @@ case "$command" in
     exit 1
   fi
 
+  # TODO(raz): use the Python SDK (i.e. genv.sdk.devices.lock) instead of the native flock command
+
   # first, use the Python library to get the lock path.
   # this also create the file and its parent directories with the right permissions if needed.
   path=$( exec /usr/bin/env python3 -c "import genv.core.devices; print(genv.core.devices.get_lock_path($index, create=True))" )
