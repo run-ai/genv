@@ -19,6 +19,8 @@ Core
 
    Genv uses Python 3.7 or higher so make sure you have it also installed.
 
+.. TODO(raz): document installation from PyPI and genvctl.
+
 Conda
 ^^^^^
 If you are using `Conda <https://docs.conda.io/en/latest/>`__, the best way to install Genv is using the `genv <https://anaconda.org/conda-forge/genv>`__ package from the channel `conda-forge <https://conda-forge.org/>`__:

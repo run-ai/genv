@@ -83,7 +83,12 @@
 <li class="toctree-l2"><a class="reference internal" href="#setup">Setup</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#local">Local</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#docker">Docker</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#python-sdk">Python SDK</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#python-package">Python Package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#using-pythonpath">Using <code class="code docutils literal notranslate"><span class="pre">PYTHONPATH</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#using-pip-install">Using <code class="code docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#verify-installation">Verify installation</a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="#cpu-only-setup">CPU-Only Setup</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#mock-devices">Mock Devices</a></li>
 </ul>
@@ -96,8 +101,8 @@
 <li class="toctree-l3"><a class="reference internal" href="#build">Build</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#python-package">Python Package</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#id4">Build</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id4">Python Package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id5">Build</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#publish-to-pypi">Publish to PyPI</a></li>
 </ul>
 </li>
@@ -139,28 +144,28 @@
 <div class="contents topic" id="contents">
 <p class="topic-title">Contents</p>
 <ul class="simple">
-<li><p><a class="reference internal" href="#development" id="id5">Development</a></p>
+<li><p><a class="reference internal" href="#development" id="id6">Development</a></p>
 <ul>
-<li><p><a class="reference internal" href="#prerequisites" id="id6">Prerequisites</a></p></li>
-<li><p><a class="reference internal" href="#setup" id="id7">Setup</a></p>
+<li><p><a class="reference internal" href="#prerequisites" id="id7">Prerequisites</a></p></li>
+<li><p><a class="reference internal" href="#setup" id="id8">Setup</a></p>
 <ul>
-<li><p><a class="reference internal" href="#local" id="id8">Local</a></p></li>
-<li><p><a class="reference internal" href="#docker" id="id9">Docker</a></p></li>
-<li><p><a class="reference internal" href="#python-sdk" id="id10">Python SDK</a></p></li>
-<li><p><a class="reference internal" href="#cpu-only-setup" id="id11">CPU-Only Setup</a></p></li>
-<li><p><a class="reference internal" href="#remote-features" id="id12">Remote Features</a></p></li>
+<li><p><a class="reference internal" href="#local" id="id9">Local</a></p></li>
+<li><p><a class="reference internal" href="#docker" id="id10">Docker</a></p></li>
+<li><p><a class="reference internal" href="#python-package" id="id11">Python Package</a></p></li>
+<li><p><a class="reference internal" href="#cpu-only-setup" id="id12">CPU-Only Setup</a></p></li>
+<li><p><a class="reference internal" href="#remote-features" id="id13">Remote Features</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#docs" id="id13">Docs</a></p>
+<li><p><a class="reference internal" href="#docs" id="id14">Docs</a></p>
 <ul>
-<li><p><a class="reference internal" href="#id3" id="id14">Setup</a></p></li>
-<li><p><a class="reference internal" href="#build" id="id15">Build</a></p></li>
+<li><p><a class="reference internal" href="#id3" id="id15">Setup</a></p></li>
+<li><p><a class="reference internal" href="#build" id="id16">Build</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#python-package" id="id16">Python Package</a></p>
+<li><p><a class="reference internal" href="#id4" id="id17">Python Package</a></p>
 <ul>
-<li><p><a class="reference internal" href="#id4" id="id17">Build</a></p></li>
-<li><p><a class="reference internal" href="#publish-to-pypi" id="id18">Publish to PyPI</a></p></li>
+<li><p><a class="reference internal" href="#id5" id="id18">Build</a></p></li>
+<li><p><a class="reference internal" href="#publish-to-pypi" id="id19">Publish to PyPI</a></p></li>
 </ul>
 </li>
 </ul>
@@ -217,15 +222,30 @@ This is useful if you are using macOS as Genv is developed for Linux systems and
 </pre></div>
 </div>
 </div>
-<div class="section" id="python-sdk">
-<h3>Python SDK<a class="headerlink" href="#python-sdk" title="Permalink to this headline">¶</a></h3>
-<p>To test the Python SDK run the following command:</p>
+<div class="section" id="python-package">
+<h3>Python Package<a class="headerlink" href="#python-package" title="Permalink to this headline">¶</a></h3>
+<p>You have two ways to install the Python package.</p>
+<div class="section" id="using-pythonpath">
+<h4>Using <code class="code docutils literal notranslate"><span class="pre">PYTHONPATH</span></code><a class="headerlink" href="#using-pythonpath" title="Permalink to this headline">¶</a></h4>
+<p>Run the following command:</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span> <span class="nv">PYTHONPATH</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$PWD</span><span class="s2">/py:</span><span class="nv">$PYTHONPATH</span><span class="s2">&quot;</span>
 </pre></div>
 </div>
-<p>You can test it by running:</p>
+</div>
+<div class="section" id="using-pip-install">
+<h4>Using <code class="code docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span></code><a class="headerlink" href="#using-pip-install" title="Permalink to this headline">¶</a></h4>
+<p>This is most useful if you want to use <code class="code docutils literal notranslate"><span class="pre">genvctl</span></code>.</p>
+<p>Run the following command:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>pip install -e py/
+</pre></div>
+</div>
+</div>
+<div class="section" id="verify-installation">
+<h4>Verify installation<a class="headerlink" href="#verify-installation" title="Permalink to this headline">¶</a></h4>
+<p>Regardless of how you installed the Python package, you can test it by running:</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python -c <span class="s2">&quot;import genv; print(&#39;ok&#39;)&quot;</span>
 </pre></div>
+</div>
 </div>
 </div>
 <div class="section" id="cpu-only-setup">
@@ -339,11 +359,11 @@ python -m pip install -r docs/requirements.txt
 </div>
 </div>
 </div>
-<div class="section" id="python-package">
-<h2>Python Package<a class="headerlink" href="#python-package" title="Permalink to this headline">¶</a></h2>
-<p>Run the following from the directory <code class="code docutils literal notranslate"><span class="pre">py</span></code>.</p>
 <div class="section" id="id4">
-<h3>Build<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h3>
+<h2>Python Package<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h2>
+<p>Run the following from the directory <code class="code docutils literal notranslate"><span class="pre">py</span></code>.</p>
+<div class="section" id="id5">
+<h3>Build<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h3>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python setup.py sdist bdist_wheel
 </pre></div>
 </div>

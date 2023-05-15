@@ -72,20 +72,38 @@ To open another terminal inside the container use:
 
     docker exec -it genv bash
 
-Python SDK
-~~~~~~~~~~
-To test the Python SDK run the following command:
+Python Package
+~~~~~~~~~~~~~~
+You have two ways to install the Python package.
+
+~~~~~~~~~~~~~~~~~~~~~~~~
+Using :code:`PYTHONPATH`
+~~~~~~~~~~~~~~~~~~~~~~~~
+Run the following command:
 
 .. code-block:: shell
 
     export PYTHONPATH="$PWD/py:$PYTHONPATH"
 
-You can test it by running:
+~~~~~~~~~~~~~~~~~~~~~~~~~
+Using :code:`pip install`
+~~~~~~~~~~~~~~~~~~~~~~~~~
+This is most useful if you want to use :code:`genvctl`.
+
+Run the following command:
+
+.. code-block:: shell
+
+    pip install -e py/
+
+~~~~~~~~~~~~~~~~~~~
+Verify installation
+~~~~~~~~~~~~~~~~~~~
+Regardless of how you installed the Python package, you can test it by running:
 
 .. code-block:: shell
 
     python -c "import genv; print('ok')"
-
 
 CPU-Only Setup
 ~~~~~~~~~~~~~~
