@@ -2,9 +2,17 @@
 
 import argparse
 import asyncio
+import os
 import sys
 
-import genv
+try:
+    import genv
+except ModuleNotFoundError:
+    # we manually set the system path if the Genv Python package is not installed.
+    # this is for backward compatability with installation from source.
+    sys.path.append(os.path.realpath(os.path.join(os.path.dirname(__file__), "../py")))
+
+    import genv
 
 
 def parse_args() -> argparse.Namespace:

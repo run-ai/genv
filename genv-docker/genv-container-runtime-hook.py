@@ -11,12 +11,14 @@ GENV_ROOT = os.path.realpath(
     os.environ.get("GENV_ROOT", os.path.join(os.path.dirname(__file__), ".."))
 )
 
-# NOTE(raz): we manually set the system path because becase the Genv Python package is not
-# guaranteed to be installed.
-# once it will be installed, we could remove this.
-sys.path.append(os.path.join(GENV_ROOT, "py"))
+try:
+    import genv
+except ModuleNotFoundError:
+    # we manually set the system path if the Genv Python package is not installed.
+    # this is for backward compatability with installation from source.
+    sys.path.append(os.path.realpath(os.path.join(os.path.dirname(__file__), "../py")))
 
-import genv
+    import genv
 
 
 def get_env(config: dict, name: str, *, check: bool = False) -> Optional[str]:
@@ -63,7 +65,9 @@ def configure_environment(config: dict, eid: str):
     )
 
 
-def attach_environment(config: dict, eid: str, allow_over_subscription: bool) -> Iterable[int]:
+def attach_environment(
+    config: dict, eid: str, allow_over_subscription: bool
+) -> Iterable[int]:
     """
     Attaches the environment to devices.
     """
@@ -172,7 +176,9 @@ if __name__ == "__main__":
             configure_environment(config, eid)
 
             if not get_env(config, "GENV_ATTACH") == "0":
-                allow_over_subscription = get_env(config, "GENV_ALLOW_OVER_SUBSCRIPTION") == "1"
+                allow_over_subscription = (
+                    get_env(config, "GENV_ALLOW_OVER_SUBSCRIPTION") == "1"
+                )
 
                 indices = attach_environment(config, eid, allow_over_subscription)
 
