@@ -15,54 +15,73 @@ Installation
 Core
 ----
 
+The core components of Genv are part of the Genv `Python package <https://pypi.org/project/genv/>`__.
+Install it with the following command:
+
+.. code-block:: shell
+
+   pip install genv
+
+.. warning::
+
+   If you see a warning message similar to the following, add the specified directory to your :code:`$PATH` by editing your :code:`~/.bashrc` and restarting your shell:
+
+   .. code-block:: shell
+
+      WARNING: The script genvctl is installed in '/home/raz/.local/bin' which is not on PATH.
+      Consider adding this directory to PATH...
+
 .. note::
 
-   Genv uses Python 3.7 or higher so make sure you have it also installed.
+   Genv needs Python 3.7 or higher so make sure you have it installed.
 
-.. TODO(raz): document installation from PyPI and genvctl.
-
-Conda
-^^^^^
-If you are using `Conda <https://docs.conda.io/en/latest/>`__, the best way to install Genv is using the `genv <https://anaconda.org/conda-forge/genv>`__ package from the channel `conda-forge <https://conda-forge.org/>`__:
+The Python package should also install the Genv CLI.
+Verify the installation with the command:
 
 .. code-block:: shell
 
-   conda install -c conda-forge genv
+   genvctl --help
 
-.. _Install Core From Source:
+.. warning::
 
-From Source
-^^^^^^^^^^^
-If you are not using Conda, it is still super easy to get Genv as everything you need is to clone its `repository <https://www.github.com/run-ai/genv>`__.
-Your home directory is a great place to keep it:
-
-.. code-block:: shell
-
-   git clone https://github.com/run-ai/genv.git ~/genv
-
-^^^^^^^^^^^^
-Uninstalling
-^^^^^^^^^^^^
-To uninstall Genv simply remove its root directory:
-
-.. code-block:: shell
-
-   rm -rf $(genv root)
+   If you see :code:`genvctl: command not found`, your :code:`$PATH` is probably no set as explained above.
 
 .. _Install Terminal:
 
 Terminal
 --------
-First, install the :ref:`core <Install Core>` component of Genv.
+To use Genv in your shell, you will need to install the terminal components of Genv.
 
-Then, in order to use Genv in the terminal, you will need to set up your shell environment with the following commands:
+.. note::
+
+   Before installing the terminal components, make sure you have the :ref:`core <Install Core>` components of Genv installed.
+
+You can install the terminal components of Genv in several ways.
+
+Conda
+~~~~~
+If you are using `Conda <https://docs.conda.io/en/latest/>`__, you can install the :code:`genv` `package <https://anaconda.org/conda-forge/genv>`__ from the channel `conda-forge <https://conda-forge.org/>`__:
+
+.. code-block:: shell
+
+   conda install -c conda-forge genv
+
+.. _Install Terminal From Source:
+
+From Source
+~~~~~~~~~~~
+If you are not using Conda, you can clone the Genv `repository <https://www.github.com/run-ai/genv>`__ to your home directory:
+
+.. code-block:: shell
+
+   git clone https://github.com/run-ai/genv.git $HOME/genv
+
+Then, you will need to set up your shell by adding the following commands to your :code:`~/.bashrc` or any other equivalent file:
 
 .. code-block:: shell
 
    export PATH=$HOME/genv/bin:$PATH
    eval "$(genv init -)"
-
-You should add them to your :code:`~/.bashrc` or any other equivalent file.
 
 Afterward, for this to take effect, either reopen your terminal or restart your shell using the command:
 
@@ -70,7 +89,7 @@ Afterward, for this to take effect, either reopen your terminal or restart your 
 
    exec $SHELL
 
-To verify the installation worked, run the following command:
+To verify the installation, run the following command:
 
 .. code-block:: shell
 
@@ -78,9 +97,16 @@ To verify the installation worked, run the following command:
 
 You should be able to see all the available Genv commands.
 
+~~~~~~~~~~~~
 Uninstalling
-^^^^^^^^^^^^
-Remove the commands you added to your :code:`~/.bashrc` or any other equivalent file.
+~~~~~~~~~~~~
+To uninstall the terminal components of Genv, remove the commands you added to your :code:`~/.bashrc` or any other equivalent file.
+
+Then, remove its root directory:
+
+.. code-block:: shell
+
+   rm -rf $(genv root)
 
 Visual Studio Code
 ------------------
