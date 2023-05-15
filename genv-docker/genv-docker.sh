@@ -14,6 +14,8 @@ print_error_and_exit()
 activate="1"
 attach="1"
 shims="1"
+device_locks="1"
+over_subscribe="0"
 
 print_run_usage()
 {
@@ -29,9 +31,11 @@ print_run_usage()
     echo "  --eid           Configure the environment identifier"
     echo
     echo "Options:"
-    echo "  --[no-]activate     Activate environment for the container; default: $activate"
-    echo "  --[no-]attach       Attach devices to the environment; default: $attach"
-    echo "  --[no-]shims        Mount shims to the container; default: $shims"
+    echo "  --[no-]activate         Activate environment for the container; default: $activate"
+    echo "  --[no-]attach           Attach devices to the environment; default: $attach"
+    echo "  --[no-]shims            Mount shims to the container; default: $shims"
+    echo "  --[no-]device-locks     Mount device locks to the container; default: $device_locks"
+    echo "  --[no-]over-subscribe   Attach unavailable devices if needed; default: $over_subscribe"
     echo
     echo "Extra Options:"
     echo "  --help          Show this help message and exit"
@@ -72,6 +76,7 @@ while [[ $# -gt 0 ]] ; do
         elif [ $arg = "--attach" ] ; then attach="1" ; elif [ $arg = "--no-attach" ] ; then attach="0"
         elif [ $arg = "--shims" ] ; then shims="1" ; elif [ $arg = "--no-shims" ] ; then shims="0"
         elif [ $arg = "--device-locks" ] ; then device_locks="1" ; elif [ $arg = "--no-device-locks" ] ; then device_locks="0"
+        elif [ $arg = "--over-subscribe" ] ; then over_subscribe="1" ; elif [ $arg = "--no-over-subscribe" ] ; then over_subscribe="0"
 
         # extra options
         elif [[ $arg = "--dry-run" ]] ; then dry_run="1"
@@ -133,6 +138,10 @@ if [[ $args_command = "run" ]] ; then
 
     if [ "$device_locks" = "0" ]; then
         args_middle+=("-e GENV_MOUNT_DEVICE_LOCKS=0")
+    fi
+
+    if [ "$over_subscribe" = "1" ]; then
+        args_middle+=("-e GENV_ALLOW_OVER_SUBSCRIPTION=1")
     fi
 fi
 

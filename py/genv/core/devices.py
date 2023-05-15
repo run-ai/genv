@@ -75,7 +75,7 @@ def snapshot() -> Devices:
     return State().load()
 
 
-def attach(eid: str) -> Iterable[int]:
+def attach(eid: str, allow_over_subscription: bool = False) -> Iterable[int]:
     """
     Attaches an environment to devices.
     The device count is taken from the environment configuration.
@@ -93,14 +93,11 @@ def attach(eid: str) -> Iterable[int]:
             diff = env_config.gpus - len(env_devices)
 
             if diff > 0:
-                available_devices = devices.filter(
-                    function=lambda device: device.available(env_config.gpu_memory)
+                not_env_devices = devices.filter(not_indices=env_devices.indices)
+
+                indices = not_env_devices.find_available_devices(
+                    diff, env_config.gpu_memory, allow_over_subscription
                 )
-
-                if len(available_devices) < diff:
-                    raise RuntimeError("No available devices")
-
-                indices = available_devices.indices[:diff]
 
                 devices.attach(eid, indices, env_config.gpu_memory)
             elif diff < 0:

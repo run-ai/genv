@@ -63,12 +63,12 @@ def configure_environment(config: dict, eid: str):
     )
 
 
-def attach_environment(config: dict, eid: str) -> Iterable[int]:
+def attach_environment(config: dict, eid: str, allow_over_subscription: bool) -> Iterable[int]:
     """
     Attaches the environment to devices.
     """
 
-    indices = genv.core.devices.attach(eid)
+    indices = genv.core.devices.attach(eid, allow_over_subscription)
 
     # NOTE(raz): setting environment variables here will not have effect on the process
     # environment as it is now too late in the container lifecycle.
@@ -172,7 +172,9 @@ if __name__ == "__main__":
             configure_environment(config, eid)
 
             if not get_env(config, "GENV_ATTACH") == "0":
-                indices = attach_environment(config, eid)
+                allow_over_subscription = get_env(config, "GENV_ALLOW_OVER_SUBSCRIPTION") == "1"
+
+                indices = attach_environment(config, eid, allow_over_subscription)
 
     if not get_env(config, "GENV_MOUNT_SHIMS") == "0":
         mount_shims(state, config)

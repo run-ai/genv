@@ -63,46 +63,6 @@ def cleanup(
             count -= 1
 
 
-def find_available_devices(
-    snapshot: genv.Devices,
-    count: int,
-    gpu_memory: Optional[str],
-    allow_over_subscription: bool,
-) -> Iterable[int]:
-    """
-    Finds available devices with respect to the optionally specified memory request.
-    When thare are not enough devices available, non available devices are also used if
-    over-subscription is allowed. Otherwise, RuntimeError is raised.
-
-    :param snapshot:
-    :param count: Amount of devices to find
-    :param gpu_memory: Optional memory request
-    :param allow_over_subscription: Use non available devices if needed
-
-    :return: A list of device indices
-    """
-
-    available_devices = snapshot.filter(
-        function=lambda device: device.available(gpu_memory)
-    )
-
-    indices = available_devices.indices
-
-    if allow_over_subscription and len(indices) < count:
-        not_available_devices = snapshot.filter(not_indices=available_devices.indices)
-
-        # we sort in order to use the least populated devices first
-        indices += sorted(
-            not_available_devices.indices,
-            key=lambda index: len(snapshot[index].eids),
-        )
-
-    if len(indices) < count:
-        raise RuntimeError("No available devices")
-
-    return indices[:count]
-
-
 def do_attach(
     snapshot: genv.Devices,
     eid: str,
@@ -121,6 +81,8 @@ def do_attach(
     :param index: Device index to attach
     :return: None
     """
+    # TODO(raz): merge this method into genv.core.devices.attach() entirely
+
     envs = genv.core.envs.snapshot()
 
     if count is None and index is None:
@@ -143,11 +105,10 @@ def do_attach(
                     f"Requested more devices ({count}) than total available ({len(snapshot)})"
                 )
 
-            indices = find_available_devices(
-                snapshot.filter(not_indices=attached_devices.indices),
-                count - current,
-                gpu_memory,
-                allow_over_subscription,
+            not_attached_devices = snapshot.filter(not_indices=attached_devices.indices)
+
+            indices = not_attached_devices.find_available_devices(
+                count - current, gpu_memory, allow_over_subscription
             )
 
             snapshot.attach(eid, indices, gpu_memory)
