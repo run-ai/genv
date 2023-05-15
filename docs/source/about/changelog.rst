@@ -1,6 +1,22 @@
 Changelog
 =========
 
+Version 0.11.0
+--------------
+**Date:** May 15, 2023
+
+Added
+~~~~~
+* Introducing the Genv CLI :code:`genvctl`
+* Added CLI subcommand :code:`genvctl lock` for locking over-subscribed devices as access control
+* Supporting over-subscription in container toolkit with :code:`genv-docker` flag :code:`--over-subscribe`
+* Added :code:`genv.sdk.env` SDK package for the active environment
+* Supporting locking multiple devices in :code:`genv.core.devices.lock`
+
+Changed
+~~~~~~~
+* Renamed :code:`genv.sdk.lock_devices` to :code:`genv.sdk.lock`
+
 Version 0.10.1
 --------------
 **Date:** May 11, 2023

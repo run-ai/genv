@@ -9,7 +9,7 @@
 project = "Genv"
 copyright = "2022-2023, Run.ai"
 author = "Raz Rotenberg"
-release = "0.10.1"
+release = "0.11.0"
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
