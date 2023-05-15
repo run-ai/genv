@@ -169,7 +169,10 @@ Attach with Over-subscription
 By default, Genv does not over-subscribe GPUs.
 This means that once a GPU is fully provisioned - either to a single environment or multiple ones - it cannot be attached anymore.
 
-To attach a GPU with over-subscription you will need to pass the argument :code:`-o` or :code:`--over-subscribe` to the :code:`genv attach` command.
+~~~~~
+Shell
+~~~~~
+When running environments in the shell, to attach a GPU with over-subscription you will need to pass the argument :code:`-o` or :code:`--over-subscribe` to the :code:`genv attach` command.
 For example:
 
 .. code-block:: shell
@@ -181,6 +184,25 @@ Another example:
 .. code-block:: shell
 
    genv attach --count 2 --over-subscribe
+
+~~~~~~~~~~
+Containers
+~~~~~~~~~~
+When running containers using the :doc:`Genv container toolkit <../docker/overview>`, use the :code:`genv-docker` flag :code:`--over-subscribe`.
+For example:
+
+.. code-block:: shell
+
+   genv-docker run -it --rm --gpus 1 --gpu-memory 4g --over-subscribe ubuntu
+
+If you don't use :code:`genv-docker` but rather use the Genv container runtime directly, you can set the environment variable :code:`GENV_ALLOW_OVER_SUBSCRIPTION` to :code:`1`.
+For more information check out the Genv container toolkit `README.md <https://github.com/run-ai/genv/blob/main/genv-docker/README.md>`__.
+
+.. note::
+
+   You should :doc:`install <../overview/installation>` Genv inside the container to use the :ref:`access control <Access Control>` mechanism
+
+.. _Access Control:
 
 Access Control
 ~~~~~~~~~~~~~~
@@ -218,3 +240,28 @@ For example:
 
 .. [#] `Over-allocation - Wikipedia <https://en.wikipedia.org/wiki/Thin_provisioning#Over-allocation>`_
 .. [#] `flock(1) - Linux manual page <https://man7.org/linux/man-pages/man1/flock.1.html>`_
+
+~~~~~~~~
+Genv CLI
+~~~~~~~~
+If you installed Genv from `PyPI <https://pypi.org/project/genv/>`__, you have the Genv CLI installed as well.
+You can test if you have it installed with the command:
+
+.. code-block:: shell
+
+   genvctl --help
+
+If you do have it installed, you can use it for access control with the subcommand :code:`lock`.
+For example:
+
+.. code-block:: shell
+
+   genvctl lock python main.py
+
+Another example:
+
+.. code-block:: shell
+
+   genvctl lock python -c "import time; print('hi'); time.sleep(10); print('bye')"
+
+.. TODO(raz): update this paragraph once installation of core components is done from PyPI
