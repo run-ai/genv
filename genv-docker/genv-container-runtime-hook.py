@@ -5,7 +5,7 @@ from pathlib import Path
 import subprocess
 import sys
 import json
-from typing import Optional
+from typing import Iterable, Optional
 
 GENV_ROOT = os.path.realpath(
     os.environ.get("GENV_ROOT", os.path.join(os.path.dirname(__file__), ".."))
@@ -63,12 +63,12 @@ def configure_environment(config: dict, eid: str):
     )
 
 
-def attach_environment(config: dict, eid: str):
+def attach_environment(config: dict, eid: str, allow_over_subscription: bool) -> Iterable[int]:
     """
     Attaches the environment to devices.
     """
 
-    indices = genv.core.devices.attach(eid)
+    indices = genv.core.devices.attach(eid, allow_over_subscription)
 
     # NOTE(raz): setting environment variables here will not have effect on the process
     # environment as it is now too late in the container lifecycle.
@@ -79,6 +79,35 @@ def attach_environment(config: dict, eid: str):
     # so appending "NVIDIA_VISIBLE_DEVICES" works even if it is already set.
     config["process"]["env"].append(
         f"NVIDIA_VISIBLE_DEVICES={','.join(str(index) for index in indices)}"
+    )
+
+    return indices
+
+
+def mount_file(
+    state: dict, host_path: str, container_path: str, read_only: bool = True
+) -> None:
+    """
+    Mounts a file into a container.
+
+    :param host_path: Path of the file on the host
+    :param container_path: Path of the file in the container directory in the host namespace.
+    """
+
+    Path(container_path).touch(mode=0o755, exist_ok=True)
+
+    # TODO(raz): can we do the following without shells and subprocesses?
+
+    subprocess.check_call(
+        f"nsenter --mount --target {state['pid']} mount --bind {host_path} {container_path}",
+        shell=True,
+    )
+
+    ro = ",ro" if read_only else ""
+
+    subprocess.check_call(
+        f"nsenter --mount --target {state['pid']} mount --bind -o remount,nosuid{ro} {container_path}",
+        shell=True,
     )
 
 
@@ -103,17 +132,26 @@ def mount_shims(state: dict, config: dict):
         host_shim = f"{host_shims}/{shim}"
         container_shim = f"{container_shims}/{shim}"
 
-        Path(container_shim).touch(mode=0o755, exist_ok=True)
+        mount_file(state, host_shim, container_shim)
 
-        # TODO(raz): can we do the following without shells and subprocesses?
 
-        subprocess.check_call(
-            f"nsenter --mount --target {state['pid']} mount --bind {host_shim} {container_shim}",
-            shell=True,
-        )
-        subprocess.check_call(
-            f"nsenter --mount --target {state['pid']} mount --bind -o remount,ro,nosuid {container_shim}",
-            shell=True,
+def mount_device_locks(state: dict, config: dict, indices: Iterable[int]):
+    """
+    Mounts device locks into the container.
+    """
+
+    container_root = config["root"]["path"]
+    container_devices = f"{container_root}/var/tmp/genv/devices"
+
+    Path(container_devices).mkdir(mode=0o755, parents=True, exist_ok=True)
+
+    for index in indices:
+        host_path = genv.core.devices.get_lock_path(
+            index, create=True
+        )  # create the file if not exists as the SDK relies on its existence
+
+        mount_file(
+            state, host_path, f"{container_devices}/{index}.lock", read_only=False
         )
 
 
@@ -134,10 +172,15 @@ if __name__ == "__main__":
             configure_environment(config, eid)
 
             if not get_env(config, "GENV_ATTACH") == "0":
-                attach_environment(config, eid)
+                allow_over_subscription = get_env(config, "GENV_ALLOW_OVER_SUBSCRIPTION") == "1"
+
+                indices = attach_environment(config, eid, allow_over_subscription)
 
     if not get_env(config, "GENV_MOUNT_SHIMS") == "0":
         mount_shims(state, config)
+
+    if not get_env(config, "GENV_MOUNT_DEVICE_LOCKS") == "0":
+        mount_device_locks(state, config, indices)
 
     with open("config.json", "w") as f:
         json.dump(config, f)

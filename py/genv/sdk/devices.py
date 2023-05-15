@@ -1,13 +1,18 @@
 from contextlib import contextmanager
+from glob import glob
 import os
+import re
 from typing import Iterable, Optional
 
+import genv.utils
 import genv.core.devices
 
+import genv.sdk.env
 
-def attached() -> Optional[Iterable[int]]:
+
+def visible() -> Optional[Iterable[int]]:
     """
-    Returns the attached device indices or None if not running in an active environment.
+    Returns the indices of visible devices if set.
     """
 
     indices = os.environ.get("CUDA_VISIBLE_DEVICES")
@@ -21,21 +26,34 @@ def attached() -> Optional[Iterable[int]]:
     return [int(index) for index in indices.split(",")]
 
 
+def lockable() -> Iterable[int]:
+    """
+    Returns the indices of devices that have an existing lock.
+    """
+
+    dir = genv.utils.get_temp_file_path("devices")
+
+    return [
+        int(re.sub(r".*?(\d+)\.lock", r"\1", path)) for path in glob(f"{dir}/*.lock")
+    ]
+
+
 @contextmanager
 def lock() -> None:
     """
-    Obtains exclusive access to the attached device.
-    Does nothing ff not running in an active environment or not attached to devices.
-    Raises RuntimeError if attached to more than a single device.
+    Obtains exclusive access to the attached devices.
+    Does nothing if not running in an active environment or not attached to devices.
     """
 
-    indices = attached()
-
-    if indices is None or len(indices) == 0:
+    if not genv.sdk.env.active():
         yield
     else:
-        if len(indices) > 1:
-            raise RuntimeError("Environment is attached to more than a single device")
+        if "GENV_SHELL" in os.environ:
+            indices = visible()
+        elif "GENV_CONTAINER" in os.environ:
+            indices = lockable()
+        else:
+            raise RuntimeError("Failed to find device indices to lock")
 
-        with genv.core.devices.lock(index=indices[0]):
+        with genv.core.devices.lock(indices):
             yield

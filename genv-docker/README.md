@@ -72,6 +72,12 @@ Equivalent to environment variable [`GENV_ATTACH`](#genv_attach).
 #### `--[no-]shims`
 Equivalent to environment variable [`GENV_MOUNT_SHIMS`](#GENV_MOUNT_SHIMS).
 
+#### `--[no-]device-locks`
+Equivalent to environment variable [`GENV_MOUNT_DEVICE_LOCKS`](#GENV_MOUNT_DEVICE_LOCKS).
+
+#### `--[no-]over-subscribe`
+Equivalent to environment variable [`GENV_ALLOW_OVER_SUBSCRIPTION`](#GENV_ALLOW_OVER_SUBSCRIPTION).
+
 ## Using the container runtime directly
 You can directly use the container runtime even without `genv-docker` by specifying it in the argument `--runtime` to `docker run`.
 
@@ -101,6 +107,12 @@ Attaches devices to the environment unless set to `0`.
 
 #### `GENV_MOUNT_SHIMS`
 Mounts shims to the container unless set to `0`.
+
+#### `GENV_MOUNT_DEVICE_LOCKS`
+Mounts device locks to the container unless set to `0`.
+
+#### `GENV_ALLOW_OVER_SUBSCRIPTION`
+Use non available devices if needed when set to `1`.
 
 ## References
 1. https://github.com/opencontainers/runtime-spec/blob/main/config.md

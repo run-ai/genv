@@ -197,3 +197,37 @@ class Devices:
             for eid in device.eids:
                 if (poll_eid is not None) and (not poll_eid(eid)):
                     device.detach(eid)
+
+    def find_available_devices(
+        self, count: int, gpu_memory: Optional[str], allow_over_subscription: bool
+    ) -> Iterable[int]:
+        """
+        Finds available devices with respect to the optionally specified memory request.
+        When thare are not enough devices available, non available devices are also used if
+        over-subscription is allowed. Otherwise, RuntimeError is raised.
+
+        :param count: Amount of devices to find
+        :param gpu_memory: Optional memory request
+        :param allow_over_subscription: Use non available devices if needed
+
+        :return: A list of device indices
+        """
+        available_devices = self.filter(
+            function=lambda device: device.available(gpu_memory)
+        )
+
+        indices = available_devices.indices
+
+        if allow_over_subscription and len(indices) < count:
+            not_available_devices = self.filter(not_indices=available_devices.indices)
+
+            # we sort in order to use the least populated devices first
+            indices += sorted(
+                not_available_devices.indices,
+                key=lambda index: len(self[index].eids),
+            )
+
+        if len(indices) < count:
+            raise RuntimeError("No available devices")
+
+        return indices[:count]

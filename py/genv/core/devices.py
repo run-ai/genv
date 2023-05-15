@@ -1,4 +1,4 @@
-from contextlib import contextmanager
+from contextlib import ExitStack, contextmanager
 import subprocess
 from typing import Any, Iterable, Union
 
@@ -75,7 +75,7 @@ def snapshot() -> Devices:
     return State().load()
 
 
-def attach(eid: str) -> Iterable[int]:
+def attach(eid: str, allow_over_subscription: bool = False) -> Iterable[int]:
     """
     Attaches an environment to devices.
     The device count is taken from the environment configuration.
@@ -93,14 +93,11 @@ def attach(eid: str) -> Iterable[int]:
             diff = env_config.gpus - len(env_devices)
 
             if diff > 0:
-                available_devices = devices.filter(
-                    function=lambda device: device.available(env_config.gpu_memory)
+                not_env_devices = devices.filter(not_indices=env_devices.indices)
+
+                indices = not_env_devices.find_available_devices(
+                    diff, env_config.gpu_memory, allow_over_subscription
                 )
-
-                if len(available_devices) < diff:
-                    raise RuntimeError("No available devices")
-
-                indices = available_devices.indices[:diff]
 
                 devices.attach(eid, indices, env_config.gpu_memory)
             elif diff < 0:
@@ -132,15 +129,24 @@ def get_lock_path(index: int, create: bool = False) -> str:
 
 
 @contextmanager
-def lock(index: int) -> None:
+def lock(indices: Union[Iterable[int], int]) -> None:
     """
-    Obtain exclusive access to a device.
+    Obtain exclusive access to a device or a few devices.
     """
-    path = get_lock_path(index)
+    if isinstance(indices, int):
+        indices = [indices]
 
-    # NOTE(raz): currently, we wait on the lock even if it is already taken by our environment.
+    # we sort here to decrease the chance of deadlock when different processes
+    # try to lock the same devices in a different order.
+    indices = sorted(indices)
+
+    # NOTE(raz): currently, we wait on a lock even if it is already taken by our environment.
     # we should think if this is the desired behavior and if it's possible to lock once per environment.
-    with genv.utils.access_lock(path):
+
+    with ExitStack() as es:
+        for index in indices:
+            es.enter_context(genv.utils.access_lock(get_lock_path(index)))
+
         yield
 
     # TODO(raz): currently we wait for the entire device to become available.
