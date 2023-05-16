@@ -141,9 +141,9 @@
 </div>
 <div class="section" id="install-the-container-toolkit">
 <h2>Install the container toolkit<a class="headerlink" href="#install-the-container-toolkit" title="Permalink to this headline">¶</a></h2>
-<p>All the <a class="reference internal" href="overview.html#container-toolkit-architecture"><span class="std std-ref">components</span></a> of the container toolkit come as part of the core component.
-So make sure to <a class="reference internal" href="../overview/installation.html#install-core"><span class="std std-ref">install</span></a> the core component of Genv if it is not already installed.</p>
-<p>You can then see them with the following command:</p>
+<p>The <a class="reference internal" href="overview.html#container-toolkit-architecture"><span class="std std-ref">container toolkit</span></a> is part of the Genv project <a class="reference external" href="https://github.com/run-ai/genv/tree/main/genv-docker">repository</a>.</p>
+<p>The easiest way to install it is to install the <a class="reference internal" href="../overview/installation.html#install-terminal-from-source"><span class="std std-ref">terminal components</span></a> of Genv from source.</p>
+<p>Then, you can then see the container toolkit components with the following command:</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>ls -la <span class="k">$(</span>genv root<span class="k">)</span>/genv-docker
 </pre></div>
 </div>
@@ -190,6 +190,7 @@ You can do this with the following command:</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>cp -f <span class="k">$(</span>genv root<span class="k">)</span>/genv-docker/genv-docker.sh /usr/local/bin/genv-docker
 </pre></div>
 </div>
+<p>If you don’t want to install it in a system-wide location or don’t have sufficient permissions, you can also install it at <code class="code docutils literal notranslate"><span class="pre">$HOME/.local/bin</span></code>.</p>
 <p>Now, you will be able to execute <code class="code docutils literal notranslate"><span class="pre">genv-docker</span></code> commands from any working directory.</p>
 <p>If you don’t want to install <code class="code docutils literal notranslate"><span class="pre">genv-docker</span></code> in a system-wide location, you can run it using its full path instead.</p>
 </div>

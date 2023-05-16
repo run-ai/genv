@@ -52,16 +52,13 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Installation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#core">Core</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#core">Core</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#terminal">Terminal</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#conda">Conda</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#from-source">From Source</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#uninstalling">Uninstalling</a></li>
 </ul>
 </li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="#terminal">Terminal</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#id1">Uninstalling</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#visual-studio-code">Visual Studio Code</a></li>
@@ -133,23 +130,19 @@
 <div class="contents topic" id="contents">
 <p class="topic-title">Contents</p>
 <ul class="simple">
-<li><p><a class="reference internal" href="#installation" id="id2">Installation</a></p>
+<li><p><a class="reference internal" href="#installation" id="id1">Installation</a></p>
 <ul>
-<li><p><a class="reference internal" href="#core" id="id3">Core</a></p>
+<li><p><a class="reference internal" href="#core" id="id2">Core</a></p></li>
+<li><p><a class="reference internal" href="#terminal" id="id3">Terminal</a></p>
 <ul>
 <li><p><a class="reference internal" href="#conda" id="id4">Conda</a></p></li>
 <li><p><a class="reference internal" href="#from-source" id="id5">From Source</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#terminal" id="id6">Terminal</a></p>
-<ul>
-<li><p><a class="reference internal" href="#id1" id="id7">Uninstalling</a></p></li>
-</ul>
-</li>
-<li><p><a class="reference internal" href="#visual-studio-code" id="id8">Visual Studio Code</a></p></li>
-<li><p><a class="reference internal" href="#jupyterlab" id="id9">JupyterLab</a></p></li>
-<li><p><a class="reference internal" href="#pycharm" id="id10">PyCharm</a></p></li>
-<li><p><a class="reference internal" href="#docker" id="id11">Docker</a></p></li>
+<li><p><a class="reference internal" href="#visual-studio-code" id="id6">Visual Studio Code</a></p></li>
+<li><p><a class="reference internal" href="#jupyterlab" id="id7">JupyterLab</a></p></li>
+<li><p><a class="reference internal" href="#pycharm" id="id8">PyCharm</a></p></li>
+<li><p><a class="reference internal" href="#docker" id="id9">Docker</a></p></li>
 </ul>
 </li>
 </ul>
@@ -161,54 +154,76 @@ If you are interested in using Genv on a multi-machine cluster, check out the re
 </div>
 <div class="section" id="core">
 <span id="install-core"></span><h2>Core<a class="headerlink" href="#core" title="Permalink to this headline">¶</a></h2>
+<p>The core components of Genv are part of the Genv <a class="reference external" href="https://pypi.org/project/genv/">Python package</a>.
+Install it with the following command:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>pip install genv
+</pre></div>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>If you see a warning message similar to the following, add the specified directory to your <code class="code docutils literal notranslate"><span class="pre">$PATH</span></code> by editing your <code class="code docutils literal notranslate"><span class="pre">~/.bashrc</span></code> and restarting your shell:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>WARNING: The script genvctl is installed in <span class="s1">&#39;/home/raz/.local/bin&#39;</span> which is not on PATH.
+Consider adding this directory to PATH...
+</pre></div>
+</div>
+</div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>Genv uses Python 3.7 or higher so make sure you have it also installed.</p>
+<p>Genv needs Python 3.7 or higher so make sure you have it installed.</p>
 </div>
+<p>The Python package should also install the Genv CLI.
+Verify the installation with the command:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>genvctl --help
+</pre></div>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>If you see <code class="code docutils literal notranslate"><span class="pre">genvctl:</span> <span class="pre">command</span> <span class="pre">not</span> <span class="pre">found</span></code>, your <code class="code docutils literal notranslate"><span class="pre">$PATH</span></code> is probably no set as explained above.</p>
+</div>
+</div>
+<div class="section" id="terminal">
+<span id="install-terminal"></span><h2>Terminal<a class="headerlink" href="#terminal" title="Permalink to this headline">¶</a></h2>
+<p>To use Genv in your shell, you will need to install the terminal components of Genv.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Before installing the terminal components, make sure you have the <a class="reference internal" href="#install-core"><span class="std std-ref">core</span></a> components of Genv installed.</p>
+</div>
+<p>You can install the terminal components of Genv in several ways.</p>
 <div class="section" id="conda">
 <h3>Conda<a class="headerlink" href="#conda" title="Permalink to this headline">¶</a></h3>
-<p>If you are using <a class="reference external" href="https://docs.conda.io/en/latest/">Conda</a>, the best way to install Genv is using the <a class="reference external" href="https://anaconda.org/conda-forge/genv">genv</a> package from the channel <a class="reference external" href="https://conda-forge.org/">conda-forge</a>:</p>
+<p>If you are using <a class="reference external" href="https://docs.conda.io/en/latest/">Conda</a>, you can install the <code class="code docutils literal notranslate"><span class="pre">genv</span></code> <a class="reference external" href="https://anaconda.org/conda-forge/genv">package</a> from the channel <a class="reference external" href="https://conda-forge.org/">conda-forge</a>:</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>conda install -c conda-forge genv
 </pre></div>
 </div>
 </div>
 <div class="section" id="from-source">
-<span id="install-core-from-source"></span><h3>From Source<a class="headerlink" href="#from-source" title="Permalink to this headline">¶</a></h3>
-<p>If you are not using Conda, it is still super easy to get Genv as everything you need is to clone its <a class="reference external" href="https://www.github.com/run-ai/genv">repository</a>.
-Your home directory is a great place to keep it:</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>git clone https://github.com/run-ai/genv.git ~/genv
+<span id="install-terminal-from-source"></span><h3>From Source<a class="headerlink" href="#from-source" title="Permalink to this headline">¶</a></h3>
+<p>If you are not using Conda, you can clone the Genv <a class="reference external" href="https://www.github.com/run-ai/genv">repository</a> to your home directory:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>git clone https://github.com/run-ai/genv.git <span class="nv">$HOME</span>/genv
 </pre></div>
 </div>
-<div class="section" id="uninstalling">
-<h4>Uninstalling<a class="headerlink" href="#uninstalling" title="Permalink to this headline">¶</a></h4>
-<p>To uninstall Genv simply remove its root directory:</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>rm -rf <span class="k">$(</span>genv root<span class="k">)</span>
-</pre></div>
-</div>
-</div>
-</div>
-</div>
-<div class="section" id="terminal">
-<span id="install-terminal"></span><h2>Terminal<a class="headerlink" href="#terminal" title="Permalink to this headline">¶</a></h2>
-<p>First, install the <a class="reference internal" href="#install-core"><span class="std std-ref">core</span></a> component of Genv.</p>
-<p>Then, in order to use Genv in the terminal, you will need to set up your shell environment with the following commands:</p>
+<p>Then, you will need to set up your shell by adding the following commands to your <code class="code docutils literal notranslate"><span class="pre">~/.bashrc</span></code> or any other equivalent file:</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span> <span class="nv">PATH</span><span class="o">=</span><span class="nv">$HOME</span>/genv/bin:<span class="nv">$PATH</span>
 <span class="nb">eval</span> <span class="s2">&quot;</span><span class="k">$(</span>genv init -<span class="k">)</span><span class="s2">&quot;</span>
 </pre></div>
 </div>
-<p>You should add them to your <code class="code docutils literal notranslate"><span class="pre">~/.bashrc</span></code> or any other equivalent file.</p>
 <p>Afterward, for this to take effect, either reopen your terminal or restart your shell using the command:</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">exec</span> <span class="nv">$SHELL</span>
 </pre></div>
 </div>
-<p>To verify the installation worked, run the following command:</p>
+<p>To verify the installation, run the following command:</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>genv
 </pre></div>
 </div>
 <p>You should be able to see all the available Genv commands.</p>
-<div class="section" id="id1">
-<h3>Uninstalling<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
-<p>Remove the commands you added to your <code class="code docutils literal notranslate"><span class="pre">~/.bashrc</span></code> or any other equivalent file.</p>
+<div class="section" id="uninstalling">
+<h4>Uninstalling<a class="headerlink" href="#uninstalling" title="Permalink to this headline">¶</a></h4>
+<p>To uninstall the terminal components of Genv, remove the commands you added to your <code class="code docutils literal notranslate"><span class="pre">~/.bashrc</span></code> or any other equivalent file.</p>
+<p>Then, remove its root directory:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>rm -rf <span class="k">$(</span>genv root<span class="k">)</span>
+</pre></div>
+</div>
+</div>
 </div>
 </div>
 <div class="section" id="visual-studio-code">

@@ -74,36 +74,11 @@ To open another terminal inside the container use:
 
 Python Package
 ~~~~~~~~~~~~~~
-You have two ways to install the Python package.
-
-~~~~~~~~~~~~~~~~~~~~~~~~
-Using :code:`PYTHONPATH`
-~~~~~~~~~~~~~~~~~~~~~~~~
-Run the following command:
+Install the Python package in editable mode with the following command:
 
 .. code-block:: shell
 
-    export PYTHONPATH="$PWD/py:$PYTHONPATH"
-
-~~~~~~~~~~~~~~~~~~~~~~~~~
-Using :code:`pip install`
-~~~~~~~~~~~~~~~~~~~~~~~~~
-This is most useful if you want to use :code:`genvctl`.
-
-Run the following command:
-
-.. code-block:: shell
-
-    pip install -e py/
-
-~~~~~~~~~~~~~~~~~~~
-Verify installation
-~~~~~~~~~~~~~~~~~~~
-Regardless of how you installed the Python package, you can test it by running:
-
-.. code-block:: shell
-
-    python -c "import genv; print('ok')"
+    python -m pip install -e py/
 
 CPU-Only Setup
 ~~~~~~~~~~~~~~
@@ -251,7 +226,7 @@ Build
 Python Package
 --------------
 
-Run the following from the directory :code:`py`.
+Run the following from the directory :code:`py/`.
 
 Build
 ~~~~~
