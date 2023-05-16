@@ -1,3 +1,5 @@
+.. TODO(raz): this is de-facto the usage manual of the shell integration and not the native Genv core (i.e. genvctl)
+
 Usage
 =====
 

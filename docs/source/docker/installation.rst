@@ -11,10 +11,11 @@ Installation
 
 Install the container toolkit
 -----------------------------
-All the :ref:`components <Container Toolkit Architecture>` of the container toolkit come as part of the core component.
-So make sure to :ref:`install <Install Core>` the core component of Genv if it is not already installed.
+The :ref:`container toolkit <Container Toolkit Architecture>` is part of the Genv project `repository <https://github.com/run-ai/genv/tree/main/genv-docker>`__.
 
-You can then see them with the following command:
+The easiest way to install it is to install the :ref:`terminal components <Install Terminal From Source>` of Genv from source.
+
+Then, you can then see the container toolkit components with the following command:
 
 .. code-block:: shell
 
@@ -70,6 +71,8 @@ You can do this with the following command:
 .. code-block:: shell
 
     cp -f $(genv root)/genv-docker/genv-docker.sh /usr/local/bin/genv-docker
+
+If you don't want to install it in a system-wide location or don't have sufficient permissions, you can also install it at :code:`$HOME/.local/bin`.
 
 Now, you will be able to execute :code:`genv-docker` commands from any working directory.
 

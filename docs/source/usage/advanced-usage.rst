@@ -200,7 +200,8 @@ For more information check out the Genv container toolkit `README.md <https://gi
 
 .. note::
 
-   You should :doc:`install <../overview/installation>` Genv inside the container to use the :ref:`access control <Access Control>` mechanism
+   You should :doc:`install <../overview/installation>` Genv inside the container to use the :ref:`access control <Access Control>` mechanism.
+   Installing the :ref:`Install Core` core components of Genv is enough.
 
 .. _Access Control:
 

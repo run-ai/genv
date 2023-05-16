@@ -26,7 +26,7 @@ Those environment variables must be explicitly accepted on all remote hosts by m
 
 Local Hosts
 -----------
-On local hosts, :ref:`install <Install Terminal>` the terminal component of Genv in your preferred way if not already installed.
+On local hosts, install the :ref:`core <Install Core>` and :ref:`terminal <Install Terminal>` components of Genv if not already installed.
 This is how you will run :code:`genv remote` commands.
 
 Then, make sure you have SSH access to all remote hosts and that the SSH configuration is set properly.
@@ -85,7 +85,7 @@ You can then test that everything is set up properly by running the following co
 
 Per-User Installation (recommended)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Every user should install Genv core :ref:`from source <Install Core From Source>` in his or her home directory (i.e. :code:`$HOME/genv`) on all remote hosts.
+Every user should install Genv core and terminal components :ref:`from source <Install Terminal From Source>` in his or her home directory (i.e. :code:`$HOME/genv`) on all remote hosts.
 
 This is the recommended way to install Genv on remote hosts for a few reasons:
 

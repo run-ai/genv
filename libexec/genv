@@ -5,7 +5,6 @@ set -e
 
 export GENV_ROOT=${GENV_ROOT:-"$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &> /dev/null && pwd)/.."}
 export PATH="$GENV_ROOT/libexec:$PATH"
-export PYTHONPATH="$GENV_ROOT/py:$PYTHONPATH"
 
 command="$1"
 case "$command" in
