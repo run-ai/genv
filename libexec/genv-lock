@@ -48,7 +48,9 @@ case "$command" in
 
   # first, use the Python library to get the lock path.
   # this also create the file and its parent directories with the right permissions if needed.
-  path=$( exec /usr/bin/env python3 -c "import genv.core.devices; print(genv.core.devices.get_lock_path($index, create=True))" )
+  #
+  # NOTE(raz): we manually set the Python path for backward compatability with installation from source.
+  path=$( exec /usr/bin/env PYTHONPATH="$GENV_ROOT/py:$PYTHONPATH" python3 -c "import genv.core.devices; print(genv.core.devices.get_lock_path($index, create=True))" )
 
   # now actually obtain an exclusive lock and run the command
   exec flock "$path" "$@"
