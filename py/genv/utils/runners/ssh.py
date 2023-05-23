@@ -12,7 +12,12 @@ class Runner(Base):
     __SSH_COMMAND_PREFIX = "ssh"
     __SSH_TIMEOUT_PARAMETER = "-o ConnectTimeout={0}"
 
-    def __init__(self, host_name: str, timeout: Optional[int] = None, process_env: Optional[Dict] = None):
+    def __init__(
+        self,
+        host_name: str,
+        timeout: Optional[int] = None,
+        process_env: Optional[Dict] = None,
+    ):
         super().__init__(process_env)
         self.host_name = host_name
         self.timeout = timeout
@@ -53,15 +58,23 @@ class Runner(Base):
 
     @staticmethod
     def _add_environment_vars(command: str, process_env: Dict[str, str]):
-        env_str = " ".join([f'{var_key}={var_value}' for var_key, var_value in process_env.items()])
-        command = f'env {env_str} {command}'
+        env_str = " ".join(
+            [f"{var_key}={var_value}" for var_key, var_value in process_env.items()]
+        )
+        command = f"env {env_str} {command}"
         return command
 
     @staticmethod
     def calc_remote_path_env(root: str) -> str:
         path_env = f"$PATH:{root}/bin"
 
-        if os.path.realpath(os.path.join(os.environ["GENV_ROOT"], "devel/shims")) in [
+        GENV_ROOT = os.path.realpath(
+            os.environ.get(
+                "GENV_ROOT", os.path.join(os.path.dirname(__file__), "../../../../")
+            )
+        )
+
+        if os.path.realpath(os.path.join(GENV_ROOT, "devel/shims")) in [
             os.path.realpath(path) for path in os.environ["PATH"].split(":")
         ]:
             path_env = f"{path_env}:{root}/devel/shims"

@@ -1,18 +1,7 @@
-#!/usr/bin/env python3
-
 import argparse
-import os
-import sys
 from typing import Iterable, Optional
 
-try:
-    import genv
-except ModuleNotFoundError:
-    # we manually set the system path if the Genv Python package is not installed.
-    # this is for backward compatability with installation from source.
-    sys.path.append(os.path.realpath(os.path.join(os.path.dirname(__file__), "../py")))
-
-    import genv
+import genv
 
 QUERIES = {
     "eid": lambda env: env.eid,
@@ -137,11 +126,21 @@ def do_query(snapshot: genv.Envs, eid: Optional[str], queries: Iterable[str]) ->
         print(",".join(query(name) for name in queries))
 
 
-def parse_args() -> argparse.Namespace:
+def add_arguments(parser: argparse.ArgumentParser) -> None:
     """
-    Set all possible genv environments commands and their arguments.
-    :return:
+    Adds "genvctl envs" arguments to a parser.
     """
+
+    parser.add_argument(
+        "--no-cleanup",
+        dest="cleanup",
+        action="store_false",
+        help="Do not perform clean up",
+    )
+
+    parser.add_argument("--reset", action="store_true", help="Reset previous state")
+
+    subparsers = parser.add_subparsers(dest="command")
 
     def activate(parser):
         parser.add_argument("--eid", required=True, help="Environment identifier")
@@ -233,17 +232,6 @@ def parse_args() -> argparse.Namespace:
             required=True,
         )
 
-    parser = argparse.ArgumentParser(description="genv environment manager")
-    parser.add_argument(
-        "--no-cleanup",
-        dest="cleanup",
-        action="store_false",
-        help="Do not perform clean up",
-    )
-    parser.add_argument("--reset", action="store_true", help="Reset previous state")
-
-    subparsers = parser.add_subparsers(dest="command")
-
     for command, help in [
         (activate, "Activate a process or a Jupyter kernel"),
         (config, "Configure an environment"),
@@ -254,11 +242,11 @@ def parse_args() -> argparse.Namespace:
     ]:
         command(subparsers.add_parser(command.__name__, help=help))
 
-    return parser.parse_args()
 
-
-if __name__ == "__main__":
-    args = parse_args()
+def run(args: argparse.Namespace) -> None:
+    """
+    Runs the "genvctl envs" logic.
+    """
 
     with genv.utils.global_lock():
         with genv.core.envs.State(args.cleanup, args.reset) as envs:

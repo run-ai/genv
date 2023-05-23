@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 import argparse
 import asyncio
 import itertools
@@ -8,14 +6,7 @@ import shutil
 import sys
 from typing import Iterable, NoReturn, Optional
 
-try:
-    import genv
-except ModuleNotFoundError:
-    # we manually set the system path if the Genv Python package is not installed.
-    # this is for backward compatability with installation from source.
-    sys.path.append(os.path.realpath(os.path.join(os.path.dirname(__file__), "../py")))
-
-    import genv
+import genv
 
 QUERIES = {
     "hostname": lambda host, env: host.hostname,
@@ -291,12 +282,54 @@ async def do_query(
             print(",".join(query(name) for name in queries))
 
 
-def parse_args() -> argparse.Namespace:
+def add_arguments(parser: argparse.ArgumentParser) -> None:
     """
-    Parses the arguments passed to this executable.
+    Adds "genvctl remote" arguments to a parser.
+    """
 
-    :return: Argument values
-    """
+    group = parser.add_mutually_exclusive_group(required=True)
+    group.add_argument(
+        "-H",
+        "-host",
+        "--host",
+        dest="hostnames",
+        help="Comma-separated hostnames or IP addresses",
+    )
+    group.add_argument(
+        "-hostfile",
+        "--hostfile",
+        help="A file containing one hostname or IP address per line",
+    )
+
+    parser.add_argument(
+        "--root",
+        default="$HOME/genv",
+        help="Genv installation root on remote hosts (default: %(default)s)",
+    )
+
+    parser.add_argument(
+        "-t",
+        "--timeout",
+        type=int,
+        help="SSH connection timeout",
+    )
+
+    parser.add_argument(
+        "-e",
+        "--exit-on-error",
+        dest="throw_on_error",
+        action="store_true",
+        help="Exit on SSH error to one or more hosts (default: %(default)s)",
+    )
+
+    parser.add_argument(
+        "-q",
+        "--quiet",
+        action="store_true",
+        help="Ignore SSH errors (default: %(default)s)",
+    )
+
+    subparsers = parser.add_subparsers(dest="command")
 
     def activate(parser):
         parser.add_argument("--name", help="Environment name")
@@ -444,52 +477,6 @@ def parse_args() -> argparse.Namespace:
             required=True,
         )
 
-    parser = argparse.ArgumentParser(description="Genv remote")
-
-    group = parser.add_mutually_exclusive_group(required=True)
-    group.add_argument(
-        "-H",
-        "-host",
-        "--host",
-        dest="hostnames",
-        help="Comma-separated hostnames or IP addresses",
-    )
-    group.add_argument(
-        "-hostfile",
-        "--hostfile",
-        help="A file containing one hostname or IP address per line",
-    )
-
-    parser.add_argument(
-        "--root",
-        default="$HOME/genv",
-        help="Genv installation root on remote hosts (default: %(default)s)",
-    )
-
-    parser.add_argument(
-        "-t",
-        "--timeout",
-        type=int,
-        help="SSH connection timeout",
-    )
-
-    parser.add_argument(
-        "-e",
-        "--exit-on-error",
-        dest="throw_on_error",
-        action="store_true",
-        help="Exit on SSH error to one or more hosts (default: %(default)s)",
-    )
-
-    parser.add_argument(
-        "-q",
-        "--quiet",
-        action="store_true",
-        help="Ignore SSH errors (default: %(default)s)",
-    )
-
-    subparsers = parser.add_subparsers(dest="command")
-
     for command, help in [
         (activate, "Activate environment in a remote host"),
         (devices, "Show device information from all hosts"),
@@ -500,15 +487,28 @@ def parse_args() -> argparse.Namespace:
     ]:
         command(subparsers.add_parser(command.__name__, help=help))
 
-    return parser.parse_args()
 
-
-async def main(config: genv.remote.Config, args: argparse.Namespace) -> None:
+async def run(args: argparse.Namespace) -> None:
     """
-    Parses the arguments and runs the requested command.
-
-    :return: None
+    Runs the "genvctl remote" logic.
     """
+
+    if args.hostfile:
+        with open(args.hostfile, "r") as f:
+            hostnames = [
+                line
+                for line in [line.strip() for line in f.readlines()]
+                if line and not line.startswith("#")
+            ]
+    else:
+        hostnames = args.hostnames.split(",")
+
+    hosts = [
+        genv.remote.Host(hostname, args.root, args.timeout) for hostname in hostnames
+    ]
+
+    config = genv.remote.Config(hosts, args.throw_on_error, args.quiet)
+
     if args.command == "activate":
         await do_activate(config, args.gpus, args.name, args.prompt)
     elif args.command == "devices":
@@ -534,32 +534,3 @@ async def main(config: genv.remote.Config, args: argparse.Namespace) -> None:
         await do_monitor(config, args.config_dir, args.port, args.interval)
     elif args.command == "query":
         await do_query(config, args.name, args.queries)
-
-
-if __name__ == "__main__":
-    args = parse_args()
-
-    if args.hostfile:
-        with open(args.hostfile, "r") as f:
-            hostnames = [
-                line
-                for line in [line.strip() for line in f.readlines()]
-                if line and not line.startswith("#")
-            ]
-    else:
-        hostnames = args.hostnames.split(",")
-
-    hosts = [
-        genv.remote.Host(hostname, args.root, args.timeout) for hostname in hostnames
-    ]
-
-    config = genv.remote.Config(hosts, args.throw_on_error, args.quiet)
-
-    try:
-        asyncio.run(main(config, args))
-    except RuntimeError as e:
-        print(e, file=sys.stderr)
-        exit(1)
-    except KeyboardInterrupt:
-        if args.command not in ["enforce", "monitor"]:
-            raise

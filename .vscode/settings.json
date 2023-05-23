@@ -1,7 +1,6 @@
 {
     "files.associations": {
         "**/bin/genv": "shellscript",
-        "**/exe/genv-*": "python",
         "**/libexec/genv*": "shellscript",
         "**/shims/docker": "python",
         "**/shims/nvidia-smi": "python",
