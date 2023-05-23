@@ -1,28 +1,13 @@
-#!/usr/bin/env python3
-
 import argparse
 import asyncio
-import os
-import sys
 
-try:
-    import genv
-except ModuleNotFoundError:
-    # we manually set the system path if the Genv Python package is not installed.
-    # this is for backward compatability with installation from source.
-    sys.path.append(os.path.realpath(os.path.join(os.path.dirname(__file__), "../py")))
-
-    import genv
+import genv
 
 
-def parse_args() -> argparse.Namespace:
+def add_arguments(parser: argparse.ArgumentParser) -> None:
     """
-    Parses the arguments passed to this executable.
-
-    :return: Argument values
+    Adds "genvctl enforce" arguments to a parser.
     """
-
-    parser = argparse.ArgumentParser()
 
     parser.add_argument(
         "--interval",
@@ -82,16 +67,11 @@ def parse_args() -> argparse.Namespace:
         help="maximum allowed attached devices for each user",
     )
 
-    return parser.parse_args()
 
-
-async def main() -> None:
+async def run(args: argparse.Namespace) -> None:
     """
-    Runs the main logic and enforces GPU usage according to the arguments.
-
-    :return: None
+    Runs the "genvctl enforce" logic.
     """
-    args = parse_args()
 
     while True:
         with genv.utils.global_lock():
@@ -120,13 +100,3 @@ async def main() -> None:
             break
 
         await asyncio.sleep(args.interval)
-
-
-if __name__ == "__main__":
-    try:
-        asyncio.run(main())
-    except RuntimeError as e:
-        print(e, file=sys.stderr)
-        exit(1)
-    except KeyboardInterrupt:
-        pass

@@ -1,33 +1,14 @@
-#!/usr/bin/env python3
-
 import argparse
-import asyncio
-import os
 import sys
 import time
 
-try:
-    import genv
-except ModuleNotFoundError:
-    # we manually set the system path if the Genv Python package is not installed.
-    # this is for backward compatability with installation from source.
-    sys.path.append(os.path.realpath(os.path.join(os.path.dirname(__file__), "../py")))
-
-    import genv
-
-try:
-    from genv.metrics import Collection, publish_config_files, SPECS
-    import prometheus_client
-except ModuleNotFoundError as e:
-    if e.name != "prometheus_client":
-        raise
-
-    print(f"ERROR: Python package '{e.name}' is required", file=sys.stderr)
-    exit(1)
+import genv
 
 
-def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser()
+def add_arguments(parser: argparse.ArgumentParser) -> None:
+    """
+    Adds "genvctl monitor" arguments to a parser.
+    """
 
     parser.add_argument(
         "--config-dir",
@@ -51,10 +32,23 @@ def parse_args() -> argparse.Namespace:
         help="Interval in seconds between collections (default: %(default)s)",
     )
 
-    return parser.parse_args()
 
+async def run(args: argparse.Namespace) -> None:
+    """
+    Runs the "genvctl monitor" logic.
+    """
 
-async def main(args: argparse.Namespace) -> None:
+    # NOTE(raz): we import depdendencies only here as they are optional
+    try:
+        from genv.metrics import Collection, publish_config_files, SPECS
+        import prometheus_client
+    except ModuleNotFoundError as e:
+        if e.name != "prometheus_client":
+            raise
+
+        print(f"ERROR: Python package '{e.name}' is required", file=sys.stderr)
+        exit(1)
+
     # https://github.com/prometheus/client_python#disabling-default-collector-metrics
     prometheus_client.REGISTRY.unregister(prometheus_client.GC_COLLECTOR)
     prometheus_client.REGISTRY.unregister(prometheus_client.PLATFORM_COLLECTOR)
@@ -74,15 +68,3 @@ async def main(args: argparse.Namespace) -> None:
         collection.update(snapshot)
 
         time.sleep(args.interval)
-
-
-if __name__ == "__main__":
-    args = parse_args()
-
-    try:
-        asyncio.run(main(args))
-    except RuntimeError as e:
-        print(e, file=sys.stderr)
-        exit(1)
-    except KeyboardInterrupt:
-        pass

@@ -1,22 +1,11 @@
-#!/usr/bin/env python3
-
 import argparse
-import asyncio
 import json
-import os
 import sys
 from typing import Optional
 
-try:
-    import genv
-except ModuleNotFoundError:
-    # we manually set the system path if the Genv Python package is not installed.
-    # this is for backward compatability with installation from source.
-    sys.path.append(os.path.realpath(os.path.join(os.path.dirname(__file__), "../py")))
+import genv
 
-    import genv
-
-# TODO(raz): should this executable be merged to genv-remote?
+# TODO(raz): should this executable be merged to remote.py
 
 
 async def do_execute() -> None:
@@ -43,12 +32,12 @@ async def do_snapshot(format: str, type: Optional[str]) -> None:
         print(json.dumps(snapshot, cls=genv.JSONEncoder, indent=2))
 
 
-def parse_args() -> argparse.Namespace:
+def add_arguments(parser: argparse.ArgumentParser) -> None:
     """
-    Set all possible genv environments commands and their arguments.
+    Adds "genvctl usage" arguments to a parser.
+    """
 
-    :return: Parsed arguments
-    """
+    subparsers = parser.add_subparsers(dest="command", required=True)
 
     def execute(parser):
         pass
@@ -67,33 +56,19 @@ def parse_args() -> argparse.Namespace:
             help="Take a snapshot of specific information",
         )
 
-    parser = argparse.ArgumentParser()
-
-    subparsers = parser.add_subparsers(dest="command", required=True)
-
     for command, help in [
         (execute, "Execute the report passed in stdin"),
         (snapshot, "Take a snapshot of GPU usage"),
     ]:
         command(subparsers.add_parser(command.__name__, help=help))
 
-    return parser.parse_args()
 
-
-async def main() -> None:
-    args = parse_args()
+async def run(args: argparse.Namespace) -> None:
+    """
+    Runs the "genvctl usage" logic.
+    """
 
     if args.command == "execute":
         await do_execute()
     elif args.command == "snapshot":
         await do_snapshot(args.format, args.type)
-
-
-if __name__ == "__main__":
-    try:
-        asyncio.run(main())
-    except RuntimeError as e:
-        print(e, file=sys.stderr)
-        exit(1)
-    except KeyboardInterrupt:
-        pass

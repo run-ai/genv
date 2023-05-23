@@ -1,18 +1,8 @@
-#!/usr/bin/env python3
-
 import argparse
-import os
 import sys
 from typing import Callable, Iterable, Optional
 
-try:
-    import genv
-except ModuleNotFoundError:
-    # we manually set the system path if the Genv Python package is not installed.
-    # this is for backward compatability with installation from source.
-    sys.path.append(os.path.realpath(os.path.join(os.path.dirname(__file__), "../py")))
-
-    import genv
+import genv
 
 QUERIES = {
     "index": lambda device: device.index,
@@ -237,7 +227,22 @@ def do_query(snapshot: genv.Devices, queries: Iterable[str]) -> None:
         print(",".join(query(name) for name in queries))
 
 
-def parse_args() -> argparse.Namespace:
+def add_arguments(parser: argparse.ArgumentParser) -> None:
+    """
+    Adds "genvctl devices" arguments to a parser.
+    """
+
+    parser.add_argument(
+        "--no-cleanup",
+        dest="cleanup",
+        action="store_false",
+        help="Do not perform clean up",
+    )
+
+    parser.add_argument("--reset", action="store_true", help="Reset previous state")
+
+    subparsers = parser.add_subparsers(dest="command")
+
     def attach(parser):
         parser.add_argument("--eid", required=True, help="Environment identifier")
         parser.add_argument(
@@ -296,17 +301,6 @@ def parse_args() -> argparse.Namespace:
             required=True,
         )
 
-    parser = argparse.ArgumentParser(description="genv device manager")
-    parser.add_argument(
-        "--no-cleanup",
-        dest="cleanup",
-        action="store_false",
-        help="Do not perform clean up",
-    )
-    parser.add_argument("--reset", action="store_true", help="Reset previous state")
-
-    subparsers = parser.add_subparsers(dest="command")
-
     for command, help in [
         (attach, "Attach devices to an environment"),
         (detach, "Detach devices from an environment"),
@@ -316,11 +310,11 @@ def parse_args() -> argparse.Namespace:
     ]:
         command(subparsers.add_parser(command.__name__, help=help))
 
-    return parser.parse_args()
 
-
-if __name__ == "__main__":
-    args = parse_args()
+def run(args: argparse.Namespace) -> None:
+    """
+    Runs the "genvctl devices" logic.
+    """
 
     with genv.utils.global_lock():
         with genv.core.devices.State(args.cleanup, args.reset) as devices:
