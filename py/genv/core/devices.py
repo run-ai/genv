@@ -114,6 +114,14 @@ def detach(eid: str, index: int) -> None:
         devices[index].detach(eid)
 
 
+def attached(eid: str) -> Iterable[int]:
+    """Returns the indices of devices that are attached to an environment"""
+
+    devices = snapshot()
+
+    return devices.filter(eid=eid).indices
+
+
 def get_lock_path(index: int, create: bool = False) -> str:
     """
     Returns the path of a device lock file.

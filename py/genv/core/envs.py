@@ -96,6 +96,15 @@ def activate(
         envs[eid].attach(pid=pid, kernel_id=kernel_id)
 
 
+def configuration(eid: str) -> Optional[Env.Config]:
+    """Returns the configuration of an environment if it exists"""
+
+    envs = snapshot()
+
+    if eid in envs:
+        return envs[eid].config
+
+
 def configure(
     eid: str,
     *,
@@ -112,3 +121,15 @@ def configure(
         env.config.name = name
         env.config.gpu_memory = gpu_memory
         env.config.gpus = gpus
+
+
+def deactivate(*, pid: Optional[int] = None, kernel_id: Optional[str] = None) -> None:
+    """Detatches a process or a kernel and deactivates inactive environments"""
+
+    with State() as envs:
+        envs.cleanup(
+            poll_pid=(lambda pid_: pid_ != pid) if pid else None,
+            poll_kernel=(lambda kernel_id_: kernel_id_ != kernel_id)
+            if kernel_id
+            else None,
+        )
