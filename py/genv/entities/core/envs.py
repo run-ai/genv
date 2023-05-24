@@ -35,17 +35,19 @@ class Env:
     def cleanup(
         self,
         *,
-        poll_pid: Callable[[int], bool] = genv.utils.poll_pid,
-        poll_kernel: Callable[[str], bool] = genv.utils.poll_jupyter_kernel,
+        poll_pid: Callable[[int], bool] = None,
+        poll_kernel: Callable[[str], bool] = None,
     ):
         """
         Cleans up in place.
         """
-        self.pids = [pid for pid in self.pids if poll_pid(pid)]
+        if poll_pid is not None:
+            self.pids = [pid for pid in self.pids if poll_pid(pid)]
 
-        self.kernel_ids = [
-            kernel_id for kernel_id in self.kernel_ids if poll_kernel(kernel_id)
-        ]
+        if poll_kernel is not None:
+            self.kernel_ids = [
+                kernel_id for kernel_id in self.kernel_ids if poll_kernel(kernel_id)
+            ]
 
     def attach(
         self, *, pid: Optional[int] = None, kernel_id: Optional[str] = None
@@ -147,13 +149,29 @@ class Envs:
     def cleanup(
         self,
         *,
-        poll_pid: Callable[[int], bool] = genv.utils.poll_pid,
-        poll_kernel: Callable[[str], bool] = genv.utils.poll_jupyter_kernel,
+        eid: Optional[str] = None,
+        eids: Optional[Iterable[str]] = None,
+        poll_pid: Callable[[int], bool] = None,
+        poll_kernel: Callable[[str], bool] = None,
     ):
+        """Cleans up the collection in place.
+
+        Cleans only the specified environments when passing identifiers.
         """
-        Cleans up the collection in place.
-        """
+        if eids:
+            eids = set(eids)
+
+        if eid:
+            if not eids:
+                eids = set()
+
+            eids.add(eid)
+
         for env in self.envs:
+            if eids is not None:
+                if env.eid not in eids:
+                    continue
+
             env.cleanup(poll_pid=poll_pid, poll_kernel=poll_kernel)
 
         self.envs = [env for env in self.envs if env.active]

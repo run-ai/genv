@@ -61,7 +61,10 @@ class State(File[Envs]):
         return o
 
     def _clean(self, envs: Envs) -> None:
-        envs.cleanup()
+        envs.cleanup(
+            poll_pid=genv.utils.poll.poll_pid,
+            poll_kernel=genv.utils.poll.poll_jupyter_kernel,
+        )
 
 
 def snapshot() -> Envs:
