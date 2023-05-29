@@ -35,7 +35,7 @@ Install it with the following command:
 
    Genv needs Python 3.7 or higher so make sure you have it installed.
 
-The Python package should also install the Genv CLI.
+The Python package should also install the Genv control CLI and SDK CLI.
 Verify the installation with the command:
 
 .. code-block:: shell

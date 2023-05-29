@@ -5,7 +5,6 @@ import sys
 from . import devices
 from . import enforce
 from . import envs
-from . import lock
 from . import monitor
 from . import remote
 from . import usage
@@ -26,7 +25,6 @@ def parse_args() -> argparse.Namespace:
         ("devices", "Query and manage devices", devices.add_arguments),
         ("enforce", "Enforce GPU usage", enforce.add_arguments),
         ("envs", "Query and manage environments", envs.add_arguments),
-        ("lock", "Lock over-subscribed devices", lock.add_arguments),
         ("monitor", "Monitor using Prometheus and Grafana", monitor.add_arguments),
         ("remote", "Query, manage and monitor remote machines", remote.add_arguments),
         ("usage", "GPU usage miscellaneous", usage.add_arguments),
@@ -50,8 +48,6 @@ def main():
             asyncio.run(enforce.run(args))
         elif args.submodule == "envs":
             envs.run(args)
-        elif args.submodule == "lock":
-            lock.run(args)
         elif args.submodule == "monitor":
             asyncio.run(monitor.run(args))
         elif args.submodule == "remote":

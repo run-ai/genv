@@ -242,27 +242,27 @@ For example:
 .. [#] `Over-allocation - Wikipedia <https://en.wikipedia.org/wiki/Thin_provisioning#Over-allocation>`_
 .. [#] `flock(1) - Linux manual page <https://man7.org/linux/man-pages/man1/flock.1.html>`_
 
-~~~~~~~~
-Genv CLI
-~~~~~~~~
-If you installed Genv from `PyPI <https://pypi.org/project/genv/>`__, you have the Genv CLI installed as well.
+~~~~~~~~~~~~
+Genv SDK CLI
+~~~~~~~~~~~~
+If you installed Genv from `PyPI <https://pypi.org/project/genv/>`__, you have the Genv SDK CLI installed as well.
 You can test if you have it installed with the command:
 
 .. code-block:: shell
 
-   genvctl --help
+   genvsdk --help
 
 If you do have it installed, you can use it for access control with the subcommand :code:`lock`.
 For example:
 
 .. code-block:: shell
 
-   genvctl lock python main.py
+   genvsdk lock python main.py
 
 Another example:
 
 .. code-block:: shell
 
-   genvctl lock python -c "import time; print('hi'); time.sleep(10); print('bye')"
+   genvsdk lock python -c "import time; print('hi'); time.sleep(10); print('bye')"
 
 .. TODO(raz): update this paragraph once installation of core components is done from PyPI

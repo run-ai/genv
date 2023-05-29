@@ -8,7 +8,7 @@ import genv.sdk
 
 def add_arguments(parser: argparse.ArgumentParser) -> None:
     """
-    Adds "genvctl lock" arguments to a parser.
+    Adds "genvsdk lock" arguments to a parser.
     """
 
     parser.add_argument(
@@ -21,7 +21,7 @@ def add_arguments(parser: argparse.ArgumentParser) -> None:
 
 def run(args: argparse.Namespace) -> NoReturn:
     """
-    Runs the "genvctl lock" logic.
+    Runs the "genvsdk lock" logic.
     """
 
     with genv.sdk.devices.lock():
