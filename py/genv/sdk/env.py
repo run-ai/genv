@@ -22,6 +22,48 @@ def active() -> bool:
     return eid() is not None
 
 
+def _set_configuration(config: Env.Config) -> None:
+    """Sets the configuration environment variables"""
+
+    for name, value in [
+        ("GENV_ENVIRONMENT_NAME", config.name),
+        ("GENV_GPU_MEMORY", config.gpu_memory),
+        ("GENV_GPUS", config.gpus),
+    ]:
+        if value:
+            set_temp_env(name, value)
+
+
+def configure(config: Env.Config) -> None:
+    """Configures the current environment"""
+
+    if not active():
+        raise RuntimeError("Not running in an active environment")
+
+    with genv.utils.global_lock():
+        genv.core.envs.configure(eid(), config)
+
+    _set_configuration(config)
+
+
+def configuration() -> Env.Config:
+    """Returns the current environment configuration.
+
+    Raises RuntimeError if not running in an active environment.
+    """
+
+    if not active():
+        raise RuntimeError("Not running in an active environment")
+
+    name = os.environ.get("GENV_ENVIRONMENT_NAME")
+    gpu_memory = os.environ.get("GENV_GPU_MEMORY")
+    gpus = os.environ.get("GENV_GPUS")
+
+    return Env.Config(
+        name=name, gpu_memory=gpu_memory, gpus=int(gpus) if gpus else None
+    )
+
+
 def load_configuration() -> Env.Config:
     """Loads the environment configuration.
 
@@ -34,20 +76,17 @@ def load_configuration() -> Env.Config:
     with genv.utils.global_lock():
         config = genv.core.envs.configuration(eid())
 
-    for name, value in [
-        ("GENV_ENVIRONMENT_NAME", config.name),
-        ("GENV_GPU_MEMORY", config.gpu_memory),
-        ("GENV_GPUS", config.gpus),
-    ]:
-        if value:
-            set_temp_env(name, value)
+    _set_configuration(config)
 
     return config
 
 
 @contextmanager
-def activate(*, eid: Optional[str] = None) -> None:
+def activate(*, eid: Optional[str] = None, config: Optional[Env.Config] = None) -> None:
     """A context manager for activating an environment for the current process.
+
+    Configures the environment if configuration is specified.
+    Attaches devices if configured to.
 
     Raises RuntimeError if already running in an active environment.
 
@@ -69,11 +108,15 @@ def activate(*, eid: Optional[str] = None) -> None:
                 eid, uid=os.getuid(), username=os.getlogin(), pid=pid
             )
 
-        load_configuration()
+        if config is not None:
+            configure(config)
+        else:
+            load_configuration()
 
-        devices.load_attached()
+        indices = devices.load_attached()
 
-        # TODO(raz): support configuring environment and attaching devices
+        if not indices:
+            devices.attach()
 
         try:
             yield

@@ -29,6 +29,36 @@ def _lockable() -> Iterable[int]:
     ]
 
 
+def _set_attached(indices: Iterable[int]) -> None:
+    """Sets the device indices environment variables"""
+
+    set_temp_env(
+        "CUDA_VISIBLE_DEVICES", ",".join(map(str, indices)) if indices else "-1"
+    )  # TODO(raz): support the case when this env var already exists
+
+    # TODO(raz): should we set "CUDA_DEVICE_ORDER" as well?
+
+
+def attach(allow_over_subscription: bool = False) -> Iterable[int]:
+    """Attaches devices to the current environment.
+
+    The device count is taken from the environment configuration.
+    Does not detach devices if already attached to more devices.
+    """
+
+    if not env.active():
+        raise RuntimeError("Not running in an active environment")
+
+    config = env.configuration()
+
+    with genv.utils.global_lock():
+        indices = genv.core.devices.attach(
+            env.eid(), config.gpus, config.gpu_memory, allow_over_subscription
+        )
+
+    _set_attached(indices)
+
+
 def attached() -> Iterable[int]:
     """Returns the indices of attached devices.
 
@@ -61,11 +91,7 @@ def load_attached() -> Iterable[int]:
     with genv.utils.global_lock():
         indices = genv.core.devices.attached(env.eid())
 
-    set_temp_env(
-        "CUDA_VISIBLE_DEVICES", ",".join(map(str, indices)) if indices else "-1"
-    )  # TODO(raz): support the case when this env var already exists
-
-    # TODO(raz): should we set "CUDA_DEVICE_ORDER" as well?
+    _set_attached(indices)
 
     return indices
 

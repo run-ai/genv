@@ -105,22 +105,11 @@ def configuration(eid: str) -> Optional[Env.Config]:
         return envs[eid].config
 
 
-def configure(
-    eid: str,
-    *,
-    name: Optional[str] = None,
-    gpu_memory: Optional[str] = None,
-    gpus: Optional[int] = None,
-) -> None:
-    """
-    Configures an environment.
-    """
-    with State() as envs:
-        env = envs[eid]
+def configure(eid: str, config: Env.Config) -> None:
+    """Configures an environment"""
 
-        env.config.name = name
-        env.config.gpu_memory = gpu_memory
-        env.config.gpus = gpus
+    with State() as envs:
+        envs[eid].config = config
 
 
 def deactivate(*, pid: Optional[int] = None, kernel_id: Optional[str] = None) -> None:

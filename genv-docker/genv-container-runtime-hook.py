@@ -51,28 +51,34 @@ def activate_environment(state: dict, eid: str):
     genv.core.envs.activate(eid, uid, pid=pid)
 
 
-def configure_environment(config: dict, eid: str):
+def configure_environment(config: dict, eid: str) -> genv.Env.Config:
     """
     Configures the environment.
     """
     gpu_memory = get_env(config, "GENV_GPU_MEMORY")
     gpus = get_env(config, "GENV_GPUS")
 
-    genv.core.envs.configure(
-        eid,
+    config = genv.Env.Config(
+        name=None,
         gpu_memory=gpu_memory,
         gpus=int(gpus) if gpus else None,
     )
 
+    genv.core.envs.configure(eid, config)
+
+    return config
+
 
 def attach_environment(
-    config: dict, eid: str, allow_over_subscription: bool
+    config: dict, eid: str, env_config: genv.Env.Config, allow_over_subscription: bool
 ) -> Iterable[int]:
     """
     Attaches the environment to devices.
     """
 
-    indices = genv.core.devices.attach(eid, allow_over_subscription)
+    indices = genv.core.devices.attach(
+        eid, env_config.gpus, env_config.gpu_memory, allow_over_subscription
+    )
 
     # NOTE(raz): setting environment variables here will not have effect on the process
     # environment as it is now too late in the container lifecycle.
@@ -173,14 +179,16 @@ if __name__ == "__main__":
 
         with genv.utils.global_lock():
             activate_environment(state, eid)
-            configure_environment(config, eid)
+            env_config = configure_environment(config, eid)
 
             if not get_env(config, "GENV_ATTACH") == "0":
                 allow_over_subscription = (
                     get_env(config, "GENV_ALLOW_OVER_SUBSCRIPTION") == "1"
                 )
 
-                indices = attach_environment(config, eid, allow_over_subscription)
+                indices = attach_environment(
+                    config, eid, env_config, allow_over_subscription
+                )
 
     if not get_env(config, "GENV_MOUNT_SHIMS") == "0":
         mount_shims(state, config)
