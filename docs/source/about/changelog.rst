@@ -1,6 +1,22 @@
 Changelog
 =========
 
+Version 0.12.0
+--------------
+**Date:** May 30, 2023
+
+Added
+~~~~~
+* Added :code:`genv.sdk.activate`
+* Added :code:`genv.sdk.attach`
+* Added :code:`genv.sdk.attached`
+* Added :code:`genv.sdk.configure`
+* Added :code:`genv.sdk.configuration`
+
+Changed
+~~~~~~~
+* Merged executables into :code:`genvctl`
+
 Version 0.11.0
 --------------
 **Date:** May 15, 2023
