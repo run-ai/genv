@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-9BRBX45HVB"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-9BRBX45HVB');
+    </script>
+    
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Python SDK &mdash; Genv 0.11.0 documentation</title><link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Overview" href="../remote/overview.html" />
+    <link rel="prev" title="Monitoring" href="monitoring.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Genv
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption"><span class="caption-text">Start Here</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../overview/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../overview/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../overview/quickstart.html">Quick start</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Usage</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="advanced-usage.html">Advanced Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="enforcement.html">Enforcement</a></li>
+<li class="toctree-l1"><a class="reference internal" href="monitoring.html">Monitoring</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Python SDK</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#overview">Overview</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#installing-the-sdk">Installing the SDK</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#importing-the-sdk">Importing the SDK</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#using-environments">Using Environments</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#activating-an-environment">Activating an Environment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#configuring-the-environment">Configuring the Environment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#querying-the-environment-configuration">Querying the Environment Configuration</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#using-devices">Using Devices</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#attach-devices">Attach Devices</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#reference">Reference</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption"><span class="caption-text">Remote Usage</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../remote/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../remote/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../remote/usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../remote/enforcement.html">Enforcement</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../remote/monitoring.html">Monitoring</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Container Toolkit</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../docker/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../docker/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../docker/quickstart.html">Quick start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../docker/usage.html">Usage</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../development/development.html">Development</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../development/reference.html">Reference</a></li>
+</ul>
+<p class="caption"><span class="caption-text">About</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../about/changelog.html">Changelog</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Genv</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Python SDK</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/usage/python-sdk.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <div class="section" id="python-sdk">
+<h1>Python SDK<a class="headerlink" href="#python-sdk" title="Permalink to this headline">¶</a></h1>
+<div class="contents topic" id="contents">
+<p class="topic-title">Contents</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#python-sdk" id="id1">Python SDK</a></p>
+<ul>
+<li><p><a class="reference internal" href="#overview" id="id2">Overview</a></p>
+<ul>
+<li><p><a class="reference internal" href="#installing-the-sdk" id="id3">Installing the SDK</a></p></li>
+<li><p><a class="reference internal" href="#importing-the-sdk" id="id4">Importing the SDK</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#using-environments" id="id5">Using Environments</a></p>
+<ul>
+<li><p><a class="reference internal" href="#activating-an-environment" id="id6">Activating an Environment</a></p></li>
+<li><p><a class="reference internal" href="#configuring-the-environment" id="id7">Configuring the Environment</a></p></li>
+<li><p><a class="reference internal" href="#querying-the-environment-configuration" id="id8">Querying the Environment Configuration</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#using-devices" id="id9">Using Devices</a></p>
+<ul>
+<li><p><a class="reference internal" href="#attach-devices" id="id10">Attach Devices</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#reference" id="id11">Reference</a></p></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section" id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h2>
+<p>The Python package <code class="code docutils literal notranslate"><span class="pre">genv</span></code> comes with a Python SDK at <code class="code docutils literal notranslate"><span class="pre">genv.sdk</span></code>.</p>
+<p>This SDK can be used by Python applications to use Genv features such as activating environments, attaching and detaching devices, and locking over-subscribed devices.</p>
+<div class="section" id="installing-the-sdk">
+<h3>Installing the SDK<a class="headerlink" href="#installing-the-sdk" title="Permalink to this headline">¶</a></h3>
+<p>The Python SDK comes as part of the <code class="code docutils literal notranslate"><span class="pre">genv</span></code> <a class="reference external" href="https://pypi.org/project/genv/">Python package</a>.
+To get it, install the <a class="reference internal" href="../overview/installation.html#install-core"><span class="std std-ref">core</span></a> components of Genv.</p>
+</div>
+<div class="section" id="importing-the-sdk">
+<h3>Importing the SDK<a class="headerlink" href="#importing-the-sdk" title="Permalink to this headline">¶</a></h3>
+<p>To use the Python SDK, add the following <code class="code docutils literal notranslate"><span class="pre">import</span></code> command to your Python script:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">genv.sdk</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="using-environments">
+<h2>Using Environments<a class="headerlink" href="#using-environments" title="Permalink to this headline">¶</a></h2>
+<p>If you are not familiar with the concept of environments in Genv, it is recommended to go over the shell usage <a class="reference internal" href="usage.html"><span class="doc">guide</span></a>.</p>
+<div class="section" id="activating-an-environment">
+<h3>Activating an Environment<a class="headerlink" href="#activating-an-environment" title="Permalink to this headline">¶</a></h3>
+<p>To activate an environment, use the method <code class="code docutils literal notranslate"><span class="pre">genv.sdk.activate</span></code>.</p>
+<p>This method acts as a context manager and provides an easy way to activate a scoped Genv environment.
+Upon entering, an environment will be created, and upon exiting, the environment will be deactivated.</p>
+<p>You can also configure the environment straight from the <code class="code docutils literal notranslate"><span class="pre">genv.sdk.activate()</span></code> call by passing the argument <code class="code docutils literal notranslate"><span class="pre">config:</span> <span class="pre">genv.sdk.Env.Config</span></code>.</p>
+<p>You can activate an environment for the entire script by wrapping your <code class="code docutils literal notranslate"><span class="pre">main</span></code>.
+For example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">genv.sdk</span>
+
+<span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+    <span class="k">pass</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="k">with</span> <span class="n">genv</span><span class="o">.</span><span class="n">sdk</span><span class="o">.</span><span class="n">activate</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">genv</span><span class="o">.</span><span class="n">sdk</span><span class="o">.</span><span class="n">Env</span><span class="o">.</span><span class="n">Config</span><span class="p">(</span><span class="n">gpus</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">gpu_memory</span><span class="o">=</span><span class="s2">&quot;4g&quot;</span><span class="p">)):</span>
+        <span class="n">main</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>You can also activate an environment for a specific method.
+For example when using a <a class="reference external" href="https://docs.ray.io/en/latest/ray-core/tasks.html">Ray task</a>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">genv.sdk</span>
+<span class="kn">import</span> <span class="nn">ray</span>
+
+<span class="nd">@ray</span><span class="o">.</span><span class="n">remote</span>
+<span class="k">def</span> <span class="nf">my_function</span><span class="p">():</span>
+    <span class="k">with</span> <span class="n">genv</span><span class="o">.</span><span class="n">sdk</span><span class="o">.</span><span class="n">activate</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">genv</span><span class="o">.</span><span class="n">sdk</span><span class="o">.</span><span class="n">Env</span><span class="o">.</span><span class="n">Config</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;my-function&quot;</span><span class="p">,</span> <span class="n">gpus</span><span class="o">=</span><span class="mi">1</span><span class="p">)):</span>
+        <span class="k">pass</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="configuring-the-environment">
+<h3>Configuring the Environment<a class="headerlink" href="#configuring-the-environment" title="Permalink to this headline">¶</a></h3>
+<p>You can configure your environment after activating it using <code class="code docutils literal notranslate"><span class="pre">genv.sdk.configure</span></code>.
+For example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">genv.sdk</span>
+
+<span class="k">with</span> <span class="n">genv</span><span class="o">.</span><span class="n">sdk</span><span class="o">.</span><span class="n">activate</span><span class="p">():</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s2">&quot;How should I call the Genv environment?</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">genv</span><span class="o">.</span><span class="n">sdk</span><span class="o">.</span><span class="n">configure</span><span class="p">(</span><span class="n">genv</span><span class="o">.</span><span class="n">sdk</span><span class="o">.</span><span class="n">Env</span><span class="o">.</span><span class="n">Config</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="querying-the-environment-configuration">
+<h3>Querying the Environment Configuration<a class="headerlink" href="#querying-the-environment-configuration" title="Permalink to this headline">¶</a></h3>
+<p>You can query the configuration of your environment using <code class="code docutils literal notranslate"><span class="pre">genv.sdk.configuration</span></code>.
+For example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">genv.sdk</span>
+
+<span class="k">with</span> <span class="n">genv</span><span class="o">.</span><span class="n">sdk</span><span class="o">.</span><span class="n">activate</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">genv</span><span class="o">.</span><span class="n">sdk</span><span class="o">.</span><span class="n">Env</span><span class="o">.</span><span class="n">Config</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getpid</span><span class="p">()))):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">genv</span><span class="o">.</span><span class="n">sdk</span><span class="o">.</span><span class="n">configuration</span><span class="p">())</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="using-devices">
+<h2>Using Devices<a class="headerlink" href="#using-devices" title="Permalink to this headline">¶</a></h2>
+<p>If you are not familiar with the concept of device attachments in Genv environments, it is recommended to go over the shell usage <a class="reference internal" href="usage.html#using-devices-in-an-environment"><span class="std std-ref">guide</span></a>.</p>
+<div class="section" id="attach-devices">
+<h3>Attach Devices<a class="headerlink" href="#attach-devices" title="Permalink to this headline">¶</a></h3>
+<p>When activating an environment, it will be attached to devices if its device count is configured.</p>
+<p>For example, by specifying the environment configuration argument <code class="code docutils literal notranslate"><span class="pre">gpus</span></code>, Genv will attach this amount of devices to the newly activated environment:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">genv.sdk</span>
+
+<span class="k">with</span> <span class="n">genv</span><span class="o">.</span><span class="n">sdk</span><span class="o">.</span><span class="n">activate</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">genv</span><span class="o">.</span><span class="n">sdk</span><span class="o">.</span><span class="n">Env</span><span class="o">.</span><span class="n">Config</span><span class="p">(</span><span class="n">gpus</span><span class="o">=</span><span class="mi">1</span><span class="p">)):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">genv</span><span class="o">.</span><span class="n">sdk</span><span class="o">.</span><span class="n">attached</span><span class="p">())</span>
+</pre></div>
+</div>
+<p>You can also attach devices later using <code class="code docutils literal notranslate"><span class="pre">genv.sdk.attach()</span></code>.
+For example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">genv.sdk</span>
+
+<span class="k">with</span> <span class="n">genv</span><span class="o">.</span><span class="n">sdk</span><span class="o">.</span><span class="n">activate</span><span class="p">():</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">genv</span><span class="o">.</span><span class="n">sdk</span><span class="o">.</span><span class="n">attached</span><span class="p">())</span>
+    <span class="n">genv</span><span class="o">.</span><span class="n">sdk</span><span class="o">.</span><span class="n">configure</span><span class="p">(</span><span class="n">genv</span><span class="o">.</span><span class="n">sdk</span><span class="o">.</span><span class="n">Env</span><span class="o">.</span><span class="n">Config</span><span class="p">(</span><span class="n">gpus</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
+    <span class="n">genv</span><span class="o">.</span><span class="n">sdk</span><span class="o">.</span><span class="n">attach</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">genv</span><span class="o">.</span><span class="n">sdk</span><span class="o">.</span><span class="n">attached</span><span class="p">())</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="reference">
+<h2>Reference<a class="headerlink" href="#reference" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="genv.sdk.active">
+<code class="sig-prename descclassname">genv.sdk.</code><code class="sig-name descname">active</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#genv.sdk.active" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns whether running in an active environment.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="genv.sdk.activate">
+<code class="sig-prename descclassname">genv.sdk.</code><code class="sig-name descname">activate</code><span class="sig-paren">(</span><em class="sig-param">*</em>, <em class="sig-param">eid: Optional[str] = None</em>, <em class="sig-param">config: Optional[Env.Config] = None</em><span class="sig-paren">)</span><a class="headerlink" href="#genv.sdk.activate" title="Permalink to this definition">¶</a></dt>
+<dd><p>A context manager for activating an environment for the current process.</p>
+<p>Configures the environment if configuration is specified.
+Attaches devices if device count is configured.</p>
+<p>Raises <code class="code docutils literal notranslate"><span class="pre">RuntimeError</span></code> if already running in an active environment.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>eid</strong> – Environment identifier</p></li>
+<li><p><strong>config</strong> – Environment configuration</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="genv.sdk.attached">
+<code class="sig-prename descclassname">genv.sdk.</code><code class="sig-name descname">attached</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#genv.sdk.attached" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the indices of devices attached to the current environment.</p>
+<p>Indices are in host namespace even when running in a container.</p>
+<p>Raises <code class="code docutils literal notranslate"><span class="pre">RuntimeError</span></code> if not running in an active environment.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Iterable[int]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="genv.sdk.configuration">
+<code class="sig-prename descclassname">genv.sdk.</code><code class="sig-name descname">configuration</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#genv.sdk.configuration" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the current environment configuration.</p>
+<p>Raises <code class="code docutils literal notranslate"><span class="pre">RuntimeError</span></code> if not running in an active environment.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Env.Config</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="genv.sdk.configure">
+<code class="sig-prename descclassname">genv.sdk.</code><code class="sig-name descname">configure</code><span class="sig-paren">(</span><em class="sig-param">config: Env.Config</em><span class="sig-paren">)</span><a class="headerlink" href="#genv.sdk.configure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Configures the current environment.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>config</strong> – Environment configuration</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="genv.sdk.eid">
+<code class="sig-prename descclassname">genv.sdk.</code><code class="sig-name descname">eid</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#genv.sdk.eid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the current environment identifier if running in an active environment.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Optional[str]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="genv.sdk.lock">
+<code class="sig-prename descclassname">genv.sdk.</code><code class="sig-name descname">lock</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#genv.sdk.lock" title="Permalink to this definition">¶</a></dt>
+<dd><p>A context manager for obtaining exclusive access to the attached devices.</p>
+<p>Does nothing if not running in an active environment or not attached to devices.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="monitoring.html" class="btn btn-neutral float-left" title="Monitoring" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../remote/overview.html" class="btn btn-neutral float-right" title="Overview" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022-2023, Run.ai.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

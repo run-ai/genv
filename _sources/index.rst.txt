@@ -27,6 +27,7 @@ Genv lets you easily control, configure and monitor the GPU resources that you a
    usage/advanced-usage
    usage/enforcement
    usage/monitoring
+   usage/python-sdk
 
 .. toctree::
    :maxdepth: 2

@@ -229,6 +229,10 @@ For example:
    with genv.sdk.lock():
       main()
 
+.. note::
+
+   For more information about the Python SDK see :doc:`here <./python-sdk>`.
+
 ~~~~~
 Shell
 ~~~~~
