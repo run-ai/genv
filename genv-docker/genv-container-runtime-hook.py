@@ -59,7 +59,6 @@ def configure_environment(config: dict, eid: str) -> genv.Env.Config:
     gpus = get_env(config, "GENV_GPUS")
 
     config = genv.Env.Config(
-        name=None,
         gpu_memory=gpu_memory,
         gpus=int(gpus) if gpus else None,
     )

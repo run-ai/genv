@@ -9,9 +9,9 @@ import genv.utils
 class Env:
     @dataclass
     class Config:
-        name: Optional[str]
-        gpu_memory: Optional[str]
-        gpus: Optional[int]
+        name: Optional[str] = None
+        gpu_memory: Optional[str] = None
+        gpus: Optional[int] = None
 
     eid: str
     uid: int
