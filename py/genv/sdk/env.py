@@ -86,11 +86,12 @@ def activate(*, eid: Optional[str] = None, config: Optional[Env.Config] = None) 
     """A context manager for activating an environment for the current process.
 
     Configures the environment if configuration is specified.
-    Attaches devices if configured to.
+    Attaches devices if device count is configured.
 
     Raises RuntimeError if already running in an active environment.
 
     :param eid: Environment identifier
+    :param config: Environment configuration
     """
 
     if active():

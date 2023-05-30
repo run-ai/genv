@@ -215,6 +215,8 @@ You can load the configuration from the disk by running:
 
 Note that Genv will automatically load the saved configuration when you activate an environment from your project root directory (as long as you don't pass :code:`--no-load` to :code:`genv activate`).
 
+.. _Using Devices in an Environment:
+
 Using Devices in an Environment
 -------------------------------
 An environment starts detached from GPUs when it is first gets activated.
