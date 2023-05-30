@@ -61,7 +61,10 @@ class State(File[Envs]):
         return o
 
     def _clean(self, envs: Envs) -> None:
-        envs.cleanup()
+        envs.cleanup(
+            poll_pid=genv.utils.poll.poll_pid,
+            poll_kernel=genv.utils.poll.poll_jupyter_kernel,
+        )
 
 
 def snapshot() -> Envs:
@@ -93,19 +96,29 @@ def activate(
         envs[eid].attach(pid=pid, kernel_id=kernel_id)
 
 
-def configure(
-    eid: str,
-    *,
-    name: Optional[str] = None,
-    gpu_memory: Optional[str] = None,
-    gpus: Optional[int] = None,
-) -> None:
-    """
-    Configures an environment.
-    """
-    with State() as envs:
-        env = envs[eid]
+def configuration(eid: str) -> Optional[Env.Config]:
+    """Returns the configuration of an environment if it exists"""
 
-        env.config.name = name
-        env.config.gpu_memory = gpu_memory
-        env.config.gpus = gpus
+    envs = snapshot()
+
+    if eid in envs:
+        return envs[eid].config
+
+
+def configure(eid: str, config: Env.Config) -> None:
+    """Configures an environment"""
+
+    with State() as envs:
+        envs[eid].config = config
+
+
+def deactivate(*, pid: Optional[int] = None, kernel_id: Optional[str] = None) -> None:
+    """Detatches a process or a kernel and deactivates inactive environments"""
+
+    with State() as envs:
+        envs.cleanup(
+            poll_pid=(lambda pid_: pid_ != pid) if pid else None,
+            poll_kernel=(lambda kernel_id_: kernel_id_ != kernel_id)
+            if kernel_id
+            else None,
+        )

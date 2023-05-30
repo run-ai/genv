@@ -1,9 +1,9 @@
 from contextlib import ExitStack, contextmanager
 import subprocess
-from typing import Any, Iterable, Union
+from typing import Any, Iterable, Optional, Union
 
 import genv.utils
-from genv.entities import Device, Devices
+from genv.entities import Device, Devices, Env
 import genv.serialization
 
 import genv.core.envs
@@ -75,31 +75,32 @@ def snapshot() -> Devices:
     return State().load()
 
 
-def attach(eid: str, allow_over_subscription: bool = False) -> Iterable[int]:
-    """
-    Attaches an environment to devices.
-    The device count is taken from the environment configuration.
+def attach(
+    eid: str,
+    gpus: Optional[int] = None,
+    gpu_memory: Optional[str] = None,
+    allow_over_subscription: bool = False,
+) -> Iterable[int]:
+    """Attaches an environment to devices.
+
     Does not detach devices if already attached to more devices.
 
     :return: Attached device indices
     """
     with State() as devices:
-        envs = genv.core.envs.snapshot()
-        env_config = envs[eid].config
-
-        if env_config.gpus is not None:
+        if gpus is not None:
             env_devices = devices.filter(eid=eid)
 
-            diff = env_config.gpus - len(env_devices)
+            diff = gpus - len(env_devices)
 
             if diff > 0:
                 not_env_devices = devices.filter(not_indices=env_devices.indices)
 
                 indices = not_env_devices.find_available_devices(
-                    diff, env_config.gpu_memory, allow_over_subscription
+                    diff, gpu_memory, allow_over_subscription
                 )
 
-                devices.attach(eid, indices, env_config.gpu_memory)
+                devices.attach(eid, indices, gpu_memory)
             elif diff < 0:
                 pass  # TODO(raz): support detaching devices if already attached to more
 
@@ -112,6 +113,14 @@ def detach(eid: str, index: int) -> None:
     """
     with State() as devices:
         devices[index].detach(eid)
+
+
+def attached(eid: str) -> Iterable[int]:
+    """Returns the indices of devices that are attached to an environment"""
+
+    devices = snapshot()
+
+    return devices.filter(eid=eid).indices
 
 
 def get_lock_path(index: int, create: bool = False) -> str:

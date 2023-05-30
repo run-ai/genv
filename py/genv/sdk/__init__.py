@@ -1,2 +1,3 @@
-from .devices import lock
-from .env import active, eid
+from ..entities import Env
+from .devices import attach, attached, lock
+from .env import active, activate, configure, configuration, eid
