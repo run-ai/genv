@@ -4,6 +4,7 @@ set -e
 [ -n "$GENV_DEBUG" ] && set -x
 
 export GENV_ROOT=${GENV_ROOT:-"$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &> /dev/null && pwd)/.."}
+export GENV_SHELL=${GENV_SHELL:-${SHELL##*/}} # TODO(raz): we should check the actual running shell and not the default one
 export PATH="$GENV_ROOT/libexec:$PATH"
 
 command="$1"

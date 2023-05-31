@@ -126,10 +126,20 @@ done
 function functions()
 {
   cat <<EOS
+_genv_get_env()
+{
+  if [ "$GENV_SHELL" = "zsh" ]; then
+    echo "\${(P)1}"
+  else
+    echo "\${!1}"
+  fi
+}
+
 _genv_append_to_env()
 {
   # based on https://unix.stackexchange.com/a/415028
-  export \$1="\${!1:+\${!1}:}\$2"
+  val=\$(_genv_get_env \$1)
+  export \$1="\${val:+\$val:}\$2"
 }
 
 _genv_set_env()
@@ -146,19 +156,21 @@ _genv_unset_env()
 
 _genv_backup_env()
 {
-  if [ -n "\${!1}" ]; then
-    export GENV_BACKUP_ENV_\$1="\${!1}"
+  val=\$(_genv_get_env \$1)
+  if [ -n "\$val" ]; then
+    export GENV_BACKUP_ENV_\$1="\$val"
     _genv_append_to_env GENV_BACKUP_ENVS \$1
   fi
 }
 
 _genv_restore_env()
 {
-  backup="GENV_BACKUP_ENV_\$1"
-  if [ -n "\${!backup}" ]; then
-    export \$1="\${!backup}"
+  var="GENV_BACKUP_ENV_\$1"
+  val=\$(_genv_get_env \$var)
+  if [ -n "\$val" ]; then
+    export \$1="\$val"
   fi
-  unset \$backup
+  unset \$var
 }
 
 _genv_replace_env()

@@ -23,7 +23,7 @@ Open a terminal in the project directory.
 
 .. warning::
 
-   We support :code:`bash` terminals only at the moment. Query your shell using :code:`echo $SHELL` and run :code:`bash` if it is not your shell, or use a :ref:`Docker <Docker>` setup instead.
+   We support :code:`bash` and :code:`zsh` terminals only at the moment. Query your shell using :code:`echo $SHELL` and run :code:`bash` if your shell is not supported, or use a :ref:`Docker <Docker>` setup instead.
 
 Then run the following commands to configure your terminal:
 
