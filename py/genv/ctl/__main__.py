@@ -2,6 +2,7 @@ import argparse
 import asyncio
 import sys
 
+from . import config
 from . import devices
 from . import enforce
 from . import envs
@@ -25,6 +26,7 @@ def parse_args() -> argparse.Namespace:
 
     for submodule, help, add_arguments in [
         ("devices", "Query and manage devices", devices.add_arguments),
+        ("config", "Configure the current environment", config.add_arguments),
         ("enforce", "Enforce GPU usage", enforce.add_arguments),
         ("envs", "Query and manage environments", envs.add_arguments),
         ("lock", "Lock over-subscribed devices", lock.add_arguments),
@@ -46,7 +48,9 @@ def main():
     args = parse_args()
 
     try:
-        if args.submodule == "devices":
+        if args.submodule == "config":
+            config.run(args)
+        elif args.submodule == "devices":
             devices.run(args)
         elif args.submodule == "enforce":
             asyncio.run(enforce.run(args))
