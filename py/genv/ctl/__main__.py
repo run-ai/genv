@@ -8,6 +8,7 @@ from . import envs
 from . import lock
 from . import monitor
 from . import remote
+from . import status
 from . import usage
 
 
@@ -29,6 +30,7 @@ def parse_args() -> argparse.Namespace:
         ("lock", "Lock over-subscribed devices", lock.add_arguments),
         ("monitor", "Monitor using Prometheus and Grafana", monitor.add_arguments),
         ("remote", "Query, manage and monitor remote machines", remote.add_arguments),
+        ("status", "Show status of the current environment", status.add_arguments),
         ("usage", "GPU usage miscellaneous", usage.add_arguments),
     ]:
         add_arguments(parser=subparsers.add_parser(submodule, help=help))
@@ -56,6 +58,8 @@ def main():
             asyncio.run(monitor.run(args))
         elif args.submodule == "remote":
             asyncio.run(remote.run(args))
+        elif args.submodule == "status":
+            status.run(args)
         elif args.submodule == "usage":
             asyncio.run(usage.run(args))
     except RuntimeError as e:
