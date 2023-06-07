@@ -39,6 +39,7 @@ def add_arguments(parser: argparse.ArgumentParser) -> None:
     Adds "genvctl config" arguments to a parser.
     """
 
+    parser.add_argument("-q", "--quiet", action="store_true")
     parser.add_argument("--clear", action="store_true")
 
     subparsers = parser.add_subparsers(dest="field")
@@ -46,7 +47,6 @@ def add_arguments(parser: argparse.ArgumentParser) -> None:
     for field in FIELDS:
         subparser = subparsers.add_parser(field.human_readable_name)
         subparser.add_argument(field.name, type=field.type, nargs="?")
-        subparser.add_argument("--clear", action="store_true")
 
 
 def run(args: argparse.Namespace) -> None:
@@ -54,15 +54,9 @@ def run(args: argparse.Namespace) -> None:
     Runs the "genvctl config" logic.
     """
 
-    config = genv.sdk.configuration()
+    config = genv.sdk.refresh_configuration()
 
-    if args.field is None:
-        if args.clear:
-            config = genv.sdk.Env.Config()
-        else:
-            for field in FIELDS:
-                print_field(config, field, prefix=True)
-    else:
+    if args.field:
         field = next(
             field for field in FIELDS if field.human_readable_name == args.field
         )
@@ -71,9 +65,15 @@ def run(args: argparse.Namespace) -> None:
 
         if args.clear:
             setattr(config, field.name, None)
-        elif value is None:
-            print_field(config, field)
-        else:
+        elif value is not None:
             setattr(config, field.name, value)
+        elif not args.quiet:
+            print_field(config, field)
+    else:
+        if args.clear:
+            config = genv.sdk.Env.Config()
+        elif not args.quiet:
+            for field in FIELDS:
+                print_field(config, field, prefix=True)
 
     genv.sdk.configure(config)
