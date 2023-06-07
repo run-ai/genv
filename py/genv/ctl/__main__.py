@@ -10,6 +10,7 @@ from . import home
 from . import lock
 from . import monitor
 from . import remote
+from . import shell
 from . import status
 from . import usage
 
@@ -38,6 +39,7 @@ def parse_args() -> argparse.Namespace:
         ("lock", "Lock over-subscribed devices", lock.add_arguments),
         ("monitor", "Monitor using Prometheus and Grafana", monitor.add_arguments),
         ("remote", "Query, manage and monitor remote machines", remote.add_arguments),
+        ("shell", "Shell support", shell.add_arguments),
         ("status", "Show status of the current environment", status.add_arguments),
         ("usage", "GPU usage miscellaneous", usage.add_arguments),
     ]:
@@ -70,6 +72,8 @@ def main():
             asyncio.run(monitor.run(args))
         elif args.submodule == "remote":
             asyncio.run(remote.run(args))
+        elif args.submodule == "shell":
+            shell.run(args)
         elif args.submodule == "status":
             status.run(args)
         elif args.submodule == "usage":
