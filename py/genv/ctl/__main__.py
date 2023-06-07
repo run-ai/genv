@@ -6,6 +6,7 @@ from . import config
 from . import devices
 from . import enforce
 from . import envs
+from . import home
 from . import lock
 from . import monitor
 from . import remote
@@ -29,6 +30,11 @@ def parse_args() -> argparse.Namespace:
         ("config", "Configure the current environment", config.add_arguments),
         ("enforce", "Enforce GPU usage", enforce.add_arguments),
         ("envs", "Query and manage environments", envs.add_arguments),
+        (
+            "home",
+            "Show the home directory of the current environment",
+            home.add_arguments,
+        ),
         ("lock", "Lock over-subscribed devices", lock.add_arguments),
         ("monitor", "Monitor using Prometheus and Grafana", monitor.add_arguments),
         ("remote", "Query, manage and monitor remote machines", remote.add_arguments),
@@ -56,6 +62,8 @@ def main():
             asyncio.run(enforce.run(args))
         elif args.submodule == "envs":
             envs.run(args)
+        elif args.submodule == "home":
+            home.run(args)
         elif args.submodule == "lock":
             lock.run(args)
         elif args.submodule == "monitor":

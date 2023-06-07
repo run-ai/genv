@@ -1,5 +1,6 @@
 from contextlib import contextmanager
 import os
+from pathlib import Path
 from typing import Optional
 
 import genv.utils
@@ -20,6 +21,16 @@ def active() -> bool:
     """Returns whether running in an active environment"""
 
     return eid() is not None
+
+
+def home() -> Optional[str]:
+    """Returns the configuration directory for this environment if exists"""
+
+    for alt in [Path.cwd(), Path.home()]:
+        path = alt.joinpath(".genv")
+
+        if path.is_dir():
+            return path
 
 
 def _set_configuration(config: Env.Config) -> None:

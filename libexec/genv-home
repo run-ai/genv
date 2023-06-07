@@ -8,27 +8,4 @@ if [[ $1 = "--description" ]] ; then
     exit 0
 fi
 
-options=($PWD $HOME $GENV_ROOT)
-for parent in ${options[@]}; do
-  dir="$parent/.genv"
-  if [ -d $dir ]; then
-    echo $dir
-    exit 0
-  fi
-done
-
-if [[ "$1" = "--quiet" ]]; then
-  exit 0
-fi
-
-{
-  echo "Could not find any genv configuration directory."
-  echo
-  echo "Create a directory named '.genv' under one of the following directories:"
-  echo "  1) Current working directory (i.e. \$PWD)"
-  echo "  2) Home directory (i.e. \$HOME)"
-  echo "  2) Installation directory of genv (i.e. \`genv root\`)"
-  echo
-} >&2
-
-exit 1
+( exec genv exec home "$@" )
