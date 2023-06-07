@@ -8,7 +8,7 @@ import genv.utils
 import genv.core
 
 from . import env
-from .utils import set_temp_env
+from .utils import set_temp_env_var
 
 
 def _visible() -> Iterable[int]:
@@ -29,10 +29,10 @@ def _lockable() -> Iterable[int]:
     ]
 
 
-def _set_attached(indices: Iterable[int]) -> None:
-    """Sets the device indices environment variables"""
+def _update_env(indices: Iterable[int]) -> None:
+    """Updates the device indices environment variables"""
 
-    set_temp_env(
+    set_temp_env_var(
         "CUDA_VISIBLE_DEVICES", ",".join(map(str, indices)) if indices else "-1"
     )  # TODO(raz): support the case when this env var already exists
 
@@ -56,7 +56,7 @@ def attach(allow_over_subscription: bool = False) -> Iterable[int]:
             env.eid(), config.gpus, config.gpu_memory, allow_over_subscription
         )
 
-    _set_attached(indices)
+    _update_env(indices)
 
 
 def attached() -> Iterable[int]:
@@ -79,8 +79,8 @@ def attached() -> Iterable[int]:
     raise RuntimeError("Failed to find attached device indices")
 
 
-def load_attached() -> Iterable[int]:
-    """Loads attached devices.
+def refresh_attached() -> Iterable[int]:
+    """Refreshes attached devices.
 
     Raises RuntimeError if not running in an active environment.
     """
@@ -91,7 +91,7 @@ def load_attached() -> Iterable[int]:
     with genv.utils.global_lock():
         indices = genv.core.devices.attached(env.eid())
 
-    _set_attached(indices)
+    _update_env(indices)
 
     return indices
 

@@ -8,7 +8,7 @@ from genv.entities import Env
 import genv.core
 
 from . import devices
-from .utils import set_temp_env, temp_env
+from .utils import set_temp_env_var, temp_env_vars, unset_temp_env_var
 
 
 def eid() -> Optional[str]:
@@ -33,16 +33,18 @@ def home() -> Optional[str]:
             return path
 
 
-def _set_configuration(config: Env.Config) -> None:
-    """Sets the configuration environment variables"""
+def _update_env(config: Env.Config) -> None:
+    """Updates the configuration environment variables"""
 
     for name, value in [
         ("GENV_ENVIRONMENT_NAME", config.name),
         ("GENV_GPU_MEMORY", config.gpu_memory),
         ("GENV_GPUS", config.gpus),
     ]:
-        if value:
-            set_temp_env(name, value)
+        if value is not None:
+            set_temp_env_var(name, value)
+        else:
+            unset_temp_env_var(name)
 
 
 def configure(config: Env.Config) -> None:
@@ -54,7 +56,7 @@ def configure(config: Env.Config) -> None:
     with genv.utils.global_lock():
         genv.core.envs.configure(eid(), config)
 
-    _set_configuration(config)
+    _update_env(config)
 
 
 def configuration() -> Env.Config:
@@ -75,8 +77,8 @@ def configuration() -> Env.Config:
     )
 
 
-def load_configuration() -> Env.Config:
-    """Loads the environment configuration.
+def refresh_configuration() -> Env.Config:
+    """Refreshes the environment configuration.
 
     Raises RuntimeError if not running in an active environment.
     """
@@ -87,7 +89,7 @@ def load_configuration() -> Env.Config:
     with genv.utils.global_lock():
         config = genv.core.envs.configuration(eid())
 
-    _set_configuration(config)
+    _update_env(config)
 
     return config
 
@@ -111,9 +113,9 @@ def activate(*, eid: Optional[str] = None, config: Optional[Env.Config] = None) 
     pid = os.getpid()
     eid = eid or str(pid)
 
-    with temp_env():
-        set_temp_env("GENV_PYTHON", "1")
-        set_temp_env("GENV_ENVIRONMENT_ID", eid)
+    with temp_env_vars():
+        set_temp_env_var("GENV_PYTHON", "1")
+        set_temp_env_var("GENV_ENVIRONMENT_ID", eid)
 
         with genv.utils.global_lock():
             genv.core.envs.activate(
@@ -123,9 +125,9 @@ def activate(*, eid: Optional[str] = None, config: Optional[Env.Config] = None) 
         if config is not None:
             configure(config)
         else:
-            load_configuration()
+            refresh_configuration()
 
-        indices = devices.load_attached()
+        indices = devices.refresh_attached()
 
         if not indices:
             devices.attach()
