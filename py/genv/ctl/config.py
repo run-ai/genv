@@ -41,6 +41,12 @@ def add_arguments(parser: argparse.ArgumentParser) -> None:
 
     parser.add_argument("-q", "--quiet", action="store_true")
     parser.add_argument("--clear", action="store_true")
+    parser.add_argument(
+        "--load", action="store_true", help="Load configuration from disk"
+    )
+    parser.add_argument(
+        "--save", action="store_true", help="Save updated configuration to disk"
+    )
 
     subparsers = parser.add_subparsers(dest="field")
 
@@ -54,7 +60,10 @@ def run(args: argparse.Namespace) -> None:
     Runs the "genvctl config" logic.
     """
 
-    config = genv.sdk.refresh_configuration()
+    if args.load:
+        config = genv.sdk.load_configuration()
+    else:
+        config = genv.sdk.refresh_configuration()
 
     if args.field:
         field = next(
@@ -77,3 +86,6 @@ def run(args: argparse.Namespace) -> None:
                 print_field(config, field, prefix=True)
 
     genv.sdk.configure(config)
+
+    if args.save:
+        genv.sdk.save_configuration()

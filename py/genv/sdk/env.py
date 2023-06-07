@@ -23,7 +23,7 @@ def active() -> bool:
     return eid() is not None
 
 
-def home() -> Optional[str]:
+def home() -> Optional[Path]:
     """Returns the configuration directory for this environment if exists"""
 
     for alt in [Path.cwd(), Path.home()]:
@@ -94,6 +94,41 @@ def refresh_configuration() -> Env.Config:
     return config
 
 
+def load_configuration() -> Env.Config:
+    """Loads configuration from disk.
+
+    Raises RuntimeError if not running in an active environment.
+    """
+
+    if not active():
+        raise RuntimeError("Not running in an active environment")
+
+    config = Env.Config()
+
+    home_dir = home()
+
+    if home_dir:
+        config.load(home_dir)
+
+    _update_env(config)
+
+    return config
+
+
+def save_configuration() -> None:
+    """Saves the current configuration to disk.
+
+    Raises RuntimeError if not running in an active environment.
+    """
+
+    home_dir = home()
+
+    if home_dir is not None:
+        config = configuration()
+
+        config.save(home_dir)
+
+
 @contextmanager
 def activate(*, eid: Optional[str] = None, config: Optional[Env.Config] = None) -> None:
     """A context manager for activating an environment for the current process.
@@ -125,7 +160,7 @@ def activate(*, eid: Optional[str] = None, config: Optional[Env.Config] = None) 
         if config is not None:
             configure(config)
         else:
-            refresh_configuration()
+            config = refresh_configuration()
 
         indices = devices.refresh_attached()
 
