@@ -40,9 +40,9 @@ class _HelpStderrAction(argparse.Action):
         parser.exit()
 
 
-def parse_args() -> argparse.Namespace:
+def main():
     """
-    Parses the passed arguments.
+    The genvctl entrypoint.
     """
 
     parser = argparse.ArgumentParser(
@@ -92,18 +92,12 @@ def parse_args() -> argparse.Namespace:
 
         add_arguments(subparser)
 
-    return parser.parse_args()
-
-
-def main():
-    """
-    The genvctl entrypoint.
-    """
-
-    args = parse_args()
+    args = parser.parse_args()
 
     try:
-        if args.submodule == "activate":
+        if args.submodule is None:
+            parser.print_help()
+        elif args.submodule == "activate":
             if not args.shell:
                 raise RuntimeError(shell.error_msg())
 
