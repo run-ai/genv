@@ -2,7 +2,7 @@ from contextlib import contextmanager
 from glob import glob
 import os
 import re
-from typing import Iterable
+from typing import Iterable, Optional
 
 import genv.utils
 import genv.core
@@ -39,21 +39,45 @@ def _update_env(indices: Iterable[int]) -> None:
     # TODO(raz): should we set "CUDA_DEVICE_ORDER" as well?
 
 
-def attach(allow_over_subscription: bool = False) -> Iterable[int]:
+def attach(
+    *,
+    index: Optional[int] = None,
+    gpus: Optional[int] = None,
+    allow_over_subscription: bool = False,
+) -> Iterable[int]:
     """Attaches devices to the current environment.
 
-    The device count is taken from the environment configuration.
+    Attaching to a specific device if an index is specified.
+    Attaching to a some devices if count is specified.
+    Otherwise, the device count is taken from the environment configuration.
+
     Does not detach devices if already attached to more devices.
     """
+
+    if index is not None and gpus is not None:
+        raise ValueError(
+            'Can\'t use both "index" and "count" in genv.sdk.devices.attach()'
+        )
 
     if not env.active():
         raise RuntimeError("Not running in an active environment")
 
     config = env.configuration()
 
+    kwargs = {}
+    if index is not None:
+        kwargs["index"] = index
+    elif gpus is not None:
+        kwargs["gpus"] = gpus
+    else:
+        kwargs["gpus"] = config.gpus
+
     with genv.utils.global_lock():
         indices = genv.core.devices.attach(
-            env.eid(), config.gpus, config.gpu_memory, allow_over_subscription
+            env.eid(),
+            **kwargs,
+            gpu_memory=config.gpu_memory,
+            allow_over_subscription=allow_over_subscription,
         )
 
     _update_env(indices)

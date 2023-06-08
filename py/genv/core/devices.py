@@ -84,6 +84,8 @@ def snapshot() -> Devices:
 
 def attach(
     eid: str,
+    *,
+    index: Optional[int] = None,
     gpus: Optional[int] = None,
     gpu_memory: Optional[str] = None,
     allow_over_subscription: bool = False,
@@ -94,10 +96,23 @@ def attach(
 
     :return: Attached device indices
     """
-    with State() as devices:
-        if gpus is not None:
-            env_devices = devices.filter(eid=eid)
+    if gpus is not None and index is not None:
+        raise ValueError(
+            'Can\'t use both "gpus" and "index" in genv.core.devices.attach()'
+        )
 
+    with State() as devices:
+        env_devices = devices.filter(eid=eid)
+
+        if index is not None:
+            if index not in env_devices.indices:
+                if not allow_over_subscription and not devices[index].available(
+                    gpu_memory
+                ):
+                    raise RuntimeError(f"Device {index} is not available")
+
+                devices.attach(eid, index, gpu_memory)
+        elif gpus is not None:
             diff = gpus - len(env_devices)
 
             if diff > 0:
