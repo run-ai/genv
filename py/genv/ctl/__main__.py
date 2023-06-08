@@ -5,6 +5,7 @@ import sys
 
 from . import activate
 from . import config
+from . import deactivate
 from . import devices
 from . import enforce
 from . import envs
@@ -40,6 +41,12 @@ class _HelpStderrAction(argparse.Action):
         parser.exit()
 
 
+def _is_shell_module(module: str) -> bool:
+    """Returns whether a module is a shell module"""
+
+    return module in ["activate", "deactivate"]
+
+
 def main():
     """
     The genvctl entrypoint.
@@ -54,6 +61,7 @@ def main():
     for submodule, help, add_arguments in [
         ("activate", "Activate shell environment", activate.add_arguments),
         ("config", "Configure the current environment", config.add_arguments),
+        ("deactivate", "Deactivate shell environment", deactivate.add_arguments),
         ("devices", "Query and manage devices", devices.add_arguments),
         ("enforce", "Enforce GPU usage", enforce.add_arguments),
         ("envs", "Query and manage environments", envs.add_arguments),
@@ -69,13 +77,11 @@ def main():
         ("status", "Show status of the current environment", status.add_arguments),
         ("usage", "GPU usage miscellaneous", usage.add_arguments),
     ]:
-        is_shell_submodule = submodule in ["activate"]
-
         subparser = subparsers.add_parser(
-            submodule, help=help, add_help=not is_shell_submodule
+            submodule, help=help, add_help=not _is_shell_module(submodule)
         )
 
-        if is_shell_submodule:
+        if _is_shell_module(submodule):
             subparser.register("action", "help_stderr", _HelpStderrAction)
 
             subparser.add_argument(
@@ -97,13 +103,17 @@ def main():
     try:
         if args.submodule is None:
             parser.print_help()
-        elif args.submodule == "activate":
-            if not args.shell:
-                raise RuntimeError(shell.error_msg())
+            parser.exit()
 
+        if _is_shell_module(args.submodule) and not args.shell:
+            raise RuntimeError(shell.error_msg())
+
+        if args.submodule == "activate":
             activate.run(args.shell, args)
         elif args.submodule == "config":
             config.run(args)
+        elif args.submodule == "deactivate":
+            deactivate.run(args.shell, args)
         elif args.submodule == "devices":
             devices.run(args)
         elif args.submodule == "enforce":

@@ -68,6 +68,13 @@ class State(File[Devices]):
         devices.cleanup(poll_eid=lambda eid: eid in envs.eids)
 
 
+def cleanup() -> None:
+    """Cleans up the state"""
+
+    with State(cleanup=True):
+        pass
+
+
 def snapshot() -> Devices:
     """
     Returns an environments snapshot.

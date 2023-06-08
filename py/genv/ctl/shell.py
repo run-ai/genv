@@ -79,8 +79,8 @@ genvctl()
   fi
 
   case "$command" in
-  activate)
-    eval "$(command genvctl activate --shell $$ $@)"
+  activate|deactivate)
+    eval "$(command genvctl $command --shell $$ $@)"
     ;;
   config)
     command genvctl config $@
@@ -142,7 +142,7 @@ def do_reattach() -> None:
 
     print(
         f"""\
-_genv_set_env CUDA_VISIBLE_DEVICES {",".join(map(str, indices)) if indices else "-1"}
+_genv_replace_env CUDA_VISIBLE_DEVICES {",".join(map(str, indices)) if indices else "-1"}
 """
     )
 
@@ -158,9 +158,9 @@ def do_reconfigure() -> None:
         ("GENV_GPUS", config.gpus),
     ]:
         if value is not None:
-            print(f"export {name}={value}")
+            print(f"_genv_set_env {name} {value}")
         else:
-            print(f"unset {name}")
+            print(f"_genv_unset_env {name}")
 
 
 def add_arguments(parser: argparse.ArgumentParser) -> None:
