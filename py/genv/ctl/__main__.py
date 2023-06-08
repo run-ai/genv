@@ -1,7 +1,9 @@
 import argparse
 import asyncio
+from gettext import gettext as _
 import sys
 
+from . import activate
 from . import config
 from . import devices
 from . import enforce
@@ -13,6 +15,29 @@ from . import remote
 from . import shell
 from . import status
 from . import usage
+
+
+# NOTE(raz): this is needed for modules that their output is being eval() by the
+# 'genvctl' shell function. it is copied almost as-is from argparse.
+class _HelpStderrAction(argparse.Action):
+    def __init__(
+        self,
+        option_strings,
+        dest=argparse.SUPPRESS,
+        default=argparse.SUPPRESS,
+        help=None,
+    ):
+        super(_HelpStderrAction, self).__init__(
+            option_strings=option_strings,
+            dest=dest,
+            default=default,
+            nargs=0,
+            help=help,
+        )
+
+    def __call__(self, parser, namespace, values, option_string=None):
+        parser.print_help(file=sys.stderr)
+        parser.exit()
 
 
 def parse_args() -> argparse.Namespace:
@@ -27,8 +52,9 @@ def parse_args() -> argparse.Namespace:
     subparsers = parser.add_subparsers(dest="submodule", metavar="SUBCOMMAND")
 
     for submodule, help, add_arguments in [
-        ("devices", "Query and manage devices", devices.add_arguments),
+        ("activate", "Activate shell environment", activate.add_arguments),
         ("config", "Configure the current environment", config.add_arguments),
+        ("devices", "Query and manage devices", devices.add_arguments),
         ("enforce", "Enforce GPU usage", enforce.add_arguments),
         ("envs", "Query and manage environments", envs.add_arguments),
         (
@@ -43,7 +69,28 @@ def parse_args() -> argparse.Namespace:
         ("status", "Show status of the current environment", status.add_arguments),
         ("usage", "GPU usage miscellaneous", usage.add_arguments),
     ]:
-        add_arguments(parser=subparsers.add_parser(submodule, help=help))
+        is_shell_submodule = submodule in ["activate"]
+
+        subparser = subparsers.add_parser(
+            submodule, help=help, add_help=not is_shell_submodule
+        )
+
+        if is_shell_submodule:
+            subparser.register("action", "help_stderr", _HelpStderrAction)
+
+            subparser.add_argument(
+                "-h",
+                "--help",
+                action="help_stderr",
+                default=argparse.SUPPRESS,
+                help=_("show this help message and exit"),
+            )
+
+            # this is the process identifier of the shell which is passed by the 'genvctl'
+            # shell function that is installed by "genvctl shell"
+            subparser.add_argument("--shell", type=int, help=argparse.SUPPRESS)
+
+        add_arguments(subparser)
 
     return parser.parse_args()
 
@@ -56,7 +103,12 @@ def main():
     args = parse_args()
 
     try:
-        if args.submodule == "config":
+        if args.submodule == "activate":
+            if not args.shell:
+                raise RuntimeError(shell.error_msg())
+
+            activate.run(args.shell, args)
+        elif args.submodule == "config":
             config.run(args)
         elif args.submodule == "devices":
             devices.run(args)

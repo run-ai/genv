@@ -1,5 +1,5 @@
 from ..entities import Env
-from .devices import attach, attached, lock
+from .devices import attach, attached, lock, refresh_attached
 from .env import (
     active,
     activate,

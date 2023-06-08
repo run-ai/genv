@@ -8,6 +8,69 @@ def do_init() -> None:
 
     print(
         """\
+_genv_append_to_env()
+{
+  # based on https://unix.stackexchange.com/a/415028
+  export $1="${!1:+${!1}:}$2"
+}
+
+_genv_backup_env()
+{
+  if [ -n "${!1}" ]; then
+    export GENV_BACKUP_ENV_$1="${!1}"
+    _genv_append_to_env GENV_BACKUP_ENVS $1
+  fi
+}
+
+_genv_set_env()
+{
+  export $1="$2"
+  _genv_append_to_env GENV_ENVS $1
+}
+
+_genv_replace_env()
+{
+  _genv_backup_env $1
+  _genv_set_env $1 "$2"
+}
+
+_genv_unset_env()
+{
+  unset $1
+  # TODO(raz): remove from 'GENV_ENVS'
+}
+
+_genv_unset_envs()
+{
+  IFS=: read -a names <<< "$GENV_ENVS"
+  unset GENV_ENVS
+
+  for name in "${names[@]}"
+  do
+    unset $name
+  done
+}
+
+_genv_restore_env()
+{
+  backup="GENV_BACKUP_ENV_$1"
+  if [ -n "${!backup}" ]; then
+    export $1="${!backup}"
+  fi
+  unset $backup
+}
+
+_genv_restore_envs()
+{
+  IFS=: read -a names <<< "$GENV_BACKUP_ENVS"
+  unset GENV_BACKUP_ENVS
+
+  for name in "${names[@]}"
+  do
+    _genv_restore_env $name
+  done
+}
+
 genvctl()
 {
   local command="${1:-}"
@@ -16,6 +79,9 @@ genvctl()
   fi
 
   case "$command" in
+  activate)
+    eval "$(command genvctl activate --shell $$ $@)"
+    ;;
   config)
     command genvctl config $@
     eval "$(command genvctl shell --reconfigure)"
@@ -36,18 +102,22 @@ genvctl()
     )
 
 
-def do_error() -> None:
-    """Prints an error message"""
+def error_msg() -> str:
+    """Returns an error message"""
 
-    print(
-        """\
+    return """\
 Your shell is not properly initialized at the moment.
 Run the following command to initialize it.
 You should also add it to your ~/.bashrc or any equivalent file.
 
     eval "$(genvctl shell --init)"
 """
-    )
+
+
+def do_error() -> None:
+    """Prints an error message"""
+
+    print(error_msg())
 
 
 def do_ok() -> None:
@@ -65,8 +135,20 @@ If you are not sure how to continue from here, check out the quick start tutoria
     )
 
 
+def do_reattach() -> None:
+    """Refreshes the shell indices environment variables"""
+
+    indices = genv.sdk.refresh_attached()
+
+    print(
+        f"""\
+_genv_set_env CUDA_VISIBLE_DEVICES {",".join(map(str, indices)) if indices else "-1"}
+"""
+    )
+
+
 def do_reconfigure() -> None:
-    """Reconfigures environment variables in the shell"""
+    """Refreshes the shell configuration environment variables"""
 
     config = genv.sdk.refresh_configuration()
 
@@ -103,6 +185,14 @@ def add_arguments(parser: argparse.ArgumentParser) -> None:
     )
 
     parser.add_argument(
+        "--reattach",
+        action="store_const",
+        dest="action",
+        const="reattach",
+        help=argparse.SUPPRESS,
+    )
+
+    parser.add_argument(
         "--reconfigure",
         action="store_const",
         dest="action",
@@ -120,6 +210,8 @@ def run(args: argparse.Namespace) -> None:
         do_init()
     elif args.action == "ok":
         do_ok()
+    elif args.action == "reattach":
+        do_reattach()
     elif args.action == "reconfigure":
         do_reconfigure()
     else:
