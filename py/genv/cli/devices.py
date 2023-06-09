@@ -334,3 +334,5 @@ def run(args: argparse.Namespace) -> None:
                 do_ps(devices, args.format, args.header, args.timestamp)
             elif args.command == "query":
                 do_query(devices, args.queries)
+            else:
+                do_ps(devices, format="tui", header=True, timestamp=False)

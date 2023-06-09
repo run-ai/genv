@@ -269,3 +269,5 @@ def run(args: argparse.Namespace) -> None:
                 do_ps(envs, args.format, args.header, args.timestamp)
             elif args.command == "query":
                 do_query(envs, args.eid, args.queries)
+            else:
+                do_ps(envs, format="tui", header=True, timestamp=False)
