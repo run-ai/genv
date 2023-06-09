@@ -15,3 +15,4 @@ from . import core
 from . import enforce
 from . import remote
 from . import sdk
+from . import cli
