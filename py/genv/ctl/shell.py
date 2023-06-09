@@ -112,6 +112,24 @@ genvctl()
     )
 
 
+def do_deinit() -> None:
+    """Prints the deinit shell script"""
+
+    print(
+        """\
+unset -f genvctl
+unset -f _genv_restore_envs
+unset -f _genv_restore_env
+unset -f _genv_unset_envs
+unset -f _genv_unset_env
+unset -f _genv_replace_env
+unset -f _genv_set_env
+unset -f _genv_backup_env
+unset -f _genv_append_to_env
+"""
+    )
+
+
 def error_msg() -> str:
     """Returns an error message"""
 
@@ -187,6 +205,14 @@ def add_arguments(parser: argparse.ArgumentParser) -> None:
     )
 
     parser.add_argument(
+        "--deinit",
+        action="store_const",
+        dest="action",
+        const="deinit",
+        help=argparse.SUPPRESS,
+    )
+
+    parser.add_argument(
         "--ok",
         action="store_const",
         dest="action",
@@ -218,6 +244,8 @@ def run(args: argparse.Namespace) -> None:
 
     if args.action == "init":
         do_init()
+    elif args.action == "deinit":
+        do_deinit()
     elif args.action == "ok":
         do_ok()
     elif args.action == "reattach":
