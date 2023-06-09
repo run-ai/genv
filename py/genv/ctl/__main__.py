@@ -4,6 +4,7 @@ from gettext import gettext as _
 import sys
 
 from . import activate
+from . import attach
 from . import config
 from . import deactivate
 from . import devices
@@ -60,6 +61,7 @@ def main():
 
     for submodule, help, add_arguments in [
         ("activate", "Activate shell environment", activate.add_arguments),
+        ("attach", "Attach devices to this environment", attach.add_arguments),
         ("config", "Configure the current environment", config.add_arguments),
         ("deactivate", "Deactivate shell environment", deactivate.add_arguments),
         ("devices", "Query and manage devices", devices.add_arguments),
@@ -110,6 +112,8 @@ def main():
 
         if args.submodule == "activate":
             activate.run(args.shell, args)
+        elif args.submodule == "attach":
+            attach.run(args)
         elif args.submodule == "config":
             config.run(args)
         elif args.submodule == "deactivate":
