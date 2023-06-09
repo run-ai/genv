@@ -84,7 +84,10 @@ genvctl()
     ;;
   config)
     command genvctl config $@
-    eval "$(command genvctl shell --reconfigure)"
+
+    if [ "$?" -eq 0 ]; then
+      eval "$(command genvctl shell --reconfigure)"
+    fi
     ;;
   shell)
     if [ "$#" -eq 0 ]; then
