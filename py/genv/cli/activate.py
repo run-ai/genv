@@ -9,7 +9,7 @@ import genv.sdk
 
 def add_arguments(parser: argparse.ArgumentParser) -> None:
     """
-    Adds "genvctl activate" arguments to a parser.
+    Adds "genv activate" arguments to a parser.
     """
 
     arguments = parser.add_argument_group("arguments")
@@ -46,7 +46,7 @@ def add_arguments(parser: argparse.ArgumentParser) -> None:
 
 def run(shell: int, args: argparse.Namespace) -> None:
     """
-    Runs the "genvctl activate" logic.
+    Runs the "genv activate" logic.
     """
 
     if genv.sdk.active():
@@ -78,8 +78,8 @@ _genv_set_env GENV_SHELL 1
 _genv_set_env GENV_ENVIRONMENT_ID {eid}
 _genv_replace_env PATH "{os.path.realpath(os.path.join(os.path.dirname(__file__), "../shims"))}:$PATH"
 
-eval "$(command genvctl shell --reconfigure)"
-eval "$(command genvctl shell --reattach)"
+eval "$(command genv shell --reconfigure)"
+eval "$(command genv shell --reattach)"
 """
     )
 

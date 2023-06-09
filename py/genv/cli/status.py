@@ -5,7 +5,7 @@ import genv.sdk
 
 def add_arguments(parser: argparse.ArgumentParser) -> None:
     """
-    Adds "genvctl status" arguments to a parser.
+    Adds "genv status" arguments to a parser.
     """
 
     pass
@@ -13,7 +13,7 @@ def add_arguments(parser: argparse.ArgumentParser) -> None:
 
 def run(args: argparse.Namespace) -> None:
     """
-    Runs the "genvctl status" logic.
+    Runs the "genv status" logic.
     """
 
     if not genv.sdk.active():

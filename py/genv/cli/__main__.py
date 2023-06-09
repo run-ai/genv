@@ -21,7 +21,7 @@ from . import usage
 
 
 # NOTE(raz): this is needed for modules that their output is being eval() by the
-# 'genvctl' shell function. it is copied almost as-is from argparse.
+# 'genv' shell function. it is copied almost as-is from argparse.
 class _HelpStderrAction(argparse.Action):
     def __init__(
         self,
@@ -51,7 +51,7 @@ def _is_shell_module(module: str) -> bool:
 
 def main():
     """
-    The genvctl entrypoint.
+    The genv entrypoint.
     """
 
     parser = argparse.ArgumentParser(
@@ -96,8 +96,8 @@ def main():
                 help=_("show this help message and exit"),
             )
 
-            # this is the process identifier of the shell which is passed by the 'genvctl'
-            # shell function that is installed by "genvctl shell"
+            # this is the process identifier of the shell which is passed by the 'genv'
+            # shell function that is installed by "genv shell"
             subparser.add_argument("--shell", type=int, help=argparse.SUPPRESS)
 
         add_arguments(subparser)

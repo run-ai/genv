@@ -21,7 +21,7 @@ setuptools.setup(
     ],
     entry_points={
         "console_scripts": [
-            "genvctl = genv.ctl.__main__:main",
+            "genv = genv.cli.__main__:main",
         ]
     },
 )

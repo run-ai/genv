@@ -5,7 +5,7 @@ import genv.sdk
 
 def add_arguments(parser: argparse.ArgumentParser) -> None:
     """
-    Adds "genvctl home" arguments to a parser.
+    Adds "genv home" arguments to a parser.
     """
 
     parser.add_argument("-q", "--quiet", action="store_true")
@@ -13,7 +13,7 @@ def add_arguments(parser: argparse.ArgumentParser) -> None:
 
 def run(args: argparse.Namespace) -> None:
     """
-    Runs the "genvctl home" logic.
+    Runs the "genv home" logic.
     """
 
     home = genv.sdk.home()

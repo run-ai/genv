@@ -7,7 +7,7 @@ import genv
 
 def add_arguments(parser: argparse.ArgumentParser) -> None:
     """
-    Adds "genvctl monitor" arguments to a parser.
+    Adds "genv monitor" arguments to a parser.
     """
 
     parser.add_argument(
@@ -35,7 +35,7 @@ def add_arguments(parser: argparse.ArgumentParser) -> None:
 
 async def run(args: argparse.Namespace) -> None:
     """
-    Runs the "genvctl monitor" logic.
+    Runs the "genv monitor" logic.
     """
 
     # NOTE(raz): we import depdendencies only here as they are optional

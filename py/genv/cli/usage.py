@@ -34,7 +34,7 @@ async def do_snapshot(format: str, type: Optional[str]) -> None:
 
 def add_arguments(parser: argparse.ArgumentParser) -> None:
     """
-    Adds "genvctl usage" arguments to a parser.
+    Adds "genv usage" arguments to a parser.
     """
 
     subparsers = parser.add_subparsers(dest="command", required=True)
@@ -65,7 +65,7 @@ def add_arguments(parser: argparse.ArgumentParser) -> None:
 
 async def run(args: argparse.Namespace) -> None:
     """
-    Runs the "genvctl usage" logic.
+    Runs the "genv usage" logic.
     """
 
     if args.command == "execute":

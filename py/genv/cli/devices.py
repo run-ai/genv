@@ -229,7 +229,7 @@ def do_query(snapshot: genv.Devices, queries: Iterable[str]) -> None:
 
 def add_arguments(parser: argparse.ArgumentParser) -> None:
     """
-    Adds "genvctl devices" arguments to a parser.
+    Adds "genv devices" arguments to a parser.
     """
 
     parser.add_argument(
@@ -313,7 +313,7 @@ def add_arguments(parser: argparse.ArgumentParser) -> None:
 
 def run(args: argparse.Namespace) -> None:
     """
-    Runs the "genvctl devices" logic.
+    Runs the "genv devices" logic.
     """
 
     with genv.utils.global_lock():

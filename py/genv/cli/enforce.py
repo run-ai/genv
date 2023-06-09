@@ -6,7 +6,7 @@ import genv
 
 def add_arguments(parser: argparse.ArgumentParser) -> None:
     """
-    Adds "genvctl enforce" arguments to a parser.
+    Adds "genv enforce" arguments to a parser.
     """
 
     parser.add_argument(
@@ -70,7 +70,7 @@ def add_arguments(parser: argparse.ArgumentParser) -> None:
 
 async def run(args: argparse.Namespace) -> None:
     """
-    Runs the "genvctl enforce" logic.
+    Runs the "genv enforce" logic.
     """
 
     while True:

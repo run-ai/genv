@@ -36,7 +36,7 @@ def print_field(config: Env.Config, field: Field, *, prefix: bool = False) -> No
 
 def add_arguments(parser: argparse.ArgumentParser) -> None:
     """
-    Adds "genvctl config" arguments to a parser.
+    Adds "genv config" arguments to a parser.
     """
 
     parser.add_argument("-q", "--quiet", action="store_true")
@@ -57,7 +57,7 @@ def add_arguments(parser: argparse.ArgumentParser) -> None:
 
 def run(args: argparse.Namespace) -> None:
     """
-    Runs the "genvctl config" logic.
+    Runs the "genv config" logic.
     """
 
     if args.load:

@@ -71,7 +71,7 @@ _genv_restore_envs()
   done
 }
 
-genvctl()
+genv()
 {
   local command="${1:-}"
   if [ "$#" -gt 0 ]; then
@@ -80,31 +80,31 @@ genvctl()
 
   case "$command" in
   activate|deactivate)
-    eval "$(command genvctl $command --shell $$ $@)"
+    eval "$(command genv $command --shell $$ $@)"
     ;;
   config)
-    command genvctl config $@
+    command genv config $@
 
     if [ "$?" -eq 0 ]; then
-      eval "$(command genvctl shell --reconfigure)"
+      eval "$(command genv shell --reconfigure)"
     fi
     ;;
   attach|detach)
-    command genvctl $command $@
+    command genv $command $@
 
     if [ "$?" -eq 0 ]; then
-      eval "$(command genvctl shell --reattach)"
+      eval "$(command genv shell --reattach)"
     fi
     ;;
   shell)
     if [ "$#" -eq 0 ]; then
-      command genvctl shell --ok
+      command genv shell --ok
     else
-      command genvctl shell $@
+      command genv shell $@
     fi
     ;;
   *)
-    command genvctl $command $@
+    command genv $command $@
     ;;
   esac
 }
@@ -117,7 +117,7 @@ def do_deinit() -> None:
 
     print(
         """\
-unset -f genvctl
+unset -f genv
 unset -f _genv_restore_envs
 unset -f _genv_restore_env
 unset -f _genv_unset_envs
@@ -138,7 +138,7 @@ Your shell is not properly initialized at the moment.
 Run the following command to initialize it.
 You should also add it to your ~/.bashrc or any equivalent file.
 
-    eval "$(genvctl shell --init)"
+    eval "$(genv shell --init)"
 """
 
 
@@ -156,7 +156,7 @@ def do_ok() -> None:
 Your shell is initialized properly and you are all set.
 Run the following command to check the status of your environment:
 
-    genvctl status
+    genv status
 
 If you are not sure how to continue from here, check out the quick start tutorial at https://docs.genv.dev/overview/quickstart.html.
 """
@@ -193,7 +193,7 @@ def do_reconfigure() -> None:
 
 def add_arguments(parser: argparse.ArgumentParser) -> None:
     """
-    Adds "genvctl shell" arguments to a parser.
+    Adds "genv shell" arguments to a parser.
     """
 
     parser.add_argument(
@@ -239,7 +239,7 @@ def add_arguments(parser: argparse.ArgumentParser) -> None:
 
 def run(args: argparse.Namespace) -> None:
     """
-    Runs the "genvctl shell" logic.
+    Runs the "genv shell" logic.
     """
 
     if args.action == "init":

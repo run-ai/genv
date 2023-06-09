@@ -284,7 +284,7 @@ async def do_query(
 
 def add_arguments(parser: argparse.ArgumentParser) -> None:
     """
-    Adds "genvctl remote" arguments to a parser.
+    Adds "genv remote" arguments to a parser.
     """
 
     group = parser.add_mutually_exclusive_group(required=True)
@@ -490,7 +490,7 @@ def add_arguments(parser: argparse.ArgumentParser) -> None:
 
 async def run(args: argparse.Namespace) -> None:
     """
-    Runs the "genvctl remote" logic.
+    Runs the "genv remote" logic.
     """
 
     if args.hostfile:

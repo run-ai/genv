@@ -7,7 +7,7 @@ import genv.sdk
 
 def add_arguments(parser: argparse.ArgumentParser) -> None:
     """
-    Adds "genvctl deactivate" arguments to a parser.
+    Adds "genv deactivate" arguments to a parser.
     """
 
     pass
@@ -15,7 +15,7 @@ def add_arguments(parser: argparse.ArgumentParser) -> None:
 
 def run(shell: int, args: argparse.Namespace) -> None:
     """
-    Runs the "genvctl deactivate" logic.
+    Runs the "genv deactivate" logic.
     """
 
     if not genv.sdk.active():

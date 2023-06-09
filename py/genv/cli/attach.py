@@ -5,7 +5,7 @@ import genv.sdk
 
 def add_arguments(parser: argparse.ArgumentParser) -> None:
     """
-    Adds "genvctl attach" arguments to a parser.
+    Adds "genv attach" arguments to a parser.
     """
 
     modes = parser.add_argument_group("modes")
@@ -35,7 +35,7 @@ def add_arguments(parser: argparse.ArgumentParser) -> None:
 
 def run(args: argparse.Namespace) -> None:
     """
-    Runs the "genvctl attach" logic.
+    Runs the "genv attach" logic.
     """
 
     if not genv.sdk.active():

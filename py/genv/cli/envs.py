@@ -128,7 +128,7 @@ def do_query(snapshot: genv.Envs, eid: Optional[str], queries: Iterable[str]) ->
 
 def add_arguments(parser: argparse.ArgumentParser) -> None:
     """
-    Adds "genvctl envs" arguments to a parser.
+    Adds "genv envs" arguments to a parser.
     """
 
     parser.add_argument(
@@ -245,7 +245,7 @@ def add_arguments(parser: argparse.ArgumentParser) -> None:
 
 def run(args: argparse.Namespace) -> None:
     """
-    Runs the "genvctl envs" logic.
+    Runs the "genv envs" logic.
     """
 
     with genv.utils.global_lock():
