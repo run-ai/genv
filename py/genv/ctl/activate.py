@@ -35,6 +35,13 @@ def add_arguments(parser: argparse.ArgumentParser) -> None:
         dest="attach",
         help="Don't attach to devices",
     )
+    options.add_argument(
+        "-o",
+        "--over-subscribe",
+        dest="allow_over_subscription",
+        action="store_true",
+        help="Use unavailable devices if needed",
+    )
 
 
 def run(shell: int, args: argparse.Namespace) -> None:
@@ -58,7 +65,12 @@ def run(shell: int, args: argparse.Namespace) -> None:
             )
 
         if args.gpus and args.attach:
-            genv.core.devices.attach(eid, gpus=args.gpus, gpu_memory=args.gpu_memory)
+            genv.core.devices.attach(
+                eid,
+                gpus=args.gpus,
+                gpu_memory=args.gpu_memory,
+                allow_over_subscription=args.allow_over_subscription,
+            )
 
     print(
         f"""
