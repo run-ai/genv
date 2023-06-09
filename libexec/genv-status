@@ -8,19 +8,4 @@ if [[ $1 = "--description" ]] ; then
   exit 0
 fi
 
-if [ -z "$GENV_ENVIRONMENT_ID" ] ; then
-  echo "Environment is not active"
-else
-  echo "Environment is active ($GENV_ENVIRONMENT_ID)"
-  if [ "$CUDA_VISIBLE_DEVICES" = "-1" ]; then
-    echo "Detached from GPUs"
-  else
-    echo "Attached to GPUs at indices $CUDA_VISIBLE_DEVICES"
-  fi
-  echo
-  echo "Configuration"
-  echo "    Name: ${GENV_ENVIRONMENT_NAME:-N/A}"
-  echo "    Device count: ${GENV_GPUS:-N/A}"
-  echo "    GPU memory capacity: ${GENV_GPU_MEMORY:-N/A}"
-  echo
-fi
+( exec genv exec status )

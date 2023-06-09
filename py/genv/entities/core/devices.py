@@ -185,6 +185,15 @@ class Devices:
         for index in indices:
             self.devices[index].attach(eid, gpu_memory, time)
 
+    def detach(self, eid: str, index: Optional[int] = None) -> None:
+        """Detaches an environment"""
+
+        if index is not None:
+            self.devices[index].detach(eid)
+        else:
+            for device in self.devices:
+                device.detach(eid)
+
     def cleanup(
         self,
         *,

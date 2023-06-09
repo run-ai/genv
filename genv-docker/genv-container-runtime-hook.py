@@ -76,7 +76,10 @@ def attach_environment(
     """
 
     indices = genv.core.devices.attach(
-        eid, env_config.gpus, env_config.gpu_memory, allow_over_subscription
+        eid,
+        gpus=env_config.gpus,
+        gpu_memory=env_config.gpu_memory,
+        allow_over_subscription=allow_over_subscription,
     )
 
     # NOTE(raz): setting environment variables here will not have effect on the process

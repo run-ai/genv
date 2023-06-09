@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Callable, Iterable, Optional
+from pathlib import Path
+from typing import Any, Callable, Iterable, Optional, Type, Union
 
 import genv.utils
 
@@ -12,6 +13,34 @@ class Env:
         name: Optional[str] = None
         gpu_memory: Optional[str] = None
         gpus: Optional[int] = None
+
+        def load(self, path: Union[str, Path]) -> None:
+            """Loads from disk"""
+
+            def _load_field(basename: str, type: Type = str) -> None:
+                file = Path(path).joinpath(basename)
+
+                if file.is_file():
+                    return type(file.read_text().strip())
+
+            self.name = _load_field("name")
+            self.gpu_memory = _load_field("gpu-memory")
+            self.gpus = _load_field("gpus", int)
+
+        def save(self, path: Union[str, Path]) -> None:
+            """Saves to disk"""
+
+            def _save_field(basename: str, value: Optional[Any]) -> None:
+                file = Path(path).joinpath(basename)
+
+                if value is not None:
+                    file.write_text(str(value))
+                else:
+                    file.unlink(missing_ok=True)
+
+            _save_field("name", self.name)
+            _save_field("gpu-memory", self.gpu_memory)
+            _save_field("gpus", self.gpus)
 
     eid: str
     uid: int
