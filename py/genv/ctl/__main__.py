@@ -7,6 +7,7 @@ from . import activate
 from . import attach
 from . import config
 from . import deactivate
+from . import detach
 from . import devices
 from . import enforce
 from . import envs
@@ -64,6 +65,7 @@ def main():
         ("attach", "Attach devices to this environment", attach.add_arguments),
         ("config", "Configure the current environment", config.add_arguments),
         ("deactivate", "Deactivate shell environment", deactivate.add_arguments),
+        ("detach", "Attach devices from this environment", detach.add_arguments),
         ("devices", "Query and manage devices", devices.add_arguments),
         ("enforce", "Enforce GPU usage", enforce.add_arguments),
         ("envs", "Query and manage environments", envs.add_arguments),
@@ -118,6 +120,8 @@ def main():
             config.run(args)
         elif args.submodule == "deactivate":
             deactivate.run(args.shell, args)
+        elif args.submodule == "detach":
+            detach.run(args)
         elif args.submodule == "devices":
             devices.run(args)
         elif args.submodule == "enforce":

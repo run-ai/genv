@@ -129,12 +129,14 @@ def attach(
         return devices.filter(eid=eid).indices
 
 
-def detach(eid: str, index: int) -> None:
+def detach(eid: str, index: Optional[int] = None) -> Iterable[int]:
     """
     Detaches an environment from a device.
     """
     with State() as devices:
-        devices[index].detach(eid)
+        devices.detach(eid, index)
+
+        return devices.filter(eid=eid).indices
 
 
 def attached(eid: str) -> Iterable[int]:

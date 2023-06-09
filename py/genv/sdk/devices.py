@@ -82,6 +82,8 @@ def attach(
 
     _update_env(indices)
 
+    return indices
+
 
 def attached() -> Iterable[int]:
     """Returns the indices of attached devices.
@@ -101,6 +103,26 @@ def attached() -> Iterable[int]:
         return _lockable()
 
     raise RuntimeError("Failed to find attached device indices")
+
+
+def detach(index: Optional[int] = None) -> Iterable[int]:
+    """Detaches the current environment from devices.
+
+    Detaches from a specific device if an index is specified.
+    Otherwise, detaches from all devices.
+
+    Raises RuntimeError if not running in an active environment.
+    """
+
+    if not env.active():
+        raise RuntimeError("Not running in an active environment")
+
+    with genv.utils.global_lock():
+        indices = genv.core.devices.detach(env.eid(), index)
+
+    _update_env(indices)
+
+    return indices
 
 
 def refresh_attached() -> Iterable[int]:

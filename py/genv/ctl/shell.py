@@ -89,7 +89,7 @@ genvctl()
       eval "$(command genvctl shell --reconfigure)"
     fi
     ;;
-  attach)
+  attach|detach)
     command genvctl $command $@
 
     if [ "$?" -eq 0 ]; then
