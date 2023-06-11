@@ -1,11 +1,9 @@
-GPU Environment Management
-==========================
+GPU Environment and Cluster Management
+======================================
 
-Genv is an open-source environment management system for GPUs on Linux.
+Genv is an open-source environment and cluster management system for GPUs.
 
-It was highly inspired by `PyEnv <https://github.com/pyenv/pyenv>`_ and other version, package and environment management software like `Conda <https://docs.conda.io/projects/conda/en/latest/>`_, `nvm <https://github.com/nvm-sh/nvm>`_, `rbenv <https://github.com/rbenv/rbenv>`_.
-
-Genv lets you easily control, configure and monitor the GPU resources that you are using.
+Genv lets you easily control, configure, monitor and enforce the GPU resources that you are using in a GPU machine or cluster.
 
 .. note::
 

@@ -37,21 +37,23 @@ Genv automatically configures the terminal with the environment configuration an
 
 Using :code:`sudo`
 ------------------
+In some cases, you will need to run :code:`genv` commands as root using :code:`sudo`.
+For example, if you want to use :doc:`enforcement <../usage/enforcement>` capabilities.
 
-Genv Commands
-~~~~~~~~~~~~~
-To run :code:`genv` commands as root using :code:`sudo`, use a command similar to the following:
+The best way to do this is by installing :ref:`using <Install Using pip>` :code:`sudo` and then using commands similar to the following:
 
 .. code-block:: shell
 
    sudo -E env PATH=$PATH genv ...
 
+If you can't install using :code:`sudo`, check out the workaround described :ref:`here <Install Without sudo>`.
+
 .. warning::
 
    Shell commands like :code:`genv activate` should not be executed this way because they will not be able to manipulate the shell.
 
-Other Commands
-~~~~~~~~~~~~~~
+Explanation
+~~~~~~~~~~~
 Much of Genv functionality is based on environment variables.
 You can see this by running the following command from an activated environment:
 
@@ -106,11 +108,29 @@ For example:
 
 .. code-block:: shell
 
-   sudo -E `which nvidia-smi`
+   sudo -E $(which nvidia-smi)
 
 .. note::
 
    Make sure that you also pass :code:`-E` to preserve all Genv environment variables
+
+.. _Install Without sudo:
+
+Install Without :code:`sudo`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+If you can't install with :code:`sudo pip install`, commands like the following will fail:
+
+.. code-block:: shell
+
+   $ sudo -E env PATH=$PATH genv status
+   sudo: genv: command not found
+
+As a workaround, you can set the environment variable :code:`PYTHONPATH` with the path of the parent directory of the :code:`genv` Python package installation directory.
+For example:
+
+.. code-block::
+
+   sudo -E env PATH=$PATH PYTHONPATH=$(python -c "import genv, pathlib; print(pathlib.Path(genv.__file__).resolve().parents[1])") genv status
 
 Running Containers
 ------------------
@@ -201,7 +221,6 @@ For more information check out the Genv container toolkit `README.md <https://gi
 .. note::
 
    You should :doc:`install <../overview/installation>` Genv inside the container to use the :ref:`access control <Access Control>` mechanism.
-   Installing the :ref:`Install Core` core components of Genv is enough.
 
 .. _Access Control:
 
@@ -245,28 +264,3 @@ For example:
 
 .. [#] `Over-allocation - Wikipedia <https://en.wikipedia.org/wiki/Thin_provisioning#Over-allocation>`_
 .. [#] `flock(1) - Linux manual page <https://man7.org/linux/man-pages/man1/flock.1.html>`_
-
-~~~~~~~~
-Genv CLI
-~~~~~~~~
-If you installed Genv from `PyPI <https://pypi.org/project/genv/>`__, you have the Genv CLI installed as well.
-You can test if you have it installed with the command:
-
-.. code-block:: shell
-
-   genvctl --help
-
-If you do have it installed, you can use it for access control with the subcommand :code:`lock`.
-For example:
-
-.. code-block:: shell
-
-   genvctl lock python main.py
-
-Another example:
-
-.. code-block:: shell
-
-   genvctl lock python -c "import time; print('hi'); time.sleep(10); print('bye')"
-
-.. TODO(raz): update this paragraph once installation of core components is done from PyPI

@@ -35,6 +35,10 @@ First, you will need to install the :code:`prometheus-client` `PyPI package <htt
 
    pip install prometheus-client
 
+.. note::
+
+    This is installed automatically when installing Genv with :code:`pip install genv[monitor]`
+
 Running the monitoring service
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Now, start the monitoring service using the following command:

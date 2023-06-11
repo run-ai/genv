@@ -93,21 +93,3 @@ For example:
 .. code-block:: shell
 
    genv remote --hostfile /etc/genv/hostfile envs
-
-Genv Installation Directory
----------------------------
-:code:`genv remote` commands run SSH commands similar to the following:
-
-.. code-block:: shell
-
-   ssh <host> PATH=/path/to/genv/bin genv ...
-
-Because login scripts (e.g. :code:`~/.bashrc`) are not loaded when executing commands over SSH and not just opening a shell, the installation directory of Genv on the remote hosts must be known.
-
-By default, :code:`genv remote` commands assume that Genv is installed at :code:`$HOME/genv`.
-If this is not the case in your setup, you can specify the installation directory on remote hosts using the argument :code:`--root`.
-For example:
-
-.. code-block:: shell
-
-   genv remote --root /opt/genv ...

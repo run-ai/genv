@@ -26,6 +26,8 @@ However, all processes still technically have access to all devices and all thei
 
 Genv supports enforcement features to allow users and system administrators to ensure that only the resources provisioned by Genv are being used by processes and environments using the command :code:`genv enforce`.
 
+Note that to use enforcement capabilities on a machine that multiple users are sharing, you will need to run :code:`genv enforce` commands :ref:`using <Using sudo>` :code:`sudo`.
+
 Quick start
 -----------
 This is a guide to get started with enforcement features in Genv.
@@ -36,7 +38,7 @@ You will need a GPU consuming application.
 This could be Python code that uses TensorFlow, PyTorch, or any other application that you have.
 We will be using a CUDA application called :code:`quickstart`.
 
-We will go over two :ref:`enforcement logics <Enforcement Rules>` in this tutorial.
+We will go over two :ref:`enforcement rules <Enforcement Rules>` in this tutorial.
 
 Non-environment Processes
 ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -132,14 +134,14 @@ Permissions
 As described later on in the :ref:`architecture <Architecture>` section, Genv both detaches environments from devices and terminates running processes.
 
 Detaching environments from devices is done by modifying the :code:`devices.json` :ref:`file <Files>`.
-Because of how Genv creates these state files, all Linux users have access to modify them, hence all Linux users have permissions to detach environments of any Linux user.
+Because of how Genv creates these state files, all Linux users have access to modify them, therefore all Linux users have permissions to detach environments of any Linux user.
 
 On the other hand, Linux users usually can't terminate processes of other users or query their environment variables.
 Therefore, you will probably need to execute the :code:`genv enforce` commands :ref:`using <Using sudo>` :code:`sudo` with a command similar to the following:
 
 .. code-block:: shell
 
-   sudo $(which genv) enforce ...
+   sudo genv enforce ...
 
 .. _Architecture:
 
@@ -153,10 +155,10 @@ The command :code:`genv enforce` acts as a foreground daemon, that is running in
 
 Every cycle, Genv takes a snapshot of all the provisioned resources as well as the running GPU compute processes in real time by executing :code:`nvidia-smi` commands.
 
-Then, Genv goes over the snapshot and runs different enforcement logics.
-Every enforcement logic is responsible for one enforcement rule and checks if it is violated.
+Then, Genv goes over the snapshot and runs different enforcement rules.
+Every enforcement rule checks if it is violated.
 
-After running all enforcement logics, Genv combines all the conclusions and continues to the execution phase.
+After running all enforcement rules, Genv combines all the conclusions and continues to the execution phase.
 
 In the execution phase, it terminates running processes and detaches environments from devices according to the findings.
 Running processes from environments on the devices that are being detached are also terminated.
