@@ -302,12 +302,6 @@ def add_arguments(parser: argparse.ArgumentParser) -> None:
     )
 
     parser.add_argument(
-        "--root",
-        default="$HOME/genv",
-        help="Genv installation root on remote hosts (default: %(default)s)",
-    )
-
-    parser.add_argument(
         "-t",
         "--timeout",
         type=int,
@@ -504,7 +498,7 @@ async def run(args: argparse.Namespace) -> None:
         hostnames = args.hostnames.split(",")
 
     hosts = [
-        genv.remote.Host(hostname, args.root, args.timeout) for hostname in hostnames
+        genv.remote.Host(hostname, args.timeout) for hostname in hostnames
     ]
 
     config = genv.remote.Config(hosts, args.throw_on_error, args.quiet)

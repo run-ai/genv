@@ -14,12 +14,10 @@ class Host:
     Host configuration.
 
     :param hostname: Hostname or IP address
-    :param root: Genv installation directory
     :param timeout: SSH connection timeout
     """
 
     hostname: str
-    root: str
     timeout: Optional[int]
 
 
@@ -70,7 +68,6 @@ async def run(
         ssh_runner = Runner(
             host.hostname,
             host.timeout,
-            {"PATH": Runner.calc_remote_path_env(host.root)},
         )
         ssh_runners_and_inputs.append((ssh_runner, stdin))
 

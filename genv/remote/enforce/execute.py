@@ -16,7 +16,7 @@ async def execute(config: Config, reports: Iterable[Report]) -> None:
 
     :return: None
     """
-    command = Command(["exec", "usage", "execute"], sudo=True)
+    command = Command(["usage", "execute"], sudo=True)
 
     hosts, stdouts = await run(
         config,

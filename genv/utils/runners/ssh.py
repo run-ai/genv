@@ -1,5 +1,4 @@
 import asyncio
-import os
 from asyncio.subprocess import Process
 from typing import Dict, Optional, List, Tuple
 
@@ -63,20 +62,3 @@ class Runner(Base):
         )
         command = f"env {env_str} {command}"
         return command
-
-    @staticmethod
-    def calc_remote_path_env(root: str) -> str:
-        path_env = f"$PATH:{root}/bin"
-
-        GENV_ROOT = os.path.realpath(
-            os.environ.get(
-                "GENV_ROOT", os.path.join(os.path.dirname(__file__), "../../../../")
-            )
-        )
-
-        if os.path.realpath(os.path.join(GENV_ROOT, "devel/shims")) in [
-            os.path.realpath(path) for path in os.environ["PATH"].split(":")
-        ]:
-            path_env = f"{path_env}:{root}/devel/shims"
-
-        return path_env

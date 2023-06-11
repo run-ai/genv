@@ -10,7 +10,7 @@ from ..utils import run, Host, Config, Command
 
 
 async def exec(config: Config, *, type: Optional[str], sudo: bool):
-    args = ["exec", "usage", "snapshot"]
+    args = ["usage", "snapshot"]
 
     if type:
         args.append(f"--type {type}")
