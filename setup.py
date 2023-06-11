@@ -24,5 +24,6 @@ setuptools.setup(
             "genv = genv.cli.__main__:main",
         ]
     },
+    python_requires=">=3.7",
     extras_require={"monitor": ["prometheus_client"]},
 )
