@@ -108,6 +108,24 @@ genv()
     ;;
   esac
 }
+
+if [ "$GENV_PREACTIVATE" = "1" ]; then
+  command="genv activate"
+
+  if [ "$GENV_PREACTIVATE_PROMPT" = "0" ]; then
+    command="$command --no-prompt"
+  fi
+
+  if [ -n "$GENV_PREACTIVATE_GPUS" ]; then
+    command="$command --gpus $GENV_PREACTIVATE_GPUS"
+  fi
+
+  if [ -n "$GENV_PREACTIVATE_ENVIRONMENT_NAME" ]; then
+    command="$command --name $GENV_PREACTIVATE_ENVIRONMENT_NAME"
+  fi
+
+  eval "$command"
+fi
 """
     )
 
