@@ -1,4 +1,5 @@
 from contextlib import contextmanager
+import getpass
 import os
 from pathlib import Path
 from typing import Optional
@@ -154,7 +155,7 @@ def activate(*, eid: Optional[str] = None, config: Optional[Env.Config] = None) 
 
         with genv.utils.global_lock():
             genv.core.envs.activate(
-                eid, uid=os.getuid(), username=os.getlogin(), pid=pid
+                eid, uid=os.getuid(), username=getpass.getuser(), pid=pid
             )
 
         if config is not None:

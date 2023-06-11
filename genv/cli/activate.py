@@ -1,4 +1,5 @@
 import argparse
+import getpass
 import os
 
 import genv.utils
@@ -55,7 +56,7 @@ def run(shell: int, args: argparse.Namespace) -> None:
     eid = args.eid or str(shell)
 
     with genv.utils.global_lock():
-        genv.core.envs.activate(eid, uid=os.getuid(), username=os.getlogin(), pid=shell)
+        genv.core.envs.activate(eid, uid=os.getuid(), username=getpass.getuser(), pid=shell)
 
         # NOTE(raz): we currently override the entire configuration if any
         # configuration field was specified
