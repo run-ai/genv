@@ -39,7 +39,7 @@ def add_arguments(parser: argparse.ArgumentParser) -> None:
     Adds "genv config" arguments to a parser.
     """
 
-    parser.add_argument("-q", "--quiet", action="store_true")
+    parser.add_argument("-q", "--quiet", "--refresh", action="store_true")
     parser.add_argument("--clear", action="store_true")
     parser.add_argument(
         "--load", action="store_true", help="Load configuration from disk"

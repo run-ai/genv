@@ -44,6 +44,14 @@ def add_arguments(parser: argparse.ArgumentParser) -> None:
         help="Use unavailable devices if needed",
     )
 
+    load = options.add_mutually_exclusive_group()
+    load.add_argument(
+        "--no-load",
+        action="store_false",
+        dest="load",
+        help="Don't load configuration from disk (default)",
+    )
+
 
 def run(shell: int, args: argparse.Namespace) -> None:
     """
@@ -56,7 +64,9 @@ def run(shell: int, args: argparse.Namespace) -> None:
     eid = args.eid or str(shell)
 
     with genv.utils.global_lock():
-        genv.core.envs.activate(eid, uid=os.getuid(), username=getpass.getuser(), pid=shell)
+        genv.core.envs.activate(
+            eid, uid=os.getuid(), username=getpass.getuser(), pid=shell
+        )
 
         # NOTE(raz): we currently override the entire configuration if any
         # configuration field was specified

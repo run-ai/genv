@@ -22,6 +22,9 @@ def add_arguments(parser: argparse.ArgumentParser) -> None:
     group.add_argument(
         "--index", type=int, help="Attach to the device with the given index"
     )
+    group.add_argument(
+        "--refresh", action="store_true", help="Only refresh attachments"
+    )
 
     options = parser.add_argument_group("options")
     options.add_argument(
@@ -41,8 +44,9 @@ def run(args: argparse.Namespace) -> None:
     if not genv.sdk.active():
         raise RuntimeError("Not running in an active environment")
 
-    genv.sdk.attach(
-        index=args.index,
-        gpus=args.count,
-        allow_over_subscription=args.allow_over_subscription,
-    )
+    if not args.refresh:
+        genv.sdk.attach(
+            index=args.index,
+            gpus=args.count,
+            allow_over_subscription=args.allow_over_subscription,
+        )
