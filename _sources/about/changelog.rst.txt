@@ -1,6 +1,20 @@
 Changelog
 =========
 
+Version 1.0.0
+--------------
+**Date:** June 12, 2023
+
+Changed
+~~~~~~~
+* Renamed Python CLI from :code:`genvctl` to :code:`genv`
+* Installation is now 100% Python-based
+* Moved Python source directory to the project root
+
+Removed
+~~~~~~~
+* Removed shell code base :code:`libexec/` entirely
+
 Version 0.12.0
 --------------
 **Date:** May 30, 2023
