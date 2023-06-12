@@ -190,6 +190,10 @@
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>genv activate
 </pre></div>
 </div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>If you see <code class="code docutils literal notranslate"><span class="pre">Your</span> <span class="pre">shell</span> <span class="pre">is</span> <span class="pre">not</span> <span class="pre">properly</span> <span class="pre">initialized</span> <span class="pre">at</span> <span class="pre">the</span> <span class="pre">moment...</span></code>, you need to <a class="reference internal" href="../overview/installation.html#set-up-terminal"><span class="std std-ref">set up</span></a> your terminal.</p>
+</div>
 <p>When activating an environment, it first gets detached from all GPUs on the machine.</p>
 <p>You could see this by running <code class="code docutils literal notranslate"><span class="pre">nvidia-smi</span></code> and seeing the following output:</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$ nvidia-smi
@@ -292,7 +296,7 @@ If no unit is specified, it is assumed to be in bytes (i.e. <code class="code do
 <p>You can clear the configuration by passing the argument <code class="code docutils literal notranslate"><span class="pre">--clear</span></code> to the configuration command.</p>
 <p>This works both for field-specific configuration and for the entire configuration.</p>
 <p>For example, the next command would clear the environment name:</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>genv config name --clear
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>genv config --clear name
 </pre></div>
 </div>
 <p>While the following command would clear the entire configuration:</p>

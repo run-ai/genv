@@ -60,8 +60,8 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Advanced Usage</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#multiple-terminals">Multiple Terminals</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#using-sudo">Using <code class="code docutils literal notranslate"><span class="pre">sudo</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#genv-commands">Genv Commands</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#other-commands">Other Commands</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#explanation">Explanation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#install-without-sudo">Install Without <code class="code docutils literal notranslate"><span class="pre">sudo</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#running-containers">Running Containers</a></li>
@@ -73,8 +73,7 @@
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#access-control">Access Control</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#python-sdk">Python SDK</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#id4">Shell</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#genv-cli">Genv CLI</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id5">Shell</a></li>
 </ul>
 </li>
 </ul>
@@ -139,12 +138,12 @@
 <div class="contents topic" id="contents">
 <p class="topic-title">Contents</p>
 <ul class="simple">
-<li><p><a class="reference internal" href="#advanced-usage" id="id10">Advanced Usage</a></p>
+<li><p><a class="reference internal" href="#advanced-usage" id="id11">Advanced Usage</a></p>
 <ul>
-<li><p><a class="reference internal" href="#multiple-terminals" id="id11">Multiple Terminals</a></p></li>
-<li><p><a class="reference internal" href="#using-sudo" id="id12">Using <code class="code docutils literal notranslate"><span class="pre">sudo</span></code></a></p></li>
-<li><p><a class="reference internal" href="#running-containers" id="id13">Running Containers</a></p></li>
-<li><p><a class="reference internal" href="#over-subscription" id="id14">Over-subscription</a></p></li>
+<li><p><a class="reference internal" href="#multiple-terminals" id="id12">Multiple Terminals</a></p></li>
+<li><p><a class="reference internal" href="#using-sudo" id="id13">Using <code class="code docutils literal notranslate"><span class="pre">sudo</span></code></a></p></li>
+<li><p><a class="reference internal" href="#running-containers" id="id14">Running Containers</a></p></li>
+<li><p><a class="reference internal" href="#over-subscription" id="id15">Over-subscription</a></p></li>
 </ul>
 </li>
 </ul>
@@ -171,19 +170,19 @@ You could verify it by running <code class="code docutils literal notranslate"><
 </div>
 <div class="section" id="using-sudo">
 <span id="id1"></span><h2>Using <code class="code docutils literal notranslate"><span class="pre">sudo</span></code><a class="headerlink" href="#using-sudo" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="genv-commands">
-<h3>Genv Commands<a class="headerlink" href="#genv-commands" title="Permalink to this headline">¶</a></h3>
-<p>To run <code class="code docutils literal notranslate"><span class="pre">genv</span></code> commands as root using <code class="code docutils literal notranslate"><span class="pre">sudo</span></code>, use a command similar to the following:</p>
+<p>In some cases, you will need to run <code class="code docutils literal notranslate"><span class="pre">genv</span></code> commands as root using <code class="code docutils literal notranslate"><span class="pre">sudo</span></code>.
+For example, if you want to use <a class="reference internal" href="enforcement.html"><span class="doc">enforcement</span></a> capabilities.</p>
+<p>The best way to do this is by installing <a class="reference internal" href="../overview/installation.html#install-using-pip"><span class="std std-ref">using</span></a> <code class="code docutils literal notranslate"><span class="pre">sudo</span></code> and then using commands similar to the following:</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>sudo -E env <span class="nv">PATH</span><span class="o">=</span><span class="nv">$PATH</span> genv ...
 </pre></div>
 </div>
+<p>If you can’t install using <code class="code docutils literal notranslate"><span class="pre">sudo</span></code>, check out the workaround described <a class="reference internal" href="#install-without-sudo"><span class="std std-ref">here</span></a>.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>Shell commands like <code class="code docutils literal notranslate"><span class="pre">genv</span> <span class="pre">activate</span></code> should not be executed this way because they will not be able to manipulate the shell.</p>
 </div>
-</div>
-<div class="section" id="other-commands">
-<h3>Other Commands<a class="headerlink" href="#other-commands" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="explanation">
+<h3>Explanation<a class="headerlink" href="#explanation" title="Permalink to this headline">¶</a></h3>
 <p>Much of Genv functionality is based on environment variables.
 You can see this by running the following command from an activated environment:</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>env <span class="p">|</span> grep GENV_
@@ -220,12 +219,25 @@ For example:</p>
 </div>
 <p>Alternatively, if you don’t want to preserve <code class="code docutils literal notranslate"><span class="pre">PATH</span></code>, you can just wrap the executed program with <code class="code docutils literal notranslate"><span class="pre">which</span></code>.
 For example:</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>sudo -E <span class="sb">`</span>which nvidia-smi<span class="sb">`</span>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>sudo -E <span class="k">$(</span>which nvidia-smi<span class="k">)</span>
 </pre></div>
 </div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>Make sure that you also pass <code class="code docutils literal notranslate"><span class="pre">-E</span></code> to preserve all Genv environment variables</p>
+</div>
+</div>
+<div class="section" id="install-without-sudo">
+<span id="id2"></span><h3>Install Without <code class="code docutils literal notranslate"><span class="pre">sudo</span></code><a class="headerlink" href="#install-without-sudo" title="Permalink to this headline">¶</a></h3>
+<p>If you can’t install with <code class="code docutils literal notranslate"><span class="pre">sudo</span> <span class="pre">pip</span> <span class="pre">install</span></code>, commands like the following will fail:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$ sudo -E env <span class="nv">PATH</span><span class="o">=</span><span class="nv">$PATH</span> genv status
+sudo: genv: <span class="nb">command</span> not found
+</pre></div>
+</div>
+<p>As a workaround, you can set the environment variable <code class="code docutils literal notranslate"><span class="pre">PYTHONPATH</span></code> with the path of the parent directory of the <code class="code docutils literal notranslate"><span class="pre">genv</span></code> Python package installation directory.
+For example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>sudo -E env PATH=$PATH PYTHONPATH=$(python -c &quot;import genv, pathlib; print(pathlib.Path(genv.__file__).resolve().parents[1])&quot;) genv status
+</pre></div>
 </div>
 </div>
 </div>
@@ -255,17 +267,17 @@ You can do that by passing <code class="code docutils literal notranslate"><span
 <h2>Over-subscription<a class="headerlink" href="#over-subscription" title="Permalink to this headline">¶</a></h2>
 <p>Normally, the GPUs in the system are being provisioned to environments until they run out.</p>
 <p>A GPU could be provisioned to a single environment, or can be shared between a few environments by <a class="reference internal" href="usage.html#configure-the-gpu-memory-capacity"><span class="std std-ref">configuring</span></a> the environment memory capacity before attaching devices.</p>
-<div class="figure align-default" id="id8">
+<div class="figure align-default" id="id9">
 <img alt="../_images/provisioning.png" src="../_images/provisioning.png" />
-<p class="caption"><span class="caption-text">Full- and shared-GPU provisioning with Genv</span><a class="headerlink" href="#id8" title="Permalink to this image">¶</a></p>
+<p class="caption"><span class="caption-text">Full- and shared-GPU provisioning with Genv</span><a class="headerlink" href="#id9" title="Permalink to this image">¶</a></p>
 </div>
 <p>However, this could be wasteful as the provisioned GPUs can be unused some of the time, and in some cases, this amount of time can be significant.</p>
 <p>For example, when writing GPU-consuming code (e.g. deep-learning model with PyTorch) using an IDE like Visual Studio Code, or PyCharm, the GPU resources are not being used in all the time that is spent on coding rather than running the application.</p>
-<p>For this use case and similar ones, it is recommended to over-subscribe <a class="footnote-reference brackets" href="#id6" id="id2">1</a> the GPU by provisioning it to more than a single environment <em>without</em> setting a memory capacity.
+<p>For this use case and similar ones, it is recommended to over-subscribe <a class="footnote-reference brackets" href="#id7" id="id3">1</a> the GPU by provisioning it to more than a single environment <em>without</em> setting a memory capacity.
 Then, the entire GPU can be accessed by the different environments at different times, which will increase the resource utilization significantly.</p>
-<div class="figure align-default" id="id9">
+<div class="figure align-default" id="id10">
 <img alt="../_images/over-provisioning.png" src="../_images/over-provisioning.png" />
-<p class="caption"><span class="caption-text">Over-provisioning with Genv</span><a class="headerlink" href="#id9" title="Permalink to this image">¶</a></p>
+<p class="caption"><span class="caption-text">Over-provisioning with Genv</span><a class="headerlink" href="#id10" title="Permalink to this image">¶</a></p>
 </div>
 <div class="section" id="attach-with-over-subscription">
 <h3>Attach with Over-subscription<a class="headerlink" href="#attach-with-over-subscription" title="Permalink to this headline">¶</a></h3>
@@ -294,13 +306,12 @@ For example:</p>
 For more information check out the Genv container toolkit <a class="reference external" href="https://github.com/run-ai/genv/blob/main/genv-docker/README.md">README.md</a>.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>You should <a class="reference internal" href="../overview/installation.html"><span class="doc">install</span></a> Genv inside the container to use the <a class="reference internal" href="#access-control"><span class="std std-ref">access control</span></a> mechanism.
-Installing the <a class="reference internal" href="../overview/installation.html#install-core"><span class="std std-ref">Core</span></a> core components of Genv is enough.</p>
+<p>You should <a class="reference internal" href="../overview/installation.html"><span class="doc">install</span></a> Genv inside the container to use the <a class="reference internal" href="#access-control"><span class="std std-ref">access control</span></a> mechanism.</p>
 </div>
 </div>
 </div>
 <div class="section" id="access-control">
-<span id="id3"></span><h3>Access Control<a class="headerlink" href="#access-control" title="Permalink to this headline">¶</a></h3>
+<span id="id4"></span><h3>Access Control<a class="headerlink" href="#access-control" title="Permalink to this headline">¶</a></h3>
 <p>It is the responsibility of the users to access the over-subscribed GPU one at a time in order to avoid any OOM failures.</p>
 <p>For this reason, Genv provides an access control mechanism, which can be used by the users to achieve the desired behavior.</p>
 <div class="admonition warning">
@@ -323,38 +334,21 @@ For example:</p>
 <p>For more information about the Python SDK see <a class="reference internal" href="python-sdk.html"><span class="doc">here</span></a>.</p>
 </div>
 </div>
-<div class="section" id="id4">
-<h4>Shell<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h4>
-<p>Use the <code class="code docutils literal notranslate"><span class="pre">genv</span> <span class="pre">lock</span></code> command which works similarly to <code class="code docutils literal notranslate"><span class="pre">flock</span></code> <a class="footnote-reference brackets" href="#id7" id="id5">2</a>.
+<div class="section" id="id5">
+<h4>Shell<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h4>
+<p>Use the <code class="code docutils literal notranslate"><span class="pre">genv</span> <span class="pre">lock</span></code> command which works similarly to <code class="code docutils literal notranslate"><span class="pre">flock</span></code> <a class="footnote-reference brackets" href="#id8" id="id6">2</a>.
 For example:</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>genv lock python main.py
 </pre></div>
 </div>
 <dl class="footnote brackets">
-<dt class="label" id="id6"><span class="brackets"><a class="fn-backref" href="#id2">1</a></span></dt>
+<dt class="label" id="id7"><span class="brackets"><a class="fn-backref" href="#id3">1</a></span></dt>
 <dd><p><a class="reference external" href="https://en.wikipedia.org/wiki/Thin_provisioning#Over-allocation">Over-allocation - Wikipedia</a></p>
 </dd>
-<dt class="label" id="id7"><span class="brackets"><a class="fn-backref" href="#id5">2</a></span></dt>
+<dt class="label" id="id8"><span class="brackets"><a class="fn-backref" href="#id6">2</a></span></dt>
 <dd><p><a class="reference external" href="https://man7.org/linux/man-pages/man1/flock.1.html">flock(1) - Linux manual page</a></p>
 </dd>
 </dl>
-</div>
-<div class="section" id="genv-cli">
-<h4>Genv CLI<a class="headerlink" href="#genv-cli" title="Permalink to this headline">¶</a></h4>
-<p>If you installed Genv from <a class="reference external" href="https://pypi.org/project/genv/">PyPI</a>, you have the Genv CLI installed as well.
-You can test if you have it installed with the command:</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>genvctl --help
-</pre></div>
-</div>
-<p>If you do have it installed, you can use it for access control with the subcommand <code class="code docutils literal notranslate"><span class="pre">lock</span></code>.
-For example:</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>genvctl lock python main.py
-</pre></div>
-</div>
-<p>Another example:</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>genvctl lock python -c <span class="s2">&quot;import time; print(&#39;hi&#39;); time.sleep(10); print(&#39;bye&#39;)&quot;</span>
-</pre></div>
-</div>
 </div>
 </div>
 </div>

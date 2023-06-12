@@ -15,7 +15,7 @@ Overview
 
 Before starting with remote enforcement features, it is highly recommended to go over the local enforcement features guide which is available :ref:`here <Enforcement>`.
 
-Genv :ref:`remote features <Remote Overview>` allow users and system administrators to provision GPU resources accross multiple machines.
+Genv :doc:`remote features <./overview>` allow users and system administrators to provision GPU resources accross multiple machines.
 
 Genv remote enforcement features allow users and system administrators to ensure that only the resources provisioned by Genv are being used using the command :code:`genv remote enforce`.
 
@@ -32,7 +32,7 @@ Therefore, the commands that :code:`genv remote enforce` executes on the remote 
 
 .. code-block:: shell
 
-   ssh <hostname> sudo env PATH="$HOME/genv/bin:$PATH" genv ...
+   ssh <hostname> sudo genv ...
 
 This means that your Linux user has to have paswordless :code:`sudo` permissions on all remote machines.
 Otherwise, such commands will not work out of the box and will require a password to be entered which Genv does not support at the moment.

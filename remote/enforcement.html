@@ -139,7 +139,7 @@
 <p class="caption"><span class="caption-text">Genv remote enforcement overview</span><a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>
 </div>
 <p>Before starting with remote enforcement features, it is highly recommended to go over the local enforcement features guide which is available <a class="reference internal" href="../usage/enforcement.html#enforcement"><span class="std std-ref">here</span></a>.</p>
-<p>Genv <a class="reference internal" href="overview.html#remote-overview"><span class="std std-ref">remote features</span></a> allow users and system administrators to provision GPU resources accross multiple machines.</p>
+<p>Genv <a class="reference internal" href="overview.html"><span class="doc">remote features</span></a> allow users and system administrators to provision GPU resources accross multiple machines.</p>
 <p>Genv remote enforcement features allow users and system administrators to ensure that only the resources provisioned by Genv are being used using the command <code class="code docutils literal notranslate"><span class="pre">genv</span> <span class="pre">remote</span> <span class="pre">enforce</span></code>.</p>
 </div>
 <div class="section" id="permissions">
@@ -149,7 +149,7 @@
 Because of how Genv creates these state files, all Linux users have access to modify them, hence all Linux users have permissions to detach environments of any Linux user.</p>
 <p>On the other hand, Linux users usually can’t terminate processes of other users or query their environment variables.</p>
 <p>Therefore, the commands that <code class="code docutils literal notranslate"><span class="pre">genv</span> <span class="pre">remote</span> <span class="pre">enforce</span></code> executes on the remote machines over SSH for querying the environment variables of processes or terminating processes have to be executed using <code class="code docutils literal notranslate"><span class="pre">sudo</span></code> and are similar to the following:</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>ssh &lt;hostname&gt; sudo env <span class="nv">PATH</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$HOME</span><span class="s2">/genv/bin:</span><span class="nv">$PATH</span><span class="s2">&quot;</span> genv ...
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>ssh &lt;hostname&gt; sudo genv ...
 </pre></div>
 </div>
 <p>This means that your Linux user has to have paswordless <code class="code docutils literal notranslate"><span class="pre">sudo</span></code> permissions on all remote machines.

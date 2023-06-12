@@ -25,18 +25,33 @@ Open a terminal in the project directory.
 
    We support :code:`bash` terminals only at the moment. Query your shell using :code:`echo $SHELL` and run :code:`bash` if it is not your shell, or use a :ref:`Docker <Docker>` setup instead.
 
+Install the Python package in editable mode with the following command:
+
+.. code-block:: shell
+
+    pip install -e .
+
 Then run the following commands to configure your terminal:
 
 .. code-block:: shell
 
-   export PATH=$PWD/bin:$PATH
-   eval "$(genv init -)"
+    eval "$(genv shell --init)"
 
 You can test it by running:
 
 .. code-block:: shell
 
-   genv
+    $ genv
+    usage: genv [-h] SUBCOMMAND ...
+
+    Query and control Genv on this machine or in a cluster
+    ...
+
+To uninstall the package, use the following command:
+
+.. code-block:: shell
+
+    pip uninstall -y genv
 
 .. _Docker:
 
@@ -64,21 +79,13 @@ Now, run a development container using the following command from the root direc
 
 .. note::
 
-    Pass :code:`-v /var/tmp:/var/tmp --pid host` if you want to share the state with the host machine or with other containers and :code:`-v $HOME/.ssh:/root/.ssh` if you want to use remote features as well
+    Pass :code:`-v /var/tmp:/var/tmp --pid host` if you want to share the state with the host machine or with other containers and :code:`-v $HOME/.ssh:/root/.ssh` if you want to use remote features as well.
 
 To open another terminal inside the container use:
 
 .. code-block:: shell
 
     docker exec -it genv bash
-
-Python Package
-~~~~~~~~~~~~~~
-Install the Python package in editable mode with the following command:
-
-.. code-block:: shell
-
-    python -m pip install -e py/
 
 CPU-Only Setup
 ~~~~~~~~~~~~~~
@@ -99,8 +106,6 @@ Set up your shell with the following command:
 
     export PATH=$PATH:$PWD/devel/shims
 
-.. TODO(raz): consider adding a 'genv devel' command to set this
-
 .. note::
 
     If you are using a :ref:`Docker <Docker>` development setup, your shell should already be set.
@@ -117,11 +122,13 @@ You can control the mock devices by executing a command similar to the following
 
 .. code-block:: shell
 
-    GENV_MOCK_DEVICE_COUNT=4 GENV_MOCK_DEVICE_TOTAL_MEMORY=8g genv exec devices --reset
+    GENV_MOCK_DEVICE_COUNT=4 GENV_MOCK_DEVICE_TOTAL_MEMORY=8g genv devices --reset
 
+~~~~~~~~~~~~~~~
 Remote Features
 ~~~~~~~~~~~~~~~
-If you are working on :ref:`remote features <Remote Overview>`, you might want to test them on a few remote machines.
+If you are working on :doc:`remote features <../remote/overview>`, you might want to test them on a few remote machines.
+
 However, many times you will not have as many GPU machines as you would like, or SSH access to them.
 You might also want to work on remote features using only your single CPU machine.
 
@@ -162,7 +169,7 @@ To terminate such a container, use a command similar to the following:
 
     docker kill genv-server-1
 
-Then, because of how remote features :ref:`work <Remote Installation>`, you will have to edit the SSH configuration on the host machine to allow simple SSH commands that :code:`genv remote` uses.
+Then, because of how remote features :doc:`work <../remote/installation>`, you will have to edit the SSH configuration on the host machine to allow simple SSH commands that :code:`genv remote` uses.
 
 Edit the SSH configuration file by running the following command on the host machine:
 
@@ -225,8 +232,6 @@ Build
 
 Python Package
 --------------
-
-Run the following from the directory :code:`py/`.
 
 Build
 ~~~~~

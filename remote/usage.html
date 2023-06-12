@@ -72,7 +72,6 @@
 <li class="toctree-l2"><a class="reference internal" href="#activating-an-environment">Activating an Environment</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#enforcement">Enforcement</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#specifying-remote-hosts">Specifying Remote Hosts</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#genv-installation-directory">Genv Installation Directory</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="enforcement.html">Enforcement</a></li>
@@ -132,7 +131,6 @@
 <li><p><a class="reference internal" href="#activating-an-environment" id="id4">Activating an Environment</a></p></li>
 <li><p><a class="reference internal" href="#enforcement" id="id5">Enforcement</a></p></li>
 <li><p><a class="reference internal" href="#specifying-remote-hosts" id="id6">Specifying Remote Hosts</a></p></li>
-<li><p><a class="reference internal" href="#genv-installation-directory" id="id7">Genv Installation Directory</a></p></li>
 </ul>
 </li>
 </ul>
@@ -209,20 +207,6 @@ gpu-server-2
 <p>Then you can pass it to the argument <code class="code docutils literal notranslate"><span class="pre">--hostfile</span></code>.
 For example:</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>genv remote --hostfile /etc/genv/hostfile envs
-</pre></div>
-</div>
-</div>
-<div class="section" id="genv-installation-directory">
-<h2>Genv Installation Directory<a class="headerlink" href="#genv-installation-directory" title="Permalink to this headline">¶</a></h2>
-<p><code class="code docutils literal notranslate"><span class="pre">genv</span> <span class="pre">remote</span></code> commands run SSH commands similar to the following:</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>ssh &lt;host&gt; <span class="nv">PATH</span><span class="o">=</span>/path/to/genv/bin genv ...
-</pre></div>
-</div>
-<p>Because login scripts (e.g. <code class="code docutils literal notranslate"><span class="pre">~/.bashrc</span></code>) are not loaded when executing commands over SSH and not just opening a shell, the installation directory of Genv on the remote hosts must be known.</p>
-<p>By default, <code class="code docutils literal notranslate"><span class="pre">genv</span> <span class="pre">remote</span></code> commands assume that Genv is installed at <code class="code docutils literal notranslate"><span class="pre">$HOME/genv</span></code>.
-If this is not the case in your setup, you can specify the installation directory on remote hosts using the argument <code class="code docutils literal notranslate"><span class="pre">--root</span></code>.
-For example:</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>genv remote --root /opt/genv ...
 </pre></div>
 </div>
 </div>

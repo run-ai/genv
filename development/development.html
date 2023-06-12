@@ -84,12 +84,11 @@
 <li class="toctree-l2"><a class="reference internal" href="#setup">Setup</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#local">Local</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#docker">Docker</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#python-package">Python Package</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#cpu-only-setup">CPU-Only Setup</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#mock-devices">Mock Devices</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#remote-features">Remote Features</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="#remote-features">Remote Features</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#docs">Docs</a><ul>
@@ -97,8 +96,8 @@
 <li class="toctree-l3"><a class="reference internal" href="#build">Build</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#id4">Python Package</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#id5">Build</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#python-package">Python Package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id4">Build</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#publish-to-pypi">Publish to PyPI</a></li>
 </ul>
 </li>
@@ -140,28 +139,26 @@
 <div class="contents topic" id="contents">
 <p class="topic-title">Contents</p>
 <ul class="simple">
-<li><p><a class="reference internal" href="#development" id="id6">Development</a></p>
+<li><p><a class="reference internal" href="#development" id="id5">Development</a></p>
 <ul>
-<li><p><a class="reference internal" href="#prerequisites" id="id7">Prerequisites</a></p></li>
-<li><p><a class="reference internal" href="#setup" id="id8">Setup</a></p>
+<li><p><a class="reference internal" href="#prerequisites" id="id6">Prerequisites</a></p></li>
+<li><p><a class="reference internal" href="#setup" id="id7">Setup</a></p>
 <ul>
-<li><p><a class="reference internal" href="#local" id="id9">Local</a></p></li>
-<li><p><a class="reference internal" href="#docker" id="id10">Docker</a></p></li>
-<li><p><a class="reference internal" href="#python-package" id="id11">Python Package</a></p></li>
-<li><p><a class="reference internal" href="#cpu-only-setup" id="id12">CPU-Only Setup</a></p></li>
-<li><p><a class="reference internal" href="#remote-features" id="id13">Remote Features</a></p></li>
+<li><p><a class="reference internal" href="#local" id="id8">Local</a></p></li>
+<li><p><a class="reference internal" href="#docker" id="id9">Docker</a></p></li>
+<li><p><a class="reference internal" href="#cpu-only-setup" id="id10">CPU-Only Setup</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#docs" id="id14">Docs</a></p>
+<li><p><a class="reference internal" href="#docs" id="id11">Docs</a></p>
 <ul>
-<li><p><a class="reference internal" href="#id3" id="id15">Setup</a></p></li>
-<li><p><a class="reference internal" href="#build" id="id16">Build</a></p></li>
+<li><p><a class="reference internal" href="#id3" id="id12">Setup</a></p></li>
+<li><p><a class="reference internal" href="#build" id="id13">Build</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#id4" id="id17">Python Package</a></p>
+<li><p><a class="reference internal" href="#python-package" id="id14">Python Package</a></p>
 <ul>
-<li><p><a class="reference internal" href="#id5" id="id18">Build</a></p></li>
-<li><p><a class="reference internal" href="#publish-to-pypi" id="id19">Publish to PyPI</a></p></li>
+<li><p><a class="reference internal" href="#id4" id="id15">Build</a></p></li>
+<li><p><a class="reference internal" href="#publish-to-pypi" id="id16">Publish to PyPI</a></p></li>
 </ul>
 </li>
 </ul>
@@ -184,13 +181,24 @@
 <p class="admonition-title">Warning</p>
 <p>We support <code class="code docutils literal notranslate"><span class="pre">bash</span></code> terminals only at the moment. Query your shell using <code class="code docutils literal notranslate"><span class="pre">echo</span> <span class="pre">$SHELL</span></code> and run <code class="code docutils literal notranslate"><span class="pre">bash</span></code> if it is not your shell, or use a <a class="reference internal" href="#docker"><span class="std std-ref">Docker</span></a> setup instead.</p>
 </div>
+<p>Install the Python package in editable mode with the following command:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>pip install -e .
+</pre></div>
+</div>
 <p>Then run the following commands to configure your terminal:</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span> <span class="nv">PATH</span><span class="o">=</span><span class="nv">$PWD</span>/bin:<span class="nv">$PATH</span>
-<span class="nb">eval</span> <span class="s2">&quot;</span><span class="k">$(</span>genv init -<span class="k">)</span><span class="s2">&quot;</span>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">eval</span> <span class="s2">&quot;</span><span class="k">$(</span>genv shell --init<span class="k">)</span><span class="s2">&quot;</span>
 </pre></div>
 </div>
 <p>You can test it by running:</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>genv
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$ genv
+usage: genv <span class="o">[</span>-h<span class="o">]</span> SUBCOMMAND ...
+
+Query and control Genv on this machine or in a cluster
+...
+</pre></div>
+</div>
+<p>To uninstall the package, use the following command:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>pip uninstall -y genv
 </pre></div>
 </div>
 </div>
@@ -211,17 +219,10 @@ This is useful if you are using macOS as Genv is developed for Linux systems and
 </div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>Pass <code class="code docutils literal notranslate"><span class="pre">-v</span> <span class="pre">/var/tmp:/var/tmp</span> <span class="pre">--pid</span> <span class="pre">host</span></code> if you want to share the state with the host machine or with other containers and <code class="code docutils literal notranslate"><span class="pre">-v</span> <span class="pre">$HOME/.ssh:/root/.ssh</span></code> if you want to use remote features as well</p>
+<p>Pass <code class="code docutils literal notranslate"><span class="pre">-v</span> <span class="pre">/var/tmp:/var/tmp</span> <span class="pre">--pid</span> <span class="pre">host</span></code> if you want to share the state with the host machine or with other containers and <code class="code docutils literal notranslate"><span class="pre">-v</span> <span class="pre">$HOME/.ssh:/root/.ssh</span></code> if you want to use remote features as well.</p>
 </div>
 <p>To open another terminal inside the container use:</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>docker <span class="nb">exec</span> -it genv bash
-</pre></div>
-</div>
-</div>
-<div class="section" id="python-package">
-<h3>Python Package<a class="headerlink" href="#python-package" title="Permalink to this headline">¶</a></h3>
-<p>Install the Python package in editable mode with the following command:</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python -m pip install -e py/
 </pre></div>
 </div>
 </div>
@@ -248,15 +249,14 @@ This time it should work and you should see an <code class="code docutils litera
 <div class="section" id="mock-devices">
 <span id="id2"></span><h4>Mock Devices<a class="headerlink" href="#mock-devices" title="Permalink to this headline">¶</a></h4>
 <p>You can control the mock devices by executing a command similar to the following and specifying the supported <code class="code docutils literal notranslate"><span class="pre">GENV_MOCK_*</span></code> <a class="reference internal" href="reference.html#environment-variables"><span class="std std-ref">environment variables</span></a>:</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">GENV_MOCK_DEVICE_COUNT</span><span class="o">=</span><span class="m">4</span> <span class="nv">GENV_MOCK_DEVICE_TOTAL_MEMORY</span><span class="o">=</span>8g genv <span class="nb">exec</span> devices --reset
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">GENV_MOCK_DEVICE_COUNT</span><span class="o">=</span><span class="m">4</span> <span class="nv">GENV_MOCK_DEVICE_TOTAL_MEMORY</span><span class="o">=</span>8g genv devices --reset
 </pre></div>
 </div>
 </div>
-</div>
 <div class="section" id="remote-features">
-<h3>Remote Features<a class="headerlink" href="#remote-features" title="Permalink to this headline">¶</a></h3>
-<p>If you are working on <a class="reference internal" href="../remote/overview.html#remote-overview"><span class="std std-ref">remote features</span></a>, you might want to test them on a few remote machines.
-However, many times you will not have as many GPU machines as you would like, or SSH access to them.
+<h4>Remote Features<a class="headerlink" href="#remote-features" title="Permalink to this headline">¶</a></h4>
+<p>If you are working on <a class="reference internal" href="../remote/overview.html"><span class="doc">remote features</span></a>, you might want to test them on a few remote machines.</p>
+<p>However, many times you will not have as many GPU machines as you would like, or SSH access to them.
 You might also want to work on remote features using only your single CPU machine.</p>
 <p>For this case, you can use the <code class="code docutils literal notranslate"><span class="pre">genv:sshd</span></code> Docker image that acts as a remote machine over SSH.</p>
 <p>First, build the <a class="reference internal" href="#docker"><span class="std std-ref">Docker image</span></a> <code class="code docutils literal notranslate"><span class="pre">genv:devel</span></code> as it is the base image of <code class="code docutils literal notranslate"><span class="pre">genv:sshd</span></code> and then build the Docker image <code class="code docutils literal notranslate"><span class="pre">genv:sshd</span></code> with the following command:</p>
@@ -282,7 +282,7 @@ Make sure to change the host port each time and also rename the container (or ha
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>docker <span class="nb">kill</span> genv-server-1
 </pre></div>
 </div>
-<p>Then, because of how remote features <a class="reference internal" href="../remote/installation.html#remote-installation"><span class="std std-ref">work</span></a>, you will have to edit the SSH configuration on the host machine to allow simple SSH commands that <code class="code docutils literal notranslate"><span class="pre">genv</span> <span class="pre">remote</span></code> uses.</p>
+<p>Then, because of how remote features <a class="reference internal" href="../remote/installation.html"><span class="doc">work</span></a>, you will have to edit the SSH configuration on the host machine to allow simple SSH commands that <code class="code docutils literal notranslate"><span class="pre">genv</span> <span class="pre">remote</span></code> uses.</p>
 <p>Edit the SSH configuration file by running the following command on the host machine:</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>vim ~/.ssh/config
 </pre></div>
@@ -314,6 +314,7 @@ Type <code class="code docutils literal notranslate"><span class="pre">yes</span
 </div>
 </div>
 </div>
+</div>
 <div class="section" id="docs">
 <h2>Docs<a class="headerlink" href="#docs" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="id3">
@@ -336,11 +337,10 @@ python -m pip install -r docs/requirements.txt
 </div>
 </div>
 </div>
+<div class="section" id="python-package">
+<h2>Python Package<a class="headerlink" href="#python-package" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="id4">
-<h2>Python Package<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h2>
-<p>Run the following from the directory <code class="code docutils literal notranslate"><span class="pre">py/</span></code>.</p>
-<div class="section" id="id5">
-<h3>Build<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h3>
+<h3>Build<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h3>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python setup.py sdist bdist_wheel
 </pre></div>
 </div>

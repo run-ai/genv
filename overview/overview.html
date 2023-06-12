@@ -26,7 +26,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Installation" href="installation.html" />
-    <link rel="prev" title="GPU Environment Management" href="../index.html" /> 
+    <link rel="prev" title="GPU Environment and Cluster Management" href="../index.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -140,10 +140,12 @@
 <p class="admonition-title">Note</p>
 <p>You can jump directly to the quick start toturial <a class="reference internal" href="quickstart.html"><span class="doc">here</span></a>.</p>
 </div>
-<p>Genv is an open-source project that brings environment management to GPUs.</p>
-<p>If you are not familiar with the concept of environments, you can check out the documentation of projects like <a class="reference external" href="https://docs.python.org/3/library/venv.html">venv</a>, <a class="reference external" href="https://github.com/pyenv/pyenv">pyenv</a> and <a class="reference external" href="https://docs.conda.io/projects/conda/en/stable/">Conda</a> as a reference.</p>
-<p>At its core, Genv is a <a class="reference external" href="https://pypi.org/project/genv">Python package</a> that manages GPUs and keeps its state as <a class="reference internal" href="../development/reference.html#files"><span class="std std-ref">files</span></a>.</p>
-<p>On top of this core layer, Genv has <a class="reference internal" href="installation.html"><span class="doc">integrations</span></a> with many common tools and environments such as terminal, containers (e.g. <code class="code docutils literal notranslate"><span class="pre">docker</span></code>), Visual Studio Code, JupyterLab and PyCharm.</p>
+<p>Genv is an open-source project that brings environment and cluster management capabilities to GPUs.</p>
+<p>The project started as an environment management software for GPUs (hence the name - GPU environments), and was highly inspired by projects like <a class="reference external" href="https://github.com/pyenv/pyenv">PyEnv</a> and <a class="reference external" href="https://docs.conda.io/projects/conda/en/latest/">Conda</a>.
+If you are not familiar with the concept of environments, you can check out the documentation <a class="reference external" href="https://docs.python.org/3/library/venv.html">venv</a>, <a class="reference external" href="https://github.com/pyenv/pyenv">pyenv</a> and <a class="reference external" href="https://docs.conda.io/projects/conda/en/stable/">Conda</a> as a reference.</p>
+<p>Over time, the project developed into a complete GPU cluster management tool with various capabilities and mechanisms like <a class="reference internal" href="../usage/monitoring.html"><span class="doc">monitoring</span></a>, <a class="reference internal" href="../usage/enforcement.html"><span class="doc">enforcement</span></a>, <a class="reference internal" href="../remote/overview.html"><span class="doc">remote capabilities</span></a> and more.</p>
+<p>At its core, Genv is a <a class="reference external" href="https://pypi.org/project/genv">Python package</a> that provisions GPUs to environments and keeps its state as <a class="reference internal" href="../development/reference.html#files"><span class="std std-ref">files</span></a> at <code class="code docutils literal notranslate"><span class="pre">/var/tmp/genv</span></code>.</p>
+<p>On top of this core layer, Genv has a CLI (i.e. the command <code class="code docutils literal notranslate"><span class="pre">genv</span></code>), <a class="reference internal" href="../usage/python-sdk.html"><span class="doc">Python SDK</span></a> and <a class="reference internal" href="installation.html"><span class="doc">integrations</span></a> with many common tools and environments such as terminal, containers (e.g. <code class="code docutils literal notranslate"><span class="pre">docker</span></code>), Visual Studio Code, JupyterLab and PyCharm.</p>
 <div class="figure align-default" id="id1">
 <img alt="../_images/overview.png" src="../_images/overview.png" />
 <p class="caption"><span class="caption-text">GPU environments with Genv</span><a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>
@@ -151,7 +153,7 @@
 </div>
 <div class="section" id="architectures">
 <h2>Architectures<a class="headerlink" href="#architectures" title="Permalink to this headline">¶</a></h2>
-<p>Genv supports two main architectures: local and <a class="reference internal" href="../remote/overview.html"><span class="doc">remote</span></a>.</p>
+<p>Genv supports two main architectures: local for a single machine and <a class="reference internal" href="../remote/overview.html"><span class="doc">remote</span></a> for a multi-machine cluster.</p>
 <div class="section" id="local">
 <h3>Local<a class="headerlink" href="#local" title="Permalink to this headline">¶</a></h3>
 <div class="figure align-default" id="id2">
@@ -167,8 +169,8 @@ This is mostly relevant for the case of a single user with GPUs in his or her ma
 <img alt="../_images/architecture-remote.png" src="../_images/architecture-remote.png" />
 <p class="caption"><span class="caption-text">Genv remote architecture</span><a class="headerlink" href="#id3" title="Permalink to this image">¶</a></p>
 </div>
-<p>When running in remote mode, Genv manages the GPUs on one or more remote machines over SSH.
-This is mostly relevant for the case when multiple users share multiple GPU machines.</p>
+<p>When running in remote mode, Genv manages the GPUs on any number of remote machines over SSH.
+This is mostly relevant for the case when multiple users that share multiple GPU machines.</p>
 <p>For more information, see <a class="reference internal" href="../remote/overview.html"><span class="doc">here</span></a>.</p>
 </div>
 </div>
@@ -183,7 +185,7 @@ This is mostly relevant for the case when multiple users share multiple GPU mach
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="../index.html" class="btn btn-neutral float-left" title="GPU Environment Management" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../index.html" class="btn btn-neutral float-left" title="GPU Environment and Cluster Management" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="installation.html" class="btn btn-neutral float-right" title="Installation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 

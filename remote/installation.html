@@ -70,8 +70,6 @@
 <li class="toctree-l2"><a class="reference internal" href="#local-hosts">Local Hosts</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#remote-hosts">Remote Hosts</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#ssh-daemon-configuration">SSH Daemon Configuration</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#per-user-installation-recommended">Per-User Installation (recommended)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#system-wide-installation">System-Wide Installation</a></li>
 </ul>
 </li>
 </ul>
@@ -126,11 +124,11 @@
 <div class="contents topic" id="contents">
 <p class="topic-title">Contents</p>
 <ul class="simple">
-<li><p><a class="reference internal" href="#installation" id="id2">Installation</a></p>
+<li><p><a class="reference internal" href="#installation" id="id1">Installation</a></p>
 <ul>
-<li><p><a class="reference internal" href="#overview" id="id3">Overview</a></p></li>
-<li><p><a class="reference internal" href="#local-hosts" id="id4">Local Hosts</a></p></li>
-<li><p><a class="reference internal" href="#remote-hosts" id="id5">Remote Hosts</a></p></li>
+<li><p><a class="reference internal" href="#overview" id="id2">Overview</a></p></li>
+<li><p><a class="reference internal" href="#local-hosts" id="id3">Local Hosts</a></p></li>
+<li><p><a class="reference internal" href="#remote-hosts" id="id4">Remote Hosts</a></p></li>
 </ul>
 </li>
 </ul>
@@ -150,10 +148,10 @@ Those environment variables must be explicitly accepted on all remote hosts by m
 </div>
 <div class="section" id="local-hosts">
 <h2>Local Hosts<a class="headerlink" href="#local-hosts" title="Permalink to this headline">¶</a></h2>
-<p>On local hosts, install the <a class="reference internal" href="../overview/installation.html#install-core"><span class="std std-ref">core</span></a> and <a class="reference internal" href="../overview/installation.html#install-terminal"><span class="std std-ref">terminal</span></a> components of Genv if not already installed.
+<p>On local hosts, <a class="reference internal" href="../overview/installation.html"><span class="doc">install</span></a> Genv if not already installed.
 This is how you will run <code class="code docutils literal notranslate"><span class="pre">genv</span> <span class="pre">remote</span></code> commands.</p>
 <p>Then, make sure you have SSH access to all remote hosts and that the SSH configuration is set properly.
-You can verify that using commands similar to this:</p>
+You can verify that using a command similar to this:</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>ssh &lt;host&gt;
 </pre></div>
 </div>
@@ -165,12 +163,21 @@ If you can’t access any of the remote hosts using a command similar to the one
 </div>
 <div class="section" id="remote-hosts">
 <h2>Remote Hosts<a class="headerlink" href="#remote-hosts" title="Permalink to this headline">¶</a></h2>
-<p>On remote hosts, the terminal component of Genv should also be installed.
-However, the installation directory on each of the remote hosts should be known and accessible to all users that will run <code class="code docutils literal notranslate"><span class="pre">genv</span> <span class="pre">remote</span></code> commands on local hosts.</p>
-<p>There are two main ways to install Genv on remote hosts: <a class="reference internal" href="#per-user-installation"><span class="std std-ref">per-user</span></a> and <a class="reference internal" href="#system-wide-installation"><span class="std std-ref">system-wide</span></a> installations, which we will get to in a second.</p>
+<p>On remote hosts, Genv should be installed as root <a class="reference internal" href="../overview/installation.html#install-using-pip"><span class="std std-ref">using</span></a> <code class="code docutils literal notranslate"><span class="pre">pip</span></code> with the following command:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>sudo pip install genv
+</pre></div>
+</div>
+<p>You can verify the setup by running a command similar to this from your local machine:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$ ssh &lt;host&gt; sudo genv
+usage: genv <span class="o">[</span>-h<span class="o">]</span> SUBCOMMAND ...
+
+Query and control Genv on this machine or in a cluster
+...
+</pre></div>
+</div>
 <div class="section" id="ssh-daemon-configuration">
 <h3>SSH Daemon Configuration<a class="headerlink" href="#ssh-daemon-configuration" title="Permalink to this headline">¶</a></h3>
-<p>Regardless of the installation method of Genv on remote hosts, it is required to edit the configuration of the SSH daemon.</p>
+<p>Afterward, it is required to edit the configuration of the SSH daemon.</p>
 <p>Genv uses SSH for communication, and relies on sending environment variables from local hosts to remote hosts by passing <code class="code docutils literal notranslate"><span class="pre">-o</span> <span class="pre">SendEnv</span></code> to the <code class="code docutils literal notranslate"><span class="pre">ssh</span></code> command.</p>
 <p>Those environment variables must be explicitly accepted on all remote hosts by modifying the SSH daemon configuration file.</p>
 <p>First, add <code class="code docutils literal notranslate"><span class="pre">GENV_*</span></code> to field <code class="code docutils literal notranslate"><span class="pre">AcceptEnv</span></code> in <code class="code docutils literal notranslate"><span class="pre">/etc/ssh/sshd_config</span></code>.
@@ -189,29 +196,6 @@ You can do this with the following command (you will probably need to use <code 
 <p>You can then test that everything is set up properly by running the following command from a local host:</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">GENV_TEST</span><span class="o">=</span><span class="s2">&quot;ilovegpus&quot;</span> ssh -o <span class="nv">SendEnv</span><span class="o">=</span>GENV_TEST &lt;host&gt; env <span class="p">|</span> grep GENV
 </pre></div>
-</div>
-</div>
-<div class="section" id="per-user-installation-recommended">
-<span id="per-user-installation"></span><h3>Per-User Installation (recommended)<a class="headerlink" href="#per-user-installation-recommended" title="Permalink to this headline">¶</a></h3>
-<p>Every user should install Genv core and terminal components <a class="reference internal" href="../overview/installation.html#install-terminal-from-source"><span class="std std-ref">from source</span></a> in his or her home directory (i.e. <code class="code docutils literal notranslate"><span class="pre">$HOME/genv</span></code>) on all remote hosts.</p>
-<p>This is the recommended way to install Genv on remote hosts for a few reasons:</p>
-<ol class="arabic simple">
-<li><p>All <code class="code docutils literal notranslate"><span class="pre">genv</span> <span class="pre">remote</span></code> commands assume Genv is installed at <code class="code docutils literal notranslate"><span class="pre">$HOME/genv</span></code> by default.</p></li>
-<li><p>Some <code class="code docutils literal notranslate"><span class="pre">genv</span> <span class="pre">remote</span></code> commands like <code class="code docutils literal notranslate"><span class="pre">activate</span></code> expect <code class="code docutils literal notranslate"><span class="pre">genv</span></code> commands to work in the SSH session.</p></li>
-</ol>
-</div>
-<div class="section" id="system-wide-installation">
-<span id="id1"></span><h3>System-Wide Installation<a class="headerlink" href="#system-wide-installation" title="Permalink to this headline">¶</a></h3>
-<p>It is also possible to install Genv core from source in a system-wide location such as <code class="code docutils literal notranslate"><span class="pre">/opt/genv</span></code> on all remote hosts.</p>
-<p>This could be done with the following command:</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>git clone https://github.com/run-ai/genv.git /opt/genv
-</pre></div>
-</div>
-<p>Note that when using system installation, users will need to specify the installation location by passing the argument <code class="code docutils literal notranslate"><span class="pre">--root</span></code> to <code class="code docutils literal notranslate"><span class="pre">genv</span> <span class="pre">remote</span></code> commands.</p>
-<p>Also, if Genv is not installed in the <a class="reference internal" href="../overview/installation.html#install-terminal"><span class="std std-ref">login script</span></a> of a user on a remote host, some <code class="code docutils literal notranslate"><span class="pre">genv</span> <span class="pre">remote</span></code> commands like <code class="code docutils literal notranslate"><span class="pre">activate</span></code> will not work because the SSH shell will not be properly set up.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>It is recommended to install Genv on all remote hosts in the same way.</p>
 </div>
 </div>
 </div>

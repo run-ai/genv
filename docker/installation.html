@@ -142,10 +142,22 @@
 </div>
 <div class="section" id="install-the-container-toolkit">
 <h2>Install the container toolkit<a class="headerlink" href="#install-the-container-toolkit" title="Permalink to this headline">¶</a></h2>
+<p>To use the Genv container toolkit, Genv needs be installed first as root <a class="reference internal" href="../overview/installation.html#install-using-pip"><span class="std std-ref">using</span></a> <code class="code docutils literal notranslate"><span class="pre">pip</span></code> with the following command:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>sudo pip install genv
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This is because the container runtime, which is implemented in Python and imports Genv (i.e. <code class="code docutils literal notranslate"><span class="pre">import</span> <span class="pre">genv</span></code>) runs as root.</p>
+</div>
 <p>The <a class="reference internal" href="overview.html#container-toolkit-architecture"><span class="std std-ref">container toolkit</span></a> is part of the Genv project <a class="reference external" href="https://github.com/run-ai/genv/tree/main/genv-docker">repository</a>.</p>
-<p>The easiest way to install it is to install the <a class="reference internal" href="../overview/installation.html#install-terminal-from-source"><span class="std std-ref">terminal components</span></a> of Genv from source.</p>
+<p>You will need to clone the project repository.
+Your home repository is a great place to keep it:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>git clone https://github.com/run-ai/genv.git <span class="nv">$HOME</span>/genv
+</pre></div>
+</div>
 <p>Then, you can then see the container toolkit components with the following command:</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>ls -la <span class="k">$(</span>genv root<span class="k">)</span>/genv-docker
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>ls -la <span class="nv">$HOME</span>/genv/genv-docker
 </pre></div>
 </div>
 </div>
@@ -154,7 +166,8 @@
 <p>Then, you will need to <a class="reference external" href="https://docs.docker.com/engine/reference/commandline/dockerd/#docker-runtime-execution-options">register</a> the Genv container runtime in the Docker daemon <a class="reference external" href="https://docs.docker.com/config/daemon/">configuration</a> file <code class="code docutils literal notranslate"><span class="pre">/etc/docker/daemon.json</span></code>.</p>
 <div class="section" id="edit-the-file-manually">
 <h3>Edit the file manually<a class="headerlink" href="#edit-the-file-manually" title="Permalink to this headline">¶</a></h3>
-<p>You can edit the Docker daemon configuration file <code class="code docutils literal notranslate"><span class="pre">/etc/docker/daemon.json</span></code> manually and add the Genv container runtime under <code class="code docutils literal notranslate"><span class="pre">runtimes</span></code>.</p>
+<p>You can edit the Docker daemon configuration file <code class="code docutils literal notranslate"><span class="pre">/etc/docker/daemon.json</span></code> manually and add the Genv container runtime under <code class="code docutils literal notranslate"><span class="pre">runtimes</span></code>.
+You should create the file if it does not exist.</p>
 <p>Here is an example of the file:</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="o">{</span>
     <span class="s2">&quot;runtimes&quot;</span>: <span class="o">{</span>
@@ -167,7 +180,7 @@
 </div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>Note that the file might not exist and you will have to create it yourself.</p>
+<p>You should use full absolute paths and avoid using environment variables like <code class="code docutils literal notranslate"><span class="pre">$HOME</span></code> because the path will be evaluated in a root context.</p>
 </div>
 <p>Then, restart the Docker daemon for the changes to take effect:</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>systemctl restart docker
@@ -178,7 +191,7 @@
 <h3>Pass as argument to <code class="code docutils literal notranslate"><span class="pre">dockerd</span></code><a class="headerlink" href="#pass-as-argument-to-dockerd" title="Permalink to this headline">¶</a></h3>
 <p>You can use the <code class="code docutils literal notranslate"><span class="pre">dockerd</span></code> argument <code class="code docutils literal notranslate"><span class="pre">--add-runtime</span></code> instead.</p>
 <p>Here is an example:</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>dockerd --add-runtime <span class="nv">genv</span><span class="o">=</span>/home/raz/genv/genv-docker/genv-container-runtime.py
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>dockerd --add-runtime <span class="nv">genv</span><span class="o">=</span><span class="nv">$HOME</span>/genv/genv-docker/genv-container-runtime.py
 </pre></div>
 </div>
 </div>
@@ -188,12 +201,11 @@
 <p>The best way to run Genv containers is with the <code class="code docutils literal notranslate"><span class="pre">docker</span></code> wrapper <code class="code docutils literal notranslate"><span class="pre">genv-docker</span></code>.</p>
 <p>It is recommended to install it in a system-wide location such as <code class="code docutils literal notranslate"><span class="pre">/usr/local/bin</span></code>.
 You can do this with the following command:</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>cp -f <span class="k">$(</span>genv root<span class="k">)</span>/genv-docker/genv-docker.sh /usr/local/bin/genv-docker
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>cp -f <span class="nv">$HOME</span>/genv/genv-docker/genv-docker.sh /usr/local/bin/genv-docker
 </pre></div>
 </div>
-<p>If you don’t want to install it in a system-wide location or don’t have sufficient permissions, you can also install it at <code class="code docutils literal notranslate"><span class="pre">$HOME/.local/bin</span></code>.</p>
-<p>Now, you will be able to execute <code class="code docutils literal notranslate"><span class="pre">genv-docker</span></code> commands from any working directory.</p>
-<p>If you don’t want to install <code class="code docutils literal notranslate"><span class="pre">genv-docker</span></code> in a system-wide location, you can run it using its full path instead.</p>
+<p>Now, you will be able to execute <code class="code docutils literal notranslate"><span class="pre">genv-docker</span></code> commands from any directory.</p>
+<p>If you don’t want to install <code class="code docutils literal notranslate"><span class="pre">genv-docker</span></code> in a system-wide location or don’t have sufficient permissions, you can install it at <code class="code docutils literal notranslate"><span class="pre">$HOME/.local/bin</span></code>, or run it using its full path.</p>
 </div>
 <div class="section" id="verify-installation">
 <h2>Verify installation<a class="headerlink" href="#verify-installation" title="Permalink to this headline">¶</a></h2>

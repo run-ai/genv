@@ -1,5 +1,3 @@
-.. TODO(raz): this is de-facto the usage manual of the shell integration and not the native Genv core (i.e. genvctl)
-
 Usage
 =====
 
@@ -22,6 +20,10 @@ To activate an environment use the following command:
 .. code-block:: shell
 
    genv activate
+
+.. warning::
+
+   If you see :code:`Your shell is not properly initialized at the moment...`, you need to :ref:`set up <Set Up Terminal>` your terminal.
 
 When activating an environment, it first gets detached from all GPUs on the machine.
 
@@ -163,7 +165,7 @@ For example, the next command would clear the environment name:
 
 .. code-block:: shell
 
-   genv config name --clear
+   genv config --clear name
 
 While the following command would clear the entire configuration:
 

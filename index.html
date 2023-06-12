@@ -12,7 +12,7 @@
     </script>
     
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>GPU Environment Management &mdash; Genv 0.12.0 documentation</title><link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <title>GPU Environment and Cluster Management &mdash; Genv 0.12.0 documentation</title><link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="_static/js/html5shiv.min.js"></script>
@@ -100,7 +100,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="#" class="icon icon-home" aria-label="Home"></a></li>
-      <li class="breadcrumb-item active">GPU Environment Management</li>
+      <li class="breadcrumb-item active">GPU Environment and Cluster Management</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/index.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -110,11 +110,10 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <div class="section" id="gpu-environment-management">
-<h1>GPU Environment Management<a class="headerlink" href="#gpu-environment-management" title="Permalink to this headline">¶</a></h1>
-<p>Genv is an open-source environment management system for GPUs on Linux.</p>
-<p>It was highly inspired by <a class="reference external" href="https://github.com/pyenv/pyenv">PyEnv</a> and other version, package and environment management software like <a class="reference external" href="https://docs.conda.io/projects/conda/en/latest/">Conda</a>, <a class="reference external" href="https://github.com/nvm-sh/nvm">nvm</a>, <a class="reference external" href="https://github.com/rbenv/rbenv">rbenv</a>.</p>
-<p>Genv lets you easily control, configure and monitor the GPU resources that you are using.</p>
+  <div class="section" id="gpu-environment-and-cluster-management">
+<h1>GPU Environment and Cluster Management<a class="headerlink" href="#gpu-environment-and-cluster-management" title="Permalink to this headline">¶</a></h1>
+<p>Genv is an open-source environment and cluster management system for GPUs.</p>
+<p>Genv lets you easily control, configure, monitor and enforce the GPU resources that you are using in a GPU machine or cluster.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>You can jump directly to the quick start <a class="reference internal" href="overview/quickstart.html"><span class="doc">tutorial</span></a> and start using Genv in less than two minutes.</p>
@@ -129,12 +128,13 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="overview/installation.html">Installation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="overview/installation.html#core">Core</a></li>
-<li class="toctree-l2"><a class="reference internal" href="overview/installation.html#terminal">Terminal</a></li>
+<li class="toctree-l2"><a class="reference internal" href="overview/installation.html#using-pip">Using <code class="code docutils literal notranslate"><span class="pre">pip</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="overview/installation.html#using-conda">Using Conda</a></li>
 <li class="toctree-l2"><a class="reference internal" href="overview/installation.html#visual-studio-code">Visual Studio Code</a></li>
 <li class="toctree-l2"><a class="reference internal" href="overview/installation.html#jupyterlab">JupyterLab</a></li>
 <li class="toctree-l2"><a class="reference internal" href="overview/installation.html#pycharm">PyCharm</a></li>
 <li class="toctree-l2"><a class="reference internal" href="overview/installation.html#docker">Docker</a></li>
+<li class="toctree-l2"><a class="reference internal" href="overview/installation.html#remove-old-version">Remove Old Version</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="overview/quickstart.html">Quick start</a><ul>
@@ -204,7 +204,6 @@
 <li class="toctree-l2"><a class="reference internal" href="remote/usage.html#activating-an-environment">Activating an Environment</a></li>
 <li class="toctree-l2"><a class="reference internal" href="remote/usage.html#enforcement">Enforcement</a></li>
 <li class="toctree-l2"><a class="reference internal" href="remote/usage.html#specifying-remote-hosts">Specifying Remote Hosts</a></li>
-<li class="toctree-l2"><a class="reference internal" href="remote/usage.html#genv-installation-directory">Genv Installation Directory</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="remote/enforcement.html">Enforcement</a><ul>
@@ -262,7 +261,7 @@
 <li class="toctree-l2"><a class="reference internal" href="development/development.html#prerequisites">Prerequisites</a></li>
 <li class="toctree-l2"><a class="reference internal" href="development/development.html#setup">Setup</a></li>
 <li class="toctree-l2"><a class="reference internal" href="development/development.html#docs">Docs</a></li>
-<li class="toctree-l2"><a class="reference internal" href="development/development.html#id4">Python Package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="development/development.html#python-package">Python Package</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="development/reference.html">Reference</a><ul>

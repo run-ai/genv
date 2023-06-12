@@ -7,14 +7,13 @@ Python SDK
 
 Overview
 --------
-The Python package :code:`genv` comes with a Python SDK at :code:`genv.sdk`.
+The Python SDK is available at :code:`genv.sdk`.
 
 This SDK can be used by Python applications to use Genv features such as activating environments, attaching and detaching devices, and locking over-subscribed devices.
 
 Installing the SDK
 ~~~~~~~~~~~~~~~~~~
-The Python SDK comes as part of the :code:`genv` `Python package <https://pypi.org/project/genv/>`__.
-To get it, install the :ref:`core <Install Core>` components of Genv.
+The Python SDK comes as part of the Genv :doc:`installation <../overview/installation>` out of the box.
 
 Importing the SDK
 ~~~~~~~~~~~~~~~~~

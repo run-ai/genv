@@ -169,6 +169,7 @@ In the future, the usage in real time will also be taken into account for optima
 <p>After provisioning the resources, Genv helps environments to use only their granted resources by manipulating the shell environment and by executing <a class="reference internal" href="../development/reference.html#shims"><span class="std std-ref">shims</span></a>.</p>
 <p>However, all processes still technically have access to all devices and all their resources such as GPU memory, because these are bare-metal processes and not containers.</p>
 <p>Genv supports enforcement features to allow users and system administrators to ensure that only the resources provisioned by Genv are being used by processes and environments using the command <code class="code docutils literal notranslate"><span class="pre">genv</span> <span class="pre">enforce</span></code>.</p>
+<p>Note that to use enforcement capabilities on a machine that multiple users are sharing, you will need to run <code class="code docutils literal notranslate"><span class="pre">genv</span> <span class="pre">enforce</span></code> commands <a class="reference internal" href="advanced-usage.html#using-sudo"><span class="std std-ref">using</span></a> <code class="code docutils literal notranslate"><span class="pre">sudo</span></code>.</p>
 </div>
 <div class="section" id="quick-start">
 <h2>Quick start<a class="headerlink" href="#quick-start" title="Permalink to this headline">¶</a></h2>
@@ -177,7 +178,7 @@ In the future, the usage in real time will also be taken into account for optima
 <p>You will need a GPU consuming application.
 This could be Python code that uses TensorFlow, PyTorch, or any other application that you have.
 We will be using a CUDA application called <code class="code docutils literal notranslate"><span class="pre">quickstart</span></code>.</p>
-<p>We will go over two <a class="reference internal" href="#enforcement-rules"><span class="std std-ref">enforcement logics</span></a> in this tutorial.</p>
+<p>We will go over two <a class="reference internal" href="#enforcement-rules"><span class="std std-ref">enforcement rules</span></a> in this tutorial.</p>
 <div class="section" id="non-environment-processes">
 <h3>Non-environment Processes<a class="headerlink" href="#non-environment-processes" title="Permalink to this headline">¶</a></h3>
 <p>Open a terminal on your GPU machine and run the application in the background:</p>
@@ -252,10 +253,10 @@ ID      ENV ID      ENV NAME        ATTACHED
 <h2>Permissions<a class="headerlink" href="#permissions" title="Permalink to this headline">¶</a></h2>
 <p>As described later on in the <a class="reference internal" href="#architecture"><span class="std std-ref">architecture</span></a> section, Genv both detaches environments from devices and terminates running processes.</p>
 <p>Detaching environments from devices is done by modifying the <code class="code docutils literal notranslate"><span class="pre">devices.json</span></code> <a class="reference internal" href="../development/reference.html#files"><span class="std std-ref">file</span></a>.
-Because of how Genv creates these state files, all Linux users have access to modify them, hence all Linux users have permissions to detach environments of any Linux user.</p>
+Because of how Genv creates these state files, all Linux users have access to modify them, therefore all Linux users have permissions to detach environments of any Linux user.</p>
 <p>On the other hand, Linux users usually can’t terminate processes of other users or query their environment variables.
 Therefore, you will probably need to execute the <code class="code docutils literal notranslate"><span class="pre">genv</span> <span class="pre">enforce</span></code> commands <a class="reference internal" href="advanced-usage.html#using-sudo"><span class="std std-ref">using</span></a> <code class="code docutils literal notranslate"><span class="pre">sudo</span></code> with a command similar to the following:</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>sudo <span class="k">$(</span>which genv<span class="k">)</span> enforce ...
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>sudo genv enforce ...
 </pre></div>
 </div>
 </div>
@@ -267,9 +268,9 @@ Therefore, you will probably need to execute the <code class="code docutils lite
 <p class="caption"><span class="caption-text">Genv enforcement cycle</span><a class="headerlink" href="#id7" title="Permalink to this image">¶</a></p>
 </div>
 <p>Every cycle, Genv takes a snapshot of all the provisioned resources as well as the running GPU compute processes in real time by executing <code class="code docutils literal notranslate"><span class="pre">nvidia-smi</span></code> commands.</p>
-<p>Then, Genv goes over the snapshot and runs different enforcement logics.
-Every enforcement logic is responsible for one enforcement rule and checks if it is violated.</p>
-<p>After running all enforcement logics, Genv combines all the conclusions and continues to the execution phase.</p>
+<p>Then, Genv goes over the snapshot and runs different enforcement rules.
+Every enforcement rule checks if it is violated.</p>
+<p>After running all enforcement rules, Genv combines all the conclusions and continues to the execution phase.</p>
 <p>In the execution phase, it terminates running processes and detaches environments from devices according to the findings.
 Running processes from environments on the devices that are being detached are also terminated.</p>
 <div class="admonition note">

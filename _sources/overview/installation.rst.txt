@@ -10,17 +10,40 @@ Installation
    This page talks about installing Genv on a single machine.
    If you are interested in using Genv on a multi-machine cluster, check out the remote installation :doc:`guide <../remote/installation>`.
 
-.. _Install Core:
+.. _Install Using pip:
 
-Core
-----
+Using :code:`pip`
+-----------------
+.. warning::
 
-The core components of Genv are part of the Genv `Python package <https://pypi.org/project/genv/>`__.
-Install it with the following command:
+   If you installed Genv previously (versions <= 0.12.0), you will need to manually :ref:`remove the old version <Remove Old Version>` first.
+
+Genv is available on `PyPI <https://pypi.org/project/genv/>`__ and is available for installation using :code:`pip`.
+
+If you want to use :doc:`enforcement <../usage/enforcement>` capabilities or you are installing on a remote worker machine, you will need to be able to run :code:`genv` commands with :code:`sudo`.
+Therefore, you will need to install Genv as root by adding :code:`sudo` to the :code:`pip install` commands.
+
+Generally speaking, you should install Genv as a user if you are a user, and as root if you are a system administrator.
+
+.. note::
+
+   If you want to run as root but can't *install* using :code:`sudo pip install` for some reason, check out the workaround described :ref:`here <Install Without sudo>`.
+
+Install Genv with the following command:
 
 .. code-block:: shell
 
    pip install genv
+
+.. note::
+
+   As described above, run :code:`sudo pip install genv` if you want to install Genv as root.
+
+If you want monitoring capabilities, you can use the following command to install relevant dependencies as well:
+
+.. code-block:: shell
+
+   pip install genv[monitor]
 
 .. warning::
 
@@ -28,85 +51,36 @@ Install it with the following command:
 
    .. code-block:: shell
 
-      WARNING: The script genvctl is installed in '/home/raz/.local/bin' which is not on PATH.
+      WARNING: The script genv is installed in '/home/raz/.local/bin' which is not on PATH.
       Consider adding this directory to PATH...
 
-.. note::
-
-   Genv needs Python 3.7 or higher so make sure you have it installed.
-
-The Python package should also install the Genv CLI.
-Verify the installation with the command:
+You can verify the installation with the command:
 
 .. code-block:: shell
 
-   genvctl --help
+   genv --help
 
-.. warning::
+If you see :code:`genv: command not found`, then your :code:`$PATH` is probably no set as explained above.
 
-   If you see :code:`genvctl: command not found`, your :code:`$PATH` is probably no set as explained above.
+.. _Set Up Terminal:
 
-.. _Install Terminal:
+Set Up Terminal
+~~~~~~~~~~~~~~~
+To use the terminal integration of Genv, add the following command to your :code:`~/.bashrc` or any other equivalent file:
 
-Terminal
---------
-To use Genv in your shell, you will need to install the terminal components of Genv.
+.. code-block:: shell
 
-.. note::
+   eval "$(genv shell --init)"
 
-   Before installing the terminal components, make sure you have the :ref:`core <Install Core>` components of Genv installed.
+.. _Install Using Conda:
 
-You can install the terminal components of Genv in several ways.
-
-Conda
-~~~~~
+Using Conda
+-----------
 If you are using `Conda <https://docs.conda.io/en/latest/>`__, you can install the :code:`genv` `package <https://anaconda.org/conda-forge/genv>`__ from the channel `conda-forge <https://conda-forge.org/>`__:
 
 .. code-block:: shell
 
    conda install -c conda-forge genv
-
-.. _Install Terminal From Source:
-
-From Source
-~~~~~~~~~~~
-If you are not using Conda, you can clone the Genv `repository <https://www.github.com/run-ai/genv>`__ to your home directory:
-
-.. code-block:: shell
-
-   git clone https://github.com/run-ai/genv.git $HOME/genv
-
-Then, you will need to set up your shell by adding the following commands to your :code:`~/.bashrc` or any other equivalent file:
-
-.. code-block:: shell
-
-   export PATH=$HOME/genv/bin:$PATH
-   eval "$(genv init -)"
-
-Afterward, for this to take effect, either reopen your terminal or restart your shell using the command:
-
-.. code-block:: shell
-
-   exec $SHELL
-
-To verify the installation, run the following command:
-
-.. code-block:: shell
-
-   genv
-
-You should be able to see all the available Genv commands.
-
-~~~~~~~~~~~~
-Uninstalling
-~~~~~~~~~~~~
-To uninstall the terminal components of Genv, remove the commands you added to your :code:`~/.bashrc` or any other equivalent file.
-
-Then, remove its root directory:
-
-.. code-block:: shell
-
-   rm -rf $(genv root)
 
 Visual Studio Code
 ------------------
@@ -132,3 +106,33 @@ This will help us prioritize this as well as suggest other ways to work with Gen
 Docker
 ------
 To install the :code:`genv-docker` refer to the Genv container toolkit :doc:`installation <../docker/installation>` page.
+
+.. _Remove Old Version:
+
+Remove Old Version
+------------------
+If you installed Genv previously (versions <= 0.12.0) and *not* from Conda, you will need to manually remove the old version first.
+
+You can check it by running the following command:
+
+.. code-block:: shell
+
+   genv root >& /dev/null && echo old version installed
+
+If you see :code:`old version installed`, you have an old version installed and you need to remove it.
+
+First, remove the commands you added to your :code:`~/.bashrc` or any other equivalent file.
+They should look like this:
+
+.. code-block:: shell
+
+   export PATH=$HOME/genv/bin:$PATH
+   eval "$(genv init -)"
+
+Afterward, remove the previous installation directory with the following command:
+
+.. code-block:: shell
+
+   rm -rf $(genv root)
+
+Then, restart your terminal.
