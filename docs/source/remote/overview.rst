@@ -1,5 +1,3 @@
-.. _Remote Overview:
-
 Overview
 ========
 

@@ -7,18 +7,7 @@ import sys
 import json
 from typing import Iterable, Optional
 
-GENV_ROOT = os.path.realpath(
-    os.environ.get("GENV_ROOT", os.path.join(os.path.dirname(__file__), ".."))
-)
-
-try:
-    import genv
-except ModuleNotFoundError:
-    # we manually set the system path if the Genv Python package is not installed.
-    # this is for backward compatability with installation from source.
-    sys.path.append(os.path.realpath(os.path.join(os.path.dirname(__file__), "../py")))
-
-    import genv
+import genv
 
 
 def get_env(config: dict, name: str, *, check: bool = False) -> Optional[str]:
@@ -135,7 +124,8 @@ def mount_shims(state: dict, config: dict):
     container_genv = f"{container_root}/opt/genv"
     container_shims = f"{container_genv}/shims"
 
-    host_genv = GENV_ROOT
+    # NOTE(raz): this is true only because we currently install the container toolkit by cloning the project repository
+    host_genv = Path(__file__).parents[1]
     host_shims = f"{host_genv}/shims"
 
     Path(container_shims).mkdir(mode=0o755, parents=True, exist_ok=True)

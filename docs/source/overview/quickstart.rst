@@ -30,7 +30,7 @@ You can verify that by running the command:
    ...
 
 First, you will need to :doc:`install <installation>` Genv.
-You can choose your preferred way of installation.
+You can choose your preferred way of installation: :ref:`using <Install Using pip>` :code:`pip` or :ref:`Conda <Install Using Conda>`.
 
 Verify the installation by running the command:
 
@@ -69,7 +69,7 @@ Now, let's activate a new environment and give it a name:
 .. code-block:: shell
 
    $ genv activate --name quick-start
-   (genv:quick-start) $
+   (genv) $
 
 .. note::
 

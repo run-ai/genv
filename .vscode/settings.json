@@ -1,14 +1,8 @@
 {
     "files.associations": {
-        "**/bin/genv": "shellscript",
-        "**/libexec/genv*": "shellscript",
-        "**/shims/docker": "python",
-        "**/shims/nvidia-smi": "python",
+        "**/shims/*": "python",
     },
     "terminal.integrated.defaultProfile.osx": "bash",
-    "python.analysis.extraPaths": [
-        "./py"
-    ],
     "python.formatting.provider": "black",
     "python.linting.flake8Enabled": true,
     "python.linting.enabled": true,
