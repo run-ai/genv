@@ -3,9 +3,14 @@
   <img src="images/genv blade landscape white@4x.png#gh-dark-mode-only" width="600" alt="genv"/>
 </p>
 
-# Genv (GPU Environment Management) [![Join the community at (https://discord.gg/zN3Q9pQAuT)](https://img.shields.io/badge/Discord-genv-7289da?logo=discord)](https://discord.gg/zN3Q9pQAuT)
+# Genv - GPU Environment and Cluster Management
+[![PyPI](https://img.shields.io/pypi/v/genv)](https://pypi.org/project/genv/)
+[![PyPI - Downloads](https://img.shields.io/pypi/dm/genv?style=plastic)](https://pypi.org/project/genv/)
+[![Join the community at (https://discord.gg/zN3Q9pQAuT)](https://img.shields.io/badge/Discord-genv-7289da?logo=discord)](https://discord.gg/zN3Q9pQAuT)
 
-Genv lets you easily control, configure and monitor the GPU resources that you are using.
+Genv is an open-source environment and cluster management system for GPUs.
+
+Genv lets you easily control, configure, monitor and enforce the GPU resources that you are using in a GPU machine or cluster.
 
 It is intendend to ease up the process of GPU allocation for data scientists without code changes 💪🏻
 
