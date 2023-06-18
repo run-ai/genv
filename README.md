@@ -4,6 +4,7 @@
 </p>
 
 # Genv - GPU Environment and Cluster Management
+[![Docs](https://img.shields.io/badge/docs-genv-blue)](https://docs.genv.dev/)
 [![PyPI](https://img.shields.io/pypi/v/genv)](https://pypi.org/project/genv/)
 [![PyPI - Downloads](https://img.shields.io/pypi/dm/genv?style=plastic)](https://pypi.org/project/genv/)
 [![Join the community at (https://discord.gg/zN3Q9pQAuT)](https://img.shields.io/badge/Discord-genv-7289da?logo=discord)](https://discord.gg/zN3Q9pQAuT)
