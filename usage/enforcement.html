@@ -306,6 +306,8 @@ Not all processes are terminated, but a greedy algorithm terminates processes un
 <p>Use the flag <code class="code docutils literal notranslate"><span class="pre">--max-devices-per-user</span> <span class="pre">&lt;value&gt;</span></code> to control how many devices each Linux user can access.</p>
 <p>If a Linux user is using more devices than the specified value, some of his or her environments would get detached to free up resources.
 Processes from the detached environments that are running on the detached devices would get terminated.</p>
+<p>This flag could be used combined with <code class="code docutils literal notranslate"><span class="pre">--max-devices-for-user</span> <span class="pre">&lt;value&gt;</span></code> to specify user-specific values.</p>
+<p>For example, by passing <code class="code docutils literal notranslate"><span class="pre">--max-devices-per-user</span> <span class="pre">1</span> <span class="pre">--max-devices-for-user</span> <span class="pre">john=3</span> <span class="pre">paul=2</span></code>, you enforce all users to use a single device at most, except for John and Paul which are allowed to use 3 and 2 respectively.</p>
 </div>
 </div>
 </div>
