@@ -1,6 +1,14 @@
 Changelog
 =========
 
+Version 1.1.0
+-------------
+**Date:** June 21, 2023
+
+Added
+~~~~~
+* Added flag :code:`--max-devices-for-user` to :code:`genv enforce` and :code:`genv remote enforce` commands
+
 Version 1.0.0
 --------------
 **Date:** June 12, 2023
