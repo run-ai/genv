@@ -1,7 +1,11 @@
+from typing import Dict
+
 from genv.entities.enforce import Survey
 
 
-def max_devices_per_user(*surveys: Survey, maximum: int) -> None:
+def max_devices_per_user(
+    *surveys: Survey, maximum: int, maximum_for_user: Dict[str, int] = {}
+) -> None:
     """
     Enforce maximum devices per user.
     """
@@ -17,10 +21,10 @@ def max_devices_per_user(*surveys: Survey, maximum: int) -> None:
 
         attached = sum(len(snapshot.devices) for snapshot in snapshots)
 
-        if attached <= maximum:
-            return
+        over = attached - maximum_for_user.get(username, maximum)
 
-        over = attached - maximum
+        if over <= 0:
+            continue
 
         if all(survey.hostname for survey in surveys):
             hosts = len([snapshot for snapshot in snapshots if len(snapshot.envs) > 0])

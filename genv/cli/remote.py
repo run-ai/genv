@@ -4,7 +4,7 @@ import itertools
 import os
 import shutil
 import sys
-from typing import Iterable, NoReturn, Optional
+from typing import Iterable, NoReturn, Optional, Tuple
 
 import genv
 
@@ -129,6 +129,7 @@ async def do_enforce(
     env_devices: bool,
     env_memory: bool,
     max_devices_per_user: Optional[int],
+    max_devices_for_user: Optional[Iterable[Tuple[str, int]]],
 ) -> None:
     """
     Enforce GPU usage on multiple hosts.
@@ -156,7 +157,11 @@ async def do_enforce(
 
         if max_devices_per_user is not None:
             genv.enforce.rules.max_devices_per_user(
-                *surveys, maximum=max_devices_per_user
+                *surveys,
+                maximum=max_devices_per_user,
+                maximum_for_user=(
+                    dict(max_devices_for_user) if max_devices_for_user else {}
+                ),
             )
 
         reports = [survey.report for survey in surveys]
@@ -414,6 +419,22 @@ def add_arguments(parser: argparse.ArgumentParser) -> None:
             help="maximum allowed attached devices for each user",
         )
 
+        def max_devices_for_user(value: str):
+            try:
+                username, maximum = value.split("=")
+
+                return username, int(maximum)
+            except (ValueError, SyntaxError):
+                raise argparse.ArgumentTypeError(f"not a valid spec: {value}")
+
+        enforcements.add_argument(
+            "--max-devices-for-user",
+            nargs="+",
+            help="per-user specification of maximum allowed attached devices",
+            metavar="username=maximum",
+            type=max_devices_for_user,
+        )
+
     def envs(parser):
         parser.add_argument(
             "--no-header",
@@ -497,9 +518,7 @@ async def run(args: argparse.Namespace) -> None:
     else:
         hostnames = args.hostnames.split(",")
 
-    hosts = [
-        genv.remote.Host(hostname, args.timeout) for hostname in hostnames
-    ]
+    hosts = [genv.remote.Host(hostname, args.timeout) for hostname in hostnames]
 
     config = genv.remote.Config(hosts, args.throw_on_error, args.quiet)
 
@@ -515,6 +534,7 @@ async def run(args: argparse.Namespace) -> None:
             args.env_devices,
             args.env_memory,
             args.max_devices_per_user,
+            args.max_devices_for_user,
         )
     elif args.command == "envs":
         await do_envs(

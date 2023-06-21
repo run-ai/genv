@@ -202,3 +202,7 @@ Use the flag :code:`--max-devices-per-user <value>` to control how many devices 
 
 If a Linux user is using more devices than the specified value, some of his or her environments would get detached to free up resources.
 Processes from the detached environments that are running on the detached devices would get terminated.
+
+This flag could be used combined with :code:`--max-devices-for-user <value>` to specify user-specific values.
+
+For example, by passing :code:`--max-devices-per-user 1 --max-devices-for-user john=3 paul=2`, you enforce all users to use a single device at most, except for John and Paul which are allowed to use 3 and 2 respectively.

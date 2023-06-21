@@ -67,6 +67,22 @@ def add_arguments(parser: argparse.ArgumentParser) -> None:
         help="maximum allowed attached devices for each user",
     )
 
+    def max_devices_for_user(value: str):
+        try:
+            username, maximum = value.split("=")
+
+            return username, int(maximum)
+        except (ValueError, SyntaxError):
+            raise argparse.ArgumentTypeError(f"not a valid spec: {value}")
+
+    enforcements.add_argument(
+        "--max-devices-for-user",
+        nargs="+",
+        help="per-user specification of maximum allowed attached devices",
+        metavar="username=maximum",
+        type=max_devices_for_user,
+    )
+
 
 async def run(args: argparse.Namespace) -> None:
     """
@@ -90,7 +106,11 @@ async def run(args: argparse.Namespace) -> None:
 
         if args.max_devices_per_user is not None:
             genv.enforce.rules.max_devices_per_user(
-                survey, maximum=args.max_devices_per_user
+                survey,
+                maximum=args.max_devices_per_user,
+                maximum_for_user=(
+                    dict(args.max_devices_for_user) if args.max_devices_for_user else {}
+                ),
             )
 
         with genv.utils.global_lock():
