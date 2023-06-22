@@ -4,10 +4,12 @@
 </p>
 
 # Genv - GPU Environment and Cluster Management
+[![Join the community at (https://discord.gg/zN3Q9pQAuT)](https://img.shields.io/badge/Discord-genv-7289da?logo=discord)](https://discord.gg/zN3Q9pQAuT)
 [![Docs](https://img.shields.io/badge/docs-genv-blue)](https://docs.genv.dev/)
 [![PyPI](https://img.shields.io/pypi/v/genv)](https://pypi.org/project/genv/)
-[![PyPI - Downloads](https://img.shields.io/pypi/dm/genv?style=plastic)](https://pypi.org/project/genv/)
-[![Join the community at (https://discord.gg/zN3Q9pQAuT)](https://img.shields.io/badge/Discord-genv-7289da?logo=discord)](https://discord.gg/zN3Q9pQAuT)
+[![PyPI - Downloads](https://img.shields.io/pypi/dm/genv?label=pypi%20downloads)](https://pypi.org/project/genv/)
+[![Conda](https://img.shields.io/conda/v/conda-forge/genv?label=conda)](https://anaconda.org/conda-forge/genv)
+[![Conda - Downloads](https://img.shields.io/conda/dn/conda-forge/genv?label=conda%20downloads)](https://anaconda.org/conda-forge/genv)
 
 Genv is an open-source environment and cluster management system for GPUs.
 
