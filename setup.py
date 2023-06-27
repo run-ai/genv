@@ -30,5 +30,9 @@ setuptools.setup(
         ]
     },
     python_requires=">=3.7",
-    extras_require={"monitor": ["prometheus_client"]},
+    extras_require={
+        "dev": ["black"],
+        "monitor": ["prometheus_client"],
+        "ray": ["ray", "pynvml"],
+    },
 )

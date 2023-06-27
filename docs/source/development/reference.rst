@@ -91,8 +91,8 @@ Default is :code:`2`.
 
 :code:`GENV_MOCK_DEVICE_TOTAL_MEMORY`
 
-Total device memory in the :code:`nvidia-smi` mock shim.
-Default is :code:`16g`.
+Total device memory.
+Used in the :code:`nvidia-smi` mock shim and :code:`@genv.ray.remote`.
 
 ----
 
