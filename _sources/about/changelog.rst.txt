@@ -1,6 +1,14 @@
 Changelog
 =========
 
+Version 1.2.0
+-------------
+**Date:** July 4, 2023
+
+Added
+~~~~~
+* Ray integration and :code:`genv.ray` subpackage
+
 Version 1.1.0
 -------------
 **Date:** June 21, 2023
