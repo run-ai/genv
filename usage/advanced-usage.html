@@ -78,6 +78,11 @@
 </li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="#using-ray">Using Ray</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#installation">Installation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#usage">Usage</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="enforcement.html">Enforcement</a></li>
@@ -138,12 +143,13 @@
 <div class="contents topic" id="contents">
 <p class="topic-title">Contents</p>
 <ul class="simple">
-<li><p><a class="reference internal" href="#advanced-usage" id="id11">Advanced Usage</a></p>
+<li><p><a class="reference internal" href="#advanced-usage" id="id12">Advanced Usage</a></p>
 <ul>
-<li><p><a class="reference internal" href="#multiple-terminals" id="id12">Multiple Terminals</a></p></li>
-<li><p><a class="reference internal" href="#using-sudo" id="id13">Using <code class="code docutils literal notranslate"><span class="pre">sudo</span></code></a></p></li>
-<li><p><a class="reference internal" href="#running-containers" id="id14">Running Containers</a></p></li>
-<li><p><a class="reference internal" href="#over-subscription" id="id15">Over-subscription</a></p></li>
+<li><p><a class="reference internal" href="#multiple-terminals" id="id13">Multiple Terminals</a></p></li>
+<li><p><a class="reference internal" href="#using-sudo" id="id14">Using <code class="code docutils literal notranslate"><span class="pre">sudo</span></code></a></p></li>
+<li><p><a class="reference internal" href="#running-containers" id="id15">Running Containers</a></p></li>
+<li><p><a class="reference internal" href="#over-subscription" id="id16">Over-subscription</a></p></li>
+<li><p><a class="reference internal" href="#using-ray" id="id17">Using Ray</a></p></li>
 </ul>
 </li>
 </ul>
@@ -267,17 +273,17 @@ You can do that by passing <code class="code docutils literal notranslate"><span
 <h2>Over-subscription<a class="headerlink" href="#over-subscription" title="Permalink to this headline">¶</a></h2>
 <p>Normally, the GPUs in the system are being provisioned to environments until they run out.</p>
 <p>A GPU could be provisioned to a single environment, or can be shared between a few environments by <a class="reference internal" href="usage.html#configure-the-gpu-memory-capacity"><span class="std std-ref">configuring</span></a> the environment memory capacity before attaching devices.</p>
-<div class="figure align-default" id="id9">
+<div class="figure align-default" id="id10">
 <img alt="../_images/provisioning.png" src="../_images/provisioning.png" />
-<p class="caption"><span class="caption-text">Full- and shared-GPU provisioning with Genv</span><a class="headerlink" href="#id9" title="Permalink to this image">¶</a></p>
+<p class="caption"><span class="caption-text">Full- and shared-GPU provisioning with Genv</span><a class="headerlink" href="#id10" title="Permalink to this image">¶</a></p>
 </div>
 <p>However, this could be wasteful as the provisioned GPUs can be unused some of the time, and in some cases, this amount of time can be significant.</p>
 <p>For example, when writing GPU-consuming code (e.g. deep-learning model with PyTorch) using an IDE like Visual Studio Code, or PyCharm, the GPU resources are not being used in all the time that is spent on coding rather than running the application.</p>
 <p>For this use case and similar ones, it is recommended to over-subscribe <a class="footnote-reference brackets" href="#id7" id="id3">1</a> the GPU by provisioning it to more than a single environment <em>without</em> setting a memory capacity.
 Then, the entire GPU can be accessed by the different environments at different times, which will increase the resource utilization significantly.</p>
-<div class="figure align-default" id="id10">
+<div class="figure align-default" id="id11">
 <img alt="../_images/over-provisioning.png" src="../_images/over-provisioning.png" />
-<p class="caption"><span class="caption-text">Over-provisioning with Genv</span><a class="headerlink" href="#id10" title="Permalink to this image">¶</a></p>
+<p class="caption"><span class="caption-text">Over-provisioning with Genv</span><a class="headerlink" href="#id11" title="Permalink to this image">¶</a></p>
 </div>
 <div class="section" id="attach-with-over-subscription">
 <h3>Attach with Over-subscription<a class="headerlink" href="#attach-with-over-subscription" title="Permalink to this headline">¶</a></h3>
@@ -349,6 +355,50 @@ For example:</p>
 <dd><p><a class="reference external" href="https://man7.org/linux/man-pages/man1/flock.1.html">flock(1) - Linux manual page</a></p>
 </dd>
 </dl>
+</div>
+</div>
+</div>
+<div class="section" id="using-ray">
+<span id="id9"></span><h2>Using Ray<a class="headerlink" href="#using-ray" title="Permalink to this headline">¶</a></h2>
+<p>Genv supports activating Ray tasks as Genv environments.</p>
+<p>This can be useful for enforcing the resources used by the Genv workers.</p>
+<p>For example, as described <a class="reference external" href="https://docs.ray.io/en/latest/ray-core/tasks/using-ray-with-gpus.html#fractional-gpus">here</a>, when using fractional GPUs with Ray, it is the user’s responsibility to make sure that the individual tasks don’t use more than their share of the GPU memory.</p>
+<p>Using Genv’s Ray integration, you can use Genv <a class="reference internal" href="enforcement.html"><span class="doc">enforcement</span></a> capabilities to ensure that your Ray tasks do not use more GPU resources than provided by Ray.</p>
+<div class="section" id="installation">
+<h3>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h3>
+<p>Because your Ray tasks will run remotely, you should have Genv installed on the remote nodes.
+This could be done in several ways.</p>
+<p>The <a class="reference external" href="https://docs.ray.io/en/latest/ray-core/handling-dependencies.html#environment-dependencies">preferable</a> way is probably to install Genv <a class="reference internal" href="../overview/installation.html#install-using-pip"><span class="std std-ref">using</span></a> <code class="code docutils literal notranslate"><span class="pre">pip</span></code> on remote nodes manually using the command:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>pip install genv<span class="o">[</span>ray<span class="o">]</span>
+</pre></div>
+</div>
+<p>If you prefer not to, you can use Ray’s <a class="reference external" href="https://docs.ray.io/en/latest/ray-core/handling-dependencies.html#runtime-environments">runtime environments</a> to install Genv in your remote Ray workers via Ray.</p>
+<p>You can use the argument <code class="code docutils literal notranslate"><span class="pre">pip</span></code> of <code class="code docutils literal notranslate"><span class="pre">ray.init</span></code>.
+For example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ray</span><span class="o">.</span><span class="n">init</span><span class="p">(</span><span class="n">runtime_env</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;pip&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;genv&quot;</span><span class="p">]})</span>
+</pre></div>
+</div>
+<p>If this does not work for you, you can use the argument <code class="code docutils literal notranslate"><span class="pre">py_modules</span></code> instead.
+For example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">genv</span>
+
+<span class="n">ray</span><span class="o">.</span><span class="n">init</span><span class="p">(</span><span class="n">runtime_env</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;py_modules&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">genv</span><span class="p">]})</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="usage">
+<h3>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h3>
+<p>To activate a Ray task as a Genv environment on the remote host, just replace the <code class="code docutils literal notranslate"><span class="pre">ray.remote</span></code> decorator with <code class="code docutils literal notranslate"><span class="pre">genv.ray.remote</span></code>.
+For example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@genv</span><span class="o">.</span><span class="n">ray</span><span class="o">.</span><span class="n">remote</span><span class="p">(</span><span class="n">num_gpus</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">foo</span><span class="p">():</span>
+   <span class="n">env_config</span> <span class="o">=</span> <span class="n">genv</span><span class="o">.</span><span class="n">sdk</span><span class="o">.</span><span class="n">configuration</span><span class="p">()</span>
+   <span class="n">env_devices</span> <span class="o">=</span> <span class="n">genv</span><span class="o">.</span><span class="n">sdk</span><span class="o">.</span><span class="n">attached</span><span class="p">()</span>
+
+   <span class="nb">print</span><span class="p">(</span>
+      <span class="sa">f</span><span class="s2">&quot;Running in Genv environment &#39;</span><span class="si">{env_config.name}</span><span class="s2">&#39; which is attached to device(s) at index {&#39;,&#39;.join(map(str, env_devices))}&quot;</span>
+   <span class="p">)</span>
+</pre></div>
 </div>
 </div>
 </div>
