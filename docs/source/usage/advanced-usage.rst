@@ -264,3 +264,60 @@ For example:
 
 .. [#] `Over-allocation - Wikipedia <https://en.wikipedia.org/wiki/Thin_provisioning#Over-allocation>`_
 .. [#] `flock(1) - Linux manual page <https://man7.org/linux/man-pages/man1/flock.1.html>`_
+
+.. _Using Ray:
+
+Using Ray
+---------
+Genv supports activating Ray tasks as Genv environments.
+
+This can be useful for enforcing the resources used by the Genv workers.
+
+For example, as described `here <https://docs.ray.io/en/latest/ray-core/tasks/using-ray-with-gpus.html#fractional-gpus>`__, when using fractional GPUs with Ray, it is the user's responsibility to make sure that the individual tasks don't use more than their share of the GPU memory.
+
+Using Genv's Ray integration, you can use Genv :doc:`enforcement <./enforcement>` capabilities to ensure that your Ray tasks do not use more GPU resources than provided by Ray.
+
+Installation
+~~~~~~~~~~~~
+Because your Ray tasks will run remotely, you should have Genv installed on the remote nodes.
+This could be done in several ways.
+
+The `preferable <https://docs.ray.io/en/latest/ray-core/handling-dependencies.html#environment-dependencies>`__ way is probably to install Genv :ref:`using <Install Using pip>` :code:`pip` on remote nodes manually using the command:
+
+.. code-block:: shell
+
+   pip install genv[ray]
+
+If you prefer not to, you can use Ray's `runtime environments <https://docs.ray.io/en/latest/ray-core/handling-dependencies.html#runtime-environments>`__ to install Genv in your remote Ray workers via Ray.
+
+You can use the argument :code:`pip` of :code:`ray.init`.
+For example:
+
+.. code-block:: python
+
+   ray.init(runtime_env={"pip": ["genv"]})
+
+If this does not work for you, you can use the argument :code:`py_modules` instead.
+For example:
+
+.. code-block:: python
+
+   import genv
+
+   ray.init(runtime_env={"py_modules": [genv]})
+
+Usage
+~~~~~
+To activate a Ray task as a Genv environment on the remote host, just replace the :code:`ray.remote` decorator with :code:`genv.ray.remote`.
+For example:
+
+.. code-block:: python
+
+   @genv.ray.remote(num_gpus=0.5)
+   def foo():
+      env_config = genv.sdk.configuration()
+      env_devices = genv.sdk.attached()
+
+      print(
+         f"Running in Genv environment '{env_config.name}' which is attached to device(s) at index {','.join(map(str, env_devices))}"
+      )
