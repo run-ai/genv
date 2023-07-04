@@ -29,7 +29,7 @@ Install the Python package in editable mode with the following command:
 
 .. code-block:: shell
 
-    pip install -e .
+    pip install -e .[dev]
 
 Then run the following commands to configure your terminal:
 

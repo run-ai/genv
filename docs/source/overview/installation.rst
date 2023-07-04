@@ -107,6 +107,10 @@ Docker
 ------
 To install the :code:`genv-docker` refer to the Genv container toolkit :doc:`installation <../docker/installation>` page.
 
+Ray
+---
+To install the Ray integration of Genv read :ref:`here <Using Ray>`.
+
 .. _Remove Old Version:
 
 Remove Old Version
