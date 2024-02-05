@@ -8,8 +8,6 @@ from .runner import Runner as Base
 class Runner(Base):
     host_name: str
     timeout: Optional[int]
-    __SSH_COMMAND_PREFIX = "ssh"
-    __SSH_TIMEOUT_PARAMETER = "-o ConnectTimeout={0}"
 
     def __init__(
         self,
@@ -21,15 +19,12 @@ class Runner(Base):
         self.host_name = host_name
         self.timeout = timeout
 
-    def name(self) -> str:
-        return self.host_name
-
     async def _open_process(self, *args: str, stdin_fd: int, sudo: bool) -> Process:
         ssh_parameters = self.calc_ssh_params()
         remote_command = self.calc_command_on_remote_machine(args, sudo)
 
         return await asyncio.create_subprocess_exec(
-            Runner.__SSH_COMMAND_PREFIX,
+            "ssh",
             *ssh_parameters,
             remote_command,
             stdin=stdin_fd,
@@ -40,7 +35,7 @@ class Runner(Base):
     def calc_ssh_params(self) -> List[str]:
         ssh_parameters = []
         if self.timeout is not None:
-            ssh_parameters.append(self.__SSH_TIMEOUT_PARAMETER.format(self.timeout))
+            ssh_parameters.append(f"-o ConnectTimeout={self.timeout}")
         ssh_parameters.append(self.host_name)
         return ssh_parameters
 
@@ -51,9 +46,6 @@ class Runner(Base):
         if sudo:
             command = f"sudo {command}"
         return command
-
-    def _get_error_msg(self, command: str, stderr: str):
-        return f"Failed to run a command using ssh on {self.host_name}: command: '{command}' ({stderr})"
 
     @staticmethod
     def _add_environment_vars(command: str, process_env: Dict[str, str]):

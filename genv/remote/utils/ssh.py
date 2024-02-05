@@ -43,44 +43,49 @@ class Command:
 
     :param args: Genv command arguments
     :param sudo: Run command as root using sudo
+    :param shell: Run command as regular shell command
     """
 
     args: Iterable[str]
     sudo: bool = False
+    shell: bool = False
+
+    @property
+    def all_args(self) -> Iterable[str]:
+        """Returns all command arguments"""
+
+        return self.args if self.shell else ["genv"] + self.args
 
 
 async def run(
-    config: Config, command: Command, stdins: Optional[Iterable[str]] = None
+    config: Config,
+    command: Command,
+    stdins: Optional[Iterable[str]] = None,
 ) -> Tuple[Iterable[Host], Iterable[str]]:
     """
-    Runs a Genv command on multiple hosts over SSH.
+    Runs a command on multiple hosts over SSH.
     Waits for the command to finish on all hosts.
     Raises 'RuntimeError' if failed to connect to any of the hosts and 'config.throw_on_error' is True.
 
     :param config: Execution configuration
-    :param command: Genv command specification
+    :param command: Command specification
     :param stdins: Input to send per host
 
     :return: Returns the hosts that succeeded and their standard outputs
     """
-    ssh_runners_and_inputs = []
-    for host, stdin in zip(config.hosts, stdins or [None for _ in config.hosts]):
-        ssh_runner = Runner(
-            host.hostname,
-            host.timeout,
-        )
-        ssh_runners_and_inputs.append((ssh_runner, stdin))
 
-    ssh_outputs = await asyncio.gather(
+    runners = [Runner(host.hostname, host.timeout) for host in config.hosts]
+
+    results = await asyncio.gather(
         *(
-            ssh_runner.run("genv", *command.args, stdin=stdin, sudo=command.sudo)
-            for ssh_runner, stdin in ssh_runners_and_inputs
+            runner.run(*command.all_args, stdin=stdin, sudo=command.sudo, check=False)
+            for runner, stdin in zip(runners, stdins or [None for _ in runners])
         )
     )
 
-    processes = [runner_output.command_process for runner_output in ssh_outputs]
-    stdouts = [runner_output.stdout for runner_output in ssh_outputs]
-    stderrs = [runner_output.stderr for runner_output in ssh_outputs]
+    processes = [result.process for result in results]
+    stdouts = [result.stdout for result in results]
+    stderrs = [result.stderr for result in results]
 
     def filter(
         objs: Iterable[Any], pred: Callable[[asyncio.subprocess.Process], bool]
@@ -94,7 +99,7 @@ async def run(
         return filter(objs, lambda process: process.returncode != 0)
 
     for host, stderr in failed(zip(config.hosts, stderrs)):
-        message = f"Failed connecting over SSH to {host.hostname} ({stderr})"
+        message = f"Failed running SSH command on {host.hostname} ({stderr})"
 
         if config.throw_on_error:
             raise RuntimeError(message)
