@@ -220,20 +220,13 @@ Setup
 ~~~~~
 .. code-block:: shell
 
-    python -m venv .venv
-    source .venv/bin/activate
-    python -m pip install sphinx
-    python -m pip install -r docs/requirements.txt
-
-.. note::
-
-    You might need to use :code:`python3` instead of :code:`python`
+    docker build -t genv:docs -f devel/docs.Dockerfile docs
 
 Build
 ~~~~~
 .. code-block:: shell
 
-    make -C docs/ html
+    docker run -it --rm -v $PWD/docs:/docs genv:docs
 
 Python Package
 --------------
