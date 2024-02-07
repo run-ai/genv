@@ -18,9 +18,7 @@ class Collection:
                 spec.name,
                 spec.documentation,
                 spec.labelnames,
-                type=spec.type,
-                convert=spec.convert,
-                filter=spec.filter,
+                spec=spec,
             )
             for spec in specs
         ]
@@ -35,7 +33,7 @@ class Collection:
         """
         Returns all metrics of the given type.
         """
-        return [metric for metric in self if metric.type == type]
+        return [metric for metric in self if metric.spec.type == type]
 
     def cleanup(
         self,
@@ -54,8 +52,8 @@ class Collection:
                 if header and labelvalues[0] != header:
                     continue
 
-                if snapshot and metric.filter:
-                    if not metric.filter(
+                if snapshot and metric.spec.filter:
+                    if not metric.spec.filter(
                         labelvalues[1:] if header else labelvalues, snapshot
                     ):
                         metric.remove(*labelvalues)
@@ -87,20 +85,22 @@ class Collection:
         """
         for device in system.devices:
             for metric in self._find(Type.Device):
-                if not metric.convert:
+                if not metric.spec.convert:
                     continue
 
-                metric.labels(index=device.index, **labels).set(metric.convert(device))
+                metric.labels(index=device.index, **labels).set(
+                    metric.spec.convert(device)
+                )
 
     def _system(self, snapshot: Snapshot, labels: dict) -> None:
         """
         Updates system-wide metrics.
         """
         for metric in self._find(Type.System):
-            if not metric.convert:
+            if not metric.spec.convert:
                 continue
 
-            metric.labels(**labels).set(metric.convert(snapshot))
+            metric.labels(**labels).set(metric.spec.convert(snapshot))
 
     def _env(self, snapshot: Snapshot, labels: dict) -> None:
         """
@@ -110,10 +110,12 @@ class Collection:
             env_snapshot = snapshot.filter(eid=env.eid)
 
             for metric in self._find(Type.Environment):
-                if not metric.convert:
+                if not metric.spec.convert:
                     continue
 
-                metric.labels(eid=env.eid, **labels).set(metric.convert(env_snapshot))
+                metric.labels(eid=env.eid, **labels).set(
+                    metric.spec.convert(env_snapshot)
+                )
 
     def _process(self, snapshot: Snapshot, labels: dict) -> None:
         """
@@ -140,9 +142,9 @@ class Collection:
             user_snapshot = snapshot.filter(username=username)
 
             for metric in self._find(Type.User):
-                if not metric.convert:
+                if not metric.spec.convert:
                     continue
 
                 metric.labels(username=username, **labels).set(
-                    metric.convert(user_snapshot)
+                    metric.spec.convert(user_snapshot)
                 )

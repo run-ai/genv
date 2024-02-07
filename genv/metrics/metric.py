@@ -1,10 +1,8 @@
-from typing import Any, Callable, Iterable, Optional
+from typing import Iterable
 
 import prometheus_client
 
-from genv.entities import Snapshot
-
-from .type import Type
+from .spec import Spec
 
 
 class Metric(prometheus_client.Gauge):
@@ -18,15 +16,11 @@ class Metric(prometheus_client.Gauge):
         documentation: str,
         labelnames: Iterable[str],
         *,
-        type: Type,
-        convert: Optional[Callable[[Any], float]],
-        filter: Optional[Callable[[Iterable[str], Snapshot], bool]],
+        spec: Spec,
         **kwargs,
     ):
         super().__init__(name, documentation, labelnames, **kwargs)
-        self._kwargs["type"] = self.type = type
-        self._kwargs["convert"] = self.convert = convert
-        self._kwargs["filter"] = self.filter = filter
+        self._kwargs["spec"] = self.spec = spec
 
     @property
     def name(self) -> str:

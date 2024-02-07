@@ -1,3 +1,4 @@
+import dataclasses
 from typing import Iterable, Optional
 
 from genv.entities import Snapshot, System
@@ -14,14 +15,7 @@ class Collection(Base):
     def __init__(self, specs: Iterable[Spec]) -> None:
         return super().__init__(
             [
-                Spec(
-                    spec.type,
-                    spec.name,
-                    spec.documentation,
-                    ("hostname",) + spec.labelnames,
-                    spec.convert,
-                    spec.filter,
-                )
+                dataclasses.replace(spec, labelnames=("hostname",) + spec.labelnames)
                 for spec in specs
             ]
         )
