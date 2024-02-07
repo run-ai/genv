@@ -52,6 +52,13 @@ class Collection:
                 if header and labelvalues[0] != header:
                     continue
 
+                if (
+                    system
+                    and not system.genv.installed
+                    and metric.spec.type not in [Type.General, Type.Device]
+                ):
+                    metric.remove(*labelvalues)
+
                 if snapshot and metric.spec.filter:
                     if not metric.spec.filter(
                         labelvalues[1:] if header else labelvalues, snapshot
