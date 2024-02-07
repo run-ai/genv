@@ -1,7 +1,18 @@
 import inspect
 import sys
 
+from genv.utils import memory_to_bytes
+
 from .spec import Spec, Type
+
+
+def General(*args, **kwargs) -> Spec:
+    """Returns a general metric specification."""
+
+    return Spec(Type.General, *args, **kwargs)
+
+
+INSTALLATION = General("genv_is_installed", "Genv installation status")
 
 
 def Device(*args, **kwargs) -> Spec:
@@ -18,14 +29,28 @@ def Device(*args, **kwargs) -> Spec:
     )
 
 
+DEVICE_TEMPERATURE = Device(
+    "genv_device_temperature",
+    "Device temperature in degrees C",
+    convert=lambda device: device.temperature,
+)
+
 DEVICE_UTILIZATION = Device(
     "genv_device_utilization",
     "Device utilization",
+    convert=lambda device: device.utilization,
 )
 
 DEVICE_MEMORY_USED = Device(
     "genv_device_memory_used_bytes",
     "Device used memory in bytes",
+    convert=lambda device: memory_to_bytes(device.used_memory),
+)
+
+DEVICE_MEMORY_TOTAL = Device(
+    "genv_device_memory_total_bytes",
+    "Device total memory in bytes",
+    convert=lambda device: memory_to_bytes(device.total_memory),
 )
 
 

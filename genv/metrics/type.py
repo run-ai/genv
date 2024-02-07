@@ -6,6 +6,7 @@ class Type(Enum):
     A metric type.
     """
 
+    General = -1
     Device = 0
     System = 1
     Environment = 2

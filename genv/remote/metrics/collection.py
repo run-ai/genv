@@ -1,6 +1,6 @@
-from typing import Iterable
+from typing import Iterable, Optional
 
-from genv.entities import Snapshot
+from genv.entities import Snapshot, System
 from genv.metrics import Collection as Base, Spec
 
 from ..utils import Host
@@ -26,34 +26,33 @@ class Collection(Base):
             ]
         )
 
-    def cleanup(self, hosts: Iterable[Host], snapshots: Iterable[Snapshot]) -> None:
+    def cleanup(
+        self,
+        hosts: Iterable[Host],
+        systems: Iterable[Optional[System]],
+        snapshots: Iterable[Optional[Snapshot]],
+    ) -> None:
         """
         Cleans up metric label values.
         """
-        hostname_to_snapshot = {
-            host.hostname: snapshot for host, snapshot in zip(hosts, snapshots)
-        }
+        hostnames = [host.hostname for host in hosts]
 
         for metric in self:
+            for labelvalues in metric.label_sets():
+                if labelvalues[0] not in hostnames:
+                    metric.remove(*labelvalues)
 
-            def filter(label_set: Iterable[str]) -> bool:
-                hostname, *label_set = label_set
+        for host, system, snapshot in zip(hosts, systems, snapshots):
+            super().cleanup(system, snapshot, header=host.hostname)
 
-                if hostname not in hostname_to_snapshot:
-                    return False
-
-                if metric.filter and not metric.filter(
-                    label_set, hostname_to_snapshot[hostname]
-                ):
-                    return False
-
-                return True
-
-            metric.cleanup(filter)
-
-    def update(self, hosts: Iterable[Host], snapshots: Iterable[Snapshot]) -> None:
+    def update(
+        self,
+        hosts: Iterable[Host],
+        systems: Iterable[Optional[System]],
+        snapshots: Iterable[Optional[Snapshot]],
+    ) -> None:
         """
-        Updates metrics of hosts according to the given snapshots.
+        Updates metrics of hosts according to the given data.
         """
-        for host, snapshot in zip(hosts, snapshots):
-            super().update(snapshot, labels={"hostname": host.hostname})
+        for host, system, snapshot in zip(hosts, systems, snapshots):
+            super().update(system, snapshot, labels={"hostname": host.hostname})

@@ -1,10 +1,10 @@
-from typing import Callable, Iterable, Optional
+from typing import Any, Callable, Iterable, Optional
 
 import prometheus_client
 
 from genv.entities import Snapshot
 
-from .spec import Type
+from .type import Type
 
 
 class Metric(prometheus_client.Gauge):
@@ -19,7 +19,7 @@ class Metric(prometheus_client.Gauge):
         labelnames: Iterable[str],
         *,
         type: Type,
-        convert: Optional[Callable[[Snapshot], float]],
+        convert: Optional[Callable[[Any], float]],
         filter: Optional[Callable[[Iterable[str], Snapshot], bool]],
         **kwargs,
     ):
@@ -41,25 +41,11 @@ class Metric(prometheus_client.Gauge):
 
         return self
 
-    def cleanup(self, filter: Callable[[Iterable[str]], bool]) -> None:
-        """
-        Cleans up metric label values.
-        """
+    def label_sets(self) -> Iterable[str]:
+        """Returns all metric labels."""
+
+        if not self._is_parent():
+            return []
+
         with self._lock:
-            label_sets = list(self._metrics.keys())
-
-        for label_set in label_sets:
-            if not filter(label_set):
-                self.remove(*label_set)
-
-    def update(self, snapshot: Snapshot) -> None:
-        """
-        Updates the metric value according to the given snapshot.
-        Note that some metrics expect the snapshot to be already filtered.
-        """
-        if self.convert is None:
-            raise RuntimeError(
-                "Conversion function must be provided when using snapshots"
-            )
-
-        self.set(self.convert(snapshot))
+            return list(self._metrics.keys())

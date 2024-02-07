@@ -1,5 +1,6 @@
 import argparse
 import asyncio
+import dataclasses
 import itertools
 import os
 import shutil
@@ -253,10 +254,26 @@ async def do_monitor(
     collection = Collection(SPECS)
 
     while True:
-        hosts, snapshots = await genv.remote.core.snapshot(config)
+        hosts, systems = await genv.remote.core.system(config)
 
-        collection.cleanup(hosts, snapshots)
-        collection.update(hosts, snapshots)
+        hosts_with_genv = [
+            host for host, system in zip(hosts, systems) if system.genv.installed
+        ]
+
+        hosts_with_snapshots, snapshots = await genv.remote.core.snapshot(
+            dataclasses.replace(config, hosts=hosts_with_genv)
+        )
+
+        hostname_to_snapshot = {
+            host.hostname: snapshot
+            for host, snapshot in zip(hosts_with_snapshots, snapshots)
+        }
+
+        # inflate snapshots to match hosts
+        snapshots = [hostname_to_snapshot.get(host.hostname, None) for host in hosts]
+
+        collection.cleanup(hosts, systems, snapshots)
+        collection.update(hosts, systems, snapshots)
 
         await asyncio.sleep(interval)
 

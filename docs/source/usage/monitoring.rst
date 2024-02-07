@@ -164,12 +164,21 @@ Reference
    * - Metric
      - Labels
      - Description
-   * - :code:`genv_device_utilization`\*
+   * - :code:`genv_is_installed`
+     -
+     - Genv installation status
+   * - :code:`genv_device_temperature`
+     - :code:`index`
+     - Device temperature in degrees C
+   * - :code:`genv_device_utilization`
      - :code:`index`
      - Device utilization
-   * - :code:`genv_device_memory_used_bytes`\*
+   * - :code:`genv_device_memory_used_bytes`
      - :code:`index`
      - Device used memory in bytes
+   * - :code:`genv_device_memory_total_bytes`
+     - :code:`index`
+     - Device total memory in bytes
    * - :code:`genv_environments_total`
      -
      - Number of active environments
@@ -203,5 +212,3 @@ Reference
    * - :code:`genv_user_attached_devices_total`
      - :code:`username`
      - Number of attached devices of a user
-
-\* *Not yet exported*
