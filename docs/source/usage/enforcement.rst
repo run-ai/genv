@@ -168,6 +168,39 @@ Running processes from environments on the devices that are being detached are a
    Genv enforcer terminates only the GPU processes.
    This means that IDEs (e.g. Visual Studio Code, PyCharm, etc.) and terminals will not be terminated, but the running task processes such as :code:`python` processes or Jupyter kernels.
 
+.. _Enforcement Daemon:
+
+Running as a daemon
+-------------------
+:code:`genv enforce` acts as a foreground daemon and runs until a :code:`Ctrl+C` is received.
+Therefore, you will need to keep the terminal running while enforcing the system.
+
+To do so, the Genv enforcement daemon should not be attached to a specific terminal session, so that it would continue running when the session exits.
+
+We recommend to use `tmux <https://github.com/tmux/tmux/wiki>`__ for this.
+
+Here is an example of how to use :code:`tmux` for running :code:`genv enforce` in the background.
+
+Create a new tmux session and name it :code:`genv-enforce` with the command:
+
+.. code-block:: shell
+
+  tmux new -s genv-enforce
+
+Run :code:`genv enforce` inside:
+
+.. code-block:: shell
+
+  sudo genv enforce
+
+Detach from the session with :code:`Ctrl-b` + :code:`d`.
+
+Then, you can reattach after some time with the command:
+
+.. code-block:: shell
+
+  tmux attach -t genv-enforce
+
 .. _Enforcement Rules:
 
 Enforcement Rules

@@ -2,15 +2,101 @@
 
 from dataclasses import dataclass
 import os
+import subprocess
 import sys
+from typing import Callable, Dict, Iterable
 
-import genv
+
+GENV_MOCK_COMPUTE_APPS_GPU_MEMORY = os.environ.get(
+    "GENV_MOCK_COMPUTE_APPS_GPU_MEMORY", "42mi"
+)
+GENV_MOCK_COMPUTE_APPS_PROCESS_NAME = os.environ.get(
+    "GENV_MOCK_COMPUTE_APPS_PROCESS_NAME", "sleep"
+)
+GENV_MOCK_CUDA_VERSION = os.environ.get("GENV_MOCK_CUDA_VERSION", "12.0")
+GENV_MOCK_DEVICE_COUNT = os.environ.get("GENV_MOCK_DEVICE_COUNT", "2")
+GENV_MOCK_DEVICE_NAME = os.environ.get(
+    "GENV_MOCK_DEVICE_NAME", "NVIDIA GeForce RTX 2080 Ti"
+)
+GENV_MOCK_DEVICE_TEMPERATURE = os.environ.get("GENV_MOCK_DEVICE_TEMPERATURE", "38")
+GENV_MOCK_DEVICE_TOTAL_MEMORY = os.environ.get("GENV_MOCK_DEVICE_TOTAL_MEMORY", "16g")
+GENV_MOCK_DEVICE_USED_MEMORY = os.environ.get(
+    "GENV_MOCK_DEVICE_USED_MEMORY", "10mi"
+)  # TODO(raz): calculate used memory by summing all processes
+GENV_MOCK_DEVICE_UTILIZATION = os.environ.get("GENV_MOCK_DEVICE_UTILIZATION", "93")
+GENV_MOCK_DRIVER_VERSION = os.environ.get("GENV_MOCK_DRIVER_VERSION", "525.147.05")
+
+MEMORY_TO_BYTES_MULTIPLIERS_DICT = {
+    "b": 1,
+    "k": 1000,
+    "m": 1000 * 1000,
+    "g": 1000 * 1000 * 1000,
+    "ki": 1024,
+    "mi": 1024 * 1024,
+    "gi": 1024 * 1024 * 1024,
+}
+
+
+def _pgrep(name: str) -> Iterable[int]:
+    """
+    Returns the identifiers of processes with the given name.
+    """
+    return [
+        int(pid)
+        for pid in subprocess.check_output(
+            f"pgrep {name} || true", shell=True
+        ).splitlines()
+    ]
+
+
+def _cmdline(pid: int) -> Iterable[str]:
+    """
+    Returns the cmdline of the process with the given identifier.
+    """
+    return (
+        subprocess.check_output(f"tr '\\0' ' ' </proc/{pid}/cmdline", shell=True)
+        .decode("utf-8")
+        .split()
+    )
+
+
+def memory_to_bytes(cap: str) -> int:
+    """
+    Convert memory string to an integer value in bytes.
+    """
+    for unit, multiplier in MEMORY_TO_BYTES_MULTIPLIERS_DICT.items():
+        if cap.endswith(unit):
+            return int(cap.replace(unit, "")) * multiplier
+
+    return int(cap)  # the value is already in bytes if no unit was specified
+
+
+def bytes_to_memory(bytes: int, unit: str, suffix: bool = True) -> str:
+    """
+    Convert bytes to a memory string.
+    """
+    s = f"{bytes // MEMORY_TO_BYTES_MULTIPLIERS_DICT[unit]}"
+
+    if suffix:
+        s = f"{s}{unit}"
+
+    return s
+
+
+def memory_to_memory(memory: str, unit: str, suffix: bool = True) -> str:
+    """
+    Convert memory string to a memory string in another unit.
+    """
+    return bytes_to_memory(bytes=memory_to_bytes(memory), unit=unit, suffix=suffix)
 
 
 @dataclass
 class Device:
     index: int
     uuid: str
+    name: str
+    utilization: int
+    temperature: int
     total_memory: str
     used_memory: str
 
@@ -29,7 +115,7 @@ class Process:
 
 args = sys.argv[1:]
 
-indices = range(int(os.environ.get("GENV_MOCK_DEVICE_COUNT", "2")))
+indices = list(range(int(GENV_MOCK_DEVICE_COUNT)))
 
 for i in range(len(args)):
     if args[i].startswith("--id="):
@@ -38,14 +124,17 @@ for i in range(len(args)):
         del args[i]
         break
 
+sorted_args = sorted(args)
+
 devices = [
     Device(
         index=index,
         uuid=Device.uuid_(index),
-        total_memory=os.environ.get("GENV_MOCK_DEVICE_TOTAL_MEMORY", "16g"),
-        used_memory=os.environ.get(
-            "GENV_MOCK_DEVICE_USED_MEMORY", "10mi"
-        ),  # TODO(raz): calculate used memory by summing all processes
+        name=GENV_MOCK_DEVICE_NAME,
+        utilization=int(GENV_MOCK_DEVICE_UTILIZATION),
+        temperature=int(GENV_MOCK_DEVICE_TEMPERATURE),
+        total_memory=GENV_MOCK_DEVICE_TOTAL_MEMORY,
+        used_memory=GENV_MOCK_DEVICE_USED_MEMORY,
     )
     for index in indices
 ]
@@ -55,111 +144,217 @@ processes = [
     Process(
         device=device,
         pid=pid,
-        gpu_memory=os.environ.get("GENV_MOCK_COMPUTE_APPS_GPU_MEMORY", "42mi"),
+        gpu_memory=GENV_MOCK_COMPUTE_APPS_GPU_MEMORY,
     )
-    for pid in genv.utils.pgrep(
-        os.environ.get("GENV_MOCK_COMPUTE_APPS_PROCESS_NAME", "sleep")
-    )
+    for pid in _pgrep(GENV_MOCK_COMPUTE_APPS_PROCESS_NAME)
     for device in devices
 ]
 
 
-if indices == []:
-    print("No devices were found")
-elif args == []:
-    print(
-        """\
+class Window:
+    def is_window(self) -> bool:
+        raise NotImplementedError
+
+    def print_window(self) -> None:
+        raise NotImplementedError
+
+
+class NoDevices(Window):
+    """The nvidia-smi message when no devices are found."""
+
+    def is_window(self) -> bool:
+        return indices == []
+
+    def print_window(self) -> None:
+        print("No devices were found")
+
+
+class Main(Window):
+    """The main nvidia-smi window."""
+
+    def is_window(self) -> None:
+        return args == []
+
+    def print_window(self) -> None:
+        print(
+            """\
 Fri Dec 23 23:11:41 2022
 +-----------------------------------------------------------------------------+
-| NVIDIA-SMI 515.86.01    Driver Version: 515.86.01    CUDA Version: 11.7     |
+| NVIDIA-SMI {driver_version:11}  Driver Version: {driver_version:11}  CUDA Version: {cuda_version:4}     |
 |-------------------------------+----------------------+----------------------+
 | GPU  Name        Persistence-M| Bus-Id        Disp.A | Volatile Uncorr. ECC |
 | Fan  Temp  Perf  Pwr:Usage/Cap|         Memory-Usage | GPU-Util  Compute M. |
 |                               |                      |               MIG M. |
 |===============================+======================+======================|
-""",
-        end="",
-    )
-
-    for device in devices:
-        print(
-            """\
-|  {index:2}  NVIDIA GeForce ...  Off  | 00000000:01:00.0 Off |                  N/A |
-| 30%   33C    P8    26W / 250W |  {used_memory:>5}MiB / {total_memory:>5}MiB |      0%      Default |
-|                               |                      |                  N/A |
-+-------------------------------+----------------------+----------------------+
 """.format(
-                index=device.index,
-                used_memory=genv.utils.memory_to_memory(
-                    device.used_memory, unit="mi", suffix=False
-                ),
-                total_memory=genv.utils.memory_to_memory(
-                    device.total_memory, unit="mi", suffix=False
-                ),
+                driver_version=GENV_MOCK_DRIVER_VERSION,
+                cuda_version=GENV_MOCK_CUDA_VERSION,
             ),
             end="",
         )
 
-    print(
-        """
+        for device in devices:
+            print(
+                """\
+|  {index:2}  NVIDIA GeForce ...  Off  | 00000000:01:00.0 Off |                  N/A |
+| 30%  {temperature:>3}C    P8    26W / 250W |  {used_memory:>5}MiB / {total_memory:>5}MiB |    {utilization:>3}%      Default |
+|                               |                      |                  N/A |
++-------------------------------+----------------------+----------------------+
+""".format(
+                    index=device.index,
+                    temperature=device.temperature,
+                    utilization=device.utilization,
+                    used_memory=memory_to_memory(
+                        device.used_memory, unit="mi", suffix=False
+                    ),
+                    total_memory=memory_to_memory(
+                        device.total_memory, unit="mi", suffix=False
+                    ),
+                ),
+                end="",
+            )
+
+        print(
+            """
 +-----------------------------------------------------------------------------+
 | Processes:                                                                  |
 |  GPU   GI   CI        PID   Type   Process name                  GPU Memory |
 |        ID   ID                                                   Usage      |
 |=============================================================================|
 """,
-        end="",
-    )
-
-    if len(processes) == 0:
-        print(
-            "|  No running processes found                                                 |"
+            end="",
         )
-    else:
-        for process in processes:
-            name = genv.utils.cmdline(process.pid)[0]
-            if len(name) > 28:
-                name = f"...{name[-25:]}"
 
+        if len(processes) == 0:
             print(
-                "|   {index:2}   N/A  N/A    {pid:6}      C   {name:28}   {memory:>6}MiB |".format(
-                    index=process.device.index,
-                    pid=process.pid,
-                    name=name,
-                    memory=genv.utils.memory_to_memory(
-                        process.gpu_memory, unit="mi", suffix=False
-                    ),
+                "|  No running processes found                                                 |"
+            )
+        else:
+            for process in processes:
+                name = _cmdline(process.pid)[0]
+                if len(name) > 28:
+                    name = f"...{name[-25:]}"
+
+                print(
+                    "|   {index:2}   N/A  N/A    {pid:6}      C   {name:28}   {memory:>6}MiB |".format(
+                        index=process.device.index,
+                        pid=process.pid,
+                        name=name,
+                        memory=memory_to_memory(
+                            process.gpu_memory, unit="mi", suffix=False
+                        ),
+                    )
+                )
+
+        print(
+            "+-----------------------------------------------------------------------------+"
+        )
+
+
+class QueryComputeApps(Window):
+    """The '--query-compute-apps' nvidia-smi window."""
+
+    QUERIES: Dict[str, Callable[[Process], str]] = {
+        "gpu_uuid": lambda process: process.device.uuid,
+        "pid": lambda process: process.pid,
+        "used_gpu_memory": lambda process: memory_to_memory(
+            process.gpu_memory, unit="mi", suffix=False
+        ),
+    }
+
+    @staticmethod
+    def parse_queries(arg: str) -> Iterable[str]:
+        """Parses the '--query-compute-apps=' argument."""
+
+        return arg.split("=")[1].split(",")
+
+    def is_window(self) -> bool:
+        if len(args) != 2:
+            return False
+
+        if sorted_args[0] != "--format=csv,noheader,nounits":
+            return False
+
+        if not sorted_args[1].startswith("--query-compute-apps="):
+            return False
+
+        if any(
+            query not in QueryComputeApps.QUERIES
+            for query in QueryComputeApps.parse_queries(sorted_args[1])
+        ):
+            return False
+
+        return True
+
+    def print_window(self) -> None:
+        queries = QueryComputeApps.parse_queries(sorted_args[1])
+
+        for process in processes:
+            print(
+                ", ".join(
+                    str(QueryComputeApps.QUERIES[query](process)) for query in queries
                 )
             )
 
-    print(
-        "+-----------------------------------------------------------------------------+"
-    )
 
-elif args == ["--query-gpu=uuid,index", "--format=csv,noheader,nounits"]:
-    for device in devices:
-        print(f"{device.uuid}, {device.index}")
-elif args == [
-    "--query-compute-apps=gpu_uuid,pid,used_gpu_memory",
-    "--format=csv,noheader,nounits",
-]:
-    for process in processes:
-        print(
-            "{uuid}, {pid}, {gpu_memory}".format(
-                uuid=process.device.uuid,
-                pid=process.pid,
-                gpu_memory=genv.utils.memory_to_memory(
-                    process.gpu_memory, unit="mi", suffix=False
-                ),
-            )
-        )
-elif args == ["--query-gpu=memory.total", "--format=csv,noheader,nounits"]:
-    for device in devices:
-        print(genv.utils.memory_to_memory(device.total_memory, unit="mi", suffix=False))
-else:
-    cmdline = " ".join(args)
-    print(
-        f"nvidia-smi mock shim does not support command line '{cmdline}'",
-        file=sys.stderr,
-    )
-    exit(1)
+class QueryGPU(Window):
+    """The '--query-gpu' nvidia-smi window."""
+
+    QUERIES: Dict[str, Callable[[Device], str]] = {
+        "driver_version": lambda device: GENV_MOCK_DRIVER_VERSION,
+        "index": lambda device: device.index,
+        "uuid": lambda device: device.uuid,
+        "memory.total": lambda device: memory_to_memory(
+            device.total_memory, unit="mi", suffix=False
+        ),
+        "memory.used": lambda device: memory_to_memory(
+            device.used_memory, unit="mi", suffix=False
+        ),
+        "name": lambda device: device.name,
+        "temperature.gpu": lambda device: device.temperature,
+        "utilization.gpu": lambda device: device.utilization,
+    }
+
+    @staticmethod
+    def parse_queries(arg: str) -> Iterable[str]:
+        """Parses the '--query-gpu=' argument."""
+
+        return arg.split("=")[1].split(",")
+
+    def is_window(self) -> bool:
+        if len(args) != 2:
+            return False
+
+        if sorted_args[0] != "--format=csv,noheader,nounits":
+            return False
+
+        if not sorted_args[1].startswith("--query-gpu="):
+            return False
+
+        if any(
+            query not in QueryGPU.QUERIES
+            for query in QueryGPU.parse_queries(sorted_args[1])
+        ):
+            return False
+
+        return True
+
+    def print_window(self) -> None:
+        queries = QueryGPU.parse_queries(sorted_args[1])
+
+        for device in devices:
+            print(", ".join(str(QueryGPU.QUERIES[query](device)) for query in queries))
+
+
+WINDOWS: Iterable[Window] = [NoDevices(), Main(), QueryComputeApps(), QueryGPU()]
+
+for window in WINDOWS:
+    if window.is_window():
+        window.print_window()
+        exit(0)
+
+print(
+    f"nvidia-smi mock shim does not support command line '{' '.join(args)}'",
+    file=sys.stderr,
+)
+exit(1)

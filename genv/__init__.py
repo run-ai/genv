@@ -9,6 +9,7 @@ from .entities import (
     Report,
     Snapshot,
     Survey,
+    System,
 )
 from .serialization import JSONEncoder, JSONDecoder
 from . import core

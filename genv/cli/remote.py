@@ -1,5 +1,6 @@
 import argparse
 import asyncio
+import dataclasses
 import itertools
 import os
 import shutil
@@ -253,10 +254,26 @@ async def do_monitor(
     collection = Collection(SPECS)
 
     while True:
-        hosts, snapshots = await genv.remote.core.snapshot(config)
+        hosts, systems = await genv.remote.core.system(config)
 
-        collection.cleanup(hosts, snapshots)
-        collection.update(hosts, snapshots)
+        hosts_with_genv = [
+            host for host, system in zip(hosts, systems) if system.genv.installed
+        ]
+
+        hosts_with_snapshots, snapshots = await genv.remote.core.snapshot(
+            dataclasses.replace(config, hosts=hosts_with_genv)
+        )
+
+        hostname_to_snapshot = {
+            host.hostname: snapshot
+            for host, snapshot in zip(hosts_with_snapshots, snapshots)
+        }
+
+        # inflate snapshots to match hosts
+        snapshots = [hostname_to_snapshot.get(host.hostname, None) for host in hosts]
+
+        collection.cleanup(hosts, systems, snapshots)
+        collection.update(hosts, systems, snapshots)
 
         await asyncio.sleep(interval)
 
@@ -304,6 +321,12 @@ def add_arguments(parser: argparse.ArgumentParser) -> None:
         "-hostfile",
         "--hostfile",
         help="A file containing one hostname or IP address per line",
+    )
+
+    parser.add_argument(
+        "-l",
+        "--username",
+        help="SSH login name",
     )
 
     parser.add_argument(
@@ -503,10 +526,8 @@ def add_arguments(parser: argparse.ArgumentParser) -> None:
         command(subparsers.add_parser(command.__name__, help=help))
 
 
-async def run(args: argparse.Namespace) -> None:
-    """
-    Runs the "genv remote" logic.
-    """
+def parse_hosts(args: argparse.Namespace) -> Iterable[genv.remote.Host]:
+    """Parses arguments and returns a list of hosts."""
 
     if args.hostfile:
         with open(args.hostfile, "r") as f:
@@ -518,8 +539,22 @@ async def run(args: argparse.Namespace) -> None:
     else:
         hostnames = args.hostnames.split(",")
 
-    hosts = [genv.remote.Host(hostname, args.timeout) for hostname in hostnames]
+    def parse_host(hostname: str) -> genv.remote.Host:
+        username, hostname = (
+            hostname.split("@") if "@" in hostname else (args.username, hostname)
+        )
 
+        return genv.remote.Host(hostname, username, args.timeout)
+
+    return [parse_host(hostname) for hostname in hostnames]
+
+
+async def run(args: argparse.Namespace) -> None:
+    """
+    Runs the "genv remote" logic.
+    """
+
+    hosts = parse_hosts(args)
     config = genv.remote.Config(hosts, args.throw_on_error, args.quiet)
 
     if args.command == "activate":

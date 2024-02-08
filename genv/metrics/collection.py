@@ -1,6 +1,6 @@
-from typing import Iterable
+from typing import Iterable, Optional
 
-from genv.entities import Snapshot
+from genv.entities import Snapshot, System
 
 from .metric import Metric
 from .spec import Spec
@@ -18,9 +18,7 @@ class Collection:
                 spec.name,
                 spec.documentation,
                 spec.labelnames,
-                type=spec.type,
-                convert=spec.convert,
-                filter=spec.filter,
+                spec=spec,
             )
             for spec in specs
         ]
@@ -35,36 +33,81 @@ class Collection:
         """
         Returns all metrics of the given type.
         """
-        return [metric for metric in self if metric.type == type]
+        return [metric for metric in self if metric.spec.type == type]
 
-    def cleanup(self, snapshot: Snapshot) -> None:
+    def cleanup(
+        self,
+        system: Optional[System],
+        snapshot: Optional[Snapshot],
+        *,
+        header: Optional[str] = None
+    ) -> None:
         """
         Cleans up metric label values.
+
+        :param header: First label value to filter; optional.
         """
         for metric in self:
-            if not metric.filter:
-                continue
+            for labelvalues in metric.label_sets():
+                if header and labelvalues[0] != header:
+                    continue
 
-            metric.cleanup(lambda label_set: metric.filter(label_set, snapshot))
+                if (
+                    system
+                    and not system.genv.installed
+                    and metric.spec.type not in [Type.General, Type.Device]
+                ):
+                    metric.remove(*labelvalues)
 
-    def update(self, snapshot: Snapshot, labels: dict = {}) -> None:
+                if snapshot and metric.spec.filter:
+                    if not metric.spec.filter(
+                        labelvalues[1:] if header else labelvalues, snapshot
+                    ):
+                        metric.remove(*labelvalues)
+
+    def update(
+        self, system: Optional[System], snapshot: Optional[Snapshot], labels: dict = {}
+    ) -> None:
         """
-        Updates metrics according to the given snapshot.
+        Updates metric values.
         """
-        for group in [
-            self._system,
-            self._env,
-            self._process,
-            self._user,
-        ]:
-            group(snapshot, labels)
+        if system:
+            self._general(system, labels)
+            self._device(system, labels)
+
+        if snapshot:
+            self._system(snapshot, labels)
+            self._env(snapshot, labels)
+            self._process(snapshot, labels)
+            self._user(snapshot, labels)
+
+    def _general(self, system: System, labels: dict) -> None:
+        """Updates general metrics."""
+
+        self["genv_is_installed"].labels(**labels).set(system.genv.installed)
+
+    def _device(self, system: System, labels: dict) -> None:
+        """
+        Updates per-device metrics.
+        """
+        for device in system.devices:
+            for metric in self._find(Type.Device):
+                if not metric.spec.convert:
+                    continue
+
+                metric.labels(index=device.index, **labels).set(
+                    metric.spec.convert(device)
+                )
 
     def _system(self, snapshot: Snapshot, labels: dict) -> None:
         """
         Updates system-wide metrics.
         """
         for metric in self._find(Type.System):
-            metric.labels(**labels).update(snapshot)
+            if not metric.spec.convert:
+                continue
+
+            metric.labels(**labels).set(metric.spec.convert(snapshot))
 
     def _env(self, snapshot: Snapshot, labels: dict) -> None:
         """
@@ -74,7 +117,12 @@ class Collection:
             env_snapshot = snapshot.filter(eid=env.eid)
 
             for metric in self._find(Type.Environment):
-                metric.labels(eid=env.eid, **labels).update(env_snapshot)
+                if not metric.spec.convert:
+                    continue
+
+                metric.labels(eid=env.eid, **labels).set(
+                    metric.spec.convert(env_snapshot)
+                )
 
     def _process(self, snapshot: Snapshot, labels: dict) -> None:
         """
@@ -101,4 +149,9 @@ class Collection:
             user_snapshot = snapshot.filter(username=username)
 
             for metric in self._find(Type.User):
-                metric.labels(username=username, **labels).update(user_snapshot)
+                if not metric.spec.convert:
+                    continue
+
+                metric.labels(username=username, **labels).set(
+                    metric.spec.convert(user_snapshot)
+                )

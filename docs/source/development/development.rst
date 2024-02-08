@@ -157,6 +157,11 @@ This command runs a container in the background that is named :code:`genv-server
 You can rerun this command as many times as you want to simulate more remote machines.
 Make sure to change the host port each time and also rename the container (or have the container unnamed by omitting the flag :code:`--name` entirely).
 
+.. note::
+
+    By default, Genv is installed in such containers.
+    If you want to skip the installation, for example when testing remote monitoring on machines without Genv, add :code:`-e GENV_INSTALL=0` to the :code:`docker run` command.
+
 You can open a terminal in such a container using a command similar to the following:
 
 .. code-block:: shell
@@ -215,20 +220,13 @@ Setup
 ~~~~~
 .. code-block:: shell
 
-    python -m venv .venv
-    source .venv/bin/activate
-    python -m pip install sphinx
-    python -m pip install -r docs/requirements.txt
-
-.. note::
-
-    You might need to use :code:`python3` instead of :code:`python`
+    docker build -t genv:docs -f devel/docs.Dockerfile docs
 
 Build
 ~~~~~
 .. code-block:: shell
 
-    make -C docs/ html
+    docker run -it --rm -v $PWD/docs:/docs genv:docs
 
 Python Package
 --------------

@@ -63,7 +63,12 @@ If Genv can't find a remote host with enough available resources, the :code:`gen
 Enforcement
 -----------
 Genv supports enforcement features on multiple hosts.
-Check out :ref:`this <Remote Enforcement>` document for more information.
+Check out :doc:`this <./enforcement>` document for more information.
+
+Monitoring
+-----------
+Genv supports monitoring features on multiple hosts.
+Check out :doc:`this <./monitoring>` document for more information.
 
 Specifying Remote Hosts
 -----------------------
@@ -93,3 +98,25 @@ For example:
 .. code-block:: shell
 
    genv remote --hostfile /etc/genv/hostfile envs
+
+Specifying User Names
+---------------------
+It is possible to specify usernames for the SSH connections.
+
+If you are using the same username for all machines pass it as the argument :code:`-l` or :code:`--username`.
+For example:
+
+.. code-block:: shell
+
+   genv remote -l root -H gpu-server-1,gpu-server-2,192.168.1.42 envs
+
+If you are using different usernames for different machines you can pass them as part of the hostname.
+For example:
+
+.. code-block:: shell
+
+   genv remote -H root@gpu-server-1,user@gpu-server-2,192.168.1.42 envs
+
+.. note::
+
+   You can use the :code:`user@hostname` syntax in hostfiles as well.

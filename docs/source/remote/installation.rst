@@ -7,22 +7,25 @@ Installation
    :depth: 2
    :backlinks: none
 
+.. _Remote Installation Overview:
+
 Overview
 --------
 Remote features in Genv are based on running :code:`genv` commands on remote hosts over SSH.
 This means that Genv should be installed on all local and remote hosts, and that all local hosts should have SSH access to all remote hosts.
 
 Genv uses commands similar to :code:`ssh <host>` for remote execution.
-Therefore, authentication must not be interactive using passwords for example.
-It is recommended to use SSH keys for authentication.
+Therefore, authentication must not be interactive using passwords so that the :code:`ssh` commands Genv uses would work without additional arguments.
 
-The identity file and login user should be configured in the SSH configuration file at :code:`~/.ssh/config` so that the :code:`ssh` commands Genv uses would work without additional arguments.
+You can follow `this <https://superuser.com/a/8110>`__ to set up your SSH so you don't have to type passwords.
+It is recommended to use SSH keys.
+The identity file and login user should be configured in the SSH configuration file at :code:`~/.ssh/config`.
 
-Genv :ref:`remote enforcement features <Remote Enforcement>` use commands similar to :code:`ssh <host> sudo` for querying the environment variables of processes or terminating processes.
+Genv :doc:`remote enforcement features <./enforcement>` use commands similar to :code:`ssh <host> sudo` for querying the environment variables of processes or terminating processes.
 Therefore, Linux users that want to use these features need to have passwordless :code:`sudo` permissions on all remote machines.
 
 Genv also sends environment variables over SSH by passing :code:`-o SendEnv` to the :code:`ssh` command.
-Those environment variables must be explicitly accepted on all remote hosts by modifying the SSH daemon configuration file.
+Those environment variables must be explicitly accepted on all remote hosts by :ref:`configuring <SSH Daemon Configuration>` the SSH daemon on the remote hosts.
 
 Local Hosts
 -----------
@@ -34,7 +37,7 @@ You can verify that using a command similar to this:
 
 .. code-block:: shell
 
-   ssh <host>
+   ssh <host> nvidia-smi
 
 .. warning::
 
@@ -58,6 +61,8 @@ You can verify the setup by running a command similar to this from your local ma
 
    Query and control Genv on this machine or in a cluster
    ...
+
+.. _SSH Daemon Configuration:
 
 SSH Daemon Configuration
 ~~~~~~~~~~~~~~~~~~~~~~~~

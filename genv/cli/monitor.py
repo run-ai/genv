@@ -61,10 +61,12 @@ async def run(args: argparse.Namespace) -> None:
     collection = Collection(SPECS)
 
     while True:
+        system = await genv.core.system()
+
         with genv.utils.global_lock():
             snapshot = await genv.core.snapshot()
 
-        collection.cleanup(snapshot)
-        collection.update(snapshot)
+        collection.cleanup(system, snapshot)
+        collection.update(system, snapshot)
 
         time.sleep(args.interval)

@@ -82,10 +82,31 @@ Default is :code:`sleep` (e.g. :code:`sleep infinity`).
 
 ----
 
+:code:`GENV_MOCK_CUDA_VERSION`
+
+CUDA version in the :code:`nvidia-smi` mock shim.
+Default is :code:`12.0`.
+
+----
+
 :code:`GENV_MOCK_DEVICE_COUNT`
 
 Device count in the :code:`nvidia-smi` mock shim.
 Default is :code:`2`.
+
+----
+
+:code:`GENV_MOCK_DEVICE_NAME`
+
+Device name in the :code:`nvidia-smi` mock shim.
+Default is :code:`NVIDIA GeForce RTX 2080 Ti`.
+
+----
+
+:code:`GENV_MOCK_DEVICE_TEMPERATURE`
+
+Device temperature in degrees C in the :code:`nvidia-smi` mock shim.
+Default is :code:`38`.
 
 ----
 
@@ -100,6 +121,20 @@ Used in the :code:`nvidia-smi` mock shim and :code:`@genv.ray.remote`.
 
 Used device memory in the :code:`nvidia-smi` mock shim.
 Default is :code:`10mi`.
+
+----
+
+:code:`GENV_MOCK_DEVICE_UTILIZATION`
+
+Device utilization in the :code:`nvidia-smi` mock shim.
+Default is :code:`93`.
+
+----
+
+:code:`GENV_MOCK_DRIVER_VERSION`
+
+Driver version in the :code:`nvidia-smi` mock shim.
+Default is :code:`525.147.05`.
 
 ----
 
