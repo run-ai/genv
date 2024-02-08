@@ -91,6 +91,18 @@ You should now see a dashboard similar to the following:
 
    Genv monitoring dashboard
 
+Running as a daemon
+-------------------
+The instructions to run Genv remote monitoring as a daemon are similar to the local monitoring instructions.
+Follow them :ref:`here <Monitoring Daemon>`.
+
+Make sure you are running on a machine that would not shutdown, restart or hybernate.
+A personal laptop is not a good choice.
+
+.. note::
+
+   Make sure you use :code:`genv remote monitor` commands and not the local monitoring ones.
+
 Reference
 ---------
 The Genv remote monitoring service exports the same metrics as the local monitoring service with the additional label :code:`hostname`.
