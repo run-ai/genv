@@ -71,7 +71,9 @@
 <li class="toctree-l2"><a class="reference internal" href="#device-information">Device Information</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#activating-an-environment">Activating an Environment</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#enforcement">Enforcement</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#monitoring">Monitoring</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#specifying-remote-hosts">Specifying Remote Hosts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#specifying-user-names">Specifying User Names</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="enforcement.html">Enforcement</a></li>
@@ -130,7 +132,9 @@
 <li><p><a class="reference internal" href="#device-information" id="id3">Device Information</a></p></li>
 <li><p><a class="reference internal" href="#activating-an-environment" id="id4">Activating an Environment</a></p></li>
 <li><p><a class="reference internal" href="#enforcement" id="id5">Enforcement</a></p></li>
-<li><p><a class="reference internal" href="#specifying-remote-hosts" id="id6">Specifying Remote Hosts</a></p></li>
+<li><p><a class="reference internal" href="#monitoring" id="id6">Monitoring</a></p></li>
+<li><p><a class="reference internal" href="#specifying-remote-hosts" id="id7">Specifying Remote Hosts</a></p></li>
+<li><p><a class="reference internal" href="#specifying-user-names" id="id8">Specifying User Names</a></p></li>
 </ul>
 </li>
 </ul>
@@ -185,7 +189,12 @@ Cannot find a host with enough available resources
 <div class="section" id="enforcement">
 <h2>Enforcement<a class="headerlink" href="#enforcement" title="Permalink to this headline">¶</a></h2>
 <p>Genv supports enforcement features on multiple hosts.
-Check out <a class="reference internal" href="enforcement.html#remote-enforcement"><span class="std std-ref">this</span></a> document for more information.</p>
+Check out <a class="reference internal" href="enforcement.html"><span class="doc">this</span></a> document for more information.</p>
+</div>
+<div class="section" id="monitoring">
+<h2>Monitoring<a class="headerlink" href="#monitoring" title="Permalink to this headline">¶</a></h2>
+<p>Genv supports monitoring features on multiple hosts.
+Check out <a class="reference internal" href="monitoring.html"><span class="doc">this</span></a> document for more information.</p>
 </div>
 <div class="section" id="specifying-remote-hosts">
 <h2>Specifying Remote Hosts<a class="headerlink" href="#specifying-remote-hosts" title="Permalink to this headline">¶</a></h2>
@@ -208,6 +217,24 @@ gpu-server-2
 For example:</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>genv remote --hostfile /etc/genv/hostfile envs
 </pre></div>
+</div>
+</div>
+<div class="section" id="specifying-user-names">
+<h2>Specifying User Names<a class="headerlink" href="#specifying-user-names" title="Permalink to this headline">¶</a></h2>
+<p>It is possible to specify usernames for the SSH connections.</p>
+<p>If you are using the same username for all machines pass it as the argument <code class="code docutils literal notranslate"><span class="pre">-l</span></code> or <code class="code docutils literal notranslate"><span class="pre">--username</span></code>.
+For example:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>genv remote -l root -H gpu-server-1,gpu-server-2,192.168.1.42 envs
+</pre></div>
+</div>
+<p>If you are using different usernames for different machines you can pass them as part of the hostname.
+For example:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>genv remote -H root@gpu-server-1,user@gpu-server-2,192.168.1.42 envs
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>You can use the <code class="code docutils literal notranslate"><span class="pre">user&#64;hostname</span></code> syntax in hostfiles as well.</p>
 </div>
 </div>
 </div>

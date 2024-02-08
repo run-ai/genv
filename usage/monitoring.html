@@ -68,6 +68,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#grafana">Grafana</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="#running-as-a-daemon">Running as a daemon</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#reference">Reference</a></li>
 </ul>
 </li>
@@ -138,7 +139,8 @@
 <li><p><a class="reference internal" href="#grafana" id="id9">Grafana</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#reference" id="id10">Reference</a></p></li>
+<li><p><a class="reference internal" href="#running-as-a-daemon" id="id10">Running as a daemon</a></p></li>
+<li><p><a class="reference internal" href="#reference" id="id11">Reference</a></p></li>
 </ul>
 </li>
 </ul>
@@ -259,9 +261,31 @@ You can see the contents of <code class="code docutils literal notranslate"><spa
 <p>Now, you can open your browser at <a class="reference external" href="http://localhost:3000">http://localhost:3000</a> and see the Genv dashboard.
 You should now see a dashboard similar to the following:</p>
 <div class="figure align-default" id="id2">
-<img alt="../_images/monitoring-dashboard.png" src="../_images/monitoring-dashboard.png" />
+<img alt="../_images/monitoring-dashboard1.png" src="../_images/monitoring-dashboard1.png" />
 <p class="caption"><span class="caption-text">Genv monitoring dashboard</span><a class="headerlink" href="#id2" title="Permalink to this image">¶</a></p>
 </div>
+</div>
+</div>
+<div class="section" id="running-as-a-daemon">
+<span id="monitoring-daemon"></span><h2>Running as a daemon<a class="headerlink" href="#running-as-a-daemon" title="Permalink to this headline">¶</a></h2>
+<p><code class="code docutils literal notranslate"><span class="pre">genv</span> <span class="pre">monitor</span></code> acts as a foreground daemon and runs until a <code class="code docutils literal notranslate"><span class="pre">Ctrl+C</span></code> is received.
+Therefore, you will need to keep the terminal running while monitoring the system.</p>
+<p>When monitoring a GPU machine or a cluster of GPU machines, one might want to run the monitoring for long periods of time, like days and even weeks.
+To do so, the Genv monitoring daemon should not be attached to a specific terminal session, so that it would continue running when the session exits.</p>
+<p>We recommend to use <a class="reference external" href="https://github.com/tmux/tmux/wiki">tmux</a> for this.</p>
+<p>Here is an example of how to use <code class="code docutils literal notranslate"><span class="pre">tmux</span></code> for running <code class="code docutils literal notranslate"><span class="pre">genv</span> <span class="pre">monitor</span></code> in the background.</p>
+<p>Create a new tmux session and name it <code class="code docutils literal notranslate"><span class="pre">genv-monitor</span></code> with the command:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>tmux new -s genv-monitor
+</pre></div>
+</div>
+<p>Run <code class="code docutils literal notranslate"><span class="pre">genv</span> <span class="pre">monitor</span></code> inside:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>genv monitor
+</pre></div>
+</div>
+<p>Detach from the session with <code class="code docutils literal notranslate"><span class="pre">Ctrl-b</span></code> + <code class="code docutils literal notranslate"><span class="pre">d</span></code>.</p>
+<p>Then, you can reattach after some time with the command:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>tmux attach -t genv-monitor
+</pre></div>
 </div>
 </div>
 <div class="section" id="reference">
@@ -279,61 +303,72 @@ You should now see a dashboard similar to the following:</p>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p><code class="code docutils literal notranslate"><span class="pre">genv_device_utilization</span></code>*</p></td>
+<tr class="row-even"><td><p><code class="code docutils literal notranslate"><span class="pre">genv_is_installed</span></code></p></td>
+<td></td>
+<td><p>Genv installation status</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="code docutils literal notranslate"><span class="pre">genv_device_temperature</span></code></p></td>
+<td><p><code class="code docutils literal notranslate"><span class="pre">index</span></code></p></td>
+<td><p>Device temperature in degrees C</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="code docutils literal notranslate"><span class="pre">genv_device_utilization</span></code></p></td>
 <td><p><code class="code docutils literal notranslate"><span class="pre">index</span></code></p></td>
 <td><p>Device utilization</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="code docutils literal notranslate"><span class="pre">genv_device_memory_used_bytes</span></code>*</p></td>
+<tr class="row-odd"><td><p><code class="code docutils literal notranslate"><span class="pre">genv_device_memory_used_bytes</span></code></p></td>
 <td><p><code class="code docutils literal notranslate"><span class="pre">index</span></code></p></td>
 <td><p>Device used memory in bytes</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="code docutils literal notranslate"><span class="pre">genv_environments_total</span></code></p></td>
+<tr class="row-even"><td><p><code class="code docutils literal notranslate"><span class="pre">genv_device_memory_total_bytes</span></code></p></td>
+<td><p><code class="code docutils literal notranslate"><span class="pre">index</span></code></p></td>
+<td><p>Device total memory in bytes</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="code docutils literal notranslate"><span class="pre">genv_environments_total</span></code></p></td>
 <td></td>
 <td><p>Number of active environments</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="code docutils literal notranslate"><span class="pre">genv_processes_total</span></code></p></td>
+<tr class="row-even"><td><p><code class="code docutils literal notranslate"><span class="pre">genv_processes_total</span></code></p></td>
 <td></td>
 <td><p>Number of running processes</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="code docutils literal notranslate"><span class="pre">genv_attached_devices_total</span></code></p></td>
+<tr class="row-odd"><td><p><code class="code docutils literal notranslate"><span class="pre">genv_attached_devices_total</span></code></p></td>
 <td></td>
 <td><p>Number of attached devices</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="code docutils literal notranslate"><span class="pre">genv_users_total</span></code></p></td>
+<tr class="row-even"><td><p><code class="code docutils literal notranslate"><span class="pre">genv_users_total</span></code></p></td>
 <td></td>
 <td><p>Number of active users</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="code docutils literal notranslate"><span class="pre">genv_environment_processes_total</span></code></p></td>
+<tr class="row-odd"><td><p><code class="code docutils literal notranslate"><span class="pre">genv_environment_processes_total</span></code></p></td>
 <td><p><code class="code docutils literal notranslate"><span class="pre">eid</span></code></p></td>
 <td><p>Number of running processes in an environment</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="code docutils literal notranslate"><span class="pre">genv_environment_attached_devices_total</span></code></p></td>
+<tr class="row-even"><td><p><code class="code docutils literal notranslate"><span class="pre">genv_environment_attached_devices_total</span></code></p></td>
 <td><p><code class="code docutils literal notranslate"><span class="pre">eid</span></code></p></td>
 <td><p>Number of attached devices of an environment</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="code docutils literal notranslate"><span class="pre">genv_process_devices_total</span></code></p></td>
+<tr class="row-odd"><td><p><code class="code docutils literal notranslate"><span class="pre">genv_process_devices_total</span></code></p></td>
 <td><p><code class="code docutils literal notranslate"><span class="pre">pid</span></code>, <code class="code docutils literal notranslate"><span class="pre">eid</span></code></p></td>
 <td><p>Number of devices used by a process</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="code docutils literal notranslate"><span class="pre">genv_process_used_gpu_memory_bytes</span></code></p></td>
+<tr class="row-even"><td><p><code class="code docutils literal notranslate"><span class="pre">genv_process_used_gpu_memory_bytes</span></code></p></td>
 <td><p><code class="code docutils literal notranslate"><span class="pre">pid</span></code>, <code class="code docutils literal notranslate"><span class="pre">eid</span></code>, <code class="code docutils literal notranslate"><span class="pre">device</span></code></p></td>
 <td><p>Used GPU memory by a process</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="code docutils literal notranslate"><span class="pre">genv_user_environments_total</span></code></p></td>
+<tr class="row-odd"><td><p><code class="code docutils literal notranslate"><span class="pre">genv_user_environments_total</span></code></p></td>
 <td><p><code class="code docutils literal notranslate"><span class="pre">username</span></code></p></td>
 <td><p>Number of active environments of a user</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="code docutils literal notranslate"><span class="pre">genv_user_processes_total</span></code></p></td>
+<tr class="row-even"><td><p><code class="code docutils literal notranslate"><span class="pre">genv_user_processes_total</span></code></p></td>
 <td><p><code class="code docutils literal notranslate"><span class="pre">username</span></code></p></td>
 <td><p>Number of running processes of a user</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="code docutils literal notranslate"><span class="pre">genv_user_attached_devices_total</span></code></p></td>
+<tr class="row-odd"><td><p><code class="code docutils literal notranslate"><span class="pre">genv_user_attached_devices_total</span></code></p></td>
 <td><p><code class="code docutils literal notranslate"><span class="pre">username</span></code></p></td>
 <td><p>Number of attached devices of a user</p></td>
 </tr>
 </tbody>
 </table>
-<p>* <em>Not yet exported</em></p>
 </div>
 </div>
 

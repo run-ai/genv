@@ -77,6 +77,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#grafana">Grafana</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="#running-as-a-daemon">Running as a daemon</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#reference">Reference</a></li>
 </ul>
 </li>
@@ -127,18 +128,19 @@
 <div class="contents topic" id="contents">
 <p class="topic-title">Contents</p>
 <ul class="simple">
-<li><p><a class="reference internal" href="#monitoring" id="id2">Monitoring</a></p>
+<li><p><a class="reference internal" href="#monitoring" id="id3">Monitoring</a></p>
 <ul>
-<li><p><a class="reference internal" href="#overview" id="id3">Overview</a></p></li>
-<li><p><a class="reference internal" href="#quick-start" id="id4">Quick start</a></p>
+<li><p><a class="reference internal" href="#overview" id="id4">Overview</a></p></li>
+<li><p><a class="reference internal" href="#quick-start" id="id5">Quick start</a></p>
 <ul>
-<li><p><a class="reference internal" href="#prerequisites" id="id5">Prerequisites</a></p></li>
-<li><p><a class="reference internal" href="#running-the-monitoring-service" id="id6">Running the monitoring service</a></p></li>
-<li><p><a class="reference internal" href="#prometheus" id="id7">Prometheus</a></p></li>
-<li><p><a class="reference internal" href="#grafana" id="id8">Grafana</a></p></li>
+<li><p><a class="reference internal" href="#prerequisites" id="id6">Prerequisites</a></p></li>
+<li><p><a class="reference internal" href="#running-the-monitoring-service" id="id7">Running the monitoring service</a></p></li>
+<li><p><a class="reference internal" href="#prometheus" id="id8">Prometheus</a></p></li>
+<li><p><a class="reference internal" href="#grafana" id="id9">Grafana</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#reference" id="id9">Reference</a></p></li>
+<li><p><a class="reference internal" href="#running-as-a-daemon" id="id10">Running as a daemon</a></p></li>
+<li><p><a class="reference internal" href="#reference" id="id11">Reference</a></p></li>
 </ul>
 </li>
 </ul>
@@ -158,11 +160,32 @@
 <p>This is a guide to get started with remote monitoring features in Genv.</p>
 <div class="section" id="prerequisites">
 <h3>Prerequisites<a class="headerlink" href="#prerequisites" title="Permalink to this headline">¶</a></h3>
-<p>First, you will need to <a class="reference internal" href="installation.html"><span class="doc">install</span></a> Genv on your local machine and one or more remote hosts.</p>
-<p>In my case, I have two remote machines: <code class="code docutils literal notranslate"><span class="pre">gpu-server-1</span></code> and <code class="code docutils literal notranslate"><span class="pre">gpu-server-2</span></code>.</p>
-<p>Then, you will need to install the <code class="code docutils literal notranslate"><span class="pre">prometheus-client</span></code> <a class="reference external" href="https://pypi.org/project/prometheus-client">PyPI package</a> on your local machine:</p>
+<p>First, you will need to <a class="reference internal" href="../overview/installation.html#install-using-pip"><span class="std std-ref">install</span></a> Genv on your local machine with the required packages for monitoring:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>pip install genv<span class="o">[</span>monitor<span class="o">]</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If you have already installed Genv without the monitor required packages, install them with:</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>pip install prometheus-client
 </pre></div>
+</div>
+</div>
+<p>Next, you will have to configure SSH access to remote GPU machines.</p>
+<p>Go over the <a class="reference internal" href="installation.html#remote-installation-overview"><span class="std std-ref">remote installation overview</span></a> and understand how Genv remote features work.
+It is recommended to install Genv on the remote machines and configure their SSH daemons.
+However, you can also use Genv remote monitoring to monitor GPU machines without Genv installed.
+This allows system administrators to examine overall cluster utilization very easily.</p>
+<p>In my case, I have two remote machines: <code class="code docutils literal notranslate"><span class="pre">gpu-server-1</span></code> and <code class="code docutils literal notranslate"><span class="pre">gpu-server-2</span></code>.</p>
+<p>Make sure you have SSH access to all remote hosts and that the SSH configuration is set properly.
+You can verify that using a command similar to this:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>ssh gpu-server-1 <span class="nb">echo</span> <span class="s2">&quot;hello from \$(hostname)&quot;</span>
+</pre></div>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>It is important that you verify the SSH access.
+If you can’t access any of the remote hosts using a command similar to the one above, <code class="code docutils literal notranslate"><span class="pre">genv</span> <span class="pre">remote</span></code> commands will not work properly.</p>
 </div>
 </div>
 <div class="section" id="running-the-monitoring-service">
@@ -188,6 +211,22 @@ Follow them <a class="reference internal" href="../usage/monitoring.html#monitor
 <p>The Grafana instructions are similar to the local monitoring instructions.
 Follow them <a class="reference internal" href="../usage/monitoring.html#monitoring-grafana"><span class="std std-ref">here</span></a>.</p>
 <p>Now, you can open your browser at <a class="reference external" href="http://localhost:3000">http://localhost:3000</a> and see the Genv dashboard with metrics from all remote hosts.</p>
+<p>You should now see a dashboard similar to the following:</p>
+<div class="figure align-default" id="id2">
+<img alt="../_images/monitoring-dashboard.png" src="../_images/monitoring-dashboard.png" />
+<p class="caption"><span class="caption-text">Genv monitoring dashboard</span><a class="headerlink" href="#id2" title="Permalink to this image">¶</a></p>
+</div>
+</div>
+</div>
+<div class="section" id="running-as-a-daemon">
+<h2>Running as a daemon<a class="headerlink" href="#running-as-a-daemon" title="Permalink to this headline">¶</a></h2>
+<p>The instructions to run Genv remote monitoring as a daemon are similar to the local monitoring instructions.
+Follow them <a class="reference internal" href="../usage/monitoring.html#monitoring-daemon"><span class="std std-ref">here</span></a>.</p>
+<p>Make sure you are running on a machine that would not shutdown, restart or hybernate.
+A personal laptop is not a good choice.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Make sure you use <code class="code docutils literal notranslate"><span class="pre">genv</span> <span class="pre">remote</span> <span class="pre">monitor</span></code> commands and not the local monitoring ones.</p>
 </div>
 </div>
 <div class="section" id="reference">

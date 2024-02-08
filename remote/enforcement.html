@@ -71,6 +71,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#overview">Overview</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#permissions">Permissions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#architecture">Architecture</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#running-as-a-daemon">Running as a daemon</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#enforcement-rules">Enforcement Rules</a></li>
 </ul>
 </li>
@@ -118,7 +119,7 @@
            <div itemprop="articleBody">
              
   <div class="section" id="enforcement">
-<span id="remote-enforcement"></span><h1>Enforcement<a class="headerlink" href="#enforcement" title="Permalink to this headline">¶</a></h1>
+<h1>Enforcement<a class="headerlink" href="#enforcement" title="Permalink to this headline">¶</a></h1>
 <div class="contents topic" id="contents">
 <p class="topic-title">Contents</p>
 <ul class="simple">
@@ -127,7 +128,8 @@
 <li><p><a class="reference internal" href="#overview" id="id4">Overview</a></p></li>
 <li><p><a class="reference internal" href="#permissions" id="id5">Permissions</a></p></li>
 <li><p><a class="reference internal" href="#architecture" id="id6">Architecture</a></p></li>
-<li><p><a class="reference internal" href="#enforcement-rules" id="id7">Enforcement Rules</a></p></li>
+<li><p><a class="reference internal" href="#running-as-a-daemon" id="id7">Running as a daemon</a></p></li>
+<li><p><a class="reference internal" href="#enforcement-rules" id="id8">Enforcement Rules</a></p></li>
 </ul>
 </li>
 </ul>
@@ -173,6 +175,17 @@ Running processes from environments on the devices that are being detached are a
 <p class="admonition-title">Note</p>
 <p>Genv enforcer terminates only the GPU processes.
 This means that IDEs (e.g. Visual Studio Code, PyCharm, etc.) and terminals will not be terminated, but the running task processes such as <code class="code docutils literal notranslate"><span class="pre">python</span></code> processes or Jupyter kernels.</p>
+</div>
+</div>
+<div class="section" id="running-as-a-daemon">
+<h2>Running as a daemon<a class="headerlink" href="#running-as-a-daemon" title="Permalink to this headline">¶</a></h2>
+<p>The instructions to run Genv remote enforcement as a daemon are similar to the local enforcement instructions.
+Follow them <a class="reference internal" href="../usage/enforcement.html#enforcement-daemon"><span class="std std-ref">here</span></a>.</p>
+<p>Make sure you are running on a machine that would not shutdown, restart or hybernate.
+A personal laptop is not a good choice.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Make sure you use <code class="code docutils literal notranslate"><span class="pre">genv</span> <span class="pre">remote</span> <span class="pre">enforce</span></code> commands and not the local enforcement ones.</p>
 </div>
 </div>
 <div class="section" id="enforcement-rules">

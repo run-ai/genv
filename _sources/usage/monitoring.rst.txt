@@ -153,6 +153,40 @@ You should now see a dashboard similar to the following:
 
    Genv monitoring dashboard
 
+.. _Monitoring Daemon:
+
+Running as a daemon
+-------------------
+:code:`genv monitor` acts as a foreground daemon and runs until a :code:`Ctrl+C` is received.
+Therefore, you will need to keep the terminal running while monitoring the system.
+
+When monitoring a GPU machine or a cluster of GPU machines, one might want to run the monitoring for long periods of time, like days and even weeks.
+To do so, the Genv monitoring daemon should not be attached to a specific terminal session, so that it would continue running when the session exits.
+
+We recommend to use `tmux <https://github.com/tmux/tmux/wiki>`__ for this.
+
+Here is an example of how to use :code:`tmux` for running :code:`genv monitor` in the background.
+
+Create a new tmux session and name it :code:`genv-monitor` with the command:
+
+.. code-block:: shell
+
+  tmux new -s genv-monitor
+
+Run :code:`genv monitor` inside:
+
+.. code-block:: shell
+
+  genv monitor
+
+Detach from the session with :code:`Ctrl-b` + :code:`d`.
+
+Then, you can reattach after some time with the command:
+
+.. code-block:: shell
+
+  tmux attach -t genv-monitor
+
 .. _Metrics Reference:
 
 Reference
@@ -164,12 +198,21 @@ Reference
    * - Metric
      - Labels
      - Description
-   * - :code:`genv_device_utilization`\*
+   * - :code:`genv_is_installed`
+     -
+     - Genv installation status
+   * - :code:`genv_device_temperature`
+     - :code:`index`
+     - Device temperature in degrees C
+   * - :code:`genv_device_utilization`
      - :code:`index`
      - Device utilization
-   * - :code:`genv_device_memory_used_bytes`\*
+   * - :code:`genv_device_memory_used_bytes`
      - :code:`index`
      - Device used memory in bytes
+   * - :code:`genv_device_memory_total_bytes`
+     - :code:`index`
+     - Device total memory in bytes
    * - :code:`genv_environments_total`
      -
      - Number of active environments
@@ -203,5 +246,3 @@ Reference
    * - :code:`genv_user_attached_devices_total`
      - :code:`username`
      - Number of attached devices of a user
-
-\* *Not yet exported*

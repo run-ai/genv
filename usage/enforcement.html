@@ -67,6 +67,7 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#permissions">Permissions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#architecture">Architecture</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#running-as-a-daemon">Running as a daemon</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#enforcement-rules">Enforcement Rules</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#id4">Non-environment Processes</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#environment-devices">Environment Devices</a></li>
@@ -144,12 +145,13 @@
 </li>
 <li><p><a class="reference internal" href="#permissions" id="id13">Permissions</a></p></li>
 <li><p><a class="reference internal" href="#architecture" id="id14">Architecture</a></p></li>
-<li><p><a class="reference internal" href="#enforcement-rules" id="id15">Enforcement Rules</a></p>
+<li><p><a class="reference internal" href="#running-as-a-daemon" id="id15">Running as a daemon</a></p></li>
+<li><p><a class="reference internal" href="#enforcement-rules" id="id16">Enforcement Rules</a></p>
 <ul>
-<li><p><a class="reference internal" href="#id4" id="id16">Non-environment Processes</a></p></li>
-<li><p><a class="reference internal" href="#environment-devices" id="id17">Environment Devices</a></p></li>
-<li><p><a class="reference internal" href="#environment-memory-capacity" id="id18">Environment Memory Capacity</a></p></li>
-<li><p><a class="reference internal" href="#id5" id="id19">Max Devices per User</a></p></li>
+<li><p><a class="reference internal" href="#id4" id="id17">Non-environment Processes</a></p></li>
+<li><p><a class="reference internal" href="#environment-devices" id="id18">Environment Devices</a></p></li>
+<li><p><a class="reference internal" href="#environment-memory-capacity" id="id19">Environment Memory Capacity</a></p></li>
+<li><p><a class="reference internal" href="#id5" id="id20">Max Devices per User</a></p></li>
 </ul>
 </li>
 </ul>
@@ -277,6 +279,27 @@ Running processes from environments on the devices that are being detached are a
 <p class="admonition-title">Note</p>
 <p>Genv enforcer terminates only the GPU processes.
 This means that IDEs (e.g. Visual Studio Code, PyCharm, etc.) and terminals will not be terminated, but the running task processes such as <code class="code docutils literal notranslate"><span class="pre">python</span></code> processes or Jupyter kernels.</p>
+</div>
+</div>
+<div class="section" id="running-as-a-daemon">
+<span id="enforcement-daemon"></span><h2>Running as a daemon<a class="headerlink" href="#running-as-a-daemon" title="Permalink to this headline">¶</a></h2>
+<p><code class="code docutils literal notranslate"><span class="pre">genv</span> <span class="pre">enforce</span></code> acts as a foreground daemon and runs until a <code class="code docutils literal notranslate"><span class="pre">Ctrl+C</span></code> is received.
+Therefore, you will need to keep the terminal running while enforcing the system.</p>
+<p>To do so, the Genv enforcement daemon should not be attached to a specific terminal session, so that it would continue running when the session exits.</p>
+<p>We recommend to use <a class="reference external" href="https://github.com/tmux/tmux/wiki">tmux</a> for this.</p>
+<p>Here is an example of how to use <code class="code docutils literal notranslate"><span class="pre">tmux</span></code> for running <code class="code docutils literal notranslate"><span class="pre">genv</span> <span class="pre">enforce</span></code> in the background.</p>
+<p>Create a new tmux session and name it <code class="code docutils literal notranslate"><span class="pre">genv-enforce</span></code> with the command:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>tmux new -s genv-enforce
+</pre></div>
+</div>
+<p>Run <code class="code docutils literal notranslate"><span class="pre">genv</span> <span class="pre">enforce</span></code> inside:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>sudo genv enforce
+</pre></div>
+</div>
+<p>Detach from the session with <code class="code docutils literal notranslate"><span class="pre">Ctrl-b</span></code> + <code class="code docutils literal notranslate"><span class="pre">d</span></code>.</p>
+<p>Then, you can reattach after some time with the command:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>tmux attach -t genv-enforce
+</pre></div>
 </div>
 </div>
 <div class="section" id="enforcement-rules">

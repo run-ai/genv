@@ -274,6 +274,11 @@ You might also want to work on remote features using only your single CPU machin
 <p>This command runs a container in the background that is named <code class="code docutils literal notranslate"><span class="pre">genv-server-1</span></code> and accepts SSH connections on port 2221.</p>
 <p>You can rerun this command as many times as you want to simulate more remote machines.
 Make sure to change the host port each time and also rename the container (or have the container unnamed by omitting the flag <code class="code docutils literal notranslate"><span class="pre">--name</span></code> entirely).</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>By default, Genv is installed in such containers.
+If you want to skip the installation, for example when testing remote monitoring on machines without Genv, add <code class="code docutils literal notranslate"><span class="pre">-e</span> <span class="pre">GENV_INSTALL=0</span></code> to the <code class="code docutils literal notranslate"><span class="pre">docker</span> <span class="pre">run</span></code> command.</p>
+</div>
 <p>You can open a terminal in such a container using a command similar to the following:</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>docker <span class="nb">exec</span> -it genv-server-1 bash
 </pre></div>
@@ -319,20 +324,13 @@ Type <code class="code docutils literal notranslate"><span class="pre">yes</span
 <h2>Docs<a class="headerlink" href="#docs" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="id3">
 <h3>Setup<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h3>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python -m venv .venv
-<span class="nb">source</span> .venv/bin/activate
-python -m pip install sphinx
-python -m pip install -r docs/requirements.txt
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>docker build -t genv:docs -f devel/docs.Dockerfile docs
 </pre></div>
-</div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>You might need to use <code class="code docutils literal notranslate"><span class="pre">python3</span></code> instead of <code class="code docutils literal notranslate"><span class="pre">python</span></code></p>
 </div>
 </div>
 <div class="section" id="build">
 <h3>Build<a class="headerlink" href="#build" title="Permalink to this headline">¶</a></h3>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>make -C docs/ html
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>docker run -it --rm -v <span class="nv">$PWD</span>/docs:/docs genv:docs
 </pre></div>
 </div>
 </div>

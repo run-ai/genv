@@ -23,15 +23,40 @@ This is a guide to get started with remote monitoring features in Genv.
 
 Prerequisites
 ~~~~~~~~~~~~~
-First, you will need to :doc:`install <installation>` Genv on your local machine and one or more remote hosts.
-
-In my case, I have two remote machines: :code:`gpu-server-1` and :code:`gpu-server-2`.
-
-Then, you will need to install the :code:`prometheus-client` `PyPI package <https://pypi.org/project/prometheus-client>`__ on your local machine:
+First, you will need to :ref:`install <Install Using pip>` Genv on your local machine with the required packages for monitoring:
 
 .. code-block:: shell
 
-   pip install prometheus-client
+    pip install genv[monitor]
+
+.. note::
+
+    If you have already installed Genv without the monitor required packages, install them with:
+
+    .. code-block:: shell
+
+        pip install prometheus-client
+
+Next, you will have to configure SSH access to remote GPU machines.
+
+Go over the :ref:`remote installation overview <Remote Installation Overview>` and understand how Genv remote features work.
+It is recommended to install Genv on the remote machines and configure their SSH daemons.
+However, you can also use Genv remote monitoring to monitor GPU machines without Genv installed.
+This allows system administrators to examine overall cluster utilization very easily.
+
+In my case, I have two remote machines: :code:`gpu-server-1` and :code:`gpu-server-2`.
+
+Make sure you have SSH access to all remote hosts and that the SSH configuration is set properly.
+You can verify that using a command similar to this:
+
+.. code-block:: shell
+
+   ssh gpu-server-1 echo "hello from \$(hostname)"
+
+.. warning::
+
+   It is important that you verify the SSH access.
+   If you can't access any of the remote hosts using a command similar to the one above, :code:`genv remote` commands will not work properly.
 
 Running the monitoring service
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -59,6 +84,24 @@ The Grafana instructions are similar to the local monitoring instructions.
 Follow them :ref:`here <Monitoring Grafana>`.
 
 Now, you can open your browser at http://localhost:3000 and see the Genv dashboard with metrics from all remote hosts.
+
+You should now see a dashboard similar to the following:
+
+.. figure:: ../usage/monitoring-dashboard.png
+
+   Genv monitoring dashboard
+
+Running as a daemon
+-------------------
+The instructions to run Genv remote monitoring as a daemon are similar to the local monitoring instructions.
+Follow them :ref:`here <Monitoring Daemon>`.
+
+Make sure you are running on a machine that would not shutdown, restart or hybernate.
+A personal laptop is not a good choice.
+
+.. note::
+
+   Make sure you use :code:`genv remote monitor` commands and not the local monitoring ones.
 
 Reference
 ---------
