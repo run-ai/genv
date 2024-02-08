@@ -64,6 +64,18 @@ Running processes from environments on the devices that are being detached are a
    Genv enforcer terminates only the GPU processes.
    This means that IDEs (e.g. Visual Studio Code, PyCharm, etc.) and terminals will not be terminated, but the running task processes such as :code:`python` processes or Jupyter kernels.
 
+Running as a daemon
+-------------------
+The instructions to run Genv remote enforcement as a daemon are similar to the local enforcement instructions.
+Follow them :ref:`here <Enforcement Daemon>`.
+
+Make sure you are running on a machine that would not shutdown, restart or hybernate.
+A personal laptop is not a good choice.
+
+.. note::
+
+   Make sure you use :code:`genv remote enforce` commands and not the local enforcement ones.
+
 Enforcement Rules
 -----------------
 Enforcement rules are controlled using flags and arguments to :code:`genv remote enforce`.
