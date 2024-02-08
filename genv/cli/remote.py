@@ -324,6 +324,12 @@ def add_arguments(parser: argparse.ArgumentParser) -> None:
     )
 
     parser.add_argument(
+        "-l",
+        "--username",
+        help="SSH login name",
+    )
+
+    parser.add_argument(
         "-t",
         "--timeout",
         type=int,
@@ -520,10 +526,8 @@ def add_arguments(parser: argparse.ArgumentParser) -> None:
         command(subparsers.add_parser(command.__name__, help=help))
 
 
-async def run(args: argparse.Namespace) -> None:
-    """
-    Runs the "genv remote" logic.
-    """
+def parse_hosts(args: argparse.Namespace) -> Iterable[genv.remote.Host]:
+    """Parses arguments and returns a list of hosts."""
 
     if args.hostfile:
         with open(args.hostfile, "r") as f:
@@ -535,8 +539,22 @@ async def run(args: argparse.Namespace) -> None:
     else:
         hostnames = args.hostnames.split(",")
 
-    hosts = [genv.remote.Host(hostname, args.timeout) for hostname in hostnames]
+    def parse_host(hostname: str) -> genv.remote.Host:
+        username, hostname = (
+            hostname.split("@") if "@" in hostname else (args.username, hostname)
+        )
 
+        return genv.remote.Host(hostname, username, args.timeout)
+
+    return [parse_host(hostname) for hostname in hostnames]
+
+
+async def run(args: argparse.Namespace) -> None:
+    """
+    Runs the "genv remote" logic.
+    """
+
+    hosts = parse_hosts(args)
     config = genv.remote.Config(hosts, args.throw_on_error, args.quiet)
 
     if args.command == "activate":

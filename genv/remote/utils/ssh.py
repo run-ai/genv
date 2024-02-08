@@ -14,10 +14,12 @@ class Host:
     Host configuration.
 
     :param hostname: Hostname or IP address
+    :param username: SSH login name
     :param timeout: SSH connection timeout
     """
 
     hostname: str
+    username: Optional[str]
     timeout: Optional[int]
 
 
@@ -74,7 +76,7 @@ async def run(
     :return: Returns the hosts that succeeded and their standard outputs
     """
 
-    runners = [Runner(host.hostname, host.timeout) for host in config.hosts]
+    runners = [Runner(host.hostname, host.username, host.timeout) for host in config.hosts]
 
     results = await asyncio.gather(
         *(
