@@ -1,6 +1,21 @@
 Changelog
 =========
 
+Version 1.3.0
+-------------
+**Date:** February 8, 2024
+
+Added
+~~~~~
+* Supporting monitoring remote machines without Genv installed
+* Added metric :code:`genv_is_installed`
+* Added metric :code:`genv_device_temperature`
+* Added metric :code:`genv_device_memory_total_bytes`
+* Implemented metric :code:`genv_device_utilization`
+* Implemented metric :code:`genv_device_memory_used_bytes`
+* New Grafana dashboard
+* Supporting passing SSH login names in :code:`genv remote` with argument :code:`-l --username`
+
 Version 1.2.0
 -------------
 **Date:** July 4, 2023
