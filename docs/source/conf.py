@@ -7,7 +7,7 @@
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
 project = "Genv"
-copyright = "2022-2023, Run.ai"
+copyright = "2022-2024, Run.ai"
 author = "Raz Rotenberg"
 release = "1.3.0"
 
