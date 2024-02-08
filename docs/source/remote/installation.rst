@@ -21,7 +21,7 @@ You can follow `this <https://superuser.com/a/8110>`__ to set up your SSH so you
 It is recommended to use SSH keys.
 The identity file and login user should be configured in the SSH configuration file at :code:`~/.ssh/config`.
 
-Genv :ref:`remote enforcement features <Remote Enforcement>` use commands similar to :code:`ssh <host> sudo` for querying the environment variables of processes or terminating processes.
+Genv :doc:`remote enforcement features <./enforcement>` use commands similar to :code:`ssh <host> sudo` for querying the environment variables of processes or terminating processes.
 Therefore, Linux users that want to use these features need to have passwordless :code:`sudo` permissions on all remote machines.
 
 Genv also sends environment variables over SSH by passing :code:`-o SendEnv` to the :code:`ssh` command.
