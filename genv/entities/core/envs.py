@@ -147,6 +147,7 @@ class Envs:
         eid: Optional[str] = None,
         eids: Optional[Iterable[str]] = None,
         username: Optional[str] = None,
+        name: Optional[str] = None,
     ):
         """
         Returns a new filtered collection.
@@ -172,6 +173,9 @@ class Envs:
 
         if username is not None:
             envs = [env for env in envs if env.username == username]
+
+        if name is not None:
+            envs = [env for env in envs if env.config.name == name]
 
         return Envs(envs)
 
