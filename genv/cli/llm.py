@@ -56,19 +56,14 @@ def do_attach(model: str) -> NoReturn:
     with genv.utils.global_lock():
         envs = genv.core.envs.snapshot()
 
-    envs = envs.filter(name=f"llm/{model}")
+    for env in envs.filter(name=f"llm/{model}"):
+        port = _find_port(env)
 
-    if len(envs) == 0:
-        raise RuntimeError(f"Could not find LLM model '{model}'")
+        if port:
+            # TODO(raz): we currently attach to the first replica; we should pick a replica in a smarter way.
+            _exec_ollama(["run", model], host="localhost", port=port)
 
-    # TODO(raz): we currently attach to the first replica; we should pick a replica in a smarter way.
-    env = next(iter(envs))
-    port = _find_port(env)
-
-    if not port:
-        raise RuntimeError(f"Could not find port of LLM model '{model}'")
-
-    _exec_ollama(["run", model], host="localhost", port=port)
+    raise RuntimeError(f"Could not find LLM model '{model}'")
 
 
 def do_ps(format: str, header: bool, timestamp: bool) -> None:
