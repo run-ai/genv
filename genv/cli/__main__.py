@@ -19,6 +19,7 @@ from . import remote
 from . import shell
 from . import status
 from . import usage
+from . import version
 
 
 # NOTE(raz): this is needed for modules that their output is being eval() by the
@@ -82,6 +83,7 @@ def main():
         ("shell", "Shell support", shell.add_arguments),
         ("status", "Show status of the current environment", status.add_arguments),
         ("usage", "GPU usage miscellaneous", usage.add_arguments),
+        ("version", "Print Genv version", version.add_arguments),
     ]:
         aliases = [f"{submodule}s"] if submodule in ["llm"] else []
 
@@ -151,6 +153,8 @@ def main():
             status.run(args)
         elif args.submodule == "usage":
             asyncio.run(usage.run(args))
+        elif args.submodule == "version":
+            version.run(args)
     except RuntimeError as e:
         print(e, file=sys.stderr)
         exit(1)
