@@ -21,16 +21,15 @@ You can follow `this <https://superuser.com/a/8110>`__ to set up your SSH so you
 It is recommended to use SSH keys.
 The identity file and login user should be configured in the SSH configuration file at :code:`~/.ssh/config`.
 
-Genv :doc:`remote enforcement features <./enforcement>` use commands similar to :code:`ssh <host> sudo` for querying the environment variables of processes or terminating processes.
-Therefore, Linux users that want to use these features need to have passwordless :code:`sudo` permissions on all remote machines.
+Some of Genv remote features like :doc:`monitoring <./monitoring>` and :doc:`enforcement <./enforcement>` require privileges and use commands similar to :code:`ssh <host> sudo`.
+Therefore, system administrators that want to use these features need to have passwordless :code:`sudo` permissions on all remote machines.
 
 Genv also sends environment variables over SSH by passing :code:`-o SendEnv` to the :code:`ssh` command.
 Those environment variables must be explicitly accepted on all remote hosts by :ref:`configuring <SSH Daemon Configuration>` the SSH daemon on the remote hosts.
 
 Local Hosts
 -----------
-On local hosts, :doc:`install <../overview/installation>` Genv if not already installed.
-This is how you will run :code:`genv remote` commands.
+On local hosts, Genv should be :doc:`installed <../overview/installation>` so you could run :code:`genv remote` commands.
 
 Then, make sure you have SSH access to all remote hosts and that the SSH configuration is set properly.
 You can verify that using a command similar to this:
@@ -39,6 +38,10 @@ You can verify that using a command similar to this:
 
    ssh <host> nvidia-smi
 
+.. note::
+
+   If you want to use privileged capabilities like :doc:`monitoring <./monitoring>` and :doc:`enforcement <./enforcement>` you can verify that :code:`ssh <host> sudo nvidia-smi` works.
+
 .. warning::
 
    It is important that you verify the SSH access.
@@ -46,20 +49,14 @@ You can verify that using a command similar to this:
 
 Remote Hosts
 ------------
-On remote hosts, Genv should be installed as root :ref:`using <Install Using pip>` :code:`pip` with the following command:
-
-.. code-block:: shell
-
-   sudo pip install genv
+On remote hosts, Genv must be installed :ref:`system-wide <Install System Wide>`.
 
 You can verify the setup by running a command similar to this from your local machine:
 
 .. code-block:: shell
 
-   $ ssh <host> sudo genv
+   $ ssh <host> sudo genv -h
    usage: genv [-h] SUBCOMMAND ...
-
-   Query and control Genv on this machine or in a cluster
    ...
 
 .. _SSH Daemon Configuration:

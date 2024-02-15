@@ -20,7 +20,9 @@ Over time, the project developed into a complete GPU cluster management tool wit
 
 At its core, Genv is a `Python package <https://pypi.org/project/genv>`__ that provisions GPUs to environments and keeps its state as :ref:`files <Files>` at :code:`/var/tmp/genv`.
 
-On top of this core layer, Genv has a CLI (i.e. the command :code:`genv`), :doc:`Python SDK <../usage/python-sdk>` and :doc:`integrations <installation>` with many common tools and environments such as terminal, containers (e.g. :code:`docker`), Ray, Visual Studio Code, JupyterLab and PyCharm.
+On top of this core layer, Genv has a CLI (i.e. the command :code:`genv`), :doc:`Python SDK <../usage/python-sdk>` and :ref:`integrations <Integrations>` with many common tools and environments such as terminal, containers (e.g. :code:`docker`), Ray, Visual Studio Code, JupyterLab and PyCharm.
+
+Genv is built with a decentralized architecture, meaning that different :code:`genv` commands run separately and coordinate with one another and that there is no centralized service that handles the requests.
 
 .. figure:: overview.png
 

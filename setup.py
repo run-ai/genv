@@ -32,6 +32,7 @@ setuptools.setup(
     python_requires=">=3.7",
     install_requires="psutil",
     extras_require={
+        "admin": ["prometheus_client"],
         "dev": ["black"],
         "monitor": ["prometheus_client"],
         "ray": ["ray", "pynvml"],
