@@ -68,6 +68,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#grafana">Grafana</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="#permissions">Permissions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#running-as-a-daemon">Running as a daemon</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#reference">Reference</a></li>
 </ul>
@@ -81,6 +82,10 @@
 <li class="toctree-l1"><a class="reference internal" href="../remote/usage.html">Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../remote/enforcement.html">Enforcement</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../remote/monitoring.html">Monitoring</a></li>
+</ul>
+<p class="caption"><span class="caption-text">LLMs</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../llms/overview.html">Overview</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Container Toolkit</span></p>
 <ul>
@@ -139,8 +144,9 @@
 <li><p><a class="reference internal" href="#grafana" id="id9">Grafana</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#running-as-a-daemon" id="id10">Running as a daemon</a></p></li>
-<li><p><a class="reference internal" href="#reference" id="id11">Reference</a></p></li>
+<li><p><a class="reference internal" href="#permissions" id="id10">Permissions</a></p></li>
+<li><p><a class="reference internal" href="#running-as-a-daemon" id="id11">Running as a daemon</a></p></li>
+<li><p><a class="reference internal" href="#reference" id="id12">Reference</a></p></li>
 </ul>
 </li>
 </ul>
@@ -264,6 +270,15 @@ You should now see a dashboard similar to the following:</p>
 <img alt="../_images/monitoring-dashboard1.png" src="../_images/monitoring-dashboard1.png" />
 <p class="caption"><span class="caption-text">Genv monitoring dashboard</span><a class="headerlink" href="#id2" title="Permalink to this image">¶</a></p>
 </div>
+</div>
+</div>
+<div class="section" id="permissions">
+<h2>Permissions<a class="headerlink" href="#permissions" title="Permalink to this headline">¶</a></h2>
+<p>The monitoring needs to query the environment variables of processes in order to tell their Genv environment identifier.</p>
+<p>Linux users usually can’t query the environment variables of other users.
+Therefore, you will probably need to execute the <code class="code docutils literal notranslate"><span class="pre">genv</span> <span class="pre">monitor</span></code> commands <a class="reference internal" href="advanced-usage.html#using-sudo"><span class="std std-ref">using</span></a> <code class="code docutils literal notranslate"><span class="pre">sudo</span></code> with a command similar to the following:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>sudo genv monitor ...
+</pre></div>
 </div>
 </div>
 <div class="section" id="running-as-a-daemon">

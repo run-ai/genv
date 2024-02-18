@@ -78,6 +78,10 @@
 <li class="toctree-l1"><a class="reference internal" href="enforcement.html">Enforcement</a></li>
 <li class="toctree-l1"><a class="reference internal" href="monitoring.html">Monitoring</a></li>
 </ul>
+<p class="caption"><span class="caption-text">LLMs</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../llms/overview.html">Overview</a></li>
+</ul>
 <p class="caption"><span class="caption-text">Container Toolkit</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../docker/overview.html">Overview</a></li>
@@ -142,19 +146,22 @@ Therefore, authentication must not be interactive using passwords so that the <c
 <p>You can follow <a class="reference external" href="https://superuser.com/a/8110">this</a> to set up your SSH so you don’t have to type passwords.
 It is recommended to use SSH keys.
 The identity file and login user should be configured in the SSH configuration file at <code class="code docutils literal notranslate"><span class="pre">~/.ssh/config</span></code>.</p>
-<p>Genv <a class="reference internal" href="enforcement.html"><span class="doc">remote enforcement features</span></a> use commands similar to <code class="code docutils literal notranslate"><span class="pre">ssh</span> <span class="pre">&lt;host&gt;</span> <span class="pre">sudo</span></code> for querying the environment variables of processes or terminating processes.
-Therefore, Linux users that want to use these features need to have passwordless <code class="code docutils literal notranslate"><span class="pre">sudo</span></code> permissions on all remote machines.</p>
+<p>Some of Genv remote features like <a class="reference internal" href="monitoring.html"><span class="doc">monitoring</span></a> and <a class="reference internal" href="enforcement.html"><span class="doc">enforcement</span></a> require privileges and use commands similar to <code class="code docutils literal notranslate"><span class="pre">ssh</span> <span class="pre">&lt;host&gt;</span> <span class="pre">sudo</span></code>.
+Therefore, system administrators that want to use these features need to have passwordless <code class="code docutils literal notranslate"><span class="pre">sudo</span></code> permissions on all remote machines.</p>
 <p>Genv also sends environment variables over SSH by passing <code class="code docutils literal notranslate"><span class="pre">-o</span> <span class="pre">SendEnv</span></code> to the <code class="code docutils literal notranslate"><span class="pre">ssh</span></code> command.
 Those environment variables must be explicitly accepted on all remote hosts by <a class="reference internal" href="#ssh-daemon-configuration"><span class="std std-ref">configuring</span></a> the SSH daemon on the remote hosts.</p>
 </div>
 <div class="section" id="local-hosts">
 <h2>Local Hosts<a class="headerlink" href="#local-hosts" title="Permalink to this headline">¶</a></h2>
-<p>On local hosts, <a class="reference internal" href="../overview/installation.html"><span class="doc">install</span></a> Genv if not already installed.
-This is how you will run <code class="code docutils literal notranslate"><span class="pre">genv</span> <span class="pre">remote</span></code> commands.</p>
+<p>On local hosts, Genv should be <a class="reference internal" href="../overview/installation.html"><span class="doc">installed</span></a> so you could run <code class="code docutils literal notranslate"><span class="pre">genv</span> <span class="pre">remote</span></code> commands.</p>
 <p>Then, make sure you have SSH access to all remote hosts and that the SSH configuration is set properly.
 You can verify that using a command similar to this:</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>ssh &lt;host&gt; nvidia-smi
 </pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If you want to use privileged capabilities like <a class="reference internal" href="monitoring.html"><span class="doc">monitoring</span></a> and <a class="reference internal" href="enforcement.html"><span class="doc">enforcement</span></a> you can verify that <code class="code docutils literal notranslate"><span class="pre">ssh</span> <span class="pre">&lt;host&gt;</span> <span class="pre">sudo</span> <span class="pre">nvidia-smi</span></code> works.</p>
 </div>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
@@ -164,15 +171,10 @@ If you can’t access any of the remote hosts using a command similar to the one
 </div>
 <div class="section" id="remote-hosts">
 <h2>Remote Hosts<a class="headerlink" href="#remote-hosts" title="Permalink to this headline">¶</a></h2>
-<p>On remote hosts, Genv should be installed as root <a class="reference internal" href="../overview/installation.html#install-using-pip"><span class="std std-ref">using</span></a> <code class="code docutils literal notranslate"><span class="pre">pip</span></code> with the following command:</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>sudo pip install genv
-</pre></div>
-</div>
+<p>On remote hosts, Genv must be installed <a class="reference internal" href="../overview/installation.html#install-system-wide"><span class="std std-ref">system-wide</span></a>.</p>
 <p>You can verify the setup by running a command similar to this from your local machine:</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$ ssh &lt;host&gt; sudo genv
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$ ssh &lt;host&gt; sudo genv -h
 usage: genv <span class="o">[</span>-h<span class="o">]</span> SUBCOMMAND ...
-
-Query and control Genv on this machine or in a cluster
 ...
 </pre></div>
 </div>

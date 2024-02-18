@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-9BRBX45HVB"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-9BRBX45HVB');
+    </script>
+    
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Overview &mdash; Genv 1.3.0 documentation</title><link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Overview" href="../docker/overview.html" />
+    <link rel="prev" title="Monitoring" href="../remote/monitoring.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Genv
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption"><span class="caption-text">Start Here</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../overview/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../overview/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../overview/quickstart.html">Quick start</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Usage</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../usage/usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/advanced-usage.html">Advanced Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/enforcement.html">Enforcement</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/monitoring.html">Monitoring</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/python-sdk.html">Python SDK</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Remote Usage</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../remote/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../remote/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../remote/usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../remote/enforcement.html">Enforcement</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../remote/monitoring.html">Monitoring</a></li>
+</ul>
+<p class="caption"><span class="caption-text">LLMs</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Overview</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#prerequisites">Prerequisites</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#quick-start">Quick start</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#cluster">Cluster</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#local">Local</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#where-to-go-next">Where to Go Next</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption"><span class="caption-text">Container Toolkit</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../docker/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../docker/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../docker/quickstart.html">Quick start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../docker/usage.html">Usage</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../development/development.html">Development</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../development/reference.html">Reference</a></li>
+</ul>
+<p class="caption"><span class="caption-text">About</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../about/changelog.html">Changelog</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Genv</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Overview</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/llms/overview.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <div class="section" id="overview">
+<h1>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h1>
+<div class="contents topic" id="contents">
+<p class="topic-title">Contents</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#overview" id="id1">Overview</a></p>
+<ul>
+<li><p><a class="reference internal" href="#prerequisites" id="id2">Prerequisites</a></p></li>
+<li><p><a class="reference internal" href="#quick-start" id="id3">Quick start</a></p>
+<ul>
+<li><p><a class="reference internal" href="#cluster" id="id4">Cluster</a></p></li>
+<li><p><a class="reference internal" href="#local" id="id5">Local</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#where-to-go-next" id="id6">Where to Go Next</a></p></li>
+</ul>
+</li>
+</ul>
+</div>
+<p>Genv is an environment management software for GPUs that manages GPUs on a single machine or in a cluster.</p>
+<p>Genv uses <a class="reference external" href="https://ollama.com/">Ollama</a> for managing managing Large Language Models (LLMs) with Genv.
+This allows users to efficiently run, manage and utilize LLMs on GPUs within their clusters.</p>
+<p>This guide will help you get started with LLMs using Genv.</p>
+<div class="section" id="prerequisites">
+<h2>Prerequisites<a class="headerlink" href="#prerequisites" title="Permalink to this headline">¶</a></h2>
+<p>First, you will need to <a class="reference internal" href="../overview/installation.html"><span class="doc">install</span></a> Genv on your GPU machines in the cluster.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>It is recommended to install Genv <a class="reference internal" href="../overview/installation.html#install-system-wide"><span class="std std-ref">system-wide</span></a>.</p>
+</div>
+<p>Then, you will need to <a class="reference external" href="https://ollama.com/download">install</a> Ollama on your GPU machines with the command:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>curl -fsSL https://ollama.com/install.sh <span class="p">|</span> sh
+</pre></div>
+</div>
+</div>
+<div class="section" id="quick-start">
+<h2>Quick start<a class="headerlink" href="#quick-start" title="Permalink to this headline">¶</a></h2>
+<p>If you are running on a GPU cluster with multiple machines, follow the <a class="reference internal" href="#llm-cluster-quick-start"><span class="std std-ref">cluster</span></a> quick start.
+Otherwise, follow the <a class="reference internal" href="#llm-local-quick-start"><span class="std std-ref">local</span></a> quick start.</p>
+<div class="section" id="cluster">
+<span id="llm-cluster-quick-start"></span><h3>Cluster<a class="headerlink" href="#cluster" title="Permalink to this headline">¶</a></h3>
+<p>In my case, I have two remote GPU machines: <code class="code docutils literal notranslate"><span class="pre">gpu-server-1</span></code> and <code class="code docutils literal notranslate"><span class="pre">gpu-server-2</span></code>.</p>
+<p>Serve your first LLM on a single GPU with the command:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$ genv remote -H gpu-server-1,gpu-server-2 llm serve llama2 --gpus <span class="m">1</span>
+...
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Use <code class="code docutils literal notranslate"><span class="pre">Ctrl+C</span></code> to stop the serving.</p>
+</div>
+<p>Open another terminal and list all LLMs in your cluster with:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$ genv remote -H gpu-server-1,gpu-server-2 llm ps
+HOST                     MODEL       PORT    CREATED              EID     USER
+gpu-server-1             llama2      N/A     <span class="m">2</span> hours ago          <span class="m">571</span>     root
+</pre></div>
+</div>
+<p>We can see that <code class="code docutils literal notranslate"><span class="pre">llama2</span></code> is now being served in the cluster.</p>
+<p>Attach to the model and interact with it using the command:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ genv remote -H gpu-server-1,gpu-server-2 llm attach llama2
+&gt;&gt;&gt; Hi! I&#39;m Genv, how are you?
+
+Hello there, it&#39;s nice to meet you! *blinks* I&#39;m just an AI assistant, so I don&#39;t have feelings or emotions
+like humans do, but I&#39;m here to help you with any questions or tasks you might have. How can I assist you
+today?
+
+&gt;&gt;&gt; Send a message (/? for help)
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Use <code class="code docutils literal notranslate"><span class="pre">Ctrl+D</span></code> to exit the interactive terminal.</p>
+</div>
+</div>
+<div class="section" id="local">
+<span id="llm-local-quick-start"></span><h3>Local<a class="headerlink" href="#local" title="Permalink to this headline">¶</a></h3>
+<p>Serve your first LLM on a single GPU with the command:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$ genv llm serve llama2 --gpus <span class="m">1</span>
+...
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Use <code class="code docutils literal notranslate"><span class="pre">Ctrl+C</span></code> to stop the serving.</p>
+</div>
+<p>Open another terminal and list all LLMs on your machine with:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$ genv llm ps
+MODEL       PORT    CREATED              EID     USER            PID<span class="o">(</span>S<span class="o">)</span>
+llama2      <span class="m">33123</span>   <span class="m">22</span> seconds ago       <span class="m">1179252</span> raz<span class="o">(</span><span class="m">1001</span><span class="o">)</span>       <span class="m">1179252</span>
+</pre></div>
+</div>
+<p>We can see that <code class="code docutils literal notranslate"><span class="pre">llama2</span></code> is now being served on the machine.</p>
+<p>Attach to the model and interact with it using the command:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ genv llm attach llama2
+&gt;&gt;&gt; Hello from Genv
+
+Hello there! *blinks* Uh, I&#39;m... uh... *trails off* I&#39;m not actually a person, I&#39;m just an AI designed to
+simulate conversation. So, I don&#39;t have feelings or emotions like a real person would. But I&#39;m here to help
+you with any questions or tasks you may have! How can I assist you today?
+
+&gt;&gt;&gt; Send a message (/? for help)
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Use <code class="code docutils literal notranslate"><span class="pre">Ctrl+D</span></code> to exit the interactive terminal.</p>
+</div>
+</div>
+</div>
+<div class="section" id="where-to-go-next">
+<h2>Where to Go Next<a class="headerlink" href="#where-to-go-next" title="Permalink to this headline">¶</a></h2>
+<p>If you are not familiar with Genv, it is recommended to go over the <a class="reference internal" href="../overview/overview.html"><span class="doc">overview</span></a> and follow the <a class="reference internal" href="../overview/quickstart.html"><span class="doc">quick start tutorial</span></a>.</p>
+<p>You should also learn how <a class="reference internal" href="../remote/overview.html"><span class="doc">remote features</span></a> work in Genv.</p>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../remote/monitoring.html" class="btn btn-neutral float-left" title="Monitoring" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../docker/overview.html" class="btn btn-neutral float-right" title="Overview" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022-2024, Run.ai.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

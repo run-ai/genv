@@ -79,6 +79,10 @@
 <li class="toctree-l1"><a class="reference internal" href="../remote/enforcement.html">Enforcement</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../remote/monitoring.html">Monitoring</a></li>
 </ul>
+<p class="caption"><span class="caption-text">LLMs</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../llms/overview.html">Overview</a></li>
+</ul>
 <p class="caption"><span class="caption-text">Container Toolkit</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../docker/overview.html">Overview</a></li>
@@ -144,8 +148,10 @@
 <p>The project started as an environment management software for GPUs (hence the name - GPU environments), and was highly inspired by projects like <a class="reference external" href="https://github.com/pyenv/pyenv">PyEnv</a> and <a class="reference external" href="https://docs.conda.io/projects/conda/en/latest/">Conda</a>.
 If you are not familiar with the concept of environments, you can check out the documentation <a class="reference external" href="https://docs.python.org/3/library/venv.html">venv</a>, <a class="reference external" href="https://github.com/pyenv/pyenv">pyenv</a> and <a class="reference external" href="https://docs.conda.io/projects/conda/en/stable/">Conda</a> as a reference.</p>
 <p>Over time, the project developed into a complete GPU cluster management tool with various capabilities and mechanisms like <a class="reference internal" href="../usage/monitoring.html"><span class="doc">monitoring</span></a>, <a class="reference internal" href="../usage/enforcement.html"><span class="doc">enforcement</span></a>, <a class="reference internal" href="../remote/overview.html"><span class="doc">remote capabilities</span></a> and more.</p>
+<p>In addition to running GPU environments in a cluster, Genv also supports managing <a class="reference internal" href="../llms/overview.html"><span class="doc">LLMs</span></a> on GPUs.</p>
 <p>At its core, Genv is a <a class="reference external" href="https://pypi.org/project/genv">Python package</a> that provisions GPUs to environments and keeps its state as <a class="reference internal" href="../development/reference.html#files"><span class="std std-ref">files</span></a> at <code class="code docutils literal notranslate"><span class="pre">/var/tmp/genv</span></code>.</p>
-<p>On top of this core layer, Genv has a CLI (i.e. the command <code class="code docutils literal notranslate"><span class="pre">genv</span></code>), <a class="reference internal" href="../usage/python-sdk.html"><span class="doc">Python SDK</span></a> and <a class="reference internal" href="installation.html"><span class="doc">integrations</span></a> with many common tools and environments such as terminal, containers (e.g. <code class="code docutils literal notranslate"><span class="pre">docker</span></code>), Ray, Visual Studio Code, JupyterLab and PyCharm.</p>
+<p>On top of this core layer, Genv has a CLI (i.e. the command <code class="code docutils literal notranslate"><span class="pre">genv</span></code>), <a class="reference internal" href="../usage/python-sdk.html"><span class="doc">Python SDK</span></a> and <a class="reference internal" href="installation.html#integrations"><span class="std std-ref">integrations</span></a> with many common tools and environments such as terminal, containers (e.g. <code class="code docutils literal notranslate"><span class="pre">docker</span></code>), Ray, Visual Studio Code, JupyterLab and PyCharm.</p>
+<p>Genv is built with a decentralized architecture, meaning that different <code class="code docutils literal notranslate"><span class="pre">genv</span></code> commands run separately and coordinate with one another and that there is no centralized service that handles the requests.</p>
 <div class="figure align-default" id="id1">
 <img alt="../_images/overview.png" src="../_images/overview.png" />
 <p class="caption"><span class="caption-text">GPU environments with Genv</span><a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>
@@ -176,7 +182,8 @@ This is mostly relevant for the case when multiple users that share multiple GPU
 </div>
 <div class="section" id="where-to-go-next">
 <h2>Where to Go Next<a class="headerlink" href="#where-to-go-next" title="Permalink to this headline">¶</a></h2>
-<p>If you are not familiar with Genv, it is recommended to follow the <a class="reference internal" href="quickstart.html"><span class="doc">quick start tutorial</span></a>.</p>
+<p>If you are not familiar with Genv, it is recommended to follow the <a class="reference internal" href="quickstart.html"><span class="doc">quick start tutorial</span></a>.
+If you are into LLMs, check out the <a class="reference internal" href="../llms/overview.html"><span class="doc">LLMs overview</span></a>.</p>
 <p>If you are looking for how to install Genv, visit the <a class="reference internal" href="installation.html"><span class="doc">installation page</span></a>, and if you want to know how to do specific things, check out the <a class="reference internal" href="../usage/usage.html"><span class="doc">usage guide</span></a>.</p>
 </div>
 </div>

@@ -52,16 +52,20 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Installation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#using-pip">Using <code class="code docutils literal notranslate"><span class="pre">pip</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#set-up-terminal">Set Up Terminal</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#system-administrators">System Administrators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#users">Users</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#using-pip">Using <code class="code docutils literal notranslate"><span class="pre">pip</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#using-conda">Using Conda</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#using-conda">Using Conda</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#visual-studio-code">Visual Studio Code</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#jupyterlab">JupyterLab</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#pycharm">PyCharm</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#docker">Docker</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#ray">Ray</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#integrations">Integrations</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#visual-studio-code">Visual Studio Code</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#jupyterlab">JupyterLab</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pycharm">PyCharm</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#docker">Docker</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ray">Ray</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="#remove-old-version">Remove Old Version</a></li>
 </ul>
 </li>
@@ -82,6 +86,10 @@
 <li class="toctree-l1"><a class="reference internal" href="../remote/usage.html">Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../remote/enforcement.html">Enforcement</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../remote/monitoring.html">Monitoring</a></li>
+</ul>
+<p class="caption"><span class="caption-text">LLMs</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../llms/overview.html">Overview</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Container Toolkit</span></p>
 <ul>
@@ -131,18 +139,23 @@
 <ul class="simple">
 <li><p><a class="reference internal" href="#installation" id="id3">Installation</a></p>
 <ul>
-<li><p><a class="reference internal" href="#using-pip" id="id4">Using <code class="code docutils literal notranslate"><span class="pre">pip</span></code></a></p>
+<li><p><a class="reference internal" href="#system-administrators" id="id4">System Administrators</a></p></li>
+<li><p><a class="reference internal" href="#users" id="id5">Users</a></p>
 <ul>
-<li><p><a class="reference internal" href="#set-up-terminal" id="id5">Set Up Terminal</a></p></li>
+<li><p><a class="reference internal" href="#using-pip" id="id6">Using <code class="code docutils literal notranslate"><span class="pre">pip</span></code></a></p></li>
+<li><p><a class="reference internal" href="#using-conda" id="id7">Using Conda</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#using-conda" id="id6">Using Conda</a></p></li>
-<li><p><a class="reference internal" href="#visual-studio-code" id="id7">Visual Studio Code</a></p></li>
-<li><p><a class="reference internal" href="#jupyterlab" id="id8">JupyterLab</a></p></li>
-<li><p><a class="reference internal" href="#pycharm" id="id9">PyCharm</a></p></li>
-<li><p><a class="reference internal" href="#docker" id="id10">Docker</a></p></li>
-<li><p><a class="reference internal" href="#ray" id="id11">Ray</a></p></li>
-<li><p><a class="reference internal" href="#remove-old-version" id="id12">Remove Old Version</a></p></li>
+<li><p><a class="reference internal" href="#integrations" id="id8">Integrations</a></p>
+<ul>
+<li><p><a class="reference internal" href="#visual-studio-code" id="id9">Visual Studio Code</a></p></li>
+<li><p><a class="reference internal" href="#jupyterlab" id="id10">JupyterLab</a></p></li>
+<li><p><a class="reference internal" href="#pycharm" id="id11">PyCharm</a></p></li>
+<li><p><a class="reference internal" href="#docker" id="id12">Docker</a></p></li>
+<li><p><a class="reference internal" href="#ray" id="id13">Ray</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#remove-old-version" id="id14">Remove Old Version</a></p></li>
 </ul>
 </li>
 </ul>
@@ -152,84 +165,109 @@
 <p>This page talks about installing Genv on a single machine.
 If you are interested in using Genv on a multi-machine cluster, check out the remote installation <a class="reference internal" href="../remote/installation.html"><span class="doc">guide</span></a>.</p>
 </div>
-<div class="section" id="using-pip">
-<span id="install-using-pip"></span><h2>Using <code class="code docutils literal notranslate"><span class="pre">pip</span></code><a class="headerlink" href="#using-pip" title="Permalink to this headline">¶</a></h2>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>If you installed Genv previously (versions &lt;= 0.12.0), you will need to manually <a class="reference internal" href="#remove-old-version"><span class="std std-ref">remove the old version</span></a> first.</p>
 </div>
-<p>Genv is available on <a class="reference external" href="https://pypi.org/project/genv/">PyPI</a> and is available for installation using <code class="code docutils literal notranslate"><span class="pre">pip</span></code>.</p>
-<p>If you want to use <a class="reference internal" href="../usage/enforcement.html"><span class="doc">enforcement</span></a> capabilities or you are installing on a remote worker machine, you will need to be able to run <code class="code docutils literal notranslate"><span class="pre">genv</span></code> commands with <code class="code docutils literal notranslate"><span class="pre">sudo</span></code>.
-Therefore, you will need to install Genv as root by adding <code class="code docutils literal notranslate"><span class="pre">sudo</span></code> to the <code class="code docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span></code> commands.</p>
-<p>Generally speaking, you should install Genv as a user if you are a user, and as root if you are a system administrator.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>If you want to run as root but can’t <em>install</em> using <code class="code docutils literal notranslate"><span class="pre">sudo</span> <span class="pre">pip</span> <span class="pre">install</span></code> for some reason, check out the workaround described <a class="reference internal" href="../usage/advanced-usage.html#install-without-sudo"><span class="std std-ref">here</span></a>.</p>
-</div>
-<p>Install Genv with the following command:</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>pip install genv
+<div class="section" id="system-administrators">
+<span id="install-system-wide"></span><h2>System Administrators<a class="headerlink" href="#system-administrators" title="Permalink to this headline">¶</a></h2>
+<p>Install Genv from <a class="reference external" href="https://pypi.org/project/genv/">PyPI</a> using <code class="code docutils literal notranslate"><span class="pre">sudo</span></code> with the following command:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>sudo pip install genv<span class="o">[</span>admin<span class="o">]</span>
 </pre></div>
 </div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>As described above, run <code class="code docutils literal notranslate"><span class="pre">sudo</span> <span class="pre">pip</span> <span class="pre">install</span> <span class="pre">genv</span></code> if you want to install Genv as root.</p>
+<p>Using <code class="code docutils literal notranslate"><span class="pre">sudo</span></code> ensures the installation is system wide so that all users on the machine and in the cluster can use Genv and that administrators will be able to use privileged Genv capabilities such as <a class="reference internal" href="../usage/monitoring.html"><span class="doc">monitoring</span></a> and <a class="reference internal" href="../usage/enforcement.html"><span class="doc">enforcing</span></a>.</p>
 </div>
-<p>If you want monitoring capabilities, you can use the following command to install relevant dependencies as well:</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>pip install genv<span class="o">[</span>monitor<span class="o">]</span>
+<p>Users will also need their shells to be initialized in order to use the terminal integration of Genv and commands like <code class="code docutils literal notranslate"><span class="pre">genv</span> <span class="pre">activate</span></code>.
+Use the following command to set up their shells:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>sudo tee /etc/profile.d/genv.sh &gt; /dev/null <span class="s">&lt;&lt; EOF</span>
+<span class="s">if command -v genv &amp;&gt; /dev/null</span>
+<span class="s">then</span>
+<span class="s">   eval &quot;\$(genv shell --init)&quot;</span>
+<span class="s">fi</span>
+<span class="s">EOF</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>You can verify the installation with the command:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$ genv --help
+usage: genv <span class="o">[</span>-h<span class="o">]</span> SUBCOMMAND ...
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="users">
+<h2>Users<a class="headerlink" href="#users" title="Permalink to this headline">¶</a></h2>
+<p>If you do not have administrative permissions and can’t install system-wide using <code class="code docutils literal notranslate"><span class="pre">sudo</span></code>, you can install Genv for your user using <code class="code docutils literal notranslate"><span class="pre">pip</span></code> and <code class="code docutils literal notranslate"><span class="pre">conda</span></code> depending on your environment..</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>However, this method limits accessibility to other users on the machine or in the cluster and does not provide access to privileged capabilities such as <a class="reference internal" href="../usage/monitoring.html"><span class="doc">monitoring</span></a> and <a class="reference internal" href="../usage/enforcement.html"><span class="doc">enforcing</span></a>.</p>
+</div>
+<div class="section" id="using-pip">
+<span id="install-using-pip"></span><h3>Using <code class="code docutils literal notranslate"><span class="pre">pip</span></code><a class="headerlink" href="#using-pip" title="Permalink to this headline">¶</a></h3>
+<p>Genv is available on <a class="reference external" href="https://pypi.org/project/genv/">PyPI</a> and is available for installation using <code class="code docutils literal notranslate"><span class="pre">pip</span></code> with the following command:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>pip install genv
 </pre></div>
 </div>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>If you see a warning message similar to the following, add the specified directory to your <code class="code docutils literal notranslate"><span class="pre">$PATH</span></code> by editing your <code class="code docutils literal notranslate"><span class="pre">~/.bashrc</span></code> and restarting your shell:</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>WARNING: The script genv is installed in <span class="s1">&#39;/home/raz/.local/bin&#39;</span> which is not on PATH.
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>WARNING: The script genv is installed in <span class="s1">&#39;$HOME/.local/bin&#39;</span> which is not on PATH.
 Consider adding this directory to PATH...
 </pre></div>
 </div>
 </div>
-<p>You can verify the installation with the command:</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>genv --help
-</pre></div>
-</div>
-<p>If you see <code class="code docutils literal notranslate"><span class="pre">genv:</span> <span class="pre">command</span> <span class="pre">not</span> <span class="pre">found</span></code>, then your <code class="code docutils literal notranslate"><span class="pre">$PATH</span></code> is probably no set as explained above.</p>
-<div class="section" id="set-up-terminal">
-<span id="id1"></span><h3>Set Up Terminal<a class="headerlink" href="#set-up-terminal" title="Permalink to this headline">¶</a></h3>
-<p>To use the terminal integration of Genv, add the following command to your <code class="code docutils literal notranslate"><span class="pre">~/.bashrc</span></code> or any other equivalent file:</p>
+<p id="set-up-terminal">To use the terminal integration of Genv and commands like <code class="code docutils literal notranslate"><span class="pre">genv</span> <span class="pre">activate</span></code>, add the following command to your <code class="code docutils literal notranslate"><span class="pre">~/.bashrc</span></code> or any other equivalent file:</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">eval</span> <span class="s2">&quot;</span><span class="k">$(</span>genv shell --init<span class="k">)</span><span class="s2">&quot;</span>
 </pre></div>
 </div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>You can verify the installation with the command:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$ genv --help
+usage: genv <span class="o">[</span>-h<span class="o">]</span> SUBCOMMAND ...
+</pre></div>
+</div>
+<p>If you see <code class="code docutils literal notranslate"><span class="pre">genv:</span> <span class="pre">command</span> <span class="pre">not</span> <span class="pre">found</span></code> then your <code class="code docutils literal notranslate"><span class="pre">$PATH</span></code> is probably no set as explained above.</p>
 </div>
 </div>
 <div class="section" id="using-conda">
-<span id="install-using-conda"></span><h2>Using Conda<a class="headerlink" href="#using-conda" title="Permalink to this headline">¶</a></h2>
+<span id="install-using-conda"></span><h3>Using Conda<a class="headerlink" href="#using-conda" title="Permalink to this headline">¶</a></h3>
 <p>If you are using <a class="reference external" href="https://docs.conda.io/en/latest/">Conda</a>, you can install the <code class="code docutils literal notranslate"><span class="pre">genv</span></code> <a class="reference external" href="https://anaconda.org/conda-forge/genv">package</a> from the channel <a class="reference external" href="https://conda-forge.org/">conda-forge</a>:</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>conda install -c conda-forge genv
 </pre></div>
 </div>
 </div>
+</div>
+<div class="section" id="integrations">
+<span id="id1"></span><h2>Integrations<a class="headerlink" href="#integrations" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="visual-studio-code">
-<h2>Visual Studio Code<a class="headerlink" href="#visual-studio-code" title="Permalink to this headline">¶</a></h2>
+<h3>Visual Studio Code<a class="headerlink" href="#visual-studio-code" title="Permalink to this headline">¶</a></h3>
 <p>Installation is done from the <a class="reference external" href="https://marketplace.visualstudio.com/items?itemName=run-ai.vscode-genv">Visual Studio Marketplace</a>.</p>
 <p>For more information please refer to the project <a class="reference external" href="https://github.com/run-ai/vscode-genv">repository</a>.</p>
 </div>
 <div class="section" id="jupyterlab">
-<h2>JupyterLab<a class="headerlink" href="#jupyterlab" title="Permalink to this headline">¶</a></h2>
+<h3>JupyterLab<a class="headerlink" href="#jupyterlab" title="Permalink to this headline">¶</a></h3>
 <p>Installation is documented <a class="reference external" href="https://github.com/run-ai/jupyterlab_genv#installation">here</a>.</p>
 <p>For more information please refer to the project <a class="reference external" href="https://github.com/run-ai/jupyterlab_genv">repository</a>.</p>
 </div>
 <div class="section" id="pycharm">
-<h2>PyCharm<a class="headerlink" href="#pycharm" title="Permalink to this headline">¶</a></h2>
+<h3>PyCharm<a class="headerlink" href="#pycharm" title="Permalink to this headline">¶</a></h3>
 <p>Currently, there is no PyCharm plugin for Genv.
 This is however part of the project roadmap.</p>
 <p>In case you use PyCharm, please open an <a class="reference external" href="https://github.com/run-ai/genv/issues">issue</a> in the project repository.</p>
 <p>This will help us prioritize this as well as suggest other ways to work with Genv in PyCharm in the meantime.</p>
 </div>
 <div class="section" id="docker">
-<h2>Docker<a class="headerlink" href="#docker" title="Permalink to this headline">¶</a></h2>
+<h3>Docker<a class="headerlink" href="#docker" title="Permalink to this headline">¶</a></h3>
 <p>To install the <code class="code docutils literal notranslate"><span class="pre">genv-docker</span></code> refer to the Genv container toolkit <a class="reference internal" href="../docker/installation.html"><span class="doc">installation</span></a> page.</p>
 </div>
 <div class="section" id="ray">
-<h2>Ray<a class="headerlink" href="#ray" title="Permalink to this headline">¶</a></h2>
+<h3>Ray<a class="headerlink" href="#ray" title="Permalink to this headline">¶</a></h3>
 <p>To install the Ray integration of Genv read <a class="reference internal" href="../usage/advanced-usage.html#using-ray"><span class="std std-ref">here</span></a>.</p>
+</div>
 </div>
 <div class="section" id="remove-old-version">
 <span id="id2"></span><h2>Remove Old Version<a class="headerlink" href="#remove-old-version" title="Permalink to this headline">¶</a></h2>
