@@ -39,6 +39,12 @@ Genv lets you easily control, configure, monitor and enforce the GPU resources t
 
 .. toctree::
    :maxdepth: 2
+   :caption: LLMs
+
+   llms/overview
+
+.. toctree::
+   :maxdepth: 2
    :caption: Container Toolkit
 
    docker/overview
