@@ -1,6 +1,21 @@
 Changelog
 =========
 
+Version 1.4.0
+-------------
+**Date:** February 18, 2024
+
+Added
+~~~~~
+* Introduced LLM support in Genv
+* Added command :code:`genv llm`
+* Added command :code:`genv remote llm`
+* Added command :code:`genv version`
+
+Fixed
+~~~~~
+* Passing environment variables over SSH commands
+
 Version 1.3.0
 -------------
 **Date:** February 8, 2024
