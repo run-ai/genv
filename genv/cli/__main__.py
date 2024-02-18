@@ -12,12 +12,14 @@ from . import devices
 from . import enforce
 from . import envs
 from . import home
+from . import llm
 from . import lock
 from . import monitor
 from . import remote
 from . import shell
 from . import status
 from . import usage
+from . import version
 
 
 # NOTE(raz): this is needed for modules that their output is being eval() by the
@@ -74,15 +76,22 @@ def main():
             "Show the home directory of the current environment",
             home.add_arguments,
         ),
+        ("llm", "Run and attach to LLMs", llm.add_arguments),
         ("lock", "Lock over-subscribed devices", lock.add_arguments),
         ("monitor", "Monitor using Prometheus and Grafana", monitor.add_arguments),
         ("remote", "Query, manage and monitor remote machines", remote.add_arguments),
         ("shell", "Shell support", shell.add_arguments),
         ("status", "Show status of the current environment", status.add_arguments),
         ("usage", "GPU usage miscellaneous", usage.add_arguments),
+        ("version", "Print Genv version", version.add_arguments),
     ]:
+        aliases = [f"{submodule}s"] if submodule in ["llm"] else []
+
         subparser = subparsers.add_parser(
-            submodule, help=help, add_help=not _is_shell_module(submodule)
+            submodule,
+            aliases=aliases,
+            help=help,
+            add_help=not _is_shell_module(submodule),
         )
 
         if _is_shell_module(submodule):
@@ -130,6 +139,8 @@ def main():
             envs.run(args)
         elif args.submodule == "home":
             home.run(args)
+        elif args.submodule in ["llm", "llms"]:
+            llm.run(args)
         elif args.submodule == "lock":
             lock.run(args)
         elif args.submodule == "monitor":
@@ -142,6 +153,8 @@ def main():
             status.run(args)
         elif args.submodule == "usage":
             asyncio.run(usage.run(args))
+        elif args.submodule == "version":
+            version.run(args)
     except RuntimeError as e:
         print(e, file=sys.stderr)
         exit(1)

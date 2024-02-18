@@ -153,6 +153,17 @@ You should now see a dashboard similar to the following:
 
    Genv monitoring dashboard
 
+Permissions
+-----------
+The monitoring needs to query the environment variables of processes in order to tell their Genv environment identifier.
+
+Linux users usually can't query the environment variables of other users.
+Therefore, you will probably need to execute the :code:`genv monitor` commands :ref:`using <Using sudo>` :code:`sudo` with a command similar to the following:
+
+.. code-block:: shell
+
+   sudo genv monitor ...
+
 .. _Monitoring Daemon:
 
 Running as a daemon

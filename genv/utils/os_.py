@@ -7,6 +7,8 @@ import signal
 import subprocess
 from typing import Dict, Iterable
 
+import psutil
+
 
 @contextmanager
 def Umask(value: int = 0):
@@ -81,6 +83,20 @@ def get_process_environ(pid: int) -> Dict[str, str]:
                 line.split("=", 1) for line in f.read().split("\x00") if line
             )
         }
+
+
+def get_process_listen_ports(pid: int) -> Iterable[int]:
+    """Returns the port number on which a process listens."""
+
+    process = psutil.Process(pid)
+
+    connections = [
+        connection
+        for connection in process.connections()
+        if connection.status == psutil.CONN_LISTEN
+    ]
+
+    return [connection.laddr.port for connection in connections]
 
 
 def pgrep(name: str) -> Iterable[int]:

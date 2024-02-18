@@ -18,9 +18,13 @@ If you are not familiar with the concept of environments, you can check out the 
 
 Over time, the project developed into a complete GPU cluster management tool with various capabilities and mechanisms like :doc:`monitoring <../usage/monitoring>`, :doc:`enforcement <../usage/enforcement>`, :doc:`remote capabilities <../remote/overview>` and more.
 
+In addition to running GPU environments in a cluster, Genv also supports managing :doc:`LLMs <../llms/overview>` on GPUs.
+
 At its core, Genv is a `Python package <https://pypi.org/project/genv>`__ that provisions GPUs to environments and keeps its state as :ref:`files <Files>` at :code:`/var/tmp/genv`.
 
-On top of this core layer, Genv has a CLI (i.e. the command :code:`genv`), :doc:`Python SDK <../usage/python-sdk>` and :doc:`integrations <installation>` with many common tools and environments such as terminal, containers (e.g. :code:`docker`), Ray, Visual Studio Code, JupyterLab and PyCharm.
+On top of this core layer, Genv has a CLI (i.e. the command :code:`genv`), :doc:`Python SDK <../usage/python-sdk>` and :ref:`integrations <Integrations>` with many common tools and environments such as terminal, containers (e.g. :code:`docker`), Ray, Visual Studio Code, JupyterLab and PyCharm.
+
+Genv is built with a decentralized architecture, meaning that different :code:`genv` commands run separately and coordinate with one another and that there is no centralized service that handles the requests.
 
 .. figure:: overview.png
 
@@ -53,5 +57,6 @@ For more information, see :doc:`here <../remote/overview>`.
 Where to Go Next
 ----------------
 If you are not familiar with Genv, it is recommended to follow the :doc:`quick start tutorial <quickstart>`.
+If you are into LLMs, check out the :doc:`LLMs overview <../llms/overview>`.
 
 If you are looking for how to install Genv, visit the :doc:`installation page <installation>`, and if you want to know how to do specific things, check out the :doc:`usage guide <../usage/usage>`.

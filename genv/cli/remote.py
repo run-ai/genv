@@ -42,6 +42,22 @@ async def find_available_host(
     raise RuntimeError("Cannot find a host with enough available resources")
 
 
+def _exec_ssh(host: genv.remote.Host, command: str) -> NoReturn:
+    """Replaces this process with an SSH connection.
+
+    :param host: Remote host to connect to.
+    :param command: Command to execute on the remote host.
+    """
+
+    path = shutil.which("ssh")
+
+    # NOTE(raz): the '-t' argument is important as it makes the remote process to
+    # terminate when the SSH connection gets disconnected (https://superuser.com/a/20708).
+    args = [path, "-t", host.hostname, command]
+
+    os.execv(path, args)
+
+
 async def do_activate(
     config: genv.remote.Config,
     gpus: Optional[int],
@@ -223,6 +239,108 @@ async def do_envs(
         print(
             f"\nTotal {sum([len(snapshot) for snapshot in snapshots])} environments on {len(hosts)} hosts"
         )
+
+
+async def do_llm(config: genv.remote.Config, args: argparse.Namespace):
+    """Runs the "genv llm" logic."""
+
+    if args.llm_command == "attach":
+        await do_llm_attach(config, args.model)
+    elif args.llm_command == "ps":
+        await do_llm_ps(config, args.format, args.header, args.summary, args.timestamp)
+    elif args.llm_command == "serve":
+        await do_llm_serve(config, args.model, args.gpus)
+    else:
+        await do_llm_ps(config)
+
+
+async def do_llm_attach(config: genv.remote.Config, model: str) -> NoReturn:
+    """
+    Attaches to a running LLM on a remote host.
+    Raises RuntimeError if could not find the LLM.
+
+    :param model: Model name.
+    """
+
+    hosts, snapshots = await genv.remote.core.envs.snapshot(config)
+
+    for host, snapshot in zip(hosts, snapshots):
+        replicas = len(snapshot.filter(name=f"llm/{model}"))
+
+        if replicas > 0:
+            # TODO(raz): we currently attach to the first node; we should pick a node in a smarter way.
+            _exec_ssh(host, f"genv llm attach {model}")
+
+    raise RuntimeError(f"Could not find LLM model '{model}'")
+
+
+async def do_llm_ps(
+    config: genv.remote.Config,
+    format: str = "tui",
+    header: bool = True,
+    summary: bool = True,
+    timestamp: bool = False,
+) -> None:
+    """
+    Prints information about active LLMs on remote hosts.
+
+    :param format: Output format
+    :param header: Print a header as part of the output
+    :param summary: Print a summary as part of the output
+
+    :return: None
+    """
+    hosts, snapshots = await genv.remote.core.envs.snapshot(config)
+
+    if header:
+        if format == "csv":
+            print("HOST,MODEL,PORT,CREATED,EID,USER")
+        elif format == "tui":
+            print(
+                "HOST                     MODEL       PORT    CREATED              EID     USER"
+            )
+
+    total = 0
+
+    for host, snapshot in zip(hosts, snapshots):
+        for env in snapshot:
+            if not (env.config.name and env.config.name.startswith("llm/")):
+                continue
+
+            total += 1
+
+            model = env.config.name.split("llm/")[1]
+            port = "N/A"
+            created = env.creation if timestamp else env.time_since
+            eid = env.eid
+            user = env.username or ""
+
+            if format == "csv":
+                print(f"{host.hostname},{model},{port},{created},{eid}{user}")
+            elif format == "tui":
+                print(
+                    f"{host.hostname:<25}{model:<12}{port:<8}{created:<21}{eid:<8}{user}"
+                )
+
+    if summary:
+        print(f"\nTotal {total} LLMs on {len(hosts)} hosts")
+
+
+async def do_llm_serve(
+    config: genv.remote.Config,
+    model: str,
+    gpus: Optional[int],
+) -> NoReturn:
+    """Runs an LLM server in a newly created environment on a remote host."""
+
+    host = await find_available_host(config, gpus)
+
+    command = f"genv llm serve {model}"
+
+    if gpus:
+        command = f"{command} --gpus {gpus}"
+
+    _exec_ssh(host, command)
 
 
 async def do_monitor(
@@ -481,6 +599,48 @@ def add_arguments(parser: argparse.ArgumentParser) -> None:
             default="tui",
         )
 
+    def llm(parser):
+        subparsers = parser.add_subparsers(dest="llm_command")
+
+        def attach(parser):
+            parser.add_argument("model")
+
+        def ps(parser):
+            parser.add_argument(
+                "--no-header",
+                dest="header",
+                action="store_false",
+                help="Do not print column headers",
+            )
+            parser.add_argument(
+                "--no-summary",
+                dest="summary",
+                action="store_false",
+                help="Do not print summary",
+            )
+            parser.add_argument(
+                "--timestamp",
+                action="store_true",
+                help="Print a non-prettified timestamp",
+            )
+            parser.add_argument(
+                "--format",
+                choices=["csv", "tui"],
+                help="Output format; CSV or TUI (Text-based user interface)",
+                default="tui",
+            )
+
+        def serve(parser):
+            parser.add_argument("model")
+            parser.add_argument("--gpus", type=int, help="Device count")
+
+        for command, help in [
+            (attach, "Attach to a running LLM model"),
+            (ps, "Print information about active LLMs"),
+            (serve, "Start an LLM server"),
+        ]:
+            command(subparsers.add_parser(command.__name__, help=help))
+
     def monitor(parser):
         parser.add_argument(
             "--config-dir",
@@ -520,10 +680,14 @@ def add_arguments(parser: argparse.ArgumentParser) -> None:
         (devices, "Show device information from all hosts"),
         (enforce, "Enforce GPU usage on all hosts"),
         (envs, "List all active environments"),
+        (llm, "Run and attach to LLMs on remote hosts"),
         (monitor, "Monitor remote hosts using Prometheus and Grafana"),
         (query, "Query environments or a specific one"),
     ]:
-        command(subparsers.add_parser(command.__name__, help=help))
+        submodule = command.__name__
+        aliases = [f"{submodule}s"] if submodule in ["llm"] else []
+
+        command(subparsers.add_parser(submodule, aliases=aliases, help=help))
 
 
 def parse_hosts(args: argparse.Namespace) -> Iterable[genv.remote.Host]:
@@ -579,6 +743,8 @@ async def run(args: argparse.Namespace) -> None:
             args.summary,
             args.timestamp,
         )
+    elif args.command in ["llm", "llms"]:
+        await do_llm(config, args)
     elif args.command == "monitor":
         await do_monitor(config, args.config_dir, args.port, args.interval)
     elif args.command == "query":
