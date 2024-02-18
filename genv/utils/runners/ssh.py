@@ -39,6 +39,7 @@ class Runner(Base):
                 + " ".join(
                     [f"{name}={value}" for name, value in self._process_env.items()]
                 )
+                + " "
                 + remote_command
             )
 
