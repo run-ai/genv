@@ -148,7 +148,7 @@ Now, run a container using the following command from the root directory of the 
         --name genv-server-1 \
         -p 2221:22 \
         -v $PWD:/root/genv \
-        genv:sshd
+                genv:sshd
 
 .. TODO(raz): document how to use real GPUs
 
@@ -250,3 +250,40 @@ Publish to PyPI
 .. note::
 
     You might need to :code:`pip install twine`
+
+Conda Installation
+~~~~~~~~~~~~~~~~~~
+
+~~~~~
+Setup
+~~~~~
+Install `Conda-build <https://docs.conda.io/projects/conda-build/en/stable/index.html>`__:
+
+.. code-block:: shell
+
+    conda install conda-build
+
+Clone the Conda feedstock project `repository <https://github.com/conda-forge/genv-feedstock/>`__ and enter to its directory:
+
+.. code-block:: shell
+
+    git clone https://github.com/conda-forge/genv-feedstock.git
+    cd genv-feedstock
+
+~~~~~
+Build
+~~~~~
+.. code-block:: shell
+
+    conda build .
+
+.. note::
+
+    You can clean the build with :code:`conda build purge-all`
+
+~~~~~~~
+Install
+~~~~~~~
+.. code-block:: shell
+
+    conda install --use-local genv

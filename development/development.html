@@ -103,6 +103,12 @@
 <li class="toctree-l2"><a class="reference internal" href="#python-package">Python Package</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#id4">Build</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#publish-to-pypi">Publish to PyPI</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#conda-installation">Conda Installation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id5">Setup</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id6">Build</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#install">Install</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -143,26 +149,27 @@
 <div class="contents topic" id="contents">
 <p class="topic-title">Contents</p>
 <ul class="simple">
-<li><p><a class="reference internal" href="#development" id="id5">Development</a></p>
+<li><p><a class="reference internal" href="#development" id="id7">Development</a></p>
 <ul>
-<li><p><a class="reference internal" href="#prerequisites" id="id6">Prerequisites</a></p></li>
-<li><p><a class="reference internal" href="#setup" id="id7">Setup</a></p>
+<li><p><a class="reference internal" href="#prerequisites" id="id8">Prerequisites</a></p></li>
+<li><p><a class="reference internal" href="#setup" id="id9">Setup</a></p>
 <ul>
-<li><p><a class="reference internal" href="#local" id="id8">Local</a></p></li>
-<li><p><a class="reference internal" href="#docker" id="id9">Docker</a></p></li>
-<li><p><a class="reference internal" href="#cpu-only-setup" id="id10">CPU-Only Setup</a></p></li>
+<li><p><a class="reference internal" href="#local" id="id10">Local</a></p></li>
+<li><p><a class="reference internal" href="#docker" id="id11">Docker</a></p></li>
+<li><p><a class="reference internal" href="#cpu-only-setup" id="id12">CPU-Only Setup</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#docs" id="id11">Docs</a></p>
+<li><p><a class="reference internal" href="#docs" id="id13">Docs</a></p>
 <ul>
-<li><p><a class="reference internal" href="#id3" id="id12">Setup</a></p></li>
-<li><p><a class="reference internal" href="#build" id="id13">Build</a></p></li>
+<li><p><a class="reference internal" href="#id3" id="id14">Setup</a></p></li>
+<li><p><a class="reference internal" href="#build" id="id15">Build</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#python-package" id="id14">Python Package</a></p>
+<li><p><a class="reference internal" href="#python-package" id="id16">Python Package</a></p>
 <ul>
-<li><p><a class="reference internal" href="#id4" id="id15">Build</a></p></li>
-<li><p><a class="reference internal" href="#publish-to-pypi" id="id16">Publish to PyPI</a></p></li>
+<li><p><a class="reference internal" href="#id4" id="id17">Build</a></p></li>
+<li><p><a class="reference internal" href="#publish-to-pypi" id="id18">Publish to PyPI</a></p></li>
+<li><p><a class="reference internal" href="#conda-installation" id="id19">Conda Installation</a></p></li>
 </ul>
 </li>
 </ul>
@@ -272,7 +279,7 @@ You might also want to work on remote features using only your single CPU machin
     --name genv-server-1 <span class="se">\</span>
     -p <span class="m">2221</span>:22 <span class="se">\</span>
     -v <span class="nv">$PWD</span>:/root/genv <span class="se">\</span>
-    genv:sshd
+            genv:sshd
 </pre></div>
 </div>
 <p>This command runs a container in the background that is named <code class="code docutils literal notranslate"><span class="pre">genv-server-1</span></code> and accepts SSH connections on port 2221.</p>
@@ -359,6 +366,37 @@ Type <code class="code docutils literal notranslate"><span class="pre">yes</span
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>You might need to <code class="code docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">twine</span></code></p>
+</div>
+</div>
+<div class="section" id="conda-installation">
+<h3>Conda Installation<a class="headerlink" href="#conda-installation" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id5">
+<h4>Setup<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h4>
+<p>Install <a class="reference external" href="https://docs.conda.io/projects/conda-build/en/stable/index.html">Conda-build</a>:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>conda install conda-build
+</pre></div>
+</div>
+<p>Clone the Conda feedstock project <a class="reference external" href="https://github.com/conda-forge/genv-feedstock/">repository</a> and enter to its directory:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>git clone https://github.com/conda-forge/genv-feedstock.git
+<span class="nb">cd</span> genv-feedstock
+</pre></div>
+</div>
+</div>
+<div class="section" id="id6">
+<h4>Build<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h4>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>conda build .
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>You can clean the build with <code class="code docutils literal notranslate"><span class="pre">conda</span> <span class="pre">build</span> <span class="pre">purge-all</span></code></p>
+</div>
+</div>
+<div class="section" id="install">
+<h4>Install<a class="headerlink" href="#install" title="Permalink to this headline">¶</a></h4>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>conda install --use-local genv
+</pre></div>
+</div>
 </div>
 </div>
 </div>
