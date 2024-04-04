@@ -17,7 +17,7 @@ Genv lets you easily control, configure, monitor and enforce the GPU resources t
 
 It is intendend to ease up the process of GPU allocation for data scientists without code changes 💪🏻
 
-Check out the Genv [documentation site for more details](https://docs.genv.dev).
+Check out the Genv [documentation site for more details](https://docs.genv.dev) and [the website](https://genv.dev/) for a higher-level overview of all features.
 
 This project was highly inspired by [pyenv](https://github.com/pyenv/pyenv) and other version, package and environment management software like [Conda](https://docs.conda.io/projects/conda/en/latest/), [nvm](https://github.com/nvm-sh/nvm), [rbenv](https://github.com/rbenv/rbenv).
 
@@ -104,7 +104,7 @@ Configuration
 
 ## :scroll: Documentation
 
-Check out the Genv [documentation site](https://docs.genv.dev).
+Check out the Genv [documentation site](https://docs.genv.dev) for more details.
 
 
 ## :dizzy: Simple Integration & Usage with your fav IDE
