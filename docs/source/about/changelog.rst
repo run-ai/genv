@@ -1,6 +1,14 @@
 Changelog
 =========
 
+Version 1.4.1
+-------------
+**Date:** April 15, 2024
+
+Fixed
+~~~~~
+* :code:`genv llm` supports multiple Linux users
+
 Version 1.4.0
 -------------
 **Date:** February 18, 2024
