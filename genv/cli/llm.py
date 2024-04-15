@@ -1,5 +1,7 @@
 import argparse
 import os
+import re
+import socket
 import shutil
 from typing import Iterable, NoReturn, Optional
 
@@ -12,6 +14,11 @@ import genv.sdk
 def _find_port(env: Env) -> Optional[int]:
     """Finds any port an LLM server environment listens on."""
 
+    match = re.match(r"^llm/[^/]+/(\d+)$", env.config.name)
+    if match:
+        return int(match.group(1))
+
+    # this is a fallback for environments that were ran before 1.4.1
     for pid in env.pids:
         try:
             ports = genv.utils.get_process_listen_ports(pid)
@@ -20,6 +27,15 @@ def _find_port(env: Env) -> Optional[int]:
                 return ports[0]
         except psutil.NoSuchProcess:
             continue
+
+
+def _find_available_port() -> int:
+    """Finds an available port to listen on."""
+
+    with socket.socket() as sock:
+        sock.bind(("", 0))
+        sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        return sock.getsockname()[1]
 
 
 def _exec_ollama(args: Iterable[str], host: str, port: int) -> NoReturn:
@@ -56,7 +72,16 @@ def do_attach(model: str) -> NoReturn:
     with genv.utils.global_lock():
         envs = genv.core.envs.snapshot()
 
-    for env in envs.filter(name=f"llm/{model}"):
+    for env in envs:
+        if not env.config.name:
+            continue
+
+        if not (
+            env.config.name.startswith(f"llm/{model}/")
+            or env.config.name == f"llm/{model}"  # before 1.4.1
+        ):
+            continue
+
         port = _find_port(env)
 
         if port:
@@ -91,7 +116,7 @@ def do_ps(format: str, header: bool, timestamp: bool) -> None:
         if not (env.config.name and env.config.name.startswith("llm/")):
             continue
 
-        model = env.config.name.split("llm/")[1]
+        model = env.config.name.split("/")[1]
         port = _find_port(env) or "N/A"
         created = env.creation if timestamp else genv.utils.time_since(env.creation)
         eid = env.eid
@@ -105,12 +130,19 @@ def do_ps(format: str, header: bool, timestamp: bool) -> None:
 
 
 def do_serve(
-    model: str, host: str, port: int, gpus: Optional[int], gpu_memory: Optional[str]
+    model: str,
+    host: str,
+    port: Optional[int],
+    gpus: Optional[int],
+    gpu_memory: Optional[str],
 ) -> NoReturn:
     """Runs an LLM server in a newly created environment."""
 
+    if not port:
+        port = _find_available_port()
+
     with genv.sdk.env.activate(
-        config=Env.Config(name=f"llm/{model}", gpus=gpus, gpu_memory=gpu_memory)
+        config=Env.Config(name=f"llm/{model}/{port}", gpus=gpus, gpu_memory=gpu_memory)
     ):
         _exec_ollama(["serve"], host=host, port=port)
 
@@ -149,9 +181,7 @@ def add_arguments(parser: argparse.ArgumentParser) -> None:
         configuration.add_argument(
             "--host", default="127.0.0.1", help="Network interface to bind"
         )
-        configuration.add_argument(
-            "-p", "--port", type=int, default=0, help="Port to bind"
-        )
+        configuration.add_argument("-p", "--port", type=int, help="Port to bind")
 
         env = parser.add_argument_group("env")
         env.add_argument("--gpus", type=int, help="Device count")
