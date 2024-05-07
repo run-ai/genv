@@ -1,6 +1,13 @@
 Changelog
 =========
 
+Version 1.4.2
+**Date:** May 7, 2024
+
+Fixed
+~~~~~
+* :code:`genv remote llm` supports multiple Linux users
+
 Version 1.4.1
 -------------
 **Date:** April 15, 2024
