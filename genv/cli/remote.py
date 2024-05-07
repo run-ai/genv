@@ -3,6 +3,7 @@ import asyncio
 import dataclasses
 import itertools
 import os
+import re
 import shutil
 import sys
 from typing import Iterable, NoReturn, Optional, Tuple
@@ -241,6 +242,14 @@ async def do_envs(
         )
 
 
+def _find_llm_port(env: genv.Env) -> Optional[int]:
+    """Finds any port an LLM server environment listens on."""
+
+    match = re.match(r"^llm/[^/]+/(\d+)$", env.config.name)
+    if match:
+        return int(match.group(1))
+
+
 async def do_llm(config: genv.remote.Config, args: argparse.Namespace):
     """Runs the "genv llm" logic."""
 
@@ -265,9 +274,16 @@ async def do_llm_attach(config: genv.remote.Config, model: str) -> NoReturn:
     hosts, snapshots = await genv.remote.core.envs.snapshot(config)
 
     for host, snapshot in zip(hosts, snapshots):
-        replicas = len(snapshot.filter(name=f"llm/{model}"))
+        for env in snapshot:
+            if not env.config.name:
+                continue
 
-        if replicas > 0:
+            if not (
+                env.config.name.startswith(f"llm/{model}/")
+                or env.config.name == f"llm/{model}"  # before 1.4.1
+            ):
+                continue
+
             # TODO(raz): we currently attach to the first node; we should pick a node in a smarter way.
             _exec_ssh(host, f"genv llm attach {model}")
 
@@ -309,8 +325,8 @@ async def do_llm_ps(
 
             total += 1
 
-            model = env.config.name.split("llm/")[1]
-            port = "N/A"
+            model = env.config.name.split("/")[1]
+            port = _find_llm_port(env) or "N/A"
             created = env.creation if timestamp else env.time_since
             eid = env.eid
             user = env.username or ""
