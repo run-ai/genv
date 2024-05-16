@@ -1,6 +1,16 @@
 Changelog
 =========
 
+Version 1.4.3
+**Date:** May 16, 2024
+
+Fixed
+~~~~~
+* Genv container toolkit supports :code:`docker exec` commands
+
+Changelog
+=========
+
 Version 1.4.2
 **Date:** May 7, 2024
 
