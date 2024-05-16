@@ -120,4 +120,5 @@ Use non available devices if needed when set to `1`.
 3. https://github.com/opencontainers/runtime-spec/blob/main/glossary.md
 4. https://github.com/opencontainers/runc/blob/main/man/runc.8.md
 5. https://github.com/opencontainers/runc/blob/main/man/runc-create.8.md
-6. https://github.com/NVIDIA/nvidia-container-runtime
+6. https://github.com/opencontainers/runc/blob/main/man/runc-exec.8.md
+7. https://github.com/NVIDIA/nvidia-container-runtime
